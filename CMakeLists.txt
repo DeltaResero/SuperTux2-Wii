@@ -102,7 +102,7 @@ ENDIF(WIN32)
 ## Add lots of dependencies to compiler switches
 
 # Boost Configuration
-FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem date_time)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS date_time)
 
 IF(WIN32)
   FIND_PATH(SDL2_INCLUDE_DIRS NAMES SDL.h PATHS "${DEPENDENCY_FOLDER}/include/SDL2")
@@ -605,7 +605,7 @@ TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC tinygettext_lib)
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC sexp)
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
-TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC Boost::filesystem Boost::date_time)
+TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC Boost::date_time)
 IF(USE_SYSTEM_PHYSFS)
   TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${PHYSFS_LIBRARY})
 ELSE()
