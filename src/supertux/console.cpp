@@ -16,6 +16,7 @@
 
 #include "supertux/console.hpp"
 
+#include <iostream>
 #include <assert.h>
 #include <math.h>
 
