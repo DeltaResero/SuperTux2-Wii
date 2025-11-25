@@ -24,6 +24,12 @@
 
 #include "util/log.hpp"
 
+static Sint64 funcSize(struct SDL_RWops* context)
+{
+  PHYSFS_file* file = (PHYSFS_file*) context->hidden.unknown.data1;
+  return (Sint64)PHYSFS_fileLength(file);
+}
+
 static Sint64 funcSeek(struct SDL_RWops* context, Sint64 offset, int whence)
 {
   PHYSFS_file* file = (PHYSFS_file*) context->hidden.unknown.data1;
@@ -86,6 +92,7 @@ SDL_RWops* get_physfs_SDLRWops(const std::string& filename)
   }
 
   SDL_RWops* ops = new SDL_RWops();
+  ops->size = funcSize;
   ops->type = 0;
   ops->hidden.unknown.data1 = file;
   ops->seek = funcSeek;

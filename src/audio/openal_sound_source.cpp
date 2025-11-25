@@ -16,6 +16,8 @@
 
 #include "audio/openal_sound_source.hpp"
 
+#ifdef HAVE_OPENAL
+
 #include "audio/sound_manager.hpp"
 
 OpenALSoundSource::OpenALSoundSource() :
@@ -127,5 +129,7 @@ OpenALSoundSource::set_reference_distance(float distance)
 {
   alSourcef(source, AL_REFERENCE_DISTANCE, distance);
 }
+
+#endif // HAVE_OPENAL
 
 /* EOF */
