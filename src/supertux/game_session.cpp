@@ -181,6 +181,10 @@ GameSession::~GameSession()
   delete capture_demo_stream;
   delete playback_demo_stream;
   delete demo_controller;
+
+#ifdef USE_SDL_MIXER
+  SoundManager::current()->clear_music_cache();
+#endif
 }
 
 void
@@ -546,13 +550,18 @@ GameSession::update(float elapsed_time)
   if(currentsector->player->invincible_timer.started()) {
     if(currentsector->player->invincible_timer.get_timeleft() <=
        TUX_INVINCIBLE_TIME_WARNING) {
-      currentsector->play_music(HERRING_WARNING_MUSIC);
+      if(currentsector->get_music_type() != HERRING_WARNING_MUSIC)
+        currentsector->play_music(HERRING_WARNING_MUSIC);
     } else {
-      currentsector->play_music(HERRING_MUSIC);
+      if(currentsector->get_music_type() != HERRING_MUSIC)
+        currentsector->play_music(HERRING_MUSIC);
     }
   } else if(currentsector->get_music_type() != LEVEL_MUSIC) {
-    currentsector->play_music(LEVEL_MUSIC);
+    if(!currentsector->player->is_dying()) {
+      currentsector->play_music(LEVEL_MUSIC);
+    }
   }
+
   if (reset_button) {
     reset_button = false;
     reset_level();

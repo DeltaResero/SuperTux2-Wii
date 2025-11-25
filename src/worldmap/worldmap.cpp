@@ -155,6 +155,10 @@ WorldMap::~WorldMap()
 
   sq_collectgarbage(global_vm);
 
+#ifdef USE_SDL_MIXER
+  SoundManager::current()->clear_music_cache();
+#endif
+
   if(current_ == this)
     current_ = NULL;
 }

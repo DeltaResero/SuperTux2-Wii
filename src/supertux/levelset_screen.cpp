@@ -16,6 +16,7 @@
 
 #include "supertux/levelset_screen.hpp"
 
+#include "audio/sound_manager.hpp"
 #include "editor/editor.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/globals.hpp"
@@ -47,6 +48,9 @@ LevelsetScreen::LevelsetScreen(const std::string& basedir, const std::string& le
 
 LevelsetScreen::~LevelsetScreen()
 {
+#ifdef USE_SDL_MIXER
+  SoundManager::current()->clear_music_cache();
+#endif
 }
 
 void
