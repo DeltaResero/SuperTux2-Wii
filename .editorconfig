@@ -11,3 +11,10 @@ trim_trailing_whitespace = true
 
 [*.md]
 trim_trailing_whitespace = false
+
+[*.{patch,diff}]
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+[{Makefile,**.mk}]
+indent_style = tab
