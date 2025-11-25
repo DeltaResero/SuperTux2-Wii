@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_AUDIO_OPENAL_SOUND_SOURCE_HPP
 #define HEADER_SUPERTUX_AUDIO_OPENAL_SOUND_SOURCE_HPP
 
+#include <config.h>
+
+#ifdef HAVE_OPENAL
 #include <al.h>
 
 #include "audio/sound_source.hpp"
@@ -53,6 +56,8 @@ private:
   OpenALSoundSource(const OpenALSoundSource&) = delete;
   OpenALSoundSource& operator=(const OpenALSoundSource&) = delete;
 };
+
+#endif // HAVE_OPENAL
 
 #endif
 

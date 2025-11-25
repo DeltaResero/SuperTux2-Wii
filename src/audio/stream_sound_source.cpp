@@ -14,6 +14,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <config.h>
+
+#ifdef HAVE_OPENAL
+
 #include "audio/sound_file.hpp"
 #include "audio/sound_manager.hpp"
 #include "audio/stream_sound_source.hpp"
@@ -139,5 +143,7 @@ StreamSoundSource::fillBufferAndQueue(ALuint buffer)
   // return false if there aren't more buffers to fill
   return bytesread >= STREAMFRAGMENTSIZE;
 }
+
+#endif // HAVE_OPENAL
 
 /* EOF */

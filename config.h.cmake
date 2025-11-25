@@ -25,6 +25,9 @@
 
 #cmakedefine HAVE_OPENGL
 
+#cmakedefine HAVE_OPENAL
+#cmakedefine USE_SDL_MIXER
+
 #cmakedefine HAVE_LIBCURL
 
 #define BUILD_DATA_DIR "${BUILD_DATA_DIR}"

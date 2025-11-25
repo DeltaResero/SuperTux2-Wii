@@ -17,6 +17,10 @@
 #ifndef HEADER_SUPERTUX_AUDIO_STREAM_SOUND_SOURCE_HPP
 #define HEADER_SUPERTUX_AUDIO_STREAM_SOUND_SOURCE_HPP
 
+#include <config.h>
+
+#ifdef HAVE_OPENAL
+
 #include "audio/openal_sound_source.hpp"
 
 class SoundFile;
@@ -66,6 +70,8 @@ private:
   StreamSoundSource(const StreamSoundSource&);
   StreamSoundSource& operator=(const StreamSoundSource&);
 };
+
+#endif // HAVE_OPENAL
 
 #endif
 
