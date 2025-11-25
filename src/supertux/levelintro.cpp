@@ -16,6 +16,7 @@
 
 #include "supertux/levelintro.hpp"
 
+#include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
 #include "math/random_generator.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -56,6 +57,9 @@ LevelIntro::LevelIntro(const Level* level_, const Statistics* best_level_statist
 
 LevelIntro::~LevelIntro()
 {
+#ifdef USE_SDL_MIXER
+  SoundManager::current()->clear_music_cache();
+#endif
 }
 
 void

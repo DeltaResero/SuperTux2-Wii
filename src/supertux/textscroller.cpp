@@ -175,6 +175,9 @@ TextScroller::TextScroller(const std::string& filename) :
 
 TextScroller::~TextScroller()
 {
+#ifdef USE_SDL_MIXER
+  SoundManager::current()->clear_music_cache();
+#endif
 }
 
 void

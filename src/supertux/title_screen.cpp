@@ -92,6 +92,9 @@ TitleScreen::make_tux_jump()
 
 TitleScreen::~TitleScreen()
 {
+#ifdef USE_SDL_MIXER
+  SoundManager::current()->clear_music_cache();
+#endif
 }
 
 void

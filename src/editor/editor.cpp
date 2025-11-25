@@ -78,7 +78,9 @@ Editor::Editor() :
 
 Editor::~Editor()
 {
-
+#ifdef USE_SDL_MIXER
+  SoundManager::current()->clear_music_cache();
+#endif
 }
 
 void Editor::draw(DrawingContext& context)

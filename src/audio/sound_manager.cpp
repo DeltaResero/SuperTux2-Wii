@@ -468,62 +468,64 @@ SoundManager::play_music(const std::string& filename, bool fade)
 #endif
 
 #ifdef USE_SDL_MIXER
-  if(current_music_resource) {
-    current_music_resource->refcount--;
-    if(current_music_resource->refcount <= 0) {
-      free_music(current_music_resource);
-    }
-    current_music_resource = nullptr;
-  }
-
+  // Check cache first
   auto it = musics.find(filename);
+
   if(it != musics.end() && it->second.music != nullptr) {
+    if(current_music_resource && current_music_resource != &(it->second)) {
+      current_music_resource->refcount--;
+    }
+
     current_music_resource = &(it->second);
-  } else {
-    // Convert .music to .ogg for SDL_mixer
-    std::string load_filename = filename;
-    if (load_filename.length() > 6) {
-        std::string ext = load_filename.substr(load_filename.length() - 6);
-        // Simple lower case check
-        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-        if (ext == ".music") {
-            load_filename.replace(load_filename.length() - 6, 6, ".ogg");
-            log_info << "Mapped music '" << filename << "' to '" << load_filename << "'" << std::endl;
-        }
-    }
-
-    try {
-      Mix_Music* song = Mix_LoadMUS_RW(get_physfs_SDLRWops(load_filename), 1);
-      if(!song) {
-        log_warning << "Couldn't load music '" << load_filename << "': " << Mix_GetError() << std::endl;
-        return;
-      }
-
-      if (it != musics.end()) {
-        // Entry exists but music was freed, reuse it
-        it->second.music = song;
-        current_music_resource = &(it->second);
-      } else {
-        // Insert using ORIGINAL filename as key
-        auto result = musics.insert(std::make_pair(filename, MusicResource()));
-        current_music_resource = &(result.first->second);
-        current_music_resource->manager = this;
-        current_music_resource->music = song;
-        current_music_resource->refcount = 0;
-      }
-    } catch(std::exception& e) {
-      log_warning << "Couldn't load music '" << load_filename << "': " << e.what() << std::endl;
-      return;
-    }
-  }
-
-  if(current_music_resource) {
     current_music_resource->refcount++;
+
+    Mix_HaltMusic();
+
     if(fade) {
       Mix_FadeInMusic(current_music_resource->music, -1, 500);
     } else {
       Mix_PlayMusic(current_music_resource->music, -1);
     }
+    return;
+  }
+
+  // Not in cache, prepare to load
+  if(current_music_resource) {
+    current_music_resource->refcount--;
+    current_music_resource = nullptr;
+  }
+
+  std::string load_filename = filename;
+  if (load_filename.length() > 6) {
+    std::string ext = load_filename.substr(load_filename.length() - 6);
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    if (ext == ".music") {
+      load_filename.replace(load_filename.length() - 6, 6, ".ogg");
+    }
+  }
+
+  try {
+    Mix_Music* song = Mix_LoadMUS_RW(get_physfs_SDLRWops(load_filename), 1);
+    if(!song) {
+      log_warning << "Couldn't load music '" << load_filename << "': " << Mix_GetError() << std::endl;
+      return;
+    }
+
+    auto result = musics.insert(std::make_pair(filename, MusicResource()));
+    current_music_resource = &(result.first->second);
+    current_music_resource->manager = this;
+    current_music_resource->music = song;
+    current_music_resource->refcount = 1;
+
+    Mix_HaltMusic();
+    if(fade) {
+      Mix_FadeInMusic(current_music_resource->music, -1, 500);
+    } else {
+      Mix_PlayMusic(current_music_resource->music, -1);
+    }
+  } catch(std::exception& e) {
+    log_warning << "Couldn't load music '" << load_filename << "': " << e.what() << std::endl;
+    return;
   }
 #endif
 }
@@ -702,11 +704,23 @@ SoundManager::is_audio_enabled() const {
 
 #ifdef USE_SDL_MIXER
 void
-SoundManager::free_music(MusicResource* res)
+SoundManager::free_music(MusicResource* /*res*/)
 {
-  if(res && res->music) {
-    Mix_FreeMusic(res->music);
-    res->music = nullptr;
+}
+
+void
+SoundManager::clear_music_cache()
+{
+  for(auto it = musics.begin(); it != musics.end(); ) {
+    if(it->second.refcount <= 0) {
+      if(it->second.music) {
+        Mix_FreeMusic(it->second.music);
+        it->second.music = nullptr;
+      }
+      it = musics.erase(it);
+    } else {
+      ++it;
+    }
   }
 }
 #endif
