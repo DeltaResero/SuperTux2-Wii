@@ -255,17 +255,38 @@ Sector::activate(const Vector& player_pos)
     // spawn smalltux below spawnpoint
     if (!p->is_big()) {
       p->move(player_pos + Vector(0,32));
+      // If shifting down puts us in a wall, try the original position immediately
+      if (!is_free_of_tiles(p->get_bbox())) {
+        p->move(player_pos);
+      }
     } else {
       p->move(player_pos);
     }
 
     // spawning tux in the ground would kill him
     if(!is_free_of_tiles(p->get_bbox())) {
-      std::string current_level = "[" + Sector::current()->get_level()->filename + "] ";
-      log_warning << current_level << "Tried spawning Tux in solid matter. Compensating." << std::endl;
-      Vector npos = p->get_bbox().p1;
-      npos.y-=32;
-      p->move(npos);
+      bool found_spot = false;
+      Vector start_pos = p->get_pos();
+
+      // Search upwards for a valid spot (up to 4 tiles/128px)
+      for(int i = 1; i <= 4; ++i) {
+        Vector test_pos = start_pos - Vector(0, 32 * i);
+        p->move(test_pos);
+        if(is_free_of_tiles(p->get_bbox())) {
+          found_spot = true;
+          break;
+        }
+      }
+
+      // Only warn if we still couldn't find a spot
+      if (!found_spot) {
+        p->move(start_pos); // Reset to bad position so compensation logic runs standard
+        std::string current_level = "[" + Sector::current()->get_level()->filename + "] ";
+        log_warning << current_level << "Tried spawning Tux in solid matter. Compensating." << std::endl;
+        Vector npos = p->get_bbox().p1;
+        npos.y-=32;
+        p->move(npos);
+      }
     }
   }
 

@@ -65,7 +65,7 @@ TitleScreen::TitleScreen(Savegame& savegame) :
 void
 TitleScreen::make_tux_jump()
 {
-  static bool jumpWasReleased = true;
+  static bool jumpWasReleased = false;
   Sector* sector  = titlesession->get_current_sector();
   Player* tux = sector->player;
 
@@ -103,7 +103,9 @@ TitleScreen::setup()
   Sector* sector = titlesession->get_current_sector();
   if(Sector::current() != sector) {
     sector->play_music(LEVEL_MUSIC);
-    sector->activate(sector->player->get_pos());
+    // sector->activate(Vector) expects position calculated for big tux, but tux
+    // might be small on the title screen
+    sector->activate(sector->player->get_pos() - Vector(0.f, sector->player->is_big() ? 0.f : 32.f));
   }
 
   MenuManager::instance().set_menu(MenuStorage::MAIN_MENU);
