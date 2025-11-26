@@ -312,6 +312,8 @@ WorldMap::load(const std::string& filename)
           }
         } else if(iter.get_key() == "name") {
           // skip
+        } else if(iter.get_key() == "camera") {
+          // skip
         } else {
           log_warning << "Unknown token '" << iter.get_key() << "' in worldmap" << std::endl;
         }
