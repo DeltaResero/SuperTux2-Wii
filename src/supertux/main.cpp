@@ -27,6 +27,52 @@
 #include <physfs.h>
 #include <stdio.h>
 #include <tinygettext/log.hpp>
+
+// --- Wii Specific Includes & Helpers ---
+#ifdef _WII_
+#include <gccore.h>
+#include <fat.h>
+#include <wiiuse/wpad.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+// Boost exception handler for -DBOOST_NO_EXCEPTIONS
+namespace boost {
+    void throw_exception(std::exception const & e) {
+        printf("\nCRITICAL BOOST ERROR: %s\n", e.what());
+        std::abort();
+    }
+}
+
+static void* xfb = nullptr;
+static GXRModeObj* rmode = nullptr;
+
+void wii_console_init()
+{
+  VIDEO_Init();
+  rmode = VIDEO_GetPreferredMode(nullptr);
+  xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
+
+  // Clear framebuffer to black to prevent visual garbage
+  VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK);
+
+  // Calculate safe console dimensions to prevent buffer overflow (Overscan compensation)
+  int console_x = 20;
+  int console_y = 20;
+  int console_w = rmode->fbWidth - (console_x * 2);
+  int console_h = rmode->xfbHeight - (console_y * 2);
+
+  console_init(xfb, console_x, console_y, console_w, console_h, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
+
+  VIDEO_Configure(rmode);
+  VIDEO_SetNextFramebuffer(xfb);
+  VIDEO_SetBlack(FALSE);
+  VIDEO_Flush();
+  VIDEO_WaitVSync();
+  if (rmode->viTVMode & VI_NON_INTERLACE) VIDEO_WaitVSync();
+}
+#endif
+
 extern "C" {
 #include <findlocale.h>
 }
@@ -69,19 +115,23 @@ public:
   ConfigSubsystem()
   {
     g_config.reset(new Config);
-    try {
-      g_config->load();
-    }
-    catch(const std::exception& e)
-    {
-      log_info << "Couldn't load config file: " << e.what() << ", using default settings" << std::endl;
+
+    // Check if file exists to avoid throwing exceptions on fresh install
+    if (PHYSFS_exists("config")) {
+        try {
+          g_config->load();
+        }
+        catch(const std::exception& e)
+        {
+          log_info << "Couldn't load config file: " << e.what() << ", using default settings" << std::endl;
+        }
+    } else {
+        log_info << "No config file found, creating default settings." << std::endl;
     }
 
     // init random number stuff
     g_config->random_seed = gameRandom.srand(g_config->random_seed);
     graphicsRandom.srand(0);
-    //const char *how = config->random_seed? ", user fixed.": ", from time().";
-    //log_info << "Using random seed " << config->random_seed << how << std::endl;
   }
 
   ~ConfigSubsystem()
@@ -162,6 +212,10 @@ public:
     }
     else
     {
+#ifdef _WII_
+      // Hardcode path for testing but in the future getcwd is better
+      datadir = "sd:/apps/supertux2/data";
+#else
       // check if we run from source dir
       char* basepath_c = SDL_GetBasePath();
       std::string basepath = basepath_c ? basepath_c : "./";
@@ -180,6 +234,7 @@ public:
         datadir = basepath.substr(0, basepath.rfind(INSTALL_SUBDIR_BIN));
         datadir = FileSystem::join(datadir, INSTALL_SUBDIR_SHARE);
       }
+#endif
     }
 
     if (!PHYSFS_mount(datadir.c_str(), NULL, 1))
@@ -201,11 +256,16 @@ public:
     }
     else
     {
+#ifdef _WII_
+      // Hardcode path because getcwd is unreliable on Wii
+      userdir = "sd:/apps/supertux2/save";
+#else
       std::string physfs_userdir = PHYSFS_getUserDir();
 #ifdef _WIN32
       userdir = FileSystem::join(physfs_userdir, PACKAGE_NAME);
 #else
       userdir = FileSystem::join(physfs_userdir, "." PACKAGE_NAME);
+#endif
 #endif
     }
 
@@ -218,8 +278,7 @@ public:
     if (!PHYSFS_setWriteDir(userdir.c_str()))
     {
       std::ostringstream msg;
-      msg << "Failed to use userdir directory '"
-          <<  userdir << "': " << PHYSFS_getLastError();
+      msg << "Failed to use userdir directory '" <<  userdir << "': " << PHYSFS_getLastError();
       throw std::runtime_error(msg.str());
     }
 
@@ -250,6 +309,11 @@ class SDLSubsystem
 public:
   SDLSubsystem()
   {
+#ifdef _WII_
+    WPAD_Init();
+    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
+#endif
+
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
     {
       std::stringstream msg;
@@ -271,6 +335,8 @@ Main::init_video()
 {
   SDL_SetWindowTitle(VideoSystem::current()->get_renderer().get_window(), PACKAGE_NAME " " PACKAGE_VERSION);
 
+#ifndef _WII_
+  // Wii: Skip icon loading (causes crash and is unnecessary for TV output)
   const char* icon_fname = "images/engine/icons/supertux-256x256.png";
   SDL_Surface* icon = IMG_Load_RW(get_physfs_SDLRWops(icon_fname), true);
   if (!icon)
@@ -283,6 +349,7 @@ Main::init_video()
     SDL_FreeSurface(icon);
   }
   SDL_ShowCursor(0);
+#endif
 
   log_info << (g_config->use_fullscreen?"fullscreen ":"window ")
            << " Window: "     << g_config->window_size
@@ -308,7 +375,6 @@ static inline void timelog(const char* component)
 void
 Main::launch_game()
 {
-
   SDLSubsystem sdl_subsystem;
   ConsoleBuffer console_buffer;
 
@@ -327,7 +393,10 @@ Main::launch_game()
   sound_manager.enable_sound(g_config->sound_enabled);
   sound_manager.enable_music(g_config->music_enabled);
 
+  // Wii: Console disabled to save memory and prevent potential texture loading crashes
+#ifndef _WII_
   Console console(console_buffer);
+#endif
 
   timelog("scripting");
   scripting::Scripting scripting(g_config->enable_script_debugger);
@@ -409,14 +478,25 @@ Main::launch_game()
 int
 Main::run(int argc, char** argv)
 {
-#ifdef WIN32
-	//SDL is used instead of PHYSFS because both create the same path in app data
-	//However, PHYSFS is not yet initizlized, and this should be run before anything is initialized
-	std::string prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
-	freopen((prefpath + "/console.out").c_str(), "a", stdout);
-	freopen((prefpath + "/console.err").c_str(), "a", stderr);
+#ifdef _WII_
+  // Initialize SDL Core FIRST to set up memory/locks
+  SDL_SetMainReady();
+  SDL_Init(SDL_INIT_TIMER); // Init Timer to force thread system active
+
+  // Now initialize Wii hardware
+  fatInitDefault();
+  wii_console_init();
+
+  printf("SuperTux Wii " PACKAGE_VERSION "\n");
+  printf("Initializing SD card and filesystem...\n");
 #endif
- 
+
+#ifdef WIN32
+  std::string prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
+  freopen((prefpath + "/console.out").c_str(), "a", stdout);
+  freopen((prefpath + "/console.err").c_str(), "a", stderr);
+#endif
+
   int result = 0;
 
   try
@@ -475,6 +555,19 @@ Main::run(int argc, char** argv)
   }
 
   g_dictionary_manager.reset();
+
+#ifdef _WII_
+  // WHY does worldmap break without this?!
+  // So unstable this code all is
+  printf("\n\nPress HOME button to exit to loader...\n");
+  while(1)
+  {
+    WPAD_ScanPads();
+    if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) break;
+    VIDEO_WaitVSync();
+  }
+  SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0);
+#endif
 
   return result;
 }

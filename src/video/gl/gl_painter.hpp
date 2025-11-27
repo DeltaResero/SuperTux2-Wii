@@ -21,7 +21,12 @@
 #include <glbinding/gl/gl.h>
 using namespace gl;
 #else
+
+#ifdef _WII_
+#include <GL/gl.h>
+#else
 #include <GL/glew.h>
+#endif
 
 #include "SDL_opengl.h"
 #endif

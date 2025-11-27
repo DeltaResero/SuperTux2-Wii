@@ -29,6 +29,16 @@
 
 Config::Config() :
   profile(1),
+#ifdef _WII_
+  // Wii: Force 640x480 resolution and OpenGL
+  fullscreen_size(640, 480),
+  fullscreen_refresh_rate(60),
+  window_size(640, 480),
+  aspect_size(640, 480),
+  magnification(1.0f),
+  use_fullscreen(true),
+  video(VideoSystem::OPENGL),
+#else
   fullscreen_size(0, 0),
   fullscreen_refresh_rate(0),
   window_size(1280, 800),
@@ -36,6 +46,7 @@ Config::Config() :
   magnification(0.0f),
   use_fullscreen(false),
   video(VideoSystem::AUTO_VIDEO),
+#endif
   try_vsync(true),
   show_fps(false),
   show_player_pos(false),

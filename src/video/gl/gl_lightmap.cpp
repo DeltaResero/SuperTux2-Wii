@@ -77,7 +77,7 @@ GLLightmap::~GLLightmap()
 void
 GLLightmap::start_draw(const Color &ambient_color)
 {
-
+#ifndef _WII_
   glGetFloatv(GL_VIEWPORT, m_old_viewport); //save viewport
   glViewport(m_old_viewport[0], m_old_viewport[3] - m_lightmap_height + m_old_viewport[1], m_lightmap_width, m_lightmap_height);
   glMatrixMode(GL_PROJECTION);
@@ -92,13 +92,16 @@ GLLightmap::start_draw(const Color &ambient_color)
 
   glClearColor( ambient_color.red, ambient_color.green, ambient_color.blue, 1 );
   glClear(GL_COLOR_BUFFER_BIT);
+#endif
 }
 
 void
 GLLightmap::end_draw()
 {
+#ifndef _WII_
   glDisable(GL_BLEND);
   glBindTexture(GL_TEXTURE_2D, m_lightmap->get_handle());
+  // This function is missing in OpenGX, so we disable the lightmap update on Wii
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_old_viewport[0], m_old_viewport[3] - m_lightmap_height + m_old_viewport[1], m_lightmap_width, m_lightmap_height);
 
   glViewport(m_old_viewport[0], m_old_viewport[1], m_old_viewport[2], m_old_viewport[3]);
@@ -115,11 +118,13 @@ GLLightmap::end_draw()
 
   glClearColor(0, 0, 0, 1 );
   glClear(GL_COLOR_BUFFER_BIT);
+#endif
 }
 
 void
 GLLightmap::do_draw()
 {
+#ifndef _WII_
   // multiple the lightmap with the framebuffer
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
 
@@ -144,6 +149,7 @@ GLLightmap::do_draw()
   glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif
 }
 
 void
@@ -194,6 +200,11 @@ GLLightmap::get_light(const DrawingRequest& request) const
   const GetLightRequest* getlightrequest
     = static_cast<GetLightRequest*>(request.request_data);
 
+#ifdef _WII_
+  // Wii: Lightmap is disabled, return full brightness (white)
+  // This prevents the player from being stuck in the dark
+  *(getlightrequest->color_ptr) = Color(1.0f, 1.0f, 1.0f);
+#else
   float pixels[3];
   for( int i = 0; i<3; i++)
     pixels[i] = 0.0f; //set to black
@@ -202,6 +213,7 @@ GLLightmap::get_light(const DrawingRequest& request) const
   float posY = m_old_viewport[3] + m_old_viewport[1] - request.pos.y * m_lightmap_height / SCREEN_HEIGHT;
   glReadPixels((GLint) posX, (GLint) posY , 1, 1, GL_RGB, GL_FLOAT, pixels);
   *(getlightrequest->color_ptr) = Color( pixels[0], pixels[1], pixels[2]);
+#endif
 }
 
 /* EOF */

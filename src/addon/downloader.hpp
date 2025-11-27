@@ -18,8 +18,13 @@
 #ifndef HEADER_SUPERTUX_ADDON_DOWNLOADER_HPP
 #define HEADER_SUPERTUX_ADDON_DOWNLOADER_HPP
 
+#include <config.h>
+
+#ifdef HAVE_LIBCURL
 #include <curl/curl.h>
 #include <curl/easy.h>
+#endif
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -69,8 +74,10 @@ class Transfer;
 class Downloader
 {
 private:
+#ifdef HAVE_LIBCURL
   CURLM* m_multi_handle;
   std::vector<std::unique_ptr<Transfer> > m_transfers;
+#endif
   int m_next_transfer_id;
 
 public:

@@ -91,17 +91,23 @@ GLTexture::GLTexture(SDL_Surface* image) :
     m_texture_height = image->h;
   }
 #  else
-  if (GLEW_ARB_texture_non_power_of_two)
-  {
-    m_texture_width  = image->w;
-    m_texture_height = image->h;
-  }
-#  endif
-  else
-  {
+  #ifdef _WII_
+    // Wii: Force Power-Of-Two textures for stability
     m_texture_width = next_power_of_two(image->w);
     m_texture_height = next_power_of_two(image->h);
-  }
+  #else
+    if (GLEW_ARB_texture_non_power_of_two)
+    {
+      m_texture_width  = image->w;
+      m_texture_height = image->h;
+    }
+    else
+    {
+      m_texture_width = next_power_of_two(image->w);
+      m_texture_height = next_power_of_two(image->h);
+    }
+  #endif
+#  endif
 #endif
 
   m_image_width  = image->w;
@@ -160,7 +166,9 @@ GLTexture::GLTexture(SDL_Surface* image) :
     // no not use mipmaps
     if(false)
     {
+      #ifndef _WII_
       glGenerateMipmap(GL_TEXTURE_2D);
+      #endif
     }
 
     if(SDL_MUSTLOCK(convert))

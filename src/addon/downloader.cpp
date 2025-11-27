@@ -66,6 +66,7 @@ TransferStatus::update()
   m_downloader.update();
 }
 
+#ifdef HAVE_LIBCURL
 class Transfer
 {
 private:
@@ -187,22 +188,28 @@ private:
   Transfer(const Transfer&) = delete;
   Transfer& operator=(const Transfer&) = delete;
 };
+#endif
 
 Downloader::Downloader() :
+#ifdef HAVE_LIBCURL
   m_multi_handle(),
   m_transfers(),
+#endif
   m_next_transfer_id(1)
 {
+#ifdef HAVE_LIBCURL
   curl_global_init(CURL_GLOBAL_ALL);
   m_multi_handle = curl_multi_init();
   if (!m_multi_handle)
   {
     throw std::runtime_error("curl_multi_init() failed");
   }
+#endif
 }
 
 Downloader::~Downloader()
 {
+#ifdef HAVE_LIBCURL
   for(auto& transfer : m_transfers)
   {
     curl_multi_remove_handle(m_multi_handle, transfer->get_curl_handle());
@@ -211,6 +218,7 @@ Downloader::~Downloader()
 
   curl_multi_cleanup(m_multi_handle);
   curl_global_cleanup();
+#endif
 }
 
 void
@@ -218,6 +226,7 @@ Downloader::download(const std::string& url,
                      size_t (*write_func)(void* ptr, size_t size, size_t nmemb, void* userdata),
                      void* userdata)
 {
+#ifdef HAVE_LIBCURL
   log_info << "Downloading " << url << std::endl;
 
   char error_buffer[CURL_ERROR_SIZE+1];
@@ -240,6 +249,10 @@ Downloader::download(const std::string& url,
     std::string why = error_buffer[0] ? error_buffer : "unhandled error";
     throw std::runtime_error(url + ": download failed: " + why);
   }
+#else
+  (void)url; (void)write_func; (void)userdata;
+  throw std::runtime_error("CURL disabled");
+#endif
 }
 
 std::string
@@ -262,6 +275,7 @@ Downloader::download(const std::string& url, const std::string& filename)
 void
 Downloader::abort(TransferId id)
 {
+#ifdef HAVE_LIBCURL
   auto it = std::find_if(m_transfers.begin(), m_transfers.end(),
                          [&id](const std::unique_ptr<Transfer>& rhs)
                          {
@@ -290,11 +304,15 @@ Downloader::abort(TransferId id)
       }
     }
   }
+#else
+  (void)id;
+#endif
 }
 
 void
 Downloader::update()
 {
+#ifdef HAVE_LIBCURL
   // read data from the network
   CURLMcode ret;
   int running_handles;
@@ -364,16 +382,24 @@ Downloader::update()
         break;
     }
   }
+#endif
 }
 
 TransferStatusPtr
 Downloader::request_download(const std::string& url, const std::string& outfile)
 {
+#ifdef HAVE_LIBCURL
   log_info << "request_download: " << url << std::endl;
   std::unique_ptr<Transfer> transfer(new Transfer(*this, m_next_transfer_id++, url, outfile));
   curl_multi_add_handle(m_multi_handle, transfer->get_curl_handle());
   m_transfers.push_back(std::move(transfer));
   return m_transfers.back()->get_status();
+#else
+  (void)url; (void)outfile;
+  TransferStatusPtr status(new TransferStatus(*this, 0));
+  status->error_msg = "CURL disabled";
+  return status;
+#endif
 }
 
 /* EOF */

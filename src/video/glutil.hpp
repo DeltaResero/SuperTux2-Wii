@@ -33,7 +33,9 @@ using namespace gl;
 #else
 
 #ifndef GL_VERSION_ES_CM_1_0
-#  include <GL/glew.h>
+#  ifndef _WII_
+#    include <GL/glew.h>
+#  endif
 #endif
 
 #if defined(MACOSX)
@@ -42,6 +44,8 @@ using namespace gl;
 #elif defined(GL_VERSION_ES_CM_1_0)
 #  include <GLES/gl.h>
 #  include <GLES/glext.h>
+#elif defined(_WII_)
+#  include <GL/gl.h>
 #else
 #  include <GL/gl.h>
 #  include <GL/glext.h>
