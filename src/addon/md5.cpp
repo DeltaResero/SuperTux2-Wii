@@ -1,3 +1,5 @@
+// src/addon/md5.cpp
+// SPDX-License-Identifier: RSA-MD5
 //
 // MD5 message-digest algorithm
 // Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All rights reserved.
@@ -403,4 +405,4 @@ inline void MD5::II(uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x,
   a = rotate_left (a, s) +b;
 }
 
-/* EOF */
+// EOF

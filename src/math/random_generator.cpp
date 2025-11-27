@@ -1,4 +1,5 @@
-// $Id$
+// src/math/random_generator.cpp
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // A strong random number generator
 //
@@ -592,4 +593,4 @@ long RandomGenerator::random()
   return i;
 }
 
-/* EOF */
+// EOF

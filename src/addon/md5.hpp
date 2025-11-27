@@ -1,3 +1,5 @@
+// src/addon/md5.hpp
+// SPDX-License-Identifier: RSA-MD5
 //
 // MD5 message-digest algorithm
 // Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All rights reserved.
@@ -93,6 +95,6 @@ private:
 
 };
 
-#endif /*SUPERTUX_ADDON_MD5_HPP*/
+#endif // HEADER_SUPERTUX_ADDON_MD5_HPP
 
-/* EOF */
+// EOF
