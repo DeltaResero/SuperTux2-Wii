@@ -1,4 +1,5 @@
-// $Id$
+// src/math/random_generator.hpp
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // A strong random number generator
 //
@@ -131,6 +132,6 @@ extern RandomGenerator graphicsRandom;
 // Use for game-changing random numbers
 extern RandomGenerator gameRandom;
 
-#endif //__RANDOM_GENERATOR__
+#endif // HEADER_SUPERTUX_MATH_RANDOM_GENERATOR_HPP
 
-/* EOF */
+// EOF

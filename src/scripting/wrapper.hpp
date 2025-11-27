@@ -49,6 +49,6 @@ void create_squirrel_instance(HSQUIRRELVM v, scripting::Wind* object, bool setup
 
 }
 
-#endif
+#endif // HEADER_SUPERTUX_SCRIPTING_WRAPPER_HPP
 
-/* EOF */
+// EOF

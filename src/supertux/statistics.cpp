@@ -1,20 +1,15 @@
-//  SuperTux (Statistics module)
-//  Copyright (C) 2004 Ricardo Cruz <rick2@aeiou.pt>
-//  Copyright (C) 2006 Ondrej Hosek <ondra.hosek@gmail.com>
-//  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
+// src/supertux/statistics.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
 //
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
+// SuperTux - (Statistics module)
+// Copyright (C) 2004 Ricardo Cruz <rick2@aeiou.pt>
+// Copyright (C) 2006 Ondrej Hosek <ondra.hosek@gmail.com>
+// Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
 #include "supertux/statistics.hpp"
 
@@ -361,4 +356,4 @@ Statistics::secrets_to_string(int secrets, int total_secrets) {
   return os.str();
 }
 
-/* EOF */
+// EOF

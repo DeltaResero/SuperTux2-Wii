@@ -7213,4 +7213,4 @@ void register_supertux_wrapper(HSQUIRRELVM v)
 
 } // namespace scripting
 
-/* EOF */
+// EOF
