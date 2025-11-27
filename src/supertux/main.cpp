@@ -237,6 +237,8 @@ public:
 #endif
     }
 
+    printf("Using data dir: %s\n", datadir.c_str());
+
     if (!PHYSFS_mount(datadir.c_str(), NULL, 1))
     {
       log_warning << "Couldn't add '" << datadir << "' to physfs searchpath: " << PHYSFS_getLastError() << std::endl;
@@ -268,6 +270,8 @@ public:
 #endif
 #endif
     }
+
+    printf("Using save dir: %s\n", userdir.c_str());
 
     if (!FileSystem::is_directory(userdir))
     {
@@ -375,22 +379,34 @@ static inline void timelog(const char* component)
 void
 Main::launch_game()
 {
+  printf("Launch: Init SDL Subsystem...\n");
   SDLSubsystem sdl_subsystem;
   ConsoleBuffer console_buffer;
 
+  printf("Launch: Input Manager...\n");
   timelog("controller");
   InputManager input_manager(g_config->keyboard_config, g_config->joystick_config);
 
   timelog("commandline");
 
+  printf("Launch: Video System Create...\n");
   timelog("video");
   std::unique_ptr<VideoSystem> video_system = VideoSystem::create(g_config->video);
+
+  printf("Launch: Drawing Context...\n");
   DrawingContext context(*video_system);
+
+  printf("Launch: Init Video...\n");
   init_video();
 
+  printf("Launch: Sound Manager...\n");
   timelog("audio");
   SoundManager sound_manager;
+
+  printf("Launch: Enable Sound...\n");
   sound_manager.enable_sound(g_config->sound_enabled);
+
+  printf("Launch: Enable Music...\n");
   sound_manager.enable_music(g_config->music_enabled);
 
   // Wii: Console disabled to save memory and prevent potential texture loading crashes
@@ -398,23 +414,29 @@ Main::launch_game()
   Console console(console_buffer);
 #endif
 
+  printf("Launch: Scripting...\n");
   timelog("scripting");
   scripting::Scripting scripting(g_config->enable_script_debugger);
 
+  printf("Launch: Resources...\n");
   timelog("resources");
   TileManager tile_manager;
   SpriteManager sprite_manager;
   Resources resources;
 
+  printf("Launch: Addons...\n");
   timelog("addons");
   AddonManager addon_manager("addons", g_config->addons);
 
   timelog(0);
 
+  printf("Launch: Savegame...\n");
   const std::unique_ptr<Savegame> default_savegame(new Savegame(std::string()));
 
   GameManager game_manager;
   ScreenManager screen_manager;
+
+  printf("Launch: Loading Level/Screen...\n");
 
   if(!g_config->start_level.empty()) {
     // we have a normal path specified at commandline, not a physfs path.
@@ -472,6 +494,7 @@ Main::launch_game()
     }
   }
 
+  printf("Launch: Running Screen Manager...\n");
   screen_manager.run(context);
 }
 
@@ -497,6 +520,8 @@ Main::run(int argc, char** argv)
   freopen((prefpath + "/console.err").c_str(), "a", stderr);
 #endif
 
+  printf("Hardware Init Done.\n");
+
   int result = 0;
 
   try
@@ -514,13 +539,16 @@ Main::run(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
+    printf("Init PhysFS...\n");
     PhysfsSubsystem physfs_subsystem(argv[0], args.datadir, args.userdir);
     physfs_subsystem.print_search_path();
 
+    printf("Config...\n");
     timelog("config");
     ConfigSubsystem config_subsystem;
     args.merge_into(*g_config);
 
+    printf("TinyGetText...\n");
     timelog("tinygettext");
     init_tinygettext();
 
@@ -539,17 +567,20 @@ Main::run(int argc, char** argv)
         return 0;
 
       default:
+        printf("Launching Game...\n");
         launch_game();
         break;
     }
   }
   catch(const std::exception& e)
   {
+    printf("CRITICAL ERROR: %s\n", e.what());
     log_fatal << "Unexpected exception: " << e.what() << std::endl;
     result = 1;
   }
   catch(...)
   {
+    printf("CRITICAL ERROR: Unknown exception\n");
     log_fatal << "Unexpected exception" << std::endl;
     result = 1;
   }

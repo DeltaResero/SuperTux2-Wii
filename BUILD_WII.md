@@ -39,7 +39,7 @@ wii-mbedtls wii-curl
 ## Testing via Dolphin Emulator (current recommended way)
 
 1.  **Important**: Select "Enable SD Card" in Dolphin Config -> Wii.
-2.  
+  
 2.  **File Structure**:
     *   Dolphin looks for the SD card at: `~/.local/share/dolphin-emu/Wii/sd.raw` (Linux) or `Documents/Dolphin Emulator/Wii/sd.raw` (Windows).
     *   You must mount this virtual SD card and create the following structure:
@@ -52,6 +52,7 @@ wii-mbedtls wii-curl
                 └── save/          (Empty folder for savegames)
         ```
 3.  Launch using Homebrew Channel [Open_HBC_1.1.5_LULZ.wad](https://github.com/Wii-Mini-Hacking/hbc/releases)
+
 ## Running on Real Hardware (untested due to outstanding bugs)
 
 1.  Copy the `apps/supertux2` folder structure above to a real SD card.
