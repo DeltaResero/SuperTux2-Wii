@@ -27,6 +27,7 @@
 #include "addon/addon.hpp"
 #include "addon/md5.hpp"
 #include "physfs/physfs_file_system.hpp"
+#include "supertux/globals.hpp"
 #include "util/file_system.hpp"
 #include "util/gettext.hpp"
 #include "util/log.hpp"
