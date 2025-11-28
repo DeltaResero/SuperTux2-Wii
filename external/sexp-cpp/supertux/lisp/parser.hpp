@@ -21,11 +21,6 @@
 
 #include "lisp/lexer.hpp"
 
-namespace tinygettext {
-class Dictionary;
-class DictionaryManager;
-}
-
 namespace lisp {
 
 class Lisp;
@@ -57,10 +52,7 @@ private:
 private:
   Lexer* lexer;
   std::string filename;
-  tinygettext::DictionaryManager* dictionary_manager;
-  tinygettext::Dictionary* dictionary;
   Lexer::TokenType token;
-  char** searchpath;
 
   struct obstack obst;
 
