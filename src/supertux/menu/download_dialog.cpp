@@ -21,7 +21,7 @@ DownloadDialog::DownloadDialog(TransferStatusPtr status, bool auto_close, bool p
   m_title(),
   m_auto_close(auto_close)
 {
-  add_default_button(_("Abort Download"), [this]{
+  add_default_button("Abort Download", [this]{
       on_abort();
     });
 
@@ -37,8 +37,8 @@ DownloadDialog::DownloadDialog(TransferStatusPtr status, bool auto_close, bool p
       else
       {
         std::unique_ptr<Dialog> dialog(new Dialog);
-        dialog->set_text(_("Error:\n") + m_status->error_msg);
-        dialog->add_button(_("Ok"));
+        dialog->set_text(std::string("Error:\n") + m_status->error_msg);
+        dialog->add_button("Ok");
         MenuManager::instance().set_dialog(std::move(dialog));
       }
     });
@@ -93,7 +93,7 @@ DownloadDialog::on_download_complete()
   }
 
   clear_buttons();
-  add_button(_("Close"), [this]{
+  add_button("Close", [this]{
       MenuManager::instance().set_dialog({});
     });
 }

@@ -28,7 +28,7 @@
 
 EditorSectorsMenu::EditorSectorsMenu()
 {
-  add_label(_("Choose sector to edit:"));
+  add_label("Choose sector to edit:");
   add_hl();
 
   int id = 0;
@@ -38,10 +38,10 @@ EditorSectorsMenu::EditorSectorsMenu()
   }
 
   add_hl();
-  add_submenu(_("Sector settings..."), MenuStorage::EDITOR_SECTOR_MENU);
-  add_entry(-2,_("Create new sector"));
-  add_entry(-3,_("Delete this sector"));
-  add_entry(-4,_("Cancel"));
+  add_submenu("Sector settings...", MenuStorage::EDITOR_SECTOR_MENU);
+  add_entry(-2, "Create new sector");
+  add_entry(-3, "Delete this sector");
+  add_entry(-4, "Cancel");
 }
 
 EditorSectorsMenu::~EditorSectorsMenu()
@@ -85,15 +85,15 @@ EditorSectorsMenu::delete_sector()
   // Do not delete sector when there would be no left.
   if (level->get_sector_count() < 2) {
     // do not allow to delete the sector
-    dialog->set_text(_("Each level must have at least one sector."));
+    dialog->set_text("Each level must have at least one sector.");
     dialog->clear_buttons();
-    dialog->add_cancel_button(_("Cancel"));
+    dialog->add_cancel_button("Cancel");
   } else {
     // confirmation dialog
-    dialog->set_text(_("Do you really want to delete this sector?"));
+    dialog->set_text("Do you really want to delete this sector?");
     dialog->clear_buttons();
-    dialog->add_cancel_button(_("Cancel"));
-    dialog->add_button(_("Delete sector"), [level] {
+    dialog->add_cancel_button("Cancel");
+    dialog->add_button("Delete sector", [level] {
         MenuManager::instance().clear_menu_stack();
         for(auto i = level->sectors.begin(); i != level->sectors.end(); ++i) {
           if ( i->get() == Editor::current()->currentsector ) {

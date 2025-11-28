@@ -61,7 +61,7 @@ ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
   }
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

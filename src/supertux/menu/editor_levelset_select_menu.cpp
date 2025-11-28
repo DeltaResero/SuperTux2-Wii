@@ -49,7 +49,7 @@ EditorLevelsetSelectMenu::EditorLevelsetSelectMenu() :
     }
   }
 
-  add_label(_("Choose level subset"));
+  add_label("Choose level subset");
   add_hl();
 
   int i = 0;
@@ -76,7 +76,7 @@ EditorLevelsetSelectMenu::EditorLevelsetSelectMenu() :
                           new Levelset(level_world, /* recursively = */ true));
       int level_count = levelset->get_num_levels();
       std::ostringstream level_title;
-      level_title << title << " (" << level_count << " " << _("levels") << ")";
+      level_title << title << " (" << level_count << " " << "levels" << ")";
       add_entry(i++, level_title.str());
       m_contrib_worlds.push_back(level_world);
     }
@@ -88,8 +88,8 @@ EditorLevelsetSelectMenu::EditorLevelsetSelectMenu() :
   }
 
   add_hl();
-  add_submenu(_("New level subset"), MenuStorage::EDITOR_NEW_LEVELSET_MENU);
-  add_back(_("Back"),-2);
+  add_submenu("New level subset", MenuStorage::EDITOR_NEW_LEVELSET_MENU);
+  add_back("Back",-2);
 }
 
 EditorLevelsetSelectMenu::~EditorLevelsetSelectMenu()

@@ -12,9 +12,12 @@
 #ifndef HEADER_SUPERTUX_PHYSFS_FILE_SYSTEM_HPP
 #define HEADER_SUPERTUX_PHYSFS_FILE_SYSTEM_HPP
 
-#include <tinygettext/file_system.hpp>
+#include <memory>
+#include <vector>
+#include <string>
+#include <iostream>
 
-class PhysFSFileSystem : public tinygettext::FileSystem
+class PhysFSFileSystem
 {
 public:
   PhysFSFileSystem();

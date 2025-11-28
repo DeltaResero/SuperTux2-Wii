@@ -30,7 +30,7 @@ EditorObjectgroupMenu::EditorObjectgroupMenu()
 {
   bool worldmap = Editor::current()->get_worldmap_mode();
 
-  add_label(_("Objects"));
+  add_label("Objects");
   add_hl();
 
   int id = 0;
@@ -42,7 +42,7 @@ EditorObjectgroupMenu::EditorObjectgroupMenu()
   }
 
   add_hl();
-  add_entry(-1,_("Cancel"));
+  add_entry(-1, "Cancel");
 }
 
 EditorObjectgroupMenu::~EditorObjectgroupMenu()

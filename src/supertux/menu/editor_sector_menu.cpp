@@ -30,25 +30,25 @@ EditorSectorMenu::EditorSectorMenu() :
   size(sector->get_editor_size()),
   new_size(size)
 {
-  add_label(_("Sector") + " " + sector->get_name());
+  add_label("Sector " + sector->get_name());
   add_hl();
-  add_textfield(_("Name"), sector_name_ptr);
-  add_script(_("Initialization script"), sector->get_init_script_ptr());
-  add_color(_("Ambient light"), sector->get_ambient_light_ptr());
-  add_numfield(_("Gravity"), &sector->gravity);
+  add_textfield("Name", sector_name_ptr);
+  add_script("Initialization script", sector->get_init_script_ptr());
+  add_color("Ambient light", sector->get_ambient_light_ptr());
+  add_numfield("Gravity", &sector->gravity);
 
   std::vector<std::string> music_formats;
   music_formats.push_back(".ogg");
   music_formats.push_back(".music");
-  add_file(_("Music"), &sector->music, music_formats);
+  add_file("Music", &sector->music, music_formats);
 
   add_hl();
-  add_intfield(_("Width"), &(new_size.width));
-  add_intfield(_("Height"), &(new_size.height));
-  add_entry(MNID_RESIZESECTOR, _("Resize"));
+  add_intfield("Width", &(new_size.width));
+  add_intfield("Height", &(new_size.height));
+  add_entry(MNID_RESIZESECTOR, "Resize");
 
   add_hl();
-  add_back(_("OK"));
+  add_back("OK");
 }
 
 EditorSectorMenu::~EditorSectorMenu()

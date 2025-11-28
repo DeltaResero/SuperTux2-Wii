@@ -12,43 +12,13 @@
 #ifndef HEADER_SUPERTUX_UTIL_GETTEXT_HPP
 #define HEADER_SUPERTUX_UTIL_GETTEXT_HPP
 
-#include <tinygettext/tinygettext.hpp>
-#include <assert.h>
-#include <memory>
+#include <string>
 
-#include "supertux/globals.hpp"
-
-extern std::unique_ptr<tinygettext::DictionaryManager> g_dictionary_manager;
-
-/*
- * If you need to do a nontrivial substitution of values into a pattern, use
- * boost::format rather than an ad-hoc concatenation.  That way, translators can
- * translate the format string as a whole (and even rearrange the values if
- * necessary with "%1$s"-style codes) instead of multiple pieces.  Patterns like
- * "Label: %s" with only one string piece are a borderline case where
- * boost::format is not really necessary.
- *
- * http://www.mihai-nita.net/article.php?artID=20060430a
- *
- * Bad:
- *     std::string msg = _("You collected ") + num + _(" coins");
- *     std::cout << _("You collected ") << num << _(" coins");
- * Good:
- *     #include <boost/format.hpp>
- *     std::string msg = str(boost::format(_("You collected %d coins")) % num);
- *     std::cout << boost::format(_("You collected %d coins")) % num;
- */
-
+// Fallback for files that haven't been refactored yet.
+// For the Wii port, we want to eventually remove this and use raw strings everywhere.
 static inline std::string _(const std::string& message)
 {
-  if (g_dictionary_manager)
-  {
-    return g_dictionary_manager->get_dictionary().translate(message);
-  }
-  else
-  {
-    return message;
-  }
+  return message;
 }
 
 #endif // HEADER_SUPERTUX_UTIL_GETTEXT_HPP

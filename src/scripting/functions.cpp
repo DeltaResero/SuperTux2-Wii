@@ -91,7 +91,7 @@ void abort_screenfade()
 
 std::string translate(const std::string& text)
 {
-  return g_dictionary_manager->get_dictionary().translate(text);
+  return text;
 }
 
 std::string _(const std::string& text)

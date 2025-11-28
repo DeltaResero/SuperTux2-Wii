@@ -23,7 +23,6 @@ private:
   enum {
     MNID_CHECK_ONLINE,
     MNID_NOTHING_NEW,
-    MNID_LANGPACK_MODE,
     MNID_ADDON_LIST_START = 10
   };
 
@@ -32,10 +31,9 @@ private:
   std::vector<std::string> m_installed_addons;
   std::vector<std::string> m_repository_addons;
   bool* m_addons_enabled;
-  bool m_language_pack_mode;
-  bool m_auto_install_langpack;
 
 public:
+  // Parameters kept for compatibility with existing callers, but ignored
   AddonMenu(bool language_pack_mode = false, bool auto_install_langpack = false);
   ~AddonMenu();
 

@@ -44,20 +44,20 @@ EditorLevelsetMenu::~EditorLevelsetMenu()
 
 void
 EditorLevelsetMenu::initialize() {
-  add_label(_("Level subset properties"));
+  add_label("Level subset properties");
   add_hl();
-  add_textfield(_("Name"), &(world->m_title));
-  add_textfield(_("Description"), &(world->m_description));
+  add_textfield("Name", &(world->m_title));
+  add_textfield("Description", &(world->m_description));
 
   std::string worldmap_file = FileSystem::join(world->get_basedir(), "worldmap.stwm");
   if (PHYSFS_exists(worldmap_file.c_str())) {
-    add_toggle(-1, _("Do not use worldmap"), &(world->m_is_levelset));
-    add_entry(MNID_EDITWORLDMAP, _("Edit worldmap"));
+    add_toggle(-1, "Do not use worldmap", &(world->m_is_levelset));
+    add_entry(MNID_EDITWORLDMAP, "Edit worldmap");
   } else {
-    add_entry(MNID_NEWWORLDMAP, _("Create worldmap"));
+    add_entry(MNID_NEWWORLDMAP, "Create worldmap");
   }
   add_hl();
-  add_back(_("OK"));
+  add_back("OK");
 }
 
 void
@@ -72,9 +72,12 @@ EditorLevelsetMenu::create_worldmap()
   MenuManager::instance().clear_menu_stack();
 
   std::unique_ptr<Dialog> dialog(new Dialog);
-  dialog->set_text(_("Share this worldmap under license CC-BY-SA 4.0 International (advised).\nIt allows modifications and redistribution by third-parties.\nIf you don't agree with this license, change it in worldmap properties.\nDISCLAIMER: The SuperTux authors take no responsibility for your choice of license."));
+  dialog->set_text("Share this worldmap under license CC-BY-SA 4.0 International (advised).\n"
+                 "It allows modifications and redistribution by third-parties.\n"
+                 "If you don't agree with this license, change it in worldmap properties.\n"
+                 "DISCLAIMER: The SuperTux authors take no responsibility for your choice of license.");
   dialog->clear_buttons();
-  dialog->add_button(_("OK"), [] {});
+  dialog->add_button("OK", [] {});
   MenuManager::instance().set_dialog(std::move(dialog));
 }
 

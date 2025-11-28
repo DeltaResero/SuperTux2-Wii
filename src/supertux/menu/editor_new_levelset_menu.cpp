@@ -32,16 +32,16 @@ EditorNewLevelsetMenu::EditorNewLevelsetMenu() :
   levelset_name(),
   levelset_desc()
 {
-  add_label(_("New level subset"));
+  add_label("New level subset");
   add_hl();
 
-  add_textfield(_("Name"), &levelset_name);
-  add_textfield(_("Description"), &levelset_desc);
+  add_textfield("Name", &levelset_name);
+  add_textfield("Description", &levelset_desc);
 
-  add_entry(1,_("OK"));
+  add_entry(1, "OK");
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void
@@ -52,9 +52,9 @@ EditorNewLevelsetMenu::menu_action(MenuItem* item)
     if(levelset_name.empty())
     {
       std::unique_ptr<Dialog> dialog(new Dialog);
-      dialog->set_text(_("Please enter a name for this level subset."));
+      dialog->set_text("Please enter a name for this level subset.");
       dialog->clear_buttons();
-      dialog->add_button(_("OK"), [] {});
+      dialog->add_button("OK", [] {});
       MenuManager::instance().set_dialog(std::move(dialog));
     }
     else

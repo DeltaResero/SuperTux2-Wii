@@ -15,7 +15,6 @@
 class Main
 {
 private:
-  void init_tinygettext();
   void init_video();
 
   void launch_game();

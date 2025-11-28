@@ -21,12 +21,12 @@
 
 WorldmapMenu::WorldmapMenu()
 {
-  add_label(_("Pause"));
+  add_label("Pause");
   add_hl();
-  add_entry(MNID_RETURNWORLDMAP, _("Continue"));
-  add_submenu(_("Options"), MenuStorage::INGAME_OPTIONS_MENU);
+  add_entry(MNID_RETURNWORLDMAP, "Continue");
+  add_submenu("Options", MenuStorage::INGAME_OPTIONS_MENU);
   add_hl();
-  add_entry(MNID_QUITWORLDMAP, _("Leave World"));
+  add_entry(MNID_QUITWORLDMAP, "Leave World");
 }
 
 void

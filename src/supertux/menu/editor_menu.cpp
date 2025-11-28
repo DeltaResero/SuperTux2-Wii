@@ -30,37 +30,37 @@ EditorMenu::EditorMenu()
   bool worldmap = Editor::current()->get_worldmap_mode();
   bool is_world = Editor::current()->get_world();
   std::vector<std::string> snap_grid_sizes;
-  snap_grid_sizes.push_back(_("1/8 tile (4px)"));
-  snap_grid_sizes.push_back(_("1/4 tile (8px)"));
-  snap_grid_sizes.push_back(_("1/2 tile (16px)"));
-  snap_grid_sizes.push_back(_("1 tile (32px)"));
+  snap_grid_sizes.push_back("1/8 tile (4px)");
+  snap_grid_sizes.push_back("1/4 tile (8px)");
+  snap_grid_sizes.push_back("1/2 tile (16px)");
+  snap_grid_sizes.push_back("1 tile (32px)");
 
-  add_label(_("Level Editor"));
+  add_label("Level Editor");
   add_hl();
-  add_entry(MNID_RETURNTOEDITOR, _("Return to editor"));
-  add_entry(MNID_SAVELEVEL, worldmap ? _("Save current worldmap") : _("Save current level"));
+  add_entry(MNID_RETURNTOEDITOR, "Return to editor");
+  add_entry(MNID_SAVELEVEL, worldmap ? "Save current worldmap" : "Save current level");
 
   if (!worldmap) {
-    add_entry(MNID_TESTLEVEL, _("Test the level"));
+    add_entry(MNID_TESTLEVEL, "Test the level");
   }
 
   if (is_world) {
-    add_entry(MNID_LEVELSEL, _("Edit another level"));
+    add_entry(MNID_LEVELSEL, "Edit another level");
   }
 
-  add_entry(MNID_LEVELSETSEL, _("Choose another level subset"));
+  add_entry(MNID_LEVELSETSEL, "Choose another level subset");
 
-  add_string_select(-1, _("Grid size"), &EditorInputCenter::selected_snap_grid_size, snap_grid_sizes);
+  add_string_select(-1, "Grid size", &EditorInputCenter::selected_snap_grid_size, snap_grid_sizes);
 
-  add_toggle(-1, _("Snap objects to grid (F7)"), &EditorInputCenter::snap_to_grid);
-  add_toggle(-1, _("Show grid (F8)"), &EditorInputCenter::render_grid);
-  add_toggle(-1, _("Show scroller (F9)"), &EditorScroller::rendered);
+  add_toggle(-1, "Snap objects to grid (F7)", &EditorInputCenter::snap_to_grid);
+  add_toggle(-1, "Show grid (F8)", &EditorInputCenter::render_grid);
+  add_toggle(-1, "Show scroller (F9)", &EditorScroller::rendered);
 
-  add_submenu(worldmap ? _("Worldmap properties") : _("Level properties"),
+  add_submenu(worldmap ? "Worldmap properties" : "Level properties",
               MenuStorage::EDITOR_LEVEL_MENU);
 
   add_hl();
-  add_entry(MNID_QUITEDITOR, _("Exit level editor"));
+  add_entry(MNID_QUITEDITOR, "Exit level editor");
 }
 
 EditorMenu::~EditorMenu()

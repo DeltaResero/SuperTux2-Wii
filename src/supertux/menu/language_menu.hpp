@@ -13,16 +13,7 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_LANGUAGE_MENU_HPP
 #define HEADER_SUPERTUX_SUPERTUX_LANGUAGE_MENU_HPP
 
-#include "util/gettext.hpp"
-#include "gui/menu.hpp"
-
-class LanguageMenu : public Menu
-{
-public:
-  LanguageMenu();
-
-  void menu_action(MenuItem* item) override;
-};
+// LanguageMenu removed for Wii port
 
 #endif // HEADER_SUPERTUX_SUPERTUX_LANGUAGE_MENU_HPP
 
