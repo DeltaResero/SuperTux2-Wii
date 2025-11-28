@@ -5,25 +5,25 @@
 #
 
 # --- Build & CMake Artifacts ---
-build/
-build*/
+/build/
+/build*/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
 install_manifest.txt
-Makefile
-config.h
-version.h
-version.cmake
-supertux
-supertux.exe
-supertux2
-supertux2.exe
+/Makefile
+/config.h
+/version.h
+/version.cmake
+/supertux
+/supertux.exe
+/supertux2
+/supertux2.exe
 
 # ---  Doxygen related files
-Doxyfile
+/Doxyfile
 docs/doxygen/
 
 # ---  Windows build files
