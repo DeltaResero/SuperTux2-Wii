@@ -19,11 +19,12 @@
 #include "supertux/globals.hpp"
 #include "supertux/menu/download_dialog.hpp"
 #include "util/gettext.hpp"
+#include "util/log.hpp"
 
 #include <algorithm>
 
 AddonMenu::AddonMenu(bool /*language_pack_mode*/, bool /*auto_install_langpack*/) :
-  m_addon_manager(AddonManager::current()),
+  m_addon_manager(*AddonManager::current()),
   m_installed_addons(),
   m_repository_addons(),
   m_addons_enabled(nullptr)
@@ -39,21 +40,9 @@ AddonMenu::~AddonMenu()
 void
 AddonMenu::refresh()
 {
-  m_installed_addons.clear();
-  m_repository_addons.clear();
+  m_installed_addons = m_addon_manager.get_installed_addons();
+  m_repository_addons = m_addon_manager.get_repository_addons();
 
-  const std::vector<Addon>& addons = m_addon_manager.get_addons();
-  for(const auto& addon : addons)
-  {
-    if (addon.loaded)
-    {
-      m_installed_addons.push_back(addon.id);
-    }
-    else
-    {
-      m_repository_addons.push_back(addon.id);
-    }
-  }
   std::sort(m_installed_addons.begin(), m_installed_addons.end());
   std::sort(m_repository_addons.begin(), m_repository_addons.end());
 
@@ -78,30 +67,33 @@ AddonMenu::rebuild_menu()
   int i = 0;
   for(const auto& id : m_installed_addons)
   {
-    const Addon* addon = m_addon_manager.get_addon(id);
-    if (addon)
-    {
+    try {
+      const Addon& addon = m_addon_manager.get_installed_addon(id);
+
       m_addons_enabled[i] = false;
       for (const auto& cfg_addon : g_config->addons)
       {
-        if (cfg_addon.id == addon->id && cfg_addon.enabled)
+        if (cfg_addon.id == addon.get_id() && cfg_addon.enabled)
         {
           m_addons_enabled[i] = true;
           break;
         }
       }
 
-      add_toggle(MNID_ADDON_LIST_START + i, addon->title, &m_addons_enabled[i]);
+      add_toggle(MNID_ADDON_LIST_START + i, addon.get_title(), &m_addons_enabled[i]);
+    } catch (std::exception&) {
+      // Ignore missing addons
     }
     i++;
   }
 
   for(const auto& id : m_repository_addons)
   {
-    const Addon* addon = m_addon_manager.get_addon(id);
-    if (addon)
-    {
-      add_entry(MNID_ADDON_LIST_START + i, addon->title + " (install)");
+    try {
+      const Addon& addon = m_addon_manager.get_repository_addon(id);
+      add_entry(MNID_ADDON_LIST_START + i, addon.get_title() + " (install)");
+    } catch (std::exception&) {
+      // Ignore missing addons
     }
     i++;
   }
@@ -127,16 +119,20 @@ AddonMenu::menu_action(MenuItem* item)
     int index = item->id - MNID_ADDON_LIST_START;
     if (index < (int)m_installed_addons.size())
     {
-      const Addon* addon = m_addon_manager.get_addon(m_installed_addons[index]);
-      if (addon) toggle_addon(*addon);
+      try {
+        const Addon& addon = m_addon_manager.get_installed_addon(m_installed_addons[index]);
+        toggle_addon(addon);
+      } catch (...) {}
     }
     else
     {
       index -= m_installed_addons.size();
       if (index < (int)m_repository_addons.size())
       {
-        const Addon* addon = m_addon_manager.get_addon(m_repository_addons[index]);
-        if (addon) install_addon(*addon);
+        try {
+          const Addon& addon = m_addon_manager.get_repository_addon(m_repository_addons[index]);
+          install_addon(addon);
+        } catch (...) {}
       }
     }
   }
@@ -145,18 +141,58 @@ AddonMenu::menu_action(MenuItem* item)
 void
 AddonMenu::check_online()
 {
-  m_addon_manager.check_online();
-  refresh();
+  try
+  {
+    TransferStatusPtr status = m_addon_manager.request_check_online();
+    status->then([this](bool success)
+    {
+      if (success)
+      {
+        refresh();
+      }
+    });
+    std::unique_ptr<DownloadDialog> dialog(new DownloadDialog(status));
+    dialog->set_title("Downloading Add-On Repository Index");
+    MenuManager::instance().set_dialog(std::move(dialog));
+  }
+  catch (std::exception& e)
+  {
+    log_warning << "Check for available Add-ons failed: " << e.what() << std::endl;
+  }
 }
 
 void
 AddonMenu::install_addon(const Addon& addon)
 {
-  std::string text = "Installing " + addon.title;
-  std::unique_ptr<DownloadDialog> dialog(new DownloadDialog(text, addon.url, addon.md5, "addons/" + addon.id + ".zip", "addons"));
-  dialog->show();
-  m_addon_manager.install(addon.id, "addons/" + addon.id + ".zip");
-  refresh();
+  std::string addon_id = addon.get_id();
+  std::string text = "Installing " + addon.get_title();
+
+  try {
+    TransferStatusPtr status = m_addon_manager.request_install_addon(addon_id);
+
+    std::unique_ptr<DownloadDialog> dialog(new DownloadDialog(status));
+    dialog->set_title(text);
+
+    status->then([this, addon_id](bool success)
+    {
+      if (success)
+      {
+        try
+        {
+          m_addon_manager.enable_addon(addon_id);
+        }
+        catch(const std::exception& err)
+        {
+          log_warning << "Enabling add-on failed: " << err.what() << std::endl;
+        }
+        refresh();
+      }
+    });
+
+    MenuManager::instance().set_dialog(std::move(dialog));
+  } catch (std::exception& e) {
+    log_warning << "Failed to start download: " << e.what() << std::endl;
+  }
 }
 
 void
@@ -166,7 +202,7 @@ AddonMenu::toggle_addon(const Addon& addon)
   bool found = false;
   for (auto& cfg_addon : g_config->addons)
   {
-    if (cfg_addon.id == addon.id)
+    if (cfg_addon.id == addon.get_id())
     {
       cfg_addon.enabled = !cfg_addon.enabled;
       enabled = cfg_addon.enabled;
@@ -178,11 +214,16 @@ AddonMenu::toggle_addon(const Addon& addon)
   if (!found)
   {
     Config::Addon cfg_addon;
-    cfg_addon.id = addon.id;
+    cfg_addon.id = addon.get_id();
     cfg_addon.enabled = true;
     g_config->addons.push_back(cfg_addon);
     enabled = true;
   }
+
+  if (enabled)
+    m_addon_manager.enable_addon(addon.get_id());
+  else
+    m_addon_manager.disable_addon(addon.get_id());
 
   g_config->save();
 }

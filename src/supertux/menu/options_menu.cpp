@@ -237,7 +237,9 @@ OptionsMenu::menu_action(MenuItem* item)
       {
         if (aspect_ratios[next_aspect_ratio] == "auto")
         {
-          g_config->aspect_size = Size(0, 0); // Magic values
+          // Magic values for auto aspect ratio
+          g_config->aspect_size.width = 0;
+          g_config->aspect_size.height = 0;
           VideoSystem::current()->get_renderer().apply_config();
           MenuManager::instance().on_window_resize();
         }
