@@ -21,33 +21,31 @@
 KeyboardMenu::KeyboardMenu(InputManager& input_manager) :
   m_input_manager(input_manager)
 {
-  add_label(_("Setup Keyboard"));
+  add_label("Setup Keyboard");
   add_hl();
-  add_controlfield(Controller::UP,         _("Up"));
-  add_controlfield(Controller::DOWN,       _("Down"));
-  add_controlfield(Controller::LEFT,       _("Left"));
-  add_controlfield(Controller::RIGHT,      _("Right"));
-  add_controlfield(Controller::JUMP,       _("Jump"));
-  add_controlfield(Controller::ACTION,     _("Action"));
-  add_controlfield(Controller::PEEK_LEFT,  _("Peek Left"));
-  add_controlfield(Controller::PEEK_RIGHT, _("Peek Right"));
-  add_controlfield(Controller::PEEK_UP,    _("Peek Up"));
-  add_controlfield(Controller::PEEK_DOWN,  _("Peek Down"));
+  add_controlfield(Controller::UP,         "Up");
+  add_controlfield(Controller::DOWN,       "Down");
+  add_controlfield(Controller::LEFT,       "Left");
+  add_controlfield(Controller::RIGHT,      "Right");
+  add_controlfield(Controller::JUMP,       "Jump");
+  add_controlfield(Controller::ACTION,     "Action");
+  add_controlfield(Controller::PEEK_LEFT,  "Peek Left");
+  add_controlfield(Controller::PEEK_RIGHT, "Peek Right");
+  add_controlfield(Controller::PEEK_UP,    "Peek Up");
+  add_controlfield(Controller::PEEK_DOWN,  "Peek Down");
   if (g_config->developer_mode) {
-    add_controlfield(Controller::CONSOLE, _("Console"));
+    add_controlfield(Controller::CONSOLE, "Console");
   }
   if (g_config->developer_mode) {
-    add_controlfield(Controller::CHEAT_MENU, _("Cheat Menu"));
+    add_controlfield(Controller::CHEAT_MENU, "Cheat Menu");
   }
   add_hl();
-  add_inactive(_("The following feature is deprecated."));
-  // l10n: Continuation of string "The following feature is deprecated."
-  add_inactive(_("It will be removed from the next release"));
-  // l10n: Continuation of string "It will be removed from the next release"
-  add_inactive(_("of SuperTux."));
-  add_toggle(Controller::CONTROLCOUNT, _("Jump with Up"), &g_config->keyboard_config.jump_with_up_kbd);
+  add_inactive("The following feature is deprecated.");
+  add_inactive("It will be removed from the next release");
+  add_inactive("of SuperTux.");
+  add_toggle(Controller::CONTROLCOUNT, "Jump with Up", &g_config->keyboard_config.jump_with_up_kbd);
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
   refresh();
 }
 
@@ -59,35 +57,35 @@ KeyboardMenu::get_key_name(SDL_Keycode key) const
 {
   switch(key) {
     case SDLK_UNKNOWN:
-      return _("None");
+      return "None";
     case SDLK_UP:
-      return _("Up cursor");
+      return "Up cursor";
     case SDLK_DOWN:
-      return _("Down cursor");
+      return "Down cursor";
     case SDLK_LEFT:
-      return _("Left cursor");
+      return "Left cursor";
     case SDLK_RIGHT:
-      return _("Right cursor");
+      return "Right cursor";
     case SDLK_RETURN:
-      return _("Return");
+      return "Return";
     case SDLK_SPACE:
-      return _("Space");
+      return "Space";
     case SDLK_RSHIFT:
-      return _("Right Shift");
+      return "Right Shift";
     case SDLK_LSHIFT:
-      return _("Left Shift");
+      return "Left Shift";
     case SDLK_RCTRL:
-      return _("Right Control");
+      return "Right Control";
     case SDLK_LCTRL:
-      return _("Left Control");
+      return "Left Control";
     case SDLK_RALT:
-      return _("Right Alt");
+      return "Right Alt";
     case SDLK_LALT:
-      return _("Left Alt");
+      return "Left Alt";
     case SDLK_RGUI:
-      return _("Right Command");
+      return "Right Command";
     case SDLK_LGUI:
-      return _("Left Command");
+      return "Left Command";
     default:
       return SDL_GetKeyName(static_cast<SDL_Keycode>(key));
   }
@@ -101,7 +99,7 @@ KeyboardMenu::menu_action(MenuItem* item)
     if (!itemcf) {
       return;
     }
-    itemcf->change_input(_("Press Key"));
+    itemcf->change_input("Press Key");
     m_input_manager.keyboard_manager->bind_next_event_to(static_cast<Controller::Control>(item->id));
   }
 }

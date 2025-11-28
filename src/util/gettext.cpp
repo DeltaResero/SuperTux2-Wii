@@ -11,6 +11,6 @@
 
 #include "util/gettext.hpp"
 
-std::unique_ptr<tinygettext::DictionaryManager> g_dictionary_manager = nullptr;
+// Global dictionary manager removed for Wii port.
 
 // EOF

@@ -29,7 +29,7 @@
 
 EditorTilegroupMenu::EditorTilegroupMenu()
 {
-  add_label(_("Tilegroups"));
+  add_label("Tilegroups");
   add_hl();
 
   int id = 0;
@@ -39,7 +39,7 @@ EditorTilegroupMenu::EditorTilegroupMenu()
   }
 
   add_hl();
-  add_entry(-1,_("Cancel"));
+  add_entry(-1, "Cancel");
 }
 
 EditorTilegroupMenu::~EditorTilegroupMenu()

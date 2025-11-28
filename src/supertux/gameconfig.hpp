@@ -70,11 +70,6 @@ public:
   /** The level that should be launched in the editor*/
   boost::optional<std::string> edit_level;
 
-  /** force SuperTux language to this locale, e.g. "de". A file
-      "data/locale/xx.po" must exist for this to work. An empty string
-      means autodetect. */
-  std::string locale;
-
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;
 

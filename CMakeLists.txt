@@ -5,7 +5,7 @@
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
@@ -354,39 +354,10 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(SYSTEM ${SQUIRREL_PREFIX}/include)
 
-## Also build external/tinygettext
-
-IF(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/CMakeLists.txt)
-  message(FATAL_ERROR "tinygettext submodule is not checked out or ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/CMakeLists.txt is missing")
-ENDIF()
-
-# Build tinygettext directly as a subdirectory.
-# This allows it to see our SDL2_INCLUDE_DIRS variable automatically.
-
-# Configure tinygettext options before adding it
-SET(HAVE_SDL ON CACHE BOOL "Use SDL_iconv" FORCE)
-SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static library" FORCE)
-
-# Force CMake to accept the legacy cmake_minimum_required(VERSION 2.4) inside tinygettext
-SET(CMAKE_POLICY_VERSION_MINIMUM "3.5")
-
-# Add the subdirectory
-ADD_SUBDIRECTORY(external/tinygettext)
-
-# Clean up the variable so it doesn't affect anything else (good practice)
-UNSET(CMAKE_POLICY_VERSION_MINIMUM)
-
-# Create an alias so the rest of the build can link to 'tinygettext_lib'
-ADD_LIBRARY(tinygettext_lib ALIAS tinygettext)
-
-# Add the include directory to the system path
-INCLUDE_DIRECTORIES(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/include)
-
 ## Some additional include paths
 
 include_directories(${CMAKE_BINARY_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/findlocale/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/obstack/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/sexp-cpp/include/)
 
@@ -397,7 +368,7 @@ ENDIF(WIN32)
 
 ## Build list of sources for supertux binary
 
-FILE(GLOB SUPERTUX_SOURCES_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/obstack/*.c external/findlocale/findlocale.c)
+FILE(GLOB SUPERTUX_SOURCES_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/obstack/*.c)
 
 FILE(GLOB SUPERTUX_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*/*.cpp src/supertux/menu/*.cpp src/video/sdl/*.cpp)
 FILE(GLOB SUPERTUX_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${PROJECT_BINARY_DIR}/tmp/*.rc")
@@ -484,58 +455,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   ENDIF(WARNINGS)
 endif()
 
-## If xgettext is available, generate messages.pot for sources
-
-OPTION(GENERATE_MESSAGESPOT "Generate messages.pot files" OFF)
-IF(GENERATE_MESSAGESPOT)
-  MARK_AS_ADVANCED(
-    XGETTEXT_EXECUTABLE
-  )
-  FIND_PROGRAM(XGETTEXT_EXECUTABLE xgettext)
-  IF(NOT XGETTEXT_EXECUTABLE)
-    MESSAGE(STATUS "Warning: xgettext not found - will not update messages.pot")
-  ELSE(NOT XGETTEXT_EXECUTABLE)
-    MESSAGE(STATUS "Found xgettext: ${XGETTEXT_EXECUTABLE}")
-
-    SET(MESSAGES_POT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/data/locale/messages.pot)
-    ADD_CUSTOM_COMMAND(
-      OUTPUT ${MESSAGES_POT_FILE}
-      COMMAND ${XGETTEXT_EXECUTABLE}
-      ARGS --keyword=_ --language=C++ --output=${MESSAGES_POT_FILE} ${SUPERTUX_SOURCES_CXX}
-      DEPENDS ${SUPERTUX_SOURCES_CXX}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      COMMENT "Generating POT file ${MESSAGES_POT_FILE}"
-    )
-    LIST(APPEND MESSAGES_POT_FILES ${MESSAGES_POT_FILE})
-
-    FILE(GLOB SUPERTUX_LEVEL_DIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} data/levels/*)
-    FOREACH(SUPERTUX_LEVEL_DIR ${SUPERTUX_LEVEL_DIRS})
-      FILE(GLOB SUPERTUX_LEVELS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SUPERTUX_LEVEL_DIR}/*.stl ${SUPERTUX_LEVEL_DIR}/*.stwm ${SUPERTUX_LEVEL_DIR}/*.txt)
-
-      ## Do not add target if SUPERTUX_LEVELS is empty. This is needed for cmake <=2.4
-      IF(SUPERTUX_LEVELS)
-        SET(MESSAGES_POT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${SUPERTUX_LEVEL_DIR}/messages.pot)
-        ADD_CUSTOM_COMMAND(
-          OUTPUT ${MESSAGES_POT_FILE}
-          COMMAND ${XGETTEXT_EXECUTABLE}
-          ARGS --keyword="_:1" --language=Lisp --force-po --sort-by-file "--output=${MESSAGES_POT_FILE}" ${SUPERTUX_LEVELS}
-          DEPENDS ${SUPERTUX_LEVELS}
-          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-          COMMENT "Generating POT file ${MESSAGES_POT_FILE}"
-        )
-        LIST(APPEND MESSAGES_POT_FILES ${MESSAGES_POT_FILE})
-      ENDIF(SUPERTUX_LEVELS)
-
-    ENDFOREACH(SUPERTUX_LEVEL_DIR)
-
-    ADD_CUSTOM_TARGET(
-      supertux2-messages ALL
-      DEPENDS ${MESSAGES_POT_FILES}
-    )
-
-  ENDIF(NOT XGETTEXT_EXECUTABLE)
-ENDIF(GENERATE_MESSAGESPOT)
-
 ## Some additional compiler switches
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
@@ -608,7 +527,6 @@ ENDIF(WIN32)
 
 ## Link supertux binary with squirrel and other libraries
 
-ADD_DEPENDENCIES(supertux2_lib tinygettext)
 ADD_DEPENDENCIES(supertux2_lib squirrel)
 
 TARGET_INCLUDE_DIRECTORIES(supertux2_lib SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS})
@@ -618,7 +536,6 @@ TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${SDL2IMAGE_LIBRARIES})
 
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC squirrel_lib)
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC sqstdlib_lib)
-TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC tinygettext_lib)
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC sexp)
 IF(ENABLE_OPENAL)
   TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
@@ -755,7 +672,6 @@ INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/scripts
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/speech
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/sounds
-                  ${CMAKE_CURRENT_SOURCE_DIR}/data/locale
                   DESTINATION ${INSTALL_SUBDIR_SHARE})
 
 IF(CMAKE_BUILD_TYPE MATCHES Release)
@@ -789,7 +705,7 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 ## CPack/Installation-specific stuff
 
 INCLUDE(InstallRequiredSystemLibraries)
-SET(DIRS ${Boost_LIBRARY_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
+SET(DIRS ${Boost_LIBRARY_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DISABLE_CPACK_BUNDLING)
   SET(INFOPLIST_CFBUNDLEEXECUTABLE "SuperTux")

@@ -43,7 +43,6 @@ Config::Config() :
   record_demo(),
   tux_spawn_pos(),
   edit_level(),
-  locale(),
   keyboard_config(),
   joystick_config(),
   addons(),
@@ -80,7 +79,6 @@ Config::load()
     }
   }
   config_lisp.get("transitions_enabled", transitions_enabled);
-  config_lisp.get("locale", locale);
   config_lisp.get("random_seed", random_seed);
   config_lisp.get("repository_url", repository_url);
 
@@ -168,7 +166,6 @@ Config::save()
     writer.write("christmas", christmas_mode);
   }
   writer.write("transitions_enabled", transitions_enabled);
-  writer.write("locale", locale);
   writer.write("repository_url", repository_url);
 
   writer.start_list("video");

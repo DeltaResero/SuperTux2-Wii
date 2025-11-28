@@ -58,7 +58,7 @@ void EditorLevelSelectMenu::initialize() {
 
   if(num_levels == 0)
   {
-    add_inactive(_("Empty levelset"));
+    add_inactive("Empty levelset");
   }
   else
   {
@@ -72,9 +72,9 @@ void EditorLevelSelectMenu::initialize() {
   }
 
   add_hl();
-  add_entry(-1, _("Create Level"));
-  add_entry(-3, _("Level subset properties"));
-  add_back(_("Back"),-2);
+  add_entry(-1, "Create Level");
+  add_entry(-3, "Level subset properties");
+  add_back("Back",-2);
 }
 
 EditorLevelSelectMenu::~EditorLevelSelectMenu()
@@ -95,9 +95,12 @@ EditorLevelSelectMenu::create_level()
   MenuManager::instance().clear_menu_stack();
 
   std::unique_ptr<Dialog> dialog(new Dialog);
-  dialog->set_text(_("Share this level under license CC-BY-SA 4.0 International (advised).\nIt allows modifications and redistribution by third-parties.\nIf you don't agree with this license, change it in level properties.\nDISCLAIMER: The SuperTux authors take no responsibility for your choice of license."));
+  dialog->set_text("Share this level under license CC-BY-SA 4.0 International (advised).\n"
+                   "It allows modifications and redistribution by third-parties.\n"
+                   "If you don't agree with this license, change it in level properties.\n"
+                   "DISCLAIMER: The SuperTux authors take no responsibility for your choice of license.");
   dialog->clear_buttons();
-  dialog->add_button(_("OK"), [] {});
+  dialog->add_button("OK", [] {});
   MenuManager::instance().set_dialog(std::move(dialog));
 }
 

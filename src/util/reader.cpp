@@ -1,7 +1,7 @@
 // src/util/reader.cpp
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// SuperTux - src/util/reader.cpp - Utility functions for config handling.
+// SuperTux - Utility functions for config handling.
 // Copyright (C) 2010  Florian Forster
 //
 // This program is free software: you can redistribute it and/or modify
@@ -56,21 +56,7 @@ std::string dirname(const std::string& filename)
 
 void register_translation_directory(const std::string& filename)
 {
-  if (g_dictionary_manager) {
-    std::string rel_dir = dirname(filename);
-    if (rel_dir.empty()) {
-      // Relative dir inside PhysFS search path?
-      // Get full path from search path, instead.
-      const char* rel_dir_c = PHYSFS_getRealDir(filename.c_str());
-      if (rel_dir_c) {
-        rel_dir = rel_dir_c;
-      }
-    }
-
-    if (!rel_dir.empty()) {
-      g_dictionary_manager->add_directory(rel_dir);
-    }
-  }
+  // Translation support removed
 }
 
 // EOF

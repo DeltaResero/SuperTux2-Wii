@@ -22,20 +22,20 @@
 
 CheatMenu::CheatMenu()
 {
-  add_label(_("Cheats"));
+  add_label("Cheats");
   add_hl();
-  add_entry(MNID_GROW, _("Bonus: Grow"));
-  add_entry(MNID_FIRE, _("Bonus: Fire"));
-  add_entry(MNID_ICE, _("Bonus: Ice"));
-  add_entry(MNID_AIR, _("Bonus: Air"));
-  add_entry(MNID_EARTH, _("Bonus: Earth"));
-  add_entry(MNID_STAR, _("Bonus: Star"));
-  add_entry(MNID_SHRINK, _("Shrink Tux"));
-  add_entry(MNID_KILL, _("Kill Tux"));
-  add_entry(MNID_FINISH, _("Finish Level"));
-  add_entry(MNID_GHOST, _("Activate Ghost Mode"));
+  add_entry(MNID_GROW, "Bonus: Grow");
+  add_entry(MNID_FIRE, "Bonus: Fire");
+  add_entry(MNID_ICE, "Bonus: Ice");
+  add_entry(MNID_AIR, "Bonus: Air");
+  add_entry(MNID_EARTH, "Bonus: Earth");
+  add_entry(MNID_STAR, "Bonus: Star");
+  add_entry(MNID_SHRINK, "Shrink Tux");
+  add_entry(MNID_KILL, "Kill Tux");
+  add_entry(MNID_FINISH, "Finish Level");
+  add_entry(MNID_GHOST, "Activate Ghost Mode");
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

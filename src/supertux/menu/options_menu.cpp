@@ -17,7 +17,6 @@
 #include "supertux/gameconfig.hpp"
 #include "supertux/menu/joystick_menu.hpp"
 #include "supertux/menu/keyboard_menu.hpp"
-#include "supertux/menu/language_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/profile_menu.hpp"
 #include "util/string_util.hpp"
@@ -47,13 +46,13 @@ OptionsMenu::OptionsMenu(bool complete) :
   aspect_ratios(),
   resolutions()
 {
-  add_label(_("Options"));
+  add_label("Options");
   add_hl();
 
   magnifications.clear();
   // These values go from screen:640/projection:1600 to
   // screen:1600/projection:640 (i.e. 640, 800, 1024, 1280, 1600)
-  magnifications.push_back(_("auto"));
+  magnifications.push_back("auto");
   magnifications.push_back("40%");
   magnifications.push_back("50%");
   magnifications.push_back("62.5%");
@@ -89,7 +88,7 @@ OptionsMenu::OptionsMenu(bool complete) :
   }
 
   aspect_ratios.clear();
-  aspect_ratios.push_back(_("auto"));
+  aspect_ratios.push_back("auto");
   aspect_ratios.push_back("5:4");
   aspect_ratios.push_back("4:3");
   aspect_ratios.push_back("16:10");
@@ -145,7 +144,7 @@ OptionsMenu::OptionsMenu(bool complete) :
   }
   resolutions.push_back("Desktop");
 
-  std::string fullscreen_size_str = _("Desktop");
+  std::string fullscreen_size_str = "Desktop";
   {
     std::ostringstream out;
     if (g_config->fullscreen_size != Size(0, 0))
@@ -176,61 +175,54 @@ OptionsMenu::OptionsMenu(bool complete) :
 
   if (complete)
   {
-    // Language and profile changes are only be possible in the
-    // main menu, since elsewhere it might not always work fully
-    add_submenu(_("Select Language"), MenuStorage::LANGUAGE_MENU)
-      ->set_help(_("Select a different language to display text in"));
-
-    add_submenu(_("Language Packs"), MenuStorage::LANGPACK_MENU)
-      ->set_help(_("Language packs contain up-to-date translations"));
-
-    add_submenu(_("Select Profile"), MenuStorage::PROFILE_MENU)
-      ->set_help(_("Select a profile to play with"));
+    // Language and Language Pack submenus removed for Wii port
+    add_submenu("Select Profile", MenuStorage::PROFILE_MENU)
+      ->set_help("Select a profile to play with");
   }
 
-  add_toggle(MNID_FULLSCREEN,_("Fullscreen"), &g_config->use_fullscreen)
-    ->set_help(_("Fill the entire screen"));
+  add_toggle(MNID_FULLSCREEN, "Fullscreen", &g_config->use_fullscreen)
+    ->set_help("Fill the entire screen");
 
-  auto fullscreen_res = add_string_select(MNID_FULLSCREEN_RESOLUTION, _("Resolution"), &next_resolution, resolutions);
-  fullscreen_res->set_help(_("Determine the resolution used in fullscreen mode (you must toggle fullscreen to complete the change)"));
+  auto fullscreen_res = add_string_select(MNID_FULLSCREEN_RESOLUTION, "Resolution", &next_resolution, resolutions);
+  fullscreen_res->set_help("Determine the resolution used in fullscreen mode (you must toggle fullscreen to complete the change)");
 
-  auto magnification = add_string_select(MNID_MAGNIFICATION, _("Magnification"), &next_magnification, magnifications);
-  magnification->set_help(_("Change the magnification of the game area"));
+  auto magnification = add_string_select(MNID_MAGNIFICATION, "Magnification", &next_magnification, magnifications);
+  magnification->set_help("Change the magnification of the game area");
 
-  auto aspect = add_string_select(MNID_ASPECTRATIO, _("Aspect Ratio"), &next_aspect_ratio, aspect_ratios);
-  aspect->set_help(_("Adjust the aspect ratio"));
+  auto aspect = add_string_select(MNID_ASPECTRATIO, "Aspect Ratio", &next_aspect_ratio, aspect_ratios);
+  aspect->set_help("Adjust the aspect ratio");
 
   if (SoundManager::current()->is_audio_enabled()) {
-    add_toggle(MNID_SOUND, _("Sound"), &g_config->sound_enabled)
-      ->set_help(_("Disable all sound effects"));
-    add_toggle(MNID_MUSIC, _("Music"), &g_config->music_enabled)
-      ->set_help(_("Disable all music"));
+    add_toggle(MNID_SOUND, "Sound", &g_config->sound_enabled)
+      ->set_help("Disable all sound effects");
+    add_toggle(MNID_MUSIC, "Music", &g_config->music_enabled)
+      ->set_help("Disable all music");
   } else {
-    add_inactive( _("Sound (disabled)"));
-    add_inactive( _("Music (disabled)"));
+    add_inactive("Sound (disabled)");
+    add_inactive("Music (disabled)");
   }
 
-  add_submenu(_("Setup Keyboard"), MenuStorage::KEYBOARD_MENU)
-    ->set_help(_("Configure key-action mappings"));
+  add_submenu("Setup Keyboard", MenuStorage::KEYBOARD_MENU)
+    ->set_help("Configure key-action mappings");
 
-  add_submenu(_("Setup Joystick"), MenuStorage::JOYSTICK_MENU)
-    ->set_help(_("Configure joystick control-action mappings"));
+  add_submenu("Setup Joystick", MenuStorage::JOYSTICK_MENU)
+    ->set_help("Configure joystick control-action mappings");
 
-  auto enable_transitions = add_toggle(MNID_TRANSITIONS, _("Enable transitions"), &g_config->transitions_enabled);
-  enable_transitions->set_help(_("Enable screen transitions and smooth menu animation"));
+  auto enable_transitions = add_toggle(MNID_TRANSITIONS, "Enable transitions", &g_config->transitions_enabled);
+  enable_transitions->set_help("Enable screen transitions and smooth menu animation");
 
   if (g_config->developer_mode)
   {
-    add_toggle(MNID_DEVELOPER_MODE, _("Developer Mode"), &g_config->developer_mode);
+    add_toggle(MNID_DEVELOPER_MODE, "Developer Mode", &g_config->developer_mode);
   }
 
   if (g_config->is_christmas() || g_config->christmas_mode)
   {
-    add_toggle(MNID_CHRISTMAS_MODE, _("Christmas Mode"), &g_config->christmas_mode);
+    add_toggle(MNID_CHRISTMAS_MODE, "Christmas Mode", &g_config->christmas_mode);
   }
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 OptionsMenu::~OptionsMenu()
@@ -243,7 +235,7 @@ OptionsMenu::menu_action(MenuItem* item)
   switch (item->id) {
     case MNID_ASPECTRATIO:
       {
-        if (aspect_ratios[next_aspect_ratio] == _("auto"))
+        if (aspect_ratios[next_aspect_ratio] == "auto")
         {
           g_config->aspect_size = Size(0, 0); // Magic values
           VideoSystem::current()->get_renderer().apply_config();
@@ -263,7 +255,7 @@ OptionsMenu::menu_action(MenuItem* item)
       break;
 
     case MNID_MAGNIFICATION:
-      if (magnifications[next_magnification] == _("auto"))
+      if (magnifications[next_magnification] == "auto")
       {
         g_config->magnification = 0.0f; // Magic value
       }

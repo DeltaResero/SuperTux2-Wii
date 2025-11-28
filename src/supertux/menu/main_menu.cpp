@@ -35,12 +35,12 @@ MainMenu::MainMenu()
 {
   set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 35);
 
-  add_entry(MNID_STARTGAME, _("Start Game"));
-  add_entry(MNID_ADDONS, _("Add-ons"));
-  add_submenu(_("Options"), MenuStorage::OPTIONS_MENU);
-  add_entry(MNID_LEVELEDITOR, _("Level Editor"));
-  add_entry(MNID_CREDITS, _("Credits"));
-  add_entry(MNID_QUITMAINMENU, _("Quit"));
+  add_entry(MNID_STARTGAME, "Start Game");
+  add_entry(MNID_ADDONS, "Add-ons");
+  add_submenu("Options", MenuStorage::OPTIONS_MENU);
+  add_entry(MNID_LEVELEDITOR, "Level Editor");
+  add_entry(MNID_CREDITS, "Credits");
+  add_entry(MNID_QUITMAINMENU, "Quit");
 }
 
 void
@@ -95,9 +95,9 @@ MainMenu::menu_action(MenuItem* item)
       {
         // confirmation dialog
         std::unique_ptr<Dialog> dialog(new Dialog);
-        dialog->set_text(_("Do you really want to quit SuperTux?"));
-        dialog->add_cancel_button(_("Cancel"));
-        dialog->add_default_button(_("Quit SuperTux"), [] {
+        dialog->set_text("Do you really want to quit SuperTux?");
+        dialog->add_cancel_button("Cancel");
+        dialog->add_default_button("Quit SuperTux", [] {
             MenuManager::instance().clear_menu_stack();
             ScreenManager::current()->quit(std::unique_ptr<ScreenFade>(new FadeOut(0.25)));
             SoundManager::current()->stop_music(0.25);
