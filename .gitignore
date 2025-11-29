@@ -12,6 +12,7 @@ CMakeFiles/
 cmake_install.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
+/data/levels/misc/menu.stl
 install_manifest.txt
 /Makefile
 /config.h
@@ -22,11 +23,11 @@ install_manifest.txt
 /supertux2
 /supertux2.exe
 
-# ---  Doxygen related files
+# ---  Doxygen related files ---
 /Doxyfile
 docs/doxygen/
 
-# ---  Windows build files
+# ---  Windows build files ---
 Debug/
 Release/
 tools/innosetup/Output
@@ -52,8 +53,12 @@ dependencies*/
 *.dylib
 *.lib
 
-# --- Useful Customization Files
+# --- Useful Customization Files ---
 data/levels/more/
+
+# --- External Library Artifacts ---
+/external/sexp-cpp/build/
+/external/sexp-cpp/old/
 
 # --- Archives ---
 *.7z
