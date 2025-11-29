@@ -19,8 +19,7 @@
 #include "video/video_system.hpp"
 
 #include <ctime>
-#include <boost/format.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 
 class Config
 {
@@ -65,10 +64,10 @@ public:
   std::string record_demo;
 
   /** this variable is set if tux should spawn somewhere which isn't the "main" spawn point*/
-  boost::optional<Vector> tux_spawn_pos;
+  std::optional<Vector> tux_spawn_pos;
 
   /** The level that should be launched in the editor*/
-  boost::optional<std::string> edit_level;
+  std::optional<std::string> edit_level;
 
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;

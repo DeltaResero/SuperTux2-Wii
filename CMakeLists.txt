@@ -101,9 +101,6 @@ ENDIF(WIN32)
 
 ## Add lots of dependencies to compiler switches
 
-# Boost Configuration
-FIND_PACKAGE(Boost REQUIRED)
-
 IF(WIN32)
   FIND_PATH(SDL2_INCLUDE_DIRS NAMES SDL.h PATHS "${DEPENDENCY_FOLDER}/include/SDL2")
   FIND_PATH(SDL2IMAGE_INCLUDE_DIRS NAMES SDL_image.h PATHS "${DEPENDENCY_FOLDER}/include/SDL2_image")
@@ -416,32 +413,25 @@ ENDIF(COMPILE_AMALGATION)
 OPTION(WERROR "Stop on first compiler warning" OFF)
 OPTION(WARNINGS "Enable long list of warnings for compiler to check" OFF)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # http://www.guyrutenberg.com/2014/01/05/enabling-c11-c0x-in-cmake/
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-  if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  else(COMPILER_SUPPORTS_CXX11)
-    CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-    if(COMPILER_SUPPORTS_CXX0X)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    else(COMPILER_SUPPORTS_CXX0X)
-      message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-    endif(COMPILER_SUPPORTS_CXX0X)
-  endif(COMPILER_SUPPORTS_CXX11)
+# Set C++20 globally (Works for all compilers)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Set specific flags only for GCC or Clang
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING "Debug flags")
   SET(CMAKE_C_FLAGS_DEBUG "-O0 -g" CACHE STRING "Debug flags")
   SET(CMAKE_CXX_FLAGS_PROFILE "-pg" CACHE STRING "Profile flags")
   SET(CMAKE_C_FLAGS_PROFILE "-pg" CACHE STRING "Profile flags")
   SET(CMAKE_LD_FLAGS_PROFILE "-lgmon" CACHE STRING "Profile flags")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter -funit-at-a-time")
+
   IF(WERROR)
     ADD_DEFINITIONS(-Werror)
   ELSE(WERROR)
     REMOVE_DEFINITIONS(-Werror)
   ENDIF(WERROR)
+
   IF(WARNINGS)
     # temporarily disabled:
     #   -Wsign-conversion -Wfloat-equal -Wconversion -Wundef -Wswitch-default
@@ -705,7 +695,7 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 ## CPack/Installation-specific stuff
 
 INCLUDE(InstallRequiredSystemLibraries)
-SET(DIRS ${Boost_LIBRARY_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel)
+SET(DIRS ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DISABLE_CPACK_BUNDLING)
   SET(INFOPLIST_CFBUNDLEEXECUTABLE "SuperTux")

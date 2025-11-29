@@ -11,7 +11,7 @@
 
 #include "supertux/command_line_arguments.hpp"
 
-#include <boost/format.hpp>
+#include <format>
 #include <iostream>
 #include <physfs.h>
 #include <stdexcept>
@@ -71,7 +71,7 @@ void
 CommandLineArguments::print_help(const char* arg0) const
 {
   std::cerr
-            << boost::format(_(     "Usage: %s [OPTIONS] [LEVELFILE]")) % arg0 << "\n" << "\n"
+            << std::format("Usage: {} [OPTIONS] [LEVELFILE]", arg0) << "\n" << "\n"
             << _(     "General Options:" ) << "\n"
             << _(     "  -h, --help                   Show this help message and quit") << "\n"
             << _(     "  -v, --version                Show SuperTux version and quit") << "\n"
@@ -317,13 +317,13 @@ CommandLineArguments::parse_args(int argc, char** argv)
         record_demo = argv[++i];
       }
     }
-    else if (arg == "--spawn-pos") 
+    else if (arg == "--spawn-pos")
     {
       Vector spawn_pos;
-      
+
       if (!start_level)
         throw std::runtime_error("--spawn-pos can only be used when a levelfile is specified.");
-      
+
       if (++i >= argc)
         throw std::runtime_error("Need to specify a spawn-pos X,Y");
       else
@@ -334,7 +334,7 @@ CommandLineArguments::parse_args(int argc, char** argv)
         spawn_pos.x = x;
         spawn_pos.y = y;
       }
-      
+
       tux_spawn_pos = spawn_pos;
     }
     else if (arg == "--debug-scripts" || arg == "-s")
@@ -369,7 +369,7 @@ CommandLineArguments::parse_args(int argc, char** argv)
     }
     else
     {
-      throw std::runtime_error((boost::format("Unknown option '%1%''. Use --help to see a list of options") % arg).str());
+      throw std::runtime_error(std::format("Unknown option '{}'. Use --help to see a list of options", arg));
     }
   }
 }
