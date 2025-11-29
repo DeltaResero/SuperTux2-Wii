@@ -72,18 +72,9 @@ public:
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;
 
-  struct Addon
-  {
-    std::string id;
-    bool enabled;
-  };
-  std::vector<Addon> addons;
-
   bool developer_mode;
   bool christmas_mode;
   bool transitions_enabled;
-
-  std::string repository_url;
 
   bool is_christmas() const {
     std::time_t t = std::time(nullptr);

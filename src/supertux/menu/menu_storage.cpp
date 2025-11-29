@@ -12,7 +12,6 @@
 #include "supertux/menu/menu_storage.hpp"
 
 #include "supertux/globals.hpp"
-#include "supertux/menu/addon_menu.hpp"
 #include "supertux/menu/cheat_menu.hpp"
 #include "supertux/menu/contrib_menu.hpp"
 #include "supertux/menu/editor_menu.hpp"
@@ -92,27 +91,18 @@ MenuStorage::create(MenuId menu_id)
 
     case WORLDSET_MENU:
       return std::unique_ptr<Menu>(new WorldSetMenu);
-      
+
     case CONTRIB_MENU:
       return std::unique_ptr<Menu>(new ContribMenu);
 
     case CONTRIB_WORLD_MENU:
       return 0; //return new ContribWorldMenu();
 
-    case ADDON_MENU:
-      return std::unique_ptr<Menu>(new AddonMenu);
-
-    case LANGPACK_MENU:
-      return std::unique_ptr<Menu>(new AddonMenu(true));
-
     case EDITOR_LEVELSET_SELECT_MENU:
       return std::unique_ptr<Menu>(new EditorLevelsetSelectMenu);
 
     case EDITOR_NEW_LEVELSET_MENU:
       return std::unique_ptr<Menu>(new EditorNewLevelsetMenu);
-
-    case LANGPACK_AUTO_UPDATE_MENU:
-      return std::unique_ptr<Menu>(new AddonMenu(true, true));
 
     case EDITOR_LEVEL_SELECT_MENU:
       return std::unique_ptr<Menu>(new EditorLevelSelectMenu);

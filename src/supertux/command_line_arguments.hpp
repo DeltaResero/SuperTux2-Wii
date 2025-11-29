@@ -69,8 +69,6 @@ public:
 
   std::optional<bool> christmas_mode;
 
-  std::optional<std::string> repository_url;
-
   std::optional<std::string> edit_level;
 
   // std::optional<std::string> locale;
