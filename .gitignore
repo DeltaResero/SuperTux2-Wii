@@ -103,4 +103,6 @@ Thumbs.db
 
 # --- Translations (Generated) ---
 *.pot
+*.po
+*.mo
 .tx/
