@@ -19,7 +19,6 @@ class WorldSetMenu;
 
 enum MainMenuIDs {
   MNID_STARTGAME,
-  MNID_ADDONS,
   MNID_OPTIONMENU,
   MNID_LEVELEDITOR,
   MNID_CREDITS,

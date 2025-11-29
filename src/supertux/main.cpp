@@ -22,7 +22,6 @@
 #include <physfs.h>
 #include <stdio.h>
 
-#include "addon/addon_manager.hpp"
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
 #include "editor/editor.hpp"
@@ -301,9 +300,6 @@ Main::launch_game()
   TileManager tile_manager;
   SpriteManager sprite_manager;
   Resources resources;
-
-  timelog("addons");
-  AddonManager addon_manager("addons", g_config->addons);
 
   timelog(0);
 

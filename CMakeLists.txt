@@ -215,15 +215,6 @@ ENDIF()
 
 INCLUDE_DIRECTORIES(BEFORE SYSTEM ${PHYSFS_INCLUDE_DIR})
 
-
-## The curl headers are in the standard include path in dependencies
-## so it's not required to add them here
-FIND_PACKAGE(CURL REQUIRED)
-IF(CURL_FOUND)
-  INCLUDE_DIRECTORIES(SYSTEM ${CURL_INCLUDE_DIR})
-  SET(HAVE_LIBCURL TRUE)
-ENDIF(CURL_FOUND)
-
 #FIND_PACKAGE(ICONV REQUIRED)
 #INCLUDE_DIRECTORIES(SYSTEM ${ICONV_INCLUDE_DIR})
 #LINK_LIBRARIES(${ICONV_LIBRARY})
@@ -281,8 +272,6 @@ SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/version.h
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/main.cpp
                             PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_screen.cpp
-                            PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/src/addon/addon_manager.cpp
                             PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
@@ -552,9 +541,6 @@ IF(HAVE_OPENGL)
     TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${GLEW_LIBRARY})
   ENDIF()
 ENDIF(HAVE_OPENGL)
-IF(HAVE_LIBCURL)
-  TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${CURL_LIBRARY})
-ENDIF(HAVE_LIBCURL)
 
 if(BUILD_TESTS)
   find_package(Threads REQUIRED)
@@ -739,7 +725,7 @@ SET(CPACK_PACKAGE_VENDOR "SuperTux Devel Team")
 SET(CPACK_PACKAGE_CONTACT "SuperTux Devel Team <supertux-devel@lists.lethargik.org>")
 SET(CPACK_SOURCE_IGNORE_FILES "/\\\\.git/;${CMAKE_BINARY_DIR};/\\\\..*")
 SET(CPACK_DEBIAN_PACKAGE_NAME "supertux2")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libgl1-mesa-glx | libgl1, libogg0 (>= 1.1.3), libopenal0a, libphysfs-1.0-0, libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libstdc++6 (>= 4.1.2), libvorbis0a (>= 1.1.2), libvorbisfile3 (>= 1.1.2), libcurl3 (>= 7.16)")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libgl1-mesa-glx | libgl1, libogg0 (>= 1.1.3), libopenal0a, libphysfs-1.0-0, libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libstdc++6 (>= 4.1.2), libvorbis0a (>= 1.1.2), libvorbisfile3 (>= 1.1.2)")
 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Classic 2D jump 'n run sidescroller with Tux\n SuperTux is a classic 2D jump 'n run sidescroller game in a similar\n style like the original SuperMario games. This release of SuperTux\n features 9 enemies, 26 playable levels, software and OpenGL rendering\n modes, configurable joystick and keyboard input, new music and\n completely redone graphics.\n .\n This is a development snapshot of SuperTux. It may suffer from\n critical bugs and has not been fully tested. \n .\n Homepage: http://supertux.lethargik.org/")
 SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
 SET(CPACK_RPM_PACKAGE_NAME "supertux2")

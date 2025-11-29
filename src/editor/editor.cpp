@@ -13,7 +13,6 @@
 
 #include <limits>
 
-#include "addon/addon_manager.hpp"
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
 #include "editor/layer_icon.hpp"
@@ -337,32 +336,7 @@ Editor::setup() {
   Tile::draw_editor_images = true;
   Sector::draw_solids_only = false;
   if (!levelloaded) {
-
-#if 0
-    if (AddonManager::current()->is_old_addon_enabled()) {
-      std::unique_ptr<Dialog> dialog(new Dialog);
-      dialog->set_text(_("Some obsolete add-ons are still active\nand might cause collisions with default Super Tux structure.\nYou can still enable these add-ons in the menu.\nDisabling these add-ons will not delete your game progress."));
-      dialog->clear_buttons();
-
-      dialog->add_default_button(_("Disable add-ons"), [] {
-        AddonManager::current()->disable_old_addons();
-        MenuManager::instance().push_menu(MenuStorage::EDITOR_LEVELSET_SELECT_MENU);
-      });
-
-      dialog->add_button(_("Ignore (not advised)"), [] {
-        MenuManager::instance().push_menu(MenuStorage::EDITOR_LEVELSET_SELECT_MENU);
-      });
-
-      dialog->add_button(_("Leave editor"), [this] {
-        this->quit_request = true;
-      });
-
-      MenuManager::instance().set_dialog(std::move(dialog));
-    } else
-#endif
-    {
-      MenuManager::instance().push_menu(MenuStorage::EDITOR_LEVELSET_SELECT_MENU);
-    }
+    MenuManager::instance().push_menu(MenuStorage::EDITOR_LEVELSET_SELECT_MENU);
   }
   tileselect.setup();
   layerselect.setup();
