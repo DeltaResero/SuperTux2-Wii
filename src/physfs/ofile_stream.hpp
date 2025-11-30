@@ -9,18 +9,14 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_OFILE_STREAM_HPP
-#define HEADER_SUPERTUX_PHYSFS_OFILE_STREAM_HPP
+#ifndef HEADER_SUPERTUX_IO_OFILE_STREAM_HPP
+#define HEADER_SUPERTUX_IO_OFILE_STREAM_HPP
 
-#include <memory>
-#include <ostream>
-#include <physfs.h>
+#include <fstream>
+#include <string>
 
-class OFileStream : public std::ostream
+class OFileStream : public std::ofstream
 {
-protected:
-  std::unique_ptr<std::streambuf> sb;
-
 public:
   OFileStream(const std::string& filename);
   ~OFileStream();
@@ -30,6 +26,6 @@ private:
   OFileStream& operator=(const OFileStream&) = delete;
 };
 
-#endif // HEADER_SUPERTUX_PHYSFS_OFILE_STREAM_HPP
+#endif // HEADER_SUPERTUX_IO_OFILE_STREAM_HPP
 
 // EOF

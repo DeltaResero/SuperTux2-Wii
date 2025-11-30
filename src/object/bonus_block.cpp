@@ -33,7 +33,6 @@
 #include "util/reader_mapping.hpp"
 
 #include <stdexcept>
-#include <physfs.h>
 
 BonusBlock::BonusBlock(const Vector& pos, int data) :
   Block(SpriteManager::current()->create("images/objects/bonus_block/bonusblock.sprite")),

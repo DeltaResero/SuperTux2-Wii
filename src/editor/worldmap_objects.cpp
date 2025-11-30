@@ -9,7 +9,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#include <physfs.h>
+#include "util/file_system.hpp"
 
 #include "editor/editor.hpp"
 #include "editor/worldmap_objects.hpp"
@@ -142,7 +142,7 @@ LevelDot::after_editor_set() {
 
   // Forbid the players to use levels of other levelsets
   level = FileSystem::join(Editor::current()->get_world()->get_basedir(), name);
-  if (!PHYSFS_exists(level.c_str())) {
+  if (!FileSystem::exists(level)) {
     log_warning << "Using levels of other level subsets is not allowed!" << std::endl;
     level = basedir + "/";
     name = "";

@@ -19,7 +19,6 @@
 #include <optional>
 #include <array>
 #include <iostream>
-#include <physfs.h>
 #include <stdio.h>
 
 #include "audio/sound_manager.hpp"
@@ -28,8 +27,6 @@
 #include "gui/menu_manager.hpp"
 #include "math/random_generator.hpp"
 #include "object/player.hpp"
-#include "physfs/ifile_stream.hpp"
-#include "physfs/physfs_file_system.hpp"
 #include "physfs/physfs_sdl.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "scripting/scripting.hpp"
@@ -81,131 +78,6 @@ public:
       g_config->save();
     }
     g_config.reset();
-  }
-};
-
-class PhysfsSubsystem
-{
-private:
-  std::optional<std::string> m_forced_datadir;
-  std::optional<std::string> m_forced_userdir;
-
-public:
-  PhysfsSubsystem(const char* argv0,
-                  std::optional<std::string> forced_datadir,
-                  std::optional<std::string> forced_userdir) :
-    m_forced_datadir(forced_datadir),
-    m_forced_userdir(forced_userdir)
-  {
-    if (!PHYSFS_init(argv0))
-    {
-      std::stringstream msg;
-      msg << "Couldn't initialize physfs: " << PHYSFS_getLastError();
-      throw std::runtime_error(msg.str());
-    }
-    else
-    {
-      // allow symbolic links
-      PHYSFS_permitSymbolicLinks(1);
-
-      find_userdir();
-      find_datadir();
-    }
-  }
-
-  void find_datadir()
-  {
-    std::string datadir;
-    if (m_forced_datadir)
-    {
-      datadir = *m_forced_datadir;
-    }
-    else if (const char* env_datadir = getenv("SUPERTUX2_DATA_DIR"))
-    {
-      datadir = env_datadir;
-    }
-    else
-    {
-      // check if we run from source dir
-      char* basepath_c = SDL_GetBasePath();
-      std::string basepath = basepath_c ? basepath_c : "./";
-      SDL_free(basepath_c);
-
-      if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.stxt")))
-      {
-        datadir = BUILD_DATA_DIR;
-        // Add config dir for supplemental files
-        PHYSFS_mount(BUILD_CONFIG_DATA_DIR, NULL, 1);
-      }
-      else
-      {
-        // if the game is not run from the source directory, try to find
-        // the global install location
-        datadir = basepath.substr(0, basepath.rfind(INSTALL_SUBDIR_BIN));
-        datadir = FileSystem::join(datadir, INSTALL_SUBDIR_SHARE);
-      }
-    }
-
-    if (!PHYSFS_mount(datadir.c_str(), NULL, 1))
-    {
-      log_warning << "Couldn't add '" << datadir << "' to physfs searchpath: " << PHYSFS_getLastError() << std::endl;
-    }
-  }
-
-  void find_userdir()
-  {
-    std::string userdir;
-    if (m_forced_userdir)
-    {
-      userdir = *m_forced_userdir;
-    }
-    else if (const char* env_userdir = getenv("SUPERTUX2_USER_DIR"))
-    {
-      userdir = env_userdir;
-    }
-    else
-    {
-      std::string physfs_userdir = PHYSFS_getUserDir();
-#ifdef _WIN32
-      userdir = FileSystem::join(physfs_userdir, PACKAGE_NAME);
-#else
-      userdir = FileSystem::join(physfs_userdir, "." PACKAGE_NAME);
-#endif
-    }
-
-    if (!FileSystem::is_directory(userdir))
-    {
-      FileSystem::mkdir(userdir);
-      log_info << "Created SuperTux userdir: " << userdir << std::endl;
-    }
-
-    if (!PHYSFS_setWriteDir(userdir.c_str()))
-    {
-      std::ostringstream msg;
-      msg << "Failed to use userdir directory '"
-          <<  userdir << "': " << PHYSFS_getLastError();
-      throw std::runtime_error(msg.str());
-    }
-
-    PHYSFS_mount(userdir.c_str(), NULL, 0);
-  }
-
-  void print_search_path()
-  {
-    const char* writedir = PHYSFS_getWriteDir();
-    log_info << "PhysfsWriteDir: " << (writedir ? writedir : "(null)") << std::endl;
-    log_info << "PhysfsSearchPath:" << std::endl;
-    char** searchpath = PHYSFS_getSearchPath();
-    for(char** i = searchpath; *i != NULL; ++i)
-    {
-      log_info << "  " << *i << std::endl;
-    }
-    PHYSFS_freeList(searchpath);
-  }
-
-  ~PhysfsSubsystem()
-  {
-    PHYSFS_deinit();
   }
 };
 
@@ -319,7 +191,6 @@ Main::launch_game()
       dir = dir.replace(position, fileProtocol.length(), "");
     }
     log_debug << "Adding dir: " << dir << std::endl;
-    PHYSFS_mount(dir.c_str(), NULL, true);
 
     if(g_config->start_level.size() > 4 &&
        g_config->start_level.compare(g_config->start_level.size() - 5, 5, ".stwm") == 0)
@@ -350,7 +221,7 @@ Main::launch_game()
     screen_manager.push_screen(std::unique_ptr<Screen>(new TitleScreen(*default_savegame)));
 
     if (g_config->edit_level) {
-      if (PHYSFS_exists(g_config->edit_level->c_str())) {
+      if (FileSystem::exists(*(g_config->edit_level))) {
         std::unique_ptr<Editor> editor(new Editor());
         editor->set_level(*(g_config->edit_level));
         editor->setup();
@@ -395,8 +266,7 @@ Main::run(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    PhysfsSubsystem physfs_subsystem(argv[0], args.datadir, args.userdir);
-    physfs_subsystem.print_search_path();
+    FileSystem::init(argv[0]);
 
     timelog("config");
     ConfigSubsystem config_subsystem;

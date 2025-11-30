@@ -11,8 +11,6 @@
 
 #include "scripting/gradient.hpp"
 
-#include <physfs.h>
-
 #include "object/gradient.hpp"
 
 namespace scripting {

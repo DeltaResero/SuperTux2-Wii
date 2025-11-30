@@ -12,7 +12,7 @@
 #include "object/camera.hpp"
 
 #include <math.h>
-#include <physfs.h>
+#include "util/file_system.hpp"
 
 #include "editor/editor.hpp"
 #include "object/path_walker.hpp"
@@ -288,7 +288,7 @@ Camera::update(float elapsed_time)
 void
 Camera::reload_config()
 {
-  if(PHYSFS_exists("camera.cfg")) {
+  if(FileSystem::exists("camera.cfg")) {
     try {
       config->load("camera.cfg");
       log_info << "Loaded camera.cfg." << std::endl;

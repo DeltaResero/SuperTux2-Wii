@@ -12,23 +12,22 @@
 #ifndef HEADER_SUPERTUX_AUDIO_WAV_SOUND_FILE_HPP
 #define HEADER_SUPERTUX_AUDIO_WAV_SOUND_FILE_HPP
 
-#include <physfs.h>
-
+#include <fstream>
+#include <string>
 #include "audio/sound_file.hpp"
 
 class WavSoundFile : public SoundFile
 {
 public:
-  WavSoundFile(PHYSFS_file* file);
+  WavSoundFile(const std::string& filename);
   ~WavSoundFile();
 
   size_t read(void* buffer, size_t buffer_size);
   void reset();
 
 private:
-  PHYSFS_file* file;
-
-  PHYSFS_sint64 datastart;
+  std::ifstream file;
+  std::streampos datastart;
 
 private:
   WavSoundFile(const WavSoundFile&);

@@ -11,8 +11,6 @@
 
 #include "scripting/sector.hpp"
 
-#include <physfs.h>
-
 #include "supertux/sector.hpp"
 
 namespace scripting {

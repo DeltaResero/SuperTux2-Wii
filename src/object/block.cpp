@@ -9,7 +9,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#include <physfs.h>
+#include "util/file_system.hpp"
 
 #include "object/block.hpp"
 
@@ -60,7 +60,7 @@ Block::Block(const ReaderMapping& lisp, const std::string& sprite_file) :
 
   std::string sf;
   lisp.get("sprite", sf);
-  if (sf.empty() || !PHYSFS_exists(sf.c_str())) {
+  if (sf.empty() || !FileSystem::exists(sf)) {
     sf = sprite_file;
   }
   sprite = SpriteManager::current()->create(sf);

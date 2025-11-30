@@ -10,27 +10,36 @@
 // (at your option) any later version.
 
 #include "audio/ogg_sound_file.hpp"
-
+#include "audio/sound_error.hpp"
+#include "util/file_system.hpp"
 #include <assert.h>
 
-OggSoundFile::OggSoundFile(PHYSFS_file* file_, double loop_begin_, double loop_at_) :
-  file(),
+OggSoundFile::OggSoundFile(const std::string& filename, double loop_begin_, double loop_at_) :
+  file(nullptr),
   vorbis_file(),
   loop_begin(),
   loop_at(),
   normal_buffer_loop()
 {
-  this->file = file_;
+  std::string path = FileSystem::find(filename);
+  if (path.empty()) path = filename;
 
-  ov_callbacks callbacks = { cb_read, cb_seek, cb_close, cb_tell };
-  ov_open_callbacks(file, &vorbis_file, 0, 0, callbacks);
+  file = fopen(path.c_str(), "rb");
+  if (!file) {
+      throw SoundError("Could not open Ogg file: " + path);
+  }
+
+  if (ov_open(file, &vorbis_file, NULL, 0) < 0) {
+      fclose(file);
+      throw SoundError("Input does not appear to be an Ogg bitstream: " + path);
+  }
 
   vorbis_info* vi = ov_info(&vorbis_file, -1);
 
   channels        = vi->channels;
   rate            = vi->rate;
   bits_per_sample = 16;
-  size            = static_cast<size_t> (ov_pcm_total(&vorbis_file, -1) * 2);
+  size            = static_cast<size_t> (ov_pcm_total(&vorbis_file, -1) * 2 * channels);
 
   double samples_begin = loop_begin_ * rate;
   double sample_loop   = loop_at_ * rate;
@@ -95,59 +104,6 @@ void
 OggSoundFile::reset()
 {
   ov_pcm_seek(&vorbis_file, loop_begin);
-}
-
-size_t
-OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* source)
-{
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
-
-  PHYSFS_sint64 res
-    = PHYSFS_readBytes(file, ptr, static_cast<PHYSFS_uint32> (size) * static_cast<PHYSFS_uint32> (nmemb));
-  if(res <= 0)
-    return 0;
-
-  return static_cast<size_t> (res) / size;
-}
-
-int
-OggSoundFile::cb_seek(void* source, ogg_int64_t offset, int whence)
-{
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
-
-  switch(whence) {
-    case SEEK_SET:
-      if(PHYSFS_seek(file, static_cast<PHYSFS_uint64> (offset)) == 0)
-        return -1;
-      break;
-    case SEEK_CUR:
-      if(PHYSFS_seek(file, PHYSFS_tell(file) + offset) == 0)
-        return -1;
-      break;
-    case SEEK_END:
-      if(PHYSFS_seek(file, PHYSFS_fileLength(file) + offset) == 0)
-        return -1;
-      break;
-    default:
-      assert(false);
-      return -1;
-  }
-  return 0;
-}
-
-int
-OggSoundFile::cb_close(void* source)
-{
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
-  PHYSFS_close(file);
-  return 0;
-}
-
-long
-OggSoundFile::cb_tell(void* source)
-{
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
-  return static_cast<long> (PHYSFS_tell(file));
 }
 
 // EOF

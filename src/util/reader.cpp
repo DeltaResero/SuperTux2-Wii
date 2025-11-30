@@ -12,7 +12,6 @@
 #include "util/reader.hpp"
 
 #include <fstream>
-#include <physfs.h>
 #include <sexp/io.hpp>
 #include <sexp/parser.hpp>
 #include <sexp/util.hpp>

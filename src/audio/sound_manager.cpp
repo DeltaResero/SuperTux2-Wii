@@ -31,7 +31,6 @@
 #ifdef USE_SDL_MIXER
 #include "audio/sdl_sound_source.hpp"
 #include "physfs/physfs_sdl.hpp"
-#include <physfs.h>
 #endif
 
 SoundManager::SoundManager() :

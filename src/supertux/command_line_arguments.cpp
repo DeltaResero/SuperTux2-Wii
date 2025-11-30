@@ -13,9 +13,9 @@
 
 #include <format>
 #include <iostream>
-#include <physfs.h>
 #include <stdexcept>
 #include <string>
+#include "util/file_system.hpp"
 
 #include "supertux/gameconfig.hpp"
 #include "supertux/main.hpp"
@@ -58,12 +58,8 @@ CommandLineArguments::print_datadir() const
 {
   // Print the datadir searchpath to stdout, one path per
   // line. Then exit. Intended for use by the supertux-editor.
-  char **sp;
-  sp = PHYSFS_getSearchPath();
-  if (sp)
-    for (size_t sp_index = 0; sp[sp_index]; sp_index++)
-      std::cout << sp[sp_index] << std::endl;
-  PHYSFS_freeList(sp);
+  // FIXME: Currently only printing user dir as we removed PhysFS search path iteration
+  std::cout << FileSystem::get_user_dir() << std::endl;
 }
 
 void

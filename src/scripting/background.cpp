@@ -11,7 +11,7 @@
 
 #include "scripting/background.hpp"
 
-#include <physfs.h>
+#include "util/file_system.hpp"
 
 #include "object/background.hpp"
 
@@ -35,13 +35,13 @@ Background::set_image(const std::string& image)
     return;
   }
 
-  const std::string& default_dir = "images/background/";
+const std::string& default_dir = "images/background";
   bool path_valid = true;
 
-  if(!PHYSFS_exists(image.c_str()))
+  if(!FileSystem::exists(image))
     path_valid = false;
 
-  m_parent->set_image(path_valid ? image : default_dir + image);
+  m_parent->set_image(path_valid ? image : FileSystem::join(default_dir, image));
 }
 
 void
@@ -54,21 +54,21 @@ Background::set_images(const std::string& top_image, const std::string& middle_i
     return;
   }
 
-  const std::string& default_dir = "images/background/";
+  const std::string& default_dir = "images/background";
   bool top_image_valid = true, middle_image_valid = true, bottom_image_valid = true;
 
-  if(!PHYSFS_exists(top_image.c_str()))
+  if(!FileSystem::exists(top_image))
     top_image_valid = false;
 
-  if(!PHYSFS_exists(middle_image.c_str()))
+  if(!FileSystem::exists(middle_image))
     middle_image_valid = false;
 
-  if(!PHYSFS_exists(bottom_image.c_str()))
+  if(!FileSystem::exists(bottom_image))
     bottom_image_valid = false;
 
-  m_parent->set_images(top_image_valid ? top_image : default_dir + top_image,
-                       middle_image_valid ? middle_image : default_dir + middle_image,
-                       bottom_image_valid ? bottom_image : default_dir + bottom_image);
+  m_parent->set_images(top_image_valid ? top_image : FileSystem::join(default_dir, top_image),
+                       middle_image_valid ? middle_image : FileSystem::join(default_dir, middle_image),
+                       bottom_image_valid ? bottom_image : FileSystem::join(default_dir, bottom_image));
 }
 
 void

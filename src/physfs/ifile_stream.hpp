@@ -9,18 +9,14 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
-#define HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
+#ifndef HEADER_SUPERTUX_IO_IFILE_STREAM_HPP
+#define HEADER_SUPERTUX_IO_IFILE_STREAM_HPP
 
-#include <memory>
-#include <istream>
-#include <physfs.h>
+#include <fstream>
+#include <string>
 
-class IFileStream : public std::istream
+class IFileStream : public std::ifstream
 {
-protected:
-  std::unique_ptr<std::streambuf> sb;
-
 public:
   IFileStream(const std::string& filename);
   ~IFileStream();
@@ -30,6 +26,6 @@ private:
   IFileStream& operator=(const IFileStream&) = delete;
 };
 
-#endif // HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
+#endif // HEADER_SUPERTUX_IO_IFILE_STREAM_HPP
 
 // EOF

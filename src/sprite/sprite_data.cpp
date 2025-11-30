@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <sstream>
 
+#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -73,17 +74,16 @@ SpriteData::parse_action(const ReaderMapping& lisp, const std::string& basedir)
       case 4:
         action->hitbox_h = hitbox[3];
         action->hitbox_w = hitbox[2];
-
         //fall-through
       case 2:
         action->y_offset = hitbox[1];
         action->x_offset = hitbox[0];
         break;
-
       default:
         throw std::runtime_error("hitbox should specify 2/4 coordinates");
     }
   }
+
   lisp.get("z-order", action->z_order);
   lisp.get("fps", action->fps);
 
@@ -119,7 +119,7 @@ SpriteData::parse_action(const ReaderMapping& lisp, const std::string& basedir)
       float max_w = 0;
       float max_h = 0;
       for(const auto& image : images) {
-        auto surface = Surface::create(basedir + image);
+        auto surface = Surface::create(FileSystem::join(basedir, image));
         max_w = std::max(max_w, (float) surface->get_width());
         max_h = std::max(max_h, (float) surface->get_height());
         action->surfaces.push_back(surface);
