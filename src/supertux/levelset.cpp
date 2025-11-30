@@ -11,10 +11,9 @@
 
 #include "supertux/levelset.hpp"
 
-#include <physfs.h>
+#include <filesystem>
 #include <algorithm>
 
-#include "physfs/physfs_file_system.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/string_util.hpp"
@@ -43,35 +42,32 @@ void
 Levelset::walk_directory(const std::string& directory, bool recursively)
 {
   bool is_basedir = (directory == m_basedir);
-  char** files = PHYSFS_enumerateFiles(directory.c_str());
-  if (!files)
-  {
+  std::string search_path = FileSystem::find(directory);
+
+  if (search_path.empty() || !std::filesystem::is_directory(search_path)) {
     log_warning << "Couldn't read subset dir '" << directory << "'" << std::endl;
     return;
   }
 
-  for(const char* const* filename = files; *filename != 0; ++filename)
-  {
-    auto filepath = FileSystem::join(directory.c_str(), *filename);
-    if(PhysFSFileSystem::is_directory(filepath) && recursively)
-    {
-      walk_directory(filepath, true);
-    }
-    if(StringUtil::has_suffix(*filename, ".stl"))
-    {
-      if(is_basedir)
-      {
-        m_levels.push_back(*filename);
+  for (const auto& entry : std::filesystem::directory_iterator(search_path)) {
+      std::string filename = entry.path().filename().string();
+      std::string filepath = FileSystem::join(directory, filename);
+
+      if (entry.is_directory() && recursively) {
+          walk_directory(filepath, true);
       }
-      else
-      {
-        // Replace basedir part of file path plus slash.
-        filepath = filepath.replace(0, m_basedir.length() + 1, "");
-        m_levels.push_back(filepath);
+
+      if (StringUtil::has_suffix(filename, ".stl")) {
+          if(is_basedir) {
+            m_levels.push_back(filename);
+          } else {
+            // Replace basedir part of file path plus slash.
+            std::string rel_path = filepath;
+            rel_path = rel_path.replace(0, m_basedir.length() + 1, "");
+            m_levels.push_back(rel_path);
+          }
       }
-    }
   }
-  PHYSFS_freeList(files);
 }
 
 // EOF

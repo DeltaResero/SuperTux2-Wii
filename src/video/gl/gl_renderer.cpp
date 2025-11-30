@@ -13,10 +13,11 @@
 
 #include <iomanip>
 #include <iostream>
-#include <physfs.h>
+#include <filesystem>
 #include "SDL.h"
 
 #include "supertux/gameconfig.hpp"
+#include "util/file_system.hpp"
 #include "supertux/globals.hpp"
 #include "video/drawing_request.hpp"
 #include "video/gl/gl_painter.hpp"
@@ -180,9 +181,8 @@ GLRenderer::do_take_screenshot()
   // free array
   delete[](pixels);
 
-  // save screenshot
-  static const std::string writeDir = PHYSFS_getWriteDir();
-  static const std::string dirSep = PHYSFS_getDirSeparator();
+// save screenshot
+  static const std::string writeDir = FileSystem::get_user_dir();
   static const std::string baseName = "screenshot";
   static const std::string fileExt = ".bmp";
   std::string fullFilename;
@@ -192,8 +192,8 @@ GLRenderer::do_take_screenshot()
     oss << std::setw(3) << std::setfill('0') << num;
     oss << fileExt;
     std::string fileName = oss.str();
-    fullFilename = writeDir + dirSep + fileName;
-    if (!PHYSFS_exists(fileName.c_str())) {
+    fullFilename = writeDir + "/" + fileName;
+    if (!std::filesystem::exists(fullFilename)) {
       SDL_SaveBMP(shot_surf, fullFilename.c_str());
       log_info << "Wrote screenshot to \"" << fullFilename << "\"" << std::endl;
       SDL_FreeSurface(shot_surf);

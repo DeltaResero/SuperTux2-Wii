@@ -21,6 +21,7 @@
 #include "supertux/globals.hpp"
 #include "supertux/screen_manager.hpp"
 #include "supertux/resources.hpp"
+#include "util/file_system.hpp"
 #include "util/reader.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -162,7 +163,7 @@ TextScroller::TextScroller(const std::string& filename) :
   }
 
   // load background image
-  background = Surface::create("images/background/" + background_file);
+  background = Surface::create(FileSystem::join("images/background", background_file));
 
   scroll = 0;
   fading = false;

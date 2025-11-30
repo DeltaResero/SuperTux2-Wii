@@ -10,13 +10,24 @@
 // (at your option) any later version.
 
 #include "physfs/ifile_stream.hpp"
-
-#include "physfs/ifile_streambuf.hpp"
+#include "util/file_system.hpp"
+#include "util/log.hpp"
 
 IFileStream::IFileStream(const std::string& filename) :
-  std::istream(nullptr), sb(new IFileStreambuf(filename))
+  std::ifstream()
 {
-  init(sb.get());
+  std::string path = FileSystem::find(filename);
+  if (path.empty()) {
+    // If file not found in search paths, try opening directly as fallback
+    log_debug << "File not found in search paths: " << filename << ", trying direct open" << std::endl;
+    this->open(filename, std::ios::binary);
+  } else {
+    this->open(path, std::ios::binary);
+  }
+
+  if (!this->is_open() || !this->good()) {
+    log_warning << "Failed to open file: " << filename << std::endl;
+  }
 }
 
 IFileStream::~IFileStream()

@@ -18,7 +18,7 @@
 #include <string.h>
 #include <stdexcept>
 #include <SDL_image.h>
-#include <physfs.h>
+#include <filesystem>
 
 #include "physfs/physfs_sdl.hpp"
 #include "supertux/screen.hpp"
@@ -69,14 +69,15 @@ Font::Font(GlyphWidth glyph_width_,
   const std::string fontname = FileSystem::basename(filename);
 
   // scan for prefix-filename in addons search path
-  char **rc = PHYSFS_enumerateFiles(fontdir.c_str());
-  for (char **i = rc; *i != NULL; i++) {
-    std::string filename_(*i);
-    if( filename_.rfind(fontname) != std::string::npos ) {
-      loadFontFile(fontdir + filename_);
-    }
+  std::string search_path = FileSystem::find(fontdir);
+  if (!search_path.empty() && std::filesystem::is_directory(search_path)) {
+      for (const auto& entry : std::filesystem::directory_iterator(search_path)) {
+          std::string filename_ = entry.path().filename().string();
+          if( filename_.rfind(fontname) != std::string::npos ) {
+            loadFontFile(FileSystem::join(fontdir, filename_));
+          }
+      }
   }
-  PHYSFS_freeList(rc);
 }
 
 void

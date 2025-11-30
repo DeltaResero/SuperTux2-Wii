@@ -10,9 +10,8 @@
 // (at your option) any later version.
 
 #include <algorithm>
+#include <filesystem>
 
-#include "physfs/ifile_streambuf.hpp"
-#include "physfs/physfs_file_system.hpp"
 #include "scripting/serialize.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/gameconfig.hpp"
@@ -62,16 +61,16 @@ World::create(const std::string& title, const std::string& desc)
     }
   }
 
-  base = "levels/" + base;
+  base = FileSystem::join("levels", base);
 
   //Find a non-existing fitting directory name
   std::string dirname = base;
-  if (PHYSFS_exists(dirname.c_str())) {
+  if (FileSystem::exists(dirname)) {
     int num = 1;
     do {
       num++;
       dirname = base + std::to_string(num);
-    } while ( PHYSFS_exists(dirname.c_str()) );
+    } while ( FileSystem::exists(dirname) );
   }
 
   world->create_(dirname, title, desc);
@@ -105,11 +104,11 @@ void
 World::load_(const std::string& directory)
 {
   m_basedir = directory;
-  m_worldmap_filename = m_basedir + "/worldmap.stwm";
+  m_worldmap_filename = FileSystem::join(m_basedir, "worldmap.stwm");
 
-  std::string filename = m_basedir + "/info";
+  std::string filename = FileSystem::join(m_basedir, "info");
 
-  if(!PHYSFS_exists(filename.c_str()))
+  if(!FileSystem::exists(filename))
   {
     set_default_values();
     return;
@@ -145,7 +144,7 @@ void
 World::create_(const std::string& directory, const std::string& title, const std::string& desc)
 {
   m_basedir = directory;
-  m_worldmap_filename = m_basedir + "/worldmap.stwm";
+  m_worldmap_filename = FileSystem::join(m_basedir, "worldmap.stwm");
 
   m_title = title;
   m_description = desc;
@@ -168,28 +167,17 @@ World::get_title() const
 void
 World::save(bool retry)
 {
-  std::string filepath = m_basedir + "/info";
+  std::string filepath = FileSystem::join(m_basedir, "info");
 
   try {
 
     { // make sure the levelset directory exists
       std::string dirname = FileSystem::dirname(filepath);
-      if(!PHYSFS_exists(dirname.c_str()))
-      {
-        if(!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for levelset '"
-              << dirname << "': " <<PHYSFS_getLastError();
-          throw std::runtime_error(msg.str());
-        }
-      }
+      std::filesystem::path dir(FileSystem::get_user_dir());
+      dir /= dirname;
 
-      if(!PhysFSFileSystem::is_directory(dirname))
-      {
-        std::ostringstream msg;
-        msg << "Levelset path '" << dirname << "' is not a directory";
-        throw std::runtime_error(msg.str());
+      if(!std::filesystem::exists(dir)) {
+          std::filesystem::create_directories(dir);
       }
     }
 
@@ -212,13 +200,9 @@ World::save(bool retry)
       log_warning << "Failed to save the levelset info, retrying..." << std::endl;
       { // create the levelset directory again
         std::string dirname = FileSystem::dirname(filepath);
-        if(!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for levelset '"
-              << dirname << "': " <<PHYSFS_getLastError();
-          throw std::runtime_error(msg.str());
-        }
+        std::filesystem::path dir(FileSystem::get_user_dir());
+        dir /= dirname;
+        std::filesystem::create_directories(dir);
       }
       save(true);
     }

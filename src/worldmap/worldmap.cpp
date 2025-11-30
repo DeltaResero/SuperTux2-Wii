@@ -17,7 +17,6 @@
 #include <assert.h>
 #include <fstream>
 #include <iostream>
-#include <physfs.h>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
@@ -30,7 +29,6 @@
 #include "object/background.hpp"
 #include "object/decal.hpp"
 #include "object/tilemap.hpp"
-#include "physfs/ifile_streambuf.hpp"
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_error.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -336,7 +334,7 @@ WorldMap::load_level_information(LevelTile& level)
   level.target_time = 0.0f;
 
   try {
-    std::string filename = levels_path + level.get_name();
+    std::string filename = FileSystem::join(levels_path, level.get_name());
     if(levels_path == "./")
       filename = level.get_name();
     register_translation_directory(filename);
@@ -661,7 +659,7 @@ WorldMap::update(float delta)
         try {
           Vector shrinkpos = Vector(level_->pos.x*32 + 16 - camera_offset.x,
                                     level_->pos.y*32 +  8 - camera_offset.y);
-          std::string levelfile = levels_path + level_->get_name();
+          std::string levelfile = FileSystem::join(levels_path, level_->get_name());
 
           // update state and savegame
           save_state();
@@ -879,9 +877,11 @@ WorldMap::setup()
 
   //Run default.nut just before init script
   try {
-    IFileStreambuf ins(levels_path + "default.nut");
-    std::istream in(&ins);
-    run_script(in, "WorldMap::default.nut");
+    std::string script_path = FileSystem::find(FileSystem::join(levels_path, "default.nut"));
+    if (!script_path.empty()) {
+        std::ifstream in(script_path);
+        run_script(in, "WorldMap::default.nut");
+    }
   } catch(std::exception& ) {
     // doesn't exist or erroneous; do nothing
   }

@@ -11,12 +11,11 @@
 
 #include "gui/menu_filesystem.hpp"
 
-#include <physfs.h>
+#include <filesystem>
 
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "gui/item_action.hpp"
-#include "physfs/physfs_file_system.hpp"
 #include "util/file_system.hpp"
 #include "util/gettext.hpp"
 #include "util/log.hpp"
@@ -30,7 +29,7 @@ FileSystemMenu::FileSystemMenu(std::string* filename_, const std::vector<std::st
   files()
 {
   directory = FileSystem::dirname(*filename);
-  if (!PHYSFS_exists(directory.c_str())) {
+  if (!FileSystem::exists(directory)) {
     directory = "/"; //The filename is probably included in an old add-on.
   }
 
@@ -61,39 +60,23 @@ FileSystemMenu::refresh_items()
     item_id++;
   }
 
-  // Load directories
-  {
-    std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
-      dir_files(PHYSFS_enumerateFiles(directory.c_str()),
-            PHYSFS_freeList);
-    for(const char* const* file = dir_files.get(); *file != 0; ++file)
-    {
-      std::string dirpath = FileSystem::join(directory, *file);
-      if(PhysFSFileSystem::is_directory(dirpath))
-      {
-        directories.push_back(*file);
-        add_entry(item_id, "[" + std::string(*file) + "]");
-        item_id++;
-      }
-    }
-  }
+  // Load directories and files
+  std::string search_path = FileSystem::find(directory);
+  if (!search_path.empty() && std::filesystem::is_directory(search_path)) {
+      for (const auto& entry : std::filesystem::directory_iterator(search_path)) {
+          std::string filename = entry.path().filename().string();
+          std::string filepath = FileSystem::join(directory, filename);
 
-  // Load files
-  {
-    char** dir_files = PHYSFS_enumerateFiles(directory.c_str());
-    if (dir_files)
-    {
-      for(const char* const* file = dir_files; *file != 0; ++file)
-      {
-        if(has_right_suffix(*file))
-        {
-          files.push_back(*file);
-          add_entry(item_id, *file);
-          item_id++;
-        }
+          if (entry.is_directory()) {
+              directories.push_back(filename);
+              add_entry(item_id, "[" + filename + "]");
+              item_id++;
+          } else if (has_right_suffix(filename)) {
+              files.push_back(filename);
+              add_entry(item_id, filename);
+              item_id++;
+          }
       }
-      PHYSFS_freeList(dir_files);
-    }
   }
 
   add_hl();

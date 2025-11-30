@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <math.h>
 #include <vector>
+#include <fstream>
 
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -31,7 +32,6 @@
 #include "object/smoke_cloud.hpp"
 #include "object/text_object.hpp"
 #include "object/tilemap.hpp"
-#include "physfs/ifile_streambuf.hpp"
 #include "supertux/collision.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/game_session.hpp"
@@ -297,11 +297,13 @@ Sector::activate(const Vector& player_pos)
   //Run default.nut just before init script
   //Check to see if it's in a levelset (info file)
   std::string basedir = FileSystem::dirname(get_level()->filename);
-  if(PHYSFS_exists((basedir + "/info").c_str())) {
+  if(FileSystem::exists(basedir + "/info")) {
     try {
-      IFileStreambuf ins(basedir + "/default.nut");
-      std::istream in(&ins);
-      run_script(in, "default.nut");
+      std::string script_path = FileSystem::find(basedir + "/default.nut");
+      if (!script_path.empty()) {
+          std::ifstream in(script_path);
+          run_script(in, "default.nut");
+      }
     } catch(std::exception& ) {
       // doesn't exist or erroneous; do nothing
     }
