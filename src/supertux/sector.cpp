@@ -12,7 +12,8 @@
 #include "supertux/sector.hpp"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
+#include <numbers>
 #include <vector>
 #include <fstream>
 
@@ -624,7 +625,7 @@ void check_collisions(collision::Constraints* constraints,
   float ileft   = obj_rect.get_right() - other_rect.get_left();
   float iright  = other_rect.get_right() - obj_rect.get_left();
 
-  if(fabsf(obj_movement.y) > fabsf(obj_movement.x)) {
+  if(std::abs(obj_movement.y) > std::abs(obj_movement.x)) {
     if(ileft < SHIFT_DELTA) {
       constraints->constrain_right(other_rect.get_left(), other_movement.x);
       return;
@@ -995,7 +996,8 @@ Sector::handle_collisions()
     Vector mov = moving_object->get_movement();
 
     // make sure movement is never faster than MAX_SPEED. Norm is pretty fat, so two addl. checks are done before.
-    if (((mov.x > MAX_SPEED * M_SQRT1_2) || (mov.y > MAX_SPEED * M_SQRT1_2)) && (mov.norm() > MAX_SPEED)) {
+    // M_SQRT1_2 is 1/sqrt(2)
+    if (((mov.x > MAX_SPEED * (std::numbers::sqrt2_v<float> * 0.5f)) || (mov.y > MAX_SPEED * (std::numbers::sqrt2_v<float> * 0.5f))) && (mov.norm() > MAX_SPEED)) {
       moving_object->movement = mov.unit() * MAX_SPEED;
       //log_debug << "Temporarily reduced object's speed of " << mov.norm() << " to " << moving_object->movement.norm() << "." << std::endl;
     }
@@ -1272,7 +1274,7 @@ Sector::inside(const Rectf& rect) const
 {
   for(const auto& solids : solid_tilemaps) {
     Rectf bbox = solids->get_bbox();
-    bbox.p1.y = -INFINITY; // pretend the tilemap extends infinitely far upwards
+    bbox.p1.y = -std::numeric_limits<float>::infinity(); // pretend the tilemap extends infinitely far upwards
 
     if (bbox.contains(rect))
       return true;
