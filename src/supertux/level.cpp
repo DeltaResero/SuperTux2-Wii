@@ -14,8 +14,8 @@
 #include "badguy/goldbomb.hpp"
 #include "object/bonus_block.hpp"
 #include "object/coin.hpp"
-#include "physfs/ifile_streambuf.hpp"
-#include "physfs/physfs_file_system.hpp"
+#include "physfs/ifile_stream.hpp"
+#include <filesystem>
 #include "supertux/sector.hpp"
 #include "supertux/tile_manager.hpp"
 #include "supertux/tile_set.hpp"
@@ -57,25 +57,14 @@ Level::save(const std::string& filepath, bool retry)
   //FIXME: It tests for directory in supertux/data, but saves into .supertux2.
 
   try {
-
     { // make sure the level directory exists
       std::string dirname = FileSystem::dirname(filepath);
-      if(!PHYSFS_exists(dirname.c_str()))
-      {
-        if(!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for level '"
-              << dirname << "': " <<PHYSFS_getLastError();
-          throw std::runtime_error(msg.str());
-        }
-      }
+      std::filesystem::path dir(FileSystem::get_user_dir());
+      dir /= dirname;
 
-      if(!PhysFSFileSystem::is_directory(dirname))
+      if(!std::filesystem::exists(dir))
       {
-        std::ostringstream msg;
-        msg << "Level path '" << dirname << "' is not a directory";
-        throw std::runtime_error(msg.str());
+        std::filesystem::create_directories(dir);
       }
     }
 
@@ -116,13 +105,9 @@ Level::save(const std::string& filepath, bool retry)
       log_warning << "Failed to save the level, retrying..." << std::endl;
       { // create the level directory again
         std::string dirname = FileSystem::dirname(filepath);
-        if(!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for level '"
-              << dirname << "': " <<PHYSFS_getLastError();
-          throw std::runtime_error(msg.str());
-        }
+        std::filesystem::path dir(FileSystem::get_user_dir());
+        dir /= dirname;
+        std::filesystem::create_directories(dir);
       }
       save(filepath, true);
     }

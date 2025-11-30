@@ -11,7 +11,6 @@
 
 #include "supertux/menu/editor_new_levelset_menu.hpp"
 
-#include <physfs.h>
 #include <sstream>
 
 #include "editor/editor.hpp"

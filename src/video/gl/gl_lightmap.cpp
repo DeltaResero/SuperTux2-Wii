@@ -18,7 +18,6 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
-#include <physfs.h>
 #include <sstream>
 
 #include "supertux/gameconfig.hpp"

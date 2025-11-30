@@ -12,7 +12,6 @@
 
 #include <config.h>
 
-#include <physfs.h>
 #include <stddef.h>
 
 #include "sprite/sprite.hpp"
@@ -58,7 +57,7 @@ LevelTile::LevelTile(const std::string& basedir_, const ReaderMapping& lisp) :
   if(basedir == "./")
     basedir = "";
 
-  if (!PHYSFS_exists((basedir + name).c_str()))
+  if (!FileSystem::exists(FileSystem::join(basedir, name)))
   {
     log_warning << "level file '" << name
                 << "' does not exist and will not be added to the worldmap" << std::endl;

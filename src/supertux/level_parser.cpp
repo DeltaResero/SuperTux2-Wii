@@ -13,7 +13,7 @@
 
 #include <sstream>
 
-#include "physfs/ifile_streambuf.hpp"
+#include "util/file_system.hpp"
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/sector_parser.hpp"
@@ -42,8 +42,8 @@ LevelParser::from_nothing(const std::string& basedir)
   int num = 0;
   do {
     num++;
-    level_file = basedir + "/level" + std::to_string(num) + ".stl";
-  } while ( PHYSFS_exists(level_file.c_str()) );
+    level_file = FileSystem::join(basedir, "level" + std::to_string(num) + ".stl");
+  } while ( FileSystem::exists(level_file) );
   std::string level_name = "Level " + std::to_string(num);
   level_file = "level" + std::to_string(num) + ".stl";
 
@@ -58,13 +58,13 @@ LevelParser::from_nothing_worldmap(const std::string& basedir, const std::string
   LevelParser parser(*level);
 
   // Find a free level filename
-  std::string level_file = basedir + "/worldmap.stwm";
-  if (PHYSFS_exists(level_file.c_str())) {
+  std::string level_file = FileSystem::join(basedir, "worldmap.stwm");
+  if (FileSystem::exists(level_file)) {
     int num = 0;
     do {
       num++;
-      level_file = basedir + "/worldmap" + std::to_string(num) + ".stwm";
-    } while ( PHYSFS_exists(level_file.c_str()) );
+      level_file = FileSystem::join(basedir, "worldmap" + std::to_string(num) + ".stwm");
+    } while ( FileSystem::exists(level_file) );
     level_file = "worldmap" + std::to_string(num) + ".stwm";
   } else {
     level_file = "worldmap.stwm";

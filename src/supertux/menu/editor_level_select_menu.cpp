@@ -17,7 +17,6 @@
 #include "editor/editor.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"
-#include "physfs/ifile_streambuf.hpp"
 #include "supertux/menu/editor_levelset_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/game_manager.hpp"

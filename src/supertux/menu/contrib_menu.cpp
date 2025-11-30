@@ -11,12 +11,11 @@
 
 #include "supertux/menu/contrib_menu.hpp"
 
-#include <physfs.h>
+#include <filesystem>
 #include <sstream>
 
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
-#include "physfs/physfs_file_system.hpp"
 #include "supertux/game_manager.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/levelset.hpp"
@@ -33,16 +32,16 @@ ContribMenu::ContribMenu() :
   // Generating contrib levels list by making use of Level Subset
   std::vector<std::string> level_worlds;
 
-  std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
-    files(PHYSFS_enumerateFiles("levels"),
-          PHYSFS_freeList);
-  for(const char* const* filename = files.get(); *filename != 0; ++filename)
-  {
-    std::string filepath = FileSystem::join("levels", *filename);
-    if(PhysFSFileSystem::is_directory(filepath))
-    {
-      level_worlds.push_back(filepath);
-    }
+  std::string levels_path = FileSystem::find("levels");
+  if (!levels_path.empty() && std::filesystem::is_directory(levels_path)) {
+      for (const auto& entry : std::filesystem::directory_iterator(levels_path)) {
+          std::string filename = entry.path().filename().string();
+          std::string filepath = FileSystem::join("levels", filename);
+          if(FileSystem::is_directory(filepath))
+          {
+            level_worlds.push_back(filepath);
+          }
+      }
   }
 
   add_label("Contrib Levels");

@@ -11,8 +11,7 @@
 
 #include "supertux/menu/editor_levelset_menu.hpp"
 
-#include <physfs.h>
-
+#include "util/file_system.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu.hpp"
 #include "gui/menu_item.hpp"
@@ -50,7 +49,7 @@ EditorLevelsetMenu::initialize() {
   add_textfield("Description", &(world->m_description));
 
   std::string worldmap_file = FileSystem::join(world->get_basedir(), "worldmap.stwm");
-  if (PHYSFS_exists(worldmap_file.c_str())) {
+  if (FileSystem::exists(worldmap_file)) {
     add_toggle(-1, "Do not use worldmap", &(world->m_is_levelset));
     add_entry(MNID_EDITWORLDMAP, "Edit worldmap");
   } else {
