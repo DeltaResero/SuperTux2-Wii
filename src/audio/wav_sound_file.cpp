@@ -15,6 +15,7 @@
 #include "util/log.hpp"
 #include <cstring>
 #include <algorithm>
+#include <bit>
 #include <SDL.h>
 
 static inline uint32_t read32LE(std::ifstream& file)
@@ -22,11 +23,12 @@ static inline uint32_t read32LE(std::ifstream& file)
   uint32_t result;
   file.read(reinterpret_cast<char*>(&result), 4);
   if(!file) throw SoundError("file too short");
-#ifdef WORDS_BIGENDIAN
-  return SDL_SwapLE32(result);
-#else
-  return result;
-#endif
+
+  if constexpr (std::endian::native == std::endian::big) {
+    return std::byteswap(result);
+  } else {
+    return result;
+  }
 }
 
 static inline uint16_t read16LE(std::ifstream& file)
@@ -34,11 +36,12 @@ static inline uint16_t read16LE(std::ifstream& file)
   uint16_t result;
   file.read(reinterpret_cast<char*>(&result), 2);
   if(!file) throw SoundError("file too short");
-#ifdef WORDS_BIGENDIAN
-  return SDL_SwapLE16(result);
-#else
-  return result;
-#endif
+
+  if constexpr (std::endian::native == std::endian::big) {
+    return std::byteswap(result);
+  } else {
+    return result;
+  }
 }
 
 WavSoundFile::WavSoundFile(const std::string& filename) :
@@ -154,20 +157,16 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
   if(file.gcount() != static_cast<std::streamsize>(readsize))
     throw SoundError("read error while reading samples");
 
-#ifdef WORDS_BIGENDIAN
-  if (bits_per_sample != 16)
-    return readsize;
-  char *tmp = (char*)buffer;
-
-  for (size_t i = 0; i < readsize / 2; i++)
-  {
-    char c     = tmp[2*i];
-    tmp[2*i]   = tmp[2*i+1];
-    tmp[2*i+1] = c;
+  if constexpr (std::endian::native == std::endian::big) {
+    if (bits_per_sample == 16) {
+      // Modern C++23 byteswap
+      uint16_t* samples = static_cast<uint16_t*>(buffer);
+      size_t count = readsize / 2;
+      for (size_t i = 0; i < count; ++i) {
+        samples[i] = std::byteswap(samples[i]);
+      }
+    }
   }
-
-  *(char *)buffer = *tmp;
-#endif
 
   return readsize;
 }
