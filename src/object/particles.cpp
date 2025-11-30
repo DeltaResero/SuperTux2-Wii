@@ -11,7 +11,8 @@
 
 #include "object/particles.hpp"
 
-#include <math.h>
+#include <cmath>
+#include <numbers>
 
 #include "math/random_generator.hpp"
 #include "object/camera.hpp"
@@ -45,12 +46,12 @@ Particles::Particles(const Vector& epicenter, int min_angle, int max_angle,
     particle->pos = epicenter;
 
     float angle = graphicsRandom.rand(min_angle, max_angle)
-      * (M_PI / 180);  // convert to radius (radians?)
-    particle->vel.x = /*fabs*/(sin(angle)) * initial_velocity.x;
-    //    if(angle >= M_PI && angle < M_PI*2)
+      * (std::numbers::pi_v<float> / 180.0f);  // convert to radius (radians?)
+    particle->vel.x = /*fabs*/(std::sin(angle)) * initial_velocity.x;
+    //    if(angle >= std::numbers::pi_v<float> && angle < std::numbers::pi_v<float>*2)
     //      particle->vel.x *= -1;  // work around to fix signal
-    particle->vel.y = /*fabs*/(cos(angle)) * initial_velocity.y;
-    //    if(angle >= M_PI_2 && angle < 3*M_PI_2)
+    particle->vel.y = /*fabs*/(std::cos(angle)) * initial_velocity.y;
+    //    if(angle >= std::numbers::pi_v<float>/2 && angle < 3*std::numbers::pi_v<float>/2)
     //      particle->vel.y *= -1;
 
     particles.push_back(std::move(particle));
@@ -85,11 +86,11 @@ Particles::Particles(const Vector& epicenter, int min_angle, int max_angle,
 
     float velocity = (min_initial_velocity == max_initial_velocity) ? min_initial_velocity :
                      graphicsRandom.rand(min_initial_velocity, max_initial_velocity);
-    float angle = (min_angle == max_angle) ? min_angle * (M_PI / 180) :
-                     graphicsRandom.rand(min_angle, max_angle) * (M_PI / 180);  // convert to radians
+    float angle = (min_angle == max_angle) ? min_angle * (std::numbers::pi_v<float> / 180.0f) :
+                     graphicsRandom.rand(min_angle, max_angle) * (std::numbers::pi_v<float> / 180.0f);  // convert to radians
     // Note that angle defined as clockwise from vertical (up is zero degrees, right is 90 degrees)
-    particle->vel.x = (sin(angle)) * velocity;
-    particle->vel.y = (-cos(angle)) * velocity;
+    particle->vel.x = (std::sin(angle)) * velocity;
+    particle->vel.y = (-std::cos(angle)) * velocity;
 
     particles.push_back(std::move(particle));
   }

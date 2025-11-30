@@ -12,6 +12,9 @@
 #include "video/gl/gl_painter.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <numbers>
+#include <vector>
 
 #include "video/drawing_request.hpp"
 #include "video/gl/gl_surface_data.hpp"
@@ -62,8 +65,8 @@ inline void intern_draw(float left, float top, float right, float bottom,
     float center_x = (left + right) / 2;
     float center_y = (top + bottom) / 2;
 
-    float sa = sinf(angle/180.0f*M_PI);
-    float ca = cosf(angle/180.0f*M_PI);
+    float sa = std::sin(angle/180.0f * std::numbers::pi_v<float>);
+    float ca = std::cos(angle/180.0f * std::numbers::pi_v<float>);
 
     left  -= center_x;
     right -= center_x;
@@ -255,8 +258,8 @@ GLPainter::draw_filled_rect(const DrawingRequest& request)
 
     for(int i = 0; i <= n; ++i)
     {
-      float x = sinf(i * (M_PI/2) / n) * radius;
-      float y = cosf(i * (M_PI/2) / n) * radius;
+      float x = std::sin(i * (std::numbers::pi_v<float>/2) / n) * radius;
+      float y = std::cos(i * (std::numbers::pi_v<float>/2) / n) * radius;
 
       vertices[p++] = irect.get_left() - x;
       vertices[p++] = irect.get_top()  - y;
@@ -267,8 +270,8 @@ GLPainter::draw_filled_rect(const DrawingRequest& request)
 
     for(int i = 0; i <= n; ++i)
     {
-      float x = cosf(i * (M_PI/2) / n) * radius;
-      float y = sinf(i * (M_PI/2) / n) * radius;
+      float x = std::cos(i * (std::numbers::pi_v<float>/2) / n) * radius;
+      float y = std::sin(i * (std::numbers::pi_v<float>/2) / n) * radius;
 
       vertices[p++] = irect.get_left()   - x;
       vertices[p++] = irect.get_bottom() + y;
@@ -345,11 +348,11 @@ GLPainter::draw_inverse_ellipse(const DrawingRequest& request)
 
   for(int i = 0; i < slices; ++i)
   {
-    float ex1 = sinf(M_PI/2 / slices * i) * w;
-    float ey1 = cosf(M_PI/2 / slices * i) * h;
+    float ex1 = std::sin(std::numbers::pi_v<float>/2 / slices * i) * w;
+    float ey1 = std::cos(std::numbers::pi_v<float>/2 / slices * i) * h;
 
-    float ex2 = sinf(M_PI/2 / slices * (i+1)) * w;
-    float ey2 = cosf(M_PI/2 / slices * (i+1)) * h;
+    float ex2 = std::sin(std::numbers::pi_v<float>/2 / slices * (i+1)) * w;
+    float ey2 = std::cos(std::numbers::pi_v<float>/2 / slices * (i+1)) * h;
 
     // Bottom/Right
     vertices[p++] = SCREEN_WIDTH; vertices[p++] = SCREEN_HEIGHT;
