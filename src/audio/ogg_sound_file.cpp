@@ -13,6 +13,7 @@
 #include "audio/sound_error.hpp"
 #include "util/file_system.hpp"
 #include <assert.h>
+#include <bit>
 
 OggSoundFile::OggSoundFile(const std::string& filename, double loop_begin_, double loop_at_) :
   file(nullptr),
@@ -65,11 +66,7 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
   size_t totalBytesRead = 0;
 
   while(buffer_size>0) {
-#ifdef WORDS_BIGENDIAN
-    int bigendian = 1;
-#else
-    int bigendian = 0;
-#endif
+    int bigendian = (std::endian::native == std::endian::big) ? 1 : 0;
 
     size_t bytes_to_read    = buffer_size;
     if(loop_at > 0) {
