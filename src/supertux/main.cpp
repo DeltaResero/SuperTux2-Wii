@@ -27,7 +27,7 @@
 #include "gui/menu_manager.hpp"
 #include "math/random_generator.hpp"
 #include "object/player.hpp"
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_io.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "scripting/scripting.hpp"
 #include "sprite/sprite_manager.hpp"
