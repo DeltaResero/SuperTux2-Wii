@@ -11,7 +11,8 @@
 
 #include "object/camera.hpp"
 
-#include <math.h>
+#include <cmath>
+#include <numbers>
 #include "util/file_system.hpp"
 
 #include "editor/editor.hpp"
@@ -249,7 +250,7 @@ Camera::shake(float time, float x, float y)
   shaketimer.start(time);
   shakedepth_x = x;
   shakedepth_y = y;
-  shakespeed = M_PI/2 / time;
+  shakespeed = (std::numbers::pi_v<float> / 2.0f) / time;
 }
 
 void
@@ -329,8 +330,8 @@ void
 Camera::shake()
 {
   if(shaketimer.started()) {
-    translation.x -= sin(shaketimer.get_timegone() * shakespeed) * shakedepth_x;
-    translation.y -= sin(shaketimer.get_timegone() * shakespeed) * shakedepth_y;
+    translation.x -= std::sin(shaketimer.get_timegone() * shakespeed) * shakedepth_x;
+    translation.y -= std::sin(shaketimer.get_timegone() * shakespeed) * shakedepth_y;
   }
 }
 
@@ -443,7 +444,7 @@ Camera::update_scroll_normal(float elapsed_time)
     }
 
     float peek_move = (peek_to - peek_pos.y) * PEEK_ARRIVE_RATIO;
-    if(fabs(peek_move) < 1.0) {
+    if(std::abs(peek_move) < 1.0) {
       peek_move = 0.0;
     }
 
@@ -550,7 +551,7 @@ Camera::update_scroll_normal(float elapsed_time)
 
     // limit our speed
     float player_speed_x = player_delta.x / elapsed_time;
-    float maxv = config_.max_speed_x + (fabsf(player_speed_x * config_.dynamic_max_speed_x));
+    float maxv = config_.max_speed_x + (std::abs(player_speed_x * config_.dynamic_max_speed_x));
     speed_x = clamp(speed_x, -maxv, maxv);
 
     // apply scrolling
@@ -614,7 +615,7 @@ Camera::update_scroll_normal(float elapsed_time)
     }
 
     float peek_move = (peek_to - peek_pos.x) * PEEK_ARRIVE_RATIO;
-    if(fabs(peek_move) < 1.0) {
+    if(std::abs(peek_move) < 1.0) {
       peek_move = 0.0;
     }
 
