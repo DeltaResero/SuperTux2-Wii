@@ -12,7 +12,7 @@
 #ifndef HEADER_SUPERTUX_IO_OFILE_STREAM_CPP
 #define HEADER_SUPERTUX_IO_OFILE_STREAM_CPP
 
-#include "physfs/ofile_stream.hpp"
+#include "io/ofile_stream.hpp"
 #include "util/file_system.hpp"
 #include <filesystem>
 

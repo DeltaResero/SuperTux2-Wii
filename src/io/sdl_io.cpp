@@ -1,4 +1,4 @@
-// src/physfs/physfs_sdl.cpp
+// src/physfs/sdl_io.cpp
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // SuperTux
@@ -9,7 +9,7 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_io.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include <stdexcept>

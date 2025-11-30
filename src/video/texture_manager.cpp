@@ -18,7 +18,7 @@
 #include <stdexcept>
 
 #include "math/rect.hpp"
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_io.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "video/sdl_surface_ptr.hpp"
