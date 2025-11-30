@@ -30,7 +30,7 @@
 
 #ifdef USE_SDL_MIXER
 #include "audio/sdl_sound_source.hpp"
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_io.hpp"
 #endif
 
 SoundManager::SoundManager() :

@@ -14,7 +14,7 @@
 #include "badguy/goldbomb.hpp"
 #include "object/bonus_block.hpp"
 #include "object/coin.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include <filesystem>
 #include "supertux/sector.hpp"
 #include "supertux/tile_manager.hpp"

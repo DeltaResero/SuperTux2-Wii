@@ -20,7 +20,7 @@
 #include <SDL_image.h>
 #include <filesystem>
 
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_io.hpp"
 #include "supertux/screen.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"

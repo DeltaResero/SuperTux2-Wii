@@ -14,7 +14,7 @@
 #include <sexp/parser.hpp>
 #include <sstream>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "util/log.hpp"
 #include "util/reader_iterator.hpp"
 

@@ -1,4 +1,4 @@
-// src/physfs/physfs_sdl.hpp
+// src/physfs/sdl_io.hpp
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // SuperTux

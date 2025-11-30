@@ -15,7 +15,7 @@
 #include "math/random_generator.hpp"
 #include "object/camera.hpp"
 #include "object/player.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/fadeout.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/gameconfig.hpp"
