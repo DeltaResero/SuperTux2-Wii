@@ -355,7 +355,7 @@ OPTION(WERROR "Stop on first compiler warning" OFF)
 OPTION(WARNINGS "Enable long list of warnings for compiler to check" OFF)
 
 # Set C++20 globally (Works for all compilers)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set specific flags only for GCC or Clang
