@@ -53,7 +53,7 @@ Gradient::get_direction() const
   if(direction == GradientDirection::VERTICAL_SECTOR)
     return "vertical_sector";
 
-  return NULL;
+  return "";
 }
 
 void
