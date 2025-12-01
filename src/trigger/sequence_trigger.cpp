@@ -13,7 +13,6 @@
 
 #include "trigger/sequence_trigger.hpp"
 
-#include "editor/editor.hpp"
 #include "object/player.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/object_factory.hpp"
@@ -60,29 +59,6 @@ SequenceTrigger::save(Writer& writer) {
   writer.write("sequence", sequence_to_string(sequence), false);
 }
 
-ObjectSettings
-SequenceTrigger::get_settings() {
-  new_size.x = bbox.get_width();
-  new_size.y = bbox.get_height();
-  ObjectSettings result(_("Sequence trigger"));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Name"), &name));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Width"), &new_size.x, "width"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Height"), &new_size.y, "height"));
-
-  ObjectOption seq(MN_STRINGSELECT, _("Sequence"), &sequence);
-  seq.select.push_back(_("end sequence"));
-  seq.select.push_back(_("stop Tux"));
-  seq.select.push_back(_("fireworks"));
-
-  result.options.push_back( seq );
-  return result;
-}
-
-void
-SequenceTrigger::after_editor_set() {
-  bbox.set_size(new_size.x, new_size.y);
-}
-
 void
 SequenceTrigger::event(Player& player, EventType type)
 {
@@ -99,10 +75,6 @@ SequenceTrigger::get_sequence_name() const {
 void
 SequenceTrigger::draw(DrawingContext& context)
 {
-  if (Editor::is_active()) {
-    context.draw_filled_rect(bbox, Color(1.0f, 0.0f, 0.0f, 0.6f),
-                             0.0f, LAYER_OBJECTS);
-  }
 }
 
 // EOF

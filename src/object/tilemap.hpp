@@ -39,8 +39,6 @@ public:
   std::string get_display_name() const {
     return _("Tile map");
   }
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
@@ -176,13 +174,6 @@ public:
   std::string get_class() const {
     return "tilemap";
   }
-
-  bool editor_active;
-
-  virtual const std::string get_icon_path() const {
-    return "images/engine/editor/tilemap.png";
-  }
-
   void set_tileset(const TileSet* new_tileset);
 
 private:

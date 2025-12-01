@@ -168,32 +168,6 @@ BonusBlock::save(Writer& writer) {
   }
 }
 
-ObjectSettings
-BonusBlock::get_settings() {
-  ObjectSettings result = Block::get_settings();
-  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script));
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("Count"), &hit_counter));
-
-  ObjectOption coo(MN_STRINGSELECT, _("Content"), &contents);
-  coo.select.push_back(_("coin"));
-  coo.select.push_back(_("Growth (fire flower)"));
-  coo.select.push_back(_("Growth (ice flower)"));
-  coo.select.push_back(_("Growth (air flower)"));
-  coo.select.push_back(_("Growth (earth flower)"));
-  coo.select.push_back(_("star"));
-  coo.select.push_back(_("tux doll"));
-  coo.select.push_back(_("custom"));
-  coo.select.push_back(_("script"));
-  coo.select.push_back(_("light"));
-  coo.select.push_back(_("trampoline"));
-  coo.select.push_back(_("coin rain"));
-  coo.select.push_back(_("coin explosion"));
-  result.options.push_back(coo);
-
-  return result;
-}
-
-
 void
 BonusBlock::hit(Player & player)
 {

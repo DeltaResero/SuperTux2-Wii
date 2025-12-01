@@ -31,8 +31,7 @@ public:
   virtual void update(float elapsed_time) override;
   virtual void draw(DrawingContext& context) override;
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
+protected:
 
 protected:
   friend class FlipLevelTransformer;

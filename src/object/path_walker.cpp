@@ -9,8 +9,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
-#include "editor/editor.hpp"
-#include "editor/object_option.hpp"
 #include "math/random_generator.hpp"
 #include "object/path_walker.hpp"
 #include "util/gettext.hpp"
@@ -41,11 +39,6 @@ Vector
 PathWalker::advance(float elapsed_time)
 {
   if (!path->is_valid()) return Vector(0, 0);
-  if (Editor::is_active()) {
-    Vector pos__ = path->nodes.begin()->position;
-//    log_warning << "x" << pos__.x << " y" << pos__.y << std::endl;
-    return pos__;
-  }
 
   if (!running) return path->nodes[current_node_nr].position;
 
@@ -81,7 +74,6 @@ Vector
 PathWalker::get_pos() const
 {
   if (!path->is_valid()) return Vector(0, 0);
-  if (Editor::is_active()) return path->nodes.begin()->position;
 
   const Path::Node* current_node = & (path->nodes[current_node_nr]);
   const Path::Node* next_node = & (path->nodes[next_node_nr]);
@@ -184,12 +176,6 @@ PathWalker::goback_node()
   assert(false);
   next_node_nr = 0;
   walking_speed = 0;
-}
-
-ObjectOption
-PathWalker::get_running_option(bool* _running) {
-  ObjectOption result(MN_TOGGLE, _("Running"), _running);
-  return result;
 }
 
 // EOF

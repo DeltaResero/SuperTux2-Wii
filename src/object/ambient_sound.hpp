@@ -80,8 +80,6 @@ public:
   std::string get_display_name() const {
     return _("Ambient sound");
   }
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
 
 protected:
   virtual void hit(Player& player);

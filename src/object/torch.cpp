@@ -79,18 +79,4 @@ Torch::collision(GameObject& other, const CollisionHit& )
   return ABORT_MOVE;
 }
 
-ObjectSettings Torch::get_settings()
-{
-  ObjectSettings result = MovingObject::get_settings();
-  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite");
-  spr.select.push_back(".sprite");
-  result.options.push_back(spr);
-  return result;
-}
-
-void Torch::after_editor_set()
-{
-  m_torch = SpriteManager::current()->create(sprite_name);
-}
-
 // EOF

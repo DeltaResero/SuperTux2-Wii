@@ -193,18 +193,4 @@ Block::break_me()
   remove_me();
 }
 
-ObjectSettings Block::get_settings()
-{
-  ObjectSettings result = MovingObject::get_settings();
-  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite");
-  spr.select.push_back(".sprite");
-  result.options.push_back(spr);
-  return result;
-}
-
-void Block::after_editor_set()
-{
-  sprite = SpriteManager::current()->create(sprite_name);
-}
-
 // EOF

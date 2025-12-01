@@ -11,7 +11,6 @@
 
 #include "object/gradient.hpp"
 
-#include "editor/editor.hpp"
 #include "object/camera.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/object_factory.hpp"
@@ -114,30 +113,6 @@ Gradient::save(Writer& writer) {
   }
 }
 
-ObjectSettings
-Gradient::get_settings() {
-  ObjectSettings result = GameObject::get_settings();
-
-  if (gradient_direction == HORIZONTAL || gradient_direction == HORIZONTAL_SECTOR) {
-    result.options.push_back( ObjectOption(MN_COLOR, _("Left Colour"), &gradient_top));
-    result.options.push_back( ObjectOption(MN_COLOR, _("Right Colour"), &gradient_bottom));
-  } else {
-    result.options.push_back( ObjectOption(MN_COLOR, _("Top Colour"), &gradient_top));
-    result.options.push_back( ObjectOption(MN_COLOR, _("Bottom Colour"), &gradient_bottom));
-  }
-
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &layer));
-  ObjectOption doo(MN_STRINGSELECT, _("Direction"), &gradient_direction);
-  doo.select.push_back(_("vertical"));
-  doo.select.push_back(_("horizontal"));
-  doo.select.push_back(_("vertical sector"));
-  doo.select.push_back(_("horizontal sector"));
-  result.options.push_back(doo);
-
-  result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
-  return result;
-}
-
 Gradient::~Gradient()
 {
 }
@@ -188,11 +163,6 @@ Gradient::draw(DrawingContext& context)
   context.set_translation(Vector(0, 0));
   context.draw_gradient(gradient_top, gradient_bottom, layer, gradient_direction, gradient_region);
   context.pop_transform();
-}
-
-bool
-Gradient::do_save() const {
-  return !Editor::is_active() || !Editor::current()->get_worldmap_mode();
 }
 
 // EOF

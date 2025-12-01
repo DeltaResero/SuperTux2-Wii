@@ -173,11 +173,4 @@ Toad::is_freezable() const
   return true;
 }
 
-void
-Toad::after_editor_set()
-{
-  BadGuy::after_editor_set();
-  sprite->set_action(dir == LEFT ? "idle-left" : "idle-right");
-}
-
 // EOF

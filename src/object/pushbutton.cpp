@@ -40,15 +40,6 @@ PushButton::PushButton(const ReaderMapping& lisp) :
   }
 }
 
-ObjectSettings
-PushButton::get_settings() {
-  ObjectSettings result = MovingSprite::get_settings();
-  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script,
-                                         "script"));
-
-  return result;
-}
-
 void
 PushButton::update(float /*elapsed_time*/)
 {

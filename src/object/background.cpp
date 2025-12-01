@@ -154,53 +154,6 @@ Background::save(Writer& writer) {
   }
 }
 
-ObjectSettings
-Background::get_settings() {
-  ObjectSettings result = GameObject::get_settings();
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &layer, "z-pos"));
-  ObjectOption align(MN_STRINGSELECT, _("Alignment"), &alignment);
-  align.select.push_back(_("none"));
-  align.select.push_back(_("left"));
-  align.select.push_back(_("right"));
-  align.select.push_back(_("top"));
-  align.select.push_back(_("bottom"));
-  result.options.push_back(align);
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll offset x"),
-                                         &scroll_offset.x, "scroll-offset-x"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll offset y"),
-                                         &scroll_offset.y, "scroll-offset-y"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll speed x"),
-                                         &scroll_speed.x, "scroll-speed-x"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll speed y"),
-                                         &scroll_speed.y, "scroll-speed-y"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed x"), &speed, "speed"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed y"), &speed_y));
-
-  ObjectOption img(MN_FILE, _("Top image"), &imagefile_top, "image-top", true, false);
-  img.select.push_back(".png");
-  img.select.push_back(".jpg");
-  img.select.push_back(".gif");
-  img.select.push_back(".bmp");
-  result.options.push_back(img);
-  ObjectOption img2(MN_FILE, _("Image"), &imagefile, "image");
-  img2.select = img.select;
-  ObjectOption img3(MN_FILE, _("Bottom image"), &imagefile_bottom, "image-bottom", true, false);
-  img3.select = img.select;
-  result.options.push_back(img2);
-  result.options.push_back(img3);
-
-  result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
-  return result;
-}
-
-void
-Background::after_editor_set()
-{
-  image_top = Surface::create(imagefile_top);
-  image = Surface::create(imagefile);
-  image_bottom = Surface::create(imagefile_bottom);
-}
-
 void
 Background::update(float delta)
 {

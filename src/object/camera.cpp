@@ -15,7 +15,6 @@
 #include <numbers>
 #include "util/file_system.hpp"
 
-#include "editor/editor.hpp"
 #include "object/path_walker.hpp"
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -126,36 +125,6 @@ Camera::save(Writer& writer){
       writer.write("mode", "autoscroll", false);
       autoscroll_path->save(writer);
     case SCROLLTO: break;
-  }
-}
-
-ObjectSettings
-Camera::get_settings() {
-  ObjectSettings result = GameObject::get_settings();
-
-  ObjectOption moo(MN_STRINGSELECT, _("Mode"), &defaultmode);
-  moo.select.push_back(_("normal"));
-  moo.select.push_back(_("manual"));
-  result.options.push_back(moo);
-
-  if (autoscroll_walker.get() && autoscroll_path->is_valid()) {
-    result.options.push_back( Path::get_mode_option(&autoscroll_path->mode) );
-  }
-
-  return result;
-}
-
-void
-Camera::after_editor_set() {
-  if (autoscroll_walker.get() && autoscroll_path->is_valid()) {
-    if (defaultmode != AUTOSCROLL) {
-      autoscroll_path->nodes.clear();
-    }
-  } else {
-    if (defaultmode == AUTOSCROLL) {
-      autoscroll_path.reset(new Path(Vector(0,0)));
-      autoscroll_walker.reset(new PathWalker(autoscroll_path.get()));
-    }
   }
 }
 
@@ -678,11 +647,6 @@ Camera::move(const int dx, const int dy) {
 Path*
 Camera::get_path() const {
   return autoscroll_path.get();
-}
-
-bool
-Camera::do_save() const {
-  return !Editor::is_active() || !Editor::current()->get_worldmap_mode();
 }
 
 // EOF

@@ -57,8 +57,6 @@ public:
     return _("Wind");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   bool blowing; /**< true if wind is currently switched on */
   Vector speed;

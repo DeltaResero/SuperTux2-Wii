@@ -118,16 +118,4 @@ PneumaticPlatform::move_to(const Vector& pos) {
   start_y += shift.y;
 }
 
-void
-PneumaticPlatform::editor_delete() {
-  master->remove_me();
-  slave->remove_me();
-}
-
-void
-PneumaticPlatform::after_editor_set() {
-  MovingSprite::after_editor_set();
-  slave->change_sprite(sprite_name);
-}
-
 // EOF

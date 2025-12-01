@@ -343,13 +343,4 @@ Yeti::is_flammable() const
   return false;
 }
 
-ObjectSettings
-Yeti::get_settings() {
-  ObjectSettings result = BadGuy::get_settings();
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, "hud-icon", &hud_icon, "hud-icon", false));
-  result.options.push_back( ObjectOption(MN_TOGGLE,    _("Fixed position"), &fixed_pos, "fixed-pos"));
-  result.options.push_back( ObjectOption(MN_INTFIELD,  _("Lives"),          &hit_points, "lives"));
-  return result;
-}
-
 // EOF

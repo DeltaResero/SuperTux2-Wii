@@ -39,8 +39,6 @@ public:
     return _("Yeti");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   void run();
   void jump_up();

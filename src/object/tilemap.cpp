@@ -13,8 +13,6 @@
 
 #include <math.h>
 
-#include "editor/editor.hpp"
-#include "object/tilemap.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/level.hpp"
@@ -28,7 +26,6 @@
 
 TileMap::TileMap(const TileSet *new_tileset) :
   ExposedObject<TileMap, scripting::TileMap>(this),
-  editor_active(true),
   tileset(new_tileset),
   tiles(),
   real_solid(false),
@@ -58,7 +55,6 @@ TileMap::TileMap(const TileSet *new_tileset) :
 
 TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
   ExposedObject<TileMap, scripting::TileMap>(this),
-  editor_active(true),
   tileset(tileset_),
   tiles(),
   real_solid(false),
@@ -137,7 +133,6 @@ TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
     height = 0;
     tiles.clear();
     resize(Sector::current()->get_width()/32, Sector::current()->get_height()/32);
-    editor_active = false;
   } else {
     if(!reader.get("tiles", tiles))
       throw std::runtime_error("No tiles in tilemap.");
@@ -201,56 +196,6 @@ TileMap::save(Writer& writer) {
   writer.write("tiles", tiles);
 }
 
-ObjectSettings
-TileMap::get_settings() {
-  new_size_x = width;
-  new_size_y = height;
-  ObjectSettings result = GameObject::get_settings();
-  result.options.push_back( ObjectOption(MN_TOGGLE, _("solid"), &real_solid));
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("width"), &new_size_x));
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("height"), &new_size_y));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("alpha"), &alpha));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed x"), &speed_x));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed y"), &speed_y));
-  result.options.push_back( ObjectOption(MN_COLOR, _("tint"), &tint));
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &z_pos));
-
-  ObjectOption draw_target_option(MN_STRINGSELECT, _("Draw target"), &draw_target);
-  draw_target_option.select.push_back(_("normal"));
-  draw_target_option.select.push_back(_("lightmap"));
-  result.options.push_back(draw_target_option);
-
-  add_path = walker.get() && path->is_valid();
-  result.options.push_back( ObjectOption(MN_TOGGLE, _("Following path"), &add_path));
-
-  if (walker.get() && path->is_valid()) {
-    result.options.push_back( Path::get_mode_option(&path->mode) );
-  }
-
-  if (!editor_active) {
-    result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
-  }
-  return result;
-}
-
-void
-TileMap::after_editor_set() {
-  if (new_size_x > 0 && new_size_y > 0) {
-    resize(new_size_x, new_size_y);
-  }
-
-  if (walker.get() && path->is_valid()) {
-    if (!add_path) {
-      path->nodes.clear();
-    }
-  } else {
-    if (add_path) {
-      path.reset(new Path(offset));
-      walker.reset(new PathWalker(path.get()));
-    }
-  }
-}
-
 void
 TileMap::update(float elapsed_time)
 {
@@ -307,12 +252,8 @@ TileMap::draw(DrawingContext& context)
 
   if(drawing_effect != 0) context.set_drawing_effect(drawing_effect);
 
-  if (editor_active) {
-    if(current_alpha != 1.0) {
-      context.set_alpha(current_alpha);
-    }
-  } else {
-    context.set_alpha(current_alpha/2);
+  if(current_alpha != 1.0) {
+    context.set_alpha(current_alpha);
   }
 
   /* Force the translation to be an integer so that the tiles appear sharper.
@@ -321,9 +262,9 @@ TileMap::draw(DrawingContext& context)
    * FIXME Force integer translation for all graphics, not just tilemaps. */
   float trans_x = roundf(context.get_translation().x);
   float trans_y = roundf(context.get_translation().y);
-  bool normal_speed = editor_active && Editor::is_active();
-  context.set_translation(Vector(int(trans_x * (normal_speed ? 1 : speed_x)),
-                                 int(trans_y * (normal_speed ? 1 : speed_y))));
+  // Editor speed check removed
+  context.set_translation(Vector(int(trans_x * speed_x),
+                                 int(trans_y * speed_y)));
 
   Rectf draw_rect = Rectf(context.get_translation(),
         context.get_translation() + Vector(SCREEN_WIDTH, SCREEN_HEIGHT));

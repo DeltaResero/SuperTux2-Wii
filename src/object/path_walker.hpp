@@ -16,8 +16,6 @@
 
 #include "object/path.hpp"
 
-class ObjectOption;
-
 /**
  * A walker that travels along a path
  */
@@ -48,8 +46,6 @@ public:
   bool is_moving() const {
     return running;
   }
-
-  static ObjectOption get_running_option(bool* _running);
 
   const Path* path;
 

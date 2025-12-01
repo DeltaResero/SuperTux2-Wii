@@ -67,8 +67,6 @@ public:
     return BadGuy::is_active();
   }
 
-  void after_editor_set();
-
 protected:
   void turn_around();
 

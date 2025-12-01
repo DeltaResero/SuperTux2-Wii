@@ -35,9 +35,6 @@ public:
     return _("Torch");
   }
 
-  ObjectSettings get_settings() override;
-  void after_editor_set() override;
-
 private:
   SpritePtr m_torch;
   SpritePtr m_flame;

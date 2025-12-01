@@ -25,9 +25,6 @@ class FloatingText : public GameObject
 public:
   FloatingText(const Vector& pos, const std::string& text_);
   FloatingText(const Vector& pos, int s);  // use this for score, for instance
-  virtual bool do_save() const {
-    return false;
-  }
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);

@@ -38,8 +38,6 @@ public:
     return _("Spotlight");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   float   angle;
   SpritePtr center;

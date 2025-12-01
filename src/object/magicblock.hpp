@@ -30,9 +30,6 @@ public:
     return _("Magic block");
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
 private:
   bool is_solid;
   float trigger_red;

@@ -10,7 +10,6 @@
 // (at your option) any later version.
 
 #include "audio/sound_manager.hpp"
-#include "editor/editor.hpp"
 #include "object/invisible_block.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
@@ -36,7 +35,7 @@ InvisibleBlock::InvisibleBlock(const ReaderMapping& lisp) :
 void
 InvisibleBlock::draw(DrawingContext& context)
 {
-  if(visible || Editor::is_active())
+  if(visible)
     sprite->draw(context, get_pos(), LAYER_OBJECTS);
 }
 

@@ -29,20 +29,6 @@ Decal::Decal(const ReaderMapping& reader) :
     set_action(default_action, -1);
 }
 
-ObjectSettings
-Decal::get_settings() {
-  ObjectSettings result = MovingObject::get_settings();
-  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite");
-  spr.select.push_back(".png");
-  spr.select.push_back(".sprite");
-  result.options.push_back(spr);
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Action"), &default_action, "action"));
-  result.options.push_back( ObjectOption(MN_TOGGLE, _("Solid"), &solid, "solid"));
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &layer, "z-pos"));
-
-  return result;
-}
-
 Decal::~Decal()
 {
 }

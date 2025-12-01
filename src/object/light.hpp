@@ -24,9 +24,6 @@ class Light : public GameObject
 public:
   Light(const Vector& center, const Color& color = Color(1.0, 1.0, 1.0, 1.0));
   virtual ~Light();
-  virtual bool do_save() const {
-    return false;
-  }
 
   void update(float elapsed_time);
   void draw(DrawingContext& context);

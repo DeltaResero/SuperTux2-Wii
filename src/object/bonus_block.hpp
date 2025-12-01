@@ -48,8 +48,6 @@ public:
     CONTENT_EXPLODE
   };
 
-  virtual ObjectSettings get_settings();
-
 protected:
   virtual void hit(Player& player);
 

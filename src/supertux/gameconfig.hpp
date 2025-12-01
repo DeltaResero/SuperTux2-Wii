@@ -66,9 +66,6 @@ public:
   /** this variable is set if tux should spawn somewhere which isn't the "main" spawn point*/
   std::optional<Vector> tux_spawn_pos;
 
-  /** The level that should be launched in the editor*/
-  std::optional<std::string> edit_level;
-
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;
 

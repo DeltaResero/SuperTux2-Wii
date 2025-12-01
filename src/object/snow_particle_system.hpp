@@ -36,10 +36,6 @@ public:
     return _("Snow particles");
   }
 
-  virtual const std::string get_icon_path() const {
-    return "images/engine/editor/snow.png";
-  }
-
 private:
   class SnowParticle : public Particle
   {

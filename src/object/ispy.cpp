@@ -54,22 +54,6 @@ Ispy::save(Writer& writer) {
   }
 }
 
-ObjectSettings
-Ispy::get_settings() {
-  ObjectSettings result = MovingSprite::get_settings();
-  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script, "script"));
-  result.options.push_back( dir_option(&dir) );
-
-  return result;
-}
-
-void
-Ispy::after_editor_set()
-{
-  MovingSprite::after_editor_set();
-  sprite->set_action((dir == DOWN) ? "idle-down" : ((dir == LEFT) ? "idle-left" : "idle-right"));
-}
-
 HitResponse
 Ispy::collision(GameObject& , const CollisionHit& )
 {
