@@ -8,8 +8,7 @@ Level <- {
   finish=Level_finish,
   spawn=Level_spawn,
   flip_vertically=Level_flip_vertically,
-  toggle_pause=Level_toggle_pause,
-  edit=Level_edit
+  toggle_pause=Level_toggle_pause
 };
 
 
@@ -33,8 +32,8 @@ function levelflip()
 
 function println(val)
 {
-	print(val);
-	print("\n");
+  print(val);
+  print("\n");
 }
 
 if(! ("state" in this))
