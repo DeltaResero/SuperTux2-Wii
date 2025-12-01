@@ -12,7 +12,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 
-#include "editor/object_option.hpp"
 #include "gui/menu_action.hpp"
 #include "object/moving_sprite.hpp"
 #include "supertux/direction.hpp"
@@ -50,12 +49,7 @@ public:
     return _("Badguy");
   }
 
-  virtual ObjectSettings get_settings() override {
-    ObjectSettings result = MovingSprite::get_settings();
-    result.options.push_back( dir_option(&dir) );
-    result.options.push_back( ObjectOption(MN_SCRIPT, _("Death script"), &dead_script));
-    return result;
-  }
+  // get_settings removed
 
   /** Called when a collision with another object occurred. The
       default implementation calls collision_player, collision_solid,

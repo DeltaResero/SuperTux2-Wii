@@ -13,7 +13,6 @@
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
-#include "editor/editor.hpp"
 #include "object/lantern.hpp"
 #include "object/path_walker.hpp"
 #include "object/player.hpp"
@@ -85,11 +84,6 @@ WillOWisp::save(Writer& writer) {
 void
 WillOWisp::active_update(float elapsed_time)
 {
-  if (Editor::is_active() && path.get() && path->is_valid()) {
-      set_pos(walker->advance(elapsed_time));
-      return;
-  }
-
   auto player = get_nearest_player();
   if (!player) return;
   Vector p1 = bbox.get_middle();
@@ -151,9 +145,6 @@ WillOWisp::active_update(float elapsed_time)
 void
 WillOWisp::activate()
 {
-  if(Editor::is_active())
-    return;
-
   sound_source = SoundManager::current()->create_sound_source(SOUNDFILE);
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
@@ -269,20 +260,6 @@ WillOWisp::set_state(const std::string& new_state)
   }
 }
 
-ObjectSettings
-WillOWisp::get_settings() {
-  ObjectSettings result(_("Will 'o' wisp"));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Name"), &name));
-  result.options.push_back( dir_option(&dir) );
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Sector"), &target_sector, "sector"));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Spawnpoint"), &target_spawnpoint, "spawnpoint"));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Hit script"), &hit_script, "hit-script"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Track range"), &track_range, "track-range"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Vanish range"), &vanish_range, "vanish-range"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Fly speed"), &flyspeed, "flyspeed"));
-  return result;
-}
-
 void WillOWisp::stop_looping_sounds()
 {
   if (sound_source) {
@@ -295,16 +272,6 @@ void WillOWisp::play_looping_sounds()
   if (sound_source) {
     sound_source->play();
   }
-}
-
-void
-WillOWisp::move_to(const Vector& pos)
-{
-  Vector shift = pos - bbox.p1;
-  if (path) {
-    path->move_by(shift);
-  }
-  set_pos(pos);
 }
 
 // EOF

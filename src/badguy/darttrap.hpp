@@ -31,9 +31,6 @@ public:
     return _("Dart trap");
   }
 
-  ObjectSettings get_settings();
-  void after_editor_set();
-
 protected:
   enum State {
     IDLE, LOADING

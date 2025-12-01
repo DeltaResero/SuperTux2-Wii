@@ -26,9 +26,6 @@ public:
     return "switch";
   }
 
-  ObjectSettings get_settings();
-  void after_editor_set();
-
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
   virtual void event(Player& player, EventType type);

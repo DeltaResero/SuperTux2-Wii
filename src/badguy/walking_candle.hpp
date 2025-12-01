@@ -31,8 +31,6 @@ public:
 
   void kill_fall() { };
 
-  ObjectSettings get_settings();
-  virtual void after_editor_set();
   std::string get_class() const {
     return "mrcandle";
   }

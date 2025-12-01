@@ -24,9 +24,6 @@ public:
 
   void draw(DrawingContext& context);
   void update(float elapsed_time);
-  virtual bool do_save() const {
-    return false;
-  }
 
 private:
   Physic physic;

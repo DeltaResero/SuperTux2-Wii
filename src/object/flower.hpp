@@ -21,9 +21,6 @@ class Flower : public MovingObject
 public:
   Flower(BonusType type);
   ~Flower();
-  virtual bool do_save() const {
-    return false;
-  }
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);

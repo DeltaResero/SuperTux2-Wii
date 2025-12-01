@@ -37,14 +37,6 @@ Crystallo::Crystallo(const Vector& pos, Direction d) :
   radius = 100;
 }
 
-ObjectSettings
-Crystallo::get_settings() {
-  ObjectSettings result = WalkingBadguy::get_settings();
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Radius"), &radius,
-                                         "radius"));
-  return result;
-}
-
 void
 Crystallo::active_update(float elapsed_time)
 {

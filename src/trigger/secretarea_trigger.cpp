@@ -11,7 +11,6 @@
 
 #include "trigger/secretarea_trigger.hpp"
 
-#include "editor/editor.hpp"
 #include "object/tilemap.hpp"
 #include "supertux/level.hpp"
 #include "supertux/globals.hpp"
@@ -41,7 +40,7 @@ SecretAreaTrigger::SecretAreaTrigger(const ReaderMapping& reader) :
   bbox.set_size(w, h);
   reader.get("fade-tilemap", fade_tilemap);
   reader.get("message", message);
-  if(message.empty() && !Editor::is_active()) {
+  if(message.empty()) {
     message = _("You found a secret area!");
   }
   reader.get("script", script);
@@ -59,27 +58,6 @@ SecretAreaTrigger::SecretAreaTrigger(const Rectf& area, std::string fade_tilemap
 {
   bbox = area;
   message_displayed = false;
-}
-
-ObjectSettings
-SecretAreaTrigger::get_settings() {
-  new_size.x = bbox.get_width();
-  new_size.y = bbox.get_height();
-  ObjectSettings result(_("Secret area"));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Name"), &name));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Width"), &new_size.x, "width"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Height"), &new_size.y, "height"));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Fade-tilemap"), &fade_tilemap,
-                                         "fade-tilemap", true, false));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Message"), &message, "message"));
-  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script,
-                                         "script", true, false));
-  return result;
-}
-
-void
-SecretAreaTrigger::after_editor_set() {
-  bbox.set_size(new_size.x, new_size.y);
 }
 
 SecretAreaTrigger::~SecretAreaTrigger()
@@ -102,10 +80,7 @@ SecretAreaTrigger::draw(DrawingContext& context)
     context.draw_center_text(Resources::normal_font, message, pos, LAYER_HUD, SecretAreaTrigger::text_color);
     context.pop_transform();
   }
-  if (Editor::is_active()) {
-    context.draw_filled_rect(bbox, Color(0.0f, 1.0f, 0.0f, 0.6f),
-                             0.0f, LAYER_OBJECTS);
-  } else if (message_timer.check()) {
+  if (message_timer.check()) {
     remove_me();
   }
 }

@@ -14,7 +14,6 @@
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
-#include "editor/editor.hpp"
 #include "object/ambient_sound.hpp"
 #include "object/camera.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -56,10 +55,8 @@ AmbientSound::AmbientSound(const ReaderMapping& lisp) :
 
   // square all distances (saves us a sqrt later)
 
-  if (!Editor::is_active()) {
-    distance_bias*=distance_bias;
-    distance_factor*=distance_factor;
-  }
+  distance_bias*=distance_bias;
+  distance_factor*=distance_factor;
 
   // set default silence_distance
 
@@ -115,29 +112,6 @@ AmbientSound::~AmbientSound()
   stop_playing();
 }
 
-ObjectSettings
-AmbientSound::get_settings() {
-  new_size.x = bbox.get_width();
-  new_size.y = bbox.get_height();
-  ObjectSettings result = MovingObject::get_settings();
-
-  ObjectOption smp(MN_FILE, _("Sound"), &sample, "sample");
-  smp.select.push_back(".wav");
-  smp.select.push_back(".ogg");
-  result.options.push_back(smp);
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Width"), &new_size.x, "width"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Height"), &new_size.y, "height"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Distance factor"), &distance_factor, "distance_factor"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Distance bias"), &distance_bias, "distance_bias"));
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Volume"), &maximumvolume, "volume"));
-  return result;
-}
-
-void
-AmbientSound::after_editor_set() {
-  bbox.set_size(new_size.x, new_size.y);
-}
-
 void
 AmbientSound::hit(Player& )
 {
@@ -152,8 +126,6 @@ AmbientSound::stop_playing()
 void
 AmbientSound::start_playing()
 {
-  if (Editor::is_active()) return;
-
   try {
     sound_source = SoundManager::current()->create_sound_source(sample);
     if(!sound_source)
@@ -264,10 +236,6 @@ AmbientSound::collision(GameObject& other, const CollisionHit& hit_)
 void
 AmbientSound::draw(DrawingContext& context)
 {
-  if (Editor::is_active()) {
-    context.draw_filled_rect(bbox, Color(0.0f, 0.0f, 1.0f, 0.6f),
-                             0.0f, LAYER_OBJECTS);
-  }
 }
 
 // EOF

@@ -45,9 +45,6 @@ public:
     return _("Candle");
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
 private:
   bool burning; /**< true if candle is currently lighted */
   bool flicker; /**< true if candle light is to flicker */

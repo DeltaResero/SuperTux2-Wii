@@ -31,8 +31,6 @@ public:
     return _("Button");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   enum PushButtonState {
     OFF,

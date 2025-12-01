@@ -32,8 +32,6 @@ public:
     return _("Power up");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   Physic physic;
   std::string script;

@@ -27,9 +27,6 @@ class TextObject : public GameObject,
 public:
   TextObject(const std::string& name = std::string());
   virtual ~TextObject();
-  virtual bool do_save() const {
-    return false;
-  }
 
   void set_text(const std::string& text);
   void set_font(const std::string& name);

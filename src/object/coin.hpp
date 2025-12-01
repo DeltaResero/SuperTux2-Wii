@@ -38,11 +38,6 @@ public:
     return _("Coin");
   }
 
-  ObjectSettings get_settings();
-  void after_editor_set();
-
-  virtual void move_to(const Vector& pos);
-
   Path* get_path() const {
     return path.get();
   }
@@ -68,9 +63,6 @@ public:
   virtual std::string get_class() const {
     return "heavycoin";
   }
-
-  ObjectSettings get_settings();
-  void after_editor_set();
 
 private:
   Physic physic;

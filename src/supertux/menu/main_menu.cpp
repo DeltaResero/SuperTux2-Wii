@@ -12,7 +12,6 @@
 #include "supertux/menu/main_menu.hpp"
 
 #include "audio/sound_manager.hpp"
-#include "editor/editor.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
@@ -36,7 +35,6 @@ MainMenu::MainMenu()
 
   add_entry(MNID_STARTGAME, "Start Game");
   add_submenu("Options", MenuStorage::OPTIONS_MENU);
-  add_entry(MNID_LEVELEDITOR, "Level Editor");
   add_entry(MNID_CREDITS, "Credits");
   add_entry(MNID_QUITMAINMENU, "Quit");
 }
@@ -62,17 +60,6 @@ MainMenu::menu_action(MenuItem* item)
       MenuManager::instance().clear_menu_stack();
       ScreenManager::current()->push_screen(std::unique_ptr<Screen>(new TextScroller("credits.stxt")),
                                             std::unique_ptr<ScreenFade>(new FadeOut(0.5)));
-      break;
-
-    case MNID_LEVELEDITOR:
-      {
-        MenuManager::instance().clear_menu_stack();
-        std::unique_ptr<Screen> screen(new Editor());
-        std::unique_ptr<FadeOut> fade(new FadeOut(0.5));
-        SoundManager::current()->stop_music(0.5);
-        ScreenManager::current()->push_screen(move(screen),move(fade));
-        //Editor::current()->setup();
-      }
       break;
 
     case MNID_QUITMAINMENU:

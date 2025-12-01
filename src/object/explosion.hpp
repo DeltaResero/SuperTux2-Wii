@@ -29,9 +29,6 @@ public:
   void update(float elapsed_time);
   void draw(DrawingContext& context);
   HitResponse collision(GameObject& other, const CollisionHit& hit);
-  virtual bool do_save() const {
-    return false;
-  }
 
   bool hurts() const
   {

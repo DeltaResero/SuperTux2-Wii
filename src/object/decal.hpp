@@ -35,8 +35,6 @@ public:
     return _("Decal");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   std::string default_action;
   bool solid;

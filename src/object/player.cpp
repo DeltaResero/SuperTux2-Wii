@@ -14,7 +14,6 @@
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "control/input_manager.hpp"
-#include "editor/editor.hpp"
 #include "math/random_generator.hpp"
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
@@ -158,7 +157,6 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   airarrow(),
   floor_normal(),
   ghost_mode(false),
-  edit_mode(false),
   unduck_hurt_timer(),
   idle_timer(),
   idle_stage(0),
@@ -1147,10 +1145,6 @@ Player::kick()
 void
 Player::draw(DrawingContext& context)
 {
-  if (Editor::is_active()) {
-    return;
-  }
-
   if(!visible)
     return;
 
@@ -1478,12 +1472,6 @@ Player::kill(bool completely)
   } else {
     SoundManager::current()->play("sounds/kill.wav");
 
-    // do not die when in edit mode
-    if (edit_mode) {
-      set_ghost_mode(true);
-      return;
-    }
-
     if (player_status->coins >= 25 && !GameSession::current()->get_reset_point_sectorname().empty())
     {
       for (int i = 0; i < 5; i++)
@@ -1653,12 +1641,6 @@ Player::set_ghost_mode(bool enable)
     physic.enable_gravity(true);
     log_debug << "You feel solid again." << std::endl;
   }
-}
-
-void
-Player::set_edit_mode(bool enable)
-{
-  edit_mode = enable;
 }
 
 void

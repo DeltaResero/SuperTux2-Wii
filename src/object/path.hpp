@@ -18,7 +18,6 @@
 
 #include "math/vector.hpp"
 
-class ObjectOption;
 class ReaderMapping;
 class Writer;
 
@@ -67,11 +66,6 @@ public:
   void move_by(const Vector& shift);
 
   /**
-   * Puts node markers to the nodes to edit them.
-   */
-  void edit_path();
-
-  /**
    * Returns false when has no nodes
    */
   bool is_valid() const;
@@ -88,11 +82,6 @@ public:
   };
 
   WalkMode mode;
-
-  /**
-   * Returns an object option that modifies the mode.
-   */
-  static ObjectOption get_mode_option(WalkMode* mode_);
 };
 
 #endif // HEADER_SUPERTUX_OBJECT_PATH_HPP

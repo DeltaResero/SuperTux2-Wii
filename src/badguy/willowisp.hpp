@@ -56,9 +56,6 @@ public:
     return _("Will 'o' wisp");
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void move_to(const Vector& pos);
-
   Path* get_path() const {
     return path.get();
   }

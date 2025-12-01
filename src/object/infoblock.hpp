@@ -36,8 +36,6 @@ public:
     return _("Info block");
   }
 
-  virtual ObjectSettings get_settings();
-
 protected:
   virtual void hit(Player& player);
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit);

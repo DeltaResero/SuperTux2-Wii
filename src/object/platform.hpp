@@ -28,7 +28,6 @@ public:
   Platform(const ReaderMapping& reader, const std::string& default_sprite);
   Platform(const Platform& platform);
   virtual void save(Writer& writer);
-  virtual ObjectSettings get_settings();
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit);
   virtual void update(float elapsed_time);
@@ -55,8 +54,6 @@ public:
   /**
    * @}
    */
-
-  virtual void move_to(const Vector& pos);
 
   Path& get_path() const {
     return *path.get();

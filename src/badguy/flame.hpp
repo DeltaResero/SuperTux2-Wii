@@ -32,7 +32,6 @@ public:
   bool is_freezable() const;
   bool is_flammable() const;
 
-  ObjectSettings get_settings();
   virtual std::string get_class() const {
     return "flame";
   }

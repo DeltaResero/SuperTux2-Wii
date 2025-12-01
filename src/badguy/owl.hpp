@@ -39,8 +39,6 @@ public:
     return _("Owl");
   }
 
-  void after_editor_set();
-
 protected:
   bool is_above_player() const;
   void active_update (float elapsed_time);

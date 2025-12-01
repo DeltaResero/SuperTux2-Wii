@@ -38,8 +38,6 @@ public:
     return _("Skully hop");
   }
 
-  void after_editor_set();
-
 private:
   enum SkullyHopState {
     STANDING,

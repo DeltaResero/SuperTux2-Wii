@@ -41,7 +41,6 @@ Config::Config() :
   start_demo(),
   record_demo(),
   tux_spawn_pos(),
-  edit_level(),
   keyboard_config(),
   joystick_config(),
   developer_mode(false),

@@ -23,7 +23,6 @@
 
 #include "audio/sound_manager.hpp"
 #include "badguy/jumpy.hpp"
-#include "editor/editor.hpp"
 #include "math/aatriangle.hpp"
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
@@ -79,11 +78,8 @@ Sector::Sector(Level* parent) :
   effect(0)
 {
   PlayerStatus* player_status;
-  if (Editor::is_active()) {
-    player_status = Editor::current()->m_savegame->get_player_status();
-  } else {
-    player_status = GameSession::current()->get_savegame().get_player_status();
-  }
+  player_status = GameSession::current()->get_savegame().get_player_status();
+
   if (!player_status) {
     log_warning << "Player status is not initialized." << std::endl;
   }
@@ -311,7 +307,7 @@ Sector::activate(const Vector& player_pos)
   }
 
   // Run init script
-  if(!init_script.empty() && !Editor::is_active()) {
+  if(!init_script.empty()) {
     std::istringstream in(init_script);
     run_script(in, "init-script");
   }
@@ -983,12 +979,6 @@ const float MAX_SPEED = 16.0f;
 void
 Sector::handle_collisions()
 {
-
-  if (Editor::is_active()) {
-    return;
-    //Oběcts in editor shouldn't collide.
-  }
-
   using namespace collision;
 
   // calculate destination positions of the objects
@@ -1453,9 +1443,7 @@ Sector::save(Writer &writer)
     writer.write("music", music, false);
   }
 
-  if (!Editor::is_active() || !Editor::current()->get_worldmap_mode()) {
-    writer.write("gravity", gravity);
-  }
+  writer.write("gravity", gravity);
 
   // saving spawnpoints
   /*for(auto i = spawnpoints.begin(); i != spawnpoints.end(); ++i) {

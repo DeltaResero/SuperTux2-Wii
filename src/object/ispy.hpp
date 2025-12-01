@@ -34,9 +34,6 @@ public:
     return _("Ispy");
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
 private:
   enum IspyState {
     ISPYSTATE_IDLE,

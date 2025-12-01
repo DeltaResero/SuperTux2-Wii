@@ -38,8 +38,6 @@ public:
   }
 
   void move_to(const Vector& pos);
-  void editor_delete();
-  void after_editor_set();
 
 protected:
   PneumaticPlatform* master; /**< pointer to PneumaticPlatform that does movement calculation */

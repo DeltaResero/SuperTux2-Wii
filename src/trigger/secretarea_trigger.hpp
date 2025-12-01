@@ -32,9 +32,6 @@ public:
     return "secretarea";
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
   void event(Player& player, EventType type);
   void draw(DrawingContext& context);
   std::string get_fade_tilemap_name() const;

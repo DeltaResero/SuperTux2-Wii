@@ -21,9 +21,6 @@ class FloatingImage : public GameObject
 public:
   FloatingImage(const std::string& sprite);
   virtual ~FloatingImage();
-  virtual bool do_save() const {
-    return false;
-  }
 
   void set_layer(int layer_) {
     this->layer = layer_;

@@ -49,19 +49,6 @@ Lantern::Lantern(const Vector& pos) :
   SoundManager::current()->preload("sounds/willocatch.wav");
 }
 
-ObjectSettings
-Lantern::get_settings() {
-  ObjectSettings result = Rock::get_settings();
-  result.options.push_back( ObjectOption(MN_COLOR, _("Colour"), &lightcolor, "color"));
-
-  return result;
-}
-
-void
-Lantern::after_editor_set() {
-  updateColor();
-}
-
 Lantern::~Lantern()
 {
 }

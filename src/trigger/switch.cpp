@@ -50,24 +50,6 @@ Switch::~Switch()
 {
 }
 
-ObjectSettings
-Switch::get_settings() {
-  ObjectSettings result(_("Switch"));
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Name"), &name));
-  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite", true, false);
-  spr.select.push_back(".sprite");
-  result.options.push_back(spr);
-  result.options.push_back( ObjectOption(MN_SCRIPT, _("Turn on script"), &script, "script"));
-  result.options.push_back( ObjectOption(MN_SCRIPT, _("Turn off script"), &off_script,
-                                         "off-script", true, false));
-  return result;
-}
-
-void
-Switch::after_editor_set() {
-  sprite = SpriteManager::current()->create(sprite_name);
-}
-
 void
 Switch::update(float )
 {

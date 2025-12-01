@@ -12,7 +12,6 @@
 #include "badguy/dispenser.hpp"
 
 #include "audio/sound_manager.hpp"
-#include "editor/editor.hpp"
 #include "math/random_generator.hpp"
 #include "object/bullet.hpp"
 #include "object/player.hpp"
@@ -97,7 +96,7 @@ Dispenser::Dispenser(const ReaderMapping& reader) :
 
 void
 Dispenser::draw(DrawingContext& context) {
-  if (type != DT_POINT || Editor::is_active()) {
+  if (type != DT_POINT) {
     BadGuy::draw(context);
   }
 }
@@ -210,7 +209,7 @@ Dispenser::launch_badguy()
   if (frozen) return;
 
   //FIXME: Does is_offscreen() work right here?
-  if (!is_offscreen() && !Editor::is_active()) {
+  if (!is_offscreen()) {
     Direction launchdir = dir;
     if( !autotarget && start_dir == AUTO ){
       Player* player = get_nearest_player();
@@ -367,37 +366,6 @@ Dispenser::set_correct_action()
     default:
       break;
   }
-}
-
-ObjectSettings
-Dispenser::get_settings()
-{
-  ObjectSettings result = BadGuy::get_settings();
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Interval (seconds)"), &cycle,
-                                         "cycle"));
-  result.options.push_back( ObjectOption(MN_TOGGLE, _("Random"), &random,
-                                         "random"));
-  result.options.push_back( ObjectOption(MN_BADGUYSELECT, _("Enemies"), &badguys,
-                                         "badguy"));
-
-  ObjectOption seq(MN_STRINGSELECT, _("Type"), &type);
-  seq.select.push_back(_("dropper"));
-  seq.select.push_back(_("rocket launcher"));
-  seq.select.push_back(_("cannon"));
-  seq.select.push_back(_("invisible"));
-
-  result.options.push_back( seq );
-
-  type_str = get_type_string();
-  result.options.push_back( ObjectOption(MN_TEXTFIELD, "type", &type_str, "type", false));
-  return result;
-}
-
-void
-Dispenser::after_editor_set()
-{
-  BadGuy::after_editor_set();
-  set_correct_action();
 }
 
 // EOF
