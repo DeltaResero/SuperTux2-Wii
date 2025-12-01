@@ -14,13 +14,9 @@
 
 #include <iostream>
 
-class ObjectOption;
-
 enum Direction { AUTO, LEFT, RIGHT, UP, DOWN };
 
 std::ostream& operator<<(std::ostream& o, const Direction& dir);
-
-ObjectOption dir_option(Direction *dir);
 
 std::string dir_to_string(const Direction& dir);
 std::string dir_to_prefixed(const Direction& dir, const std::string& prefix);
