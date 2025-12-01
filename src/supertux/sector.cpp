@@ -1454,11 +1454,9 @@ Sector::save(Writer &writer)
 
   // saving oběcts (not really)
   for(auto& obj : gameobjects) {
-    if (obj->do_save()) {
-      writer.start_list(obj->get_class());
-      obj->save(writer);
-      writer.end_list(obj->get_class());
-    }
+    writer.start_list(obj->get_class());
+    obj->save(writer);
+    writer.end_list(obj->get_class());
   }
 
   writer.end_list("sector");

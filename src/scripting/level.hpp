@@ -22,9 +22,6 @@ void Level_spawn(const std::string& sector, const std::string& spawnpoint);
 void Level_flip_vertically();
 /** toggle pause */
 void Level_toggle_pause();
-
-/** Switch to and from edit mode */
-void Level_edit(bool edit_mode);
 }
 
 #endif // HEADER_SUPERTUX_SCRIPTING_LEVEL_HPP

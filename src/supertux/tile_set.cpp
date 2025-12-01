@@ -11,7 +11,6 @@
 
 #include "supertux/tile_set.hpp"
 
-#include "editor/editor.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/tile_set_parser.hpp"
 #include "video/drawing_context.hpp"
@@ -142,10 +141,6 @@ TileSet::draw_tile(DrawingContext& context, uint32_t id, const Vector& pos,
   if (tile) {
     tile->load_images();
     tile->draw(context, pos, z_pos, color);
-  } else if (Editor::is_active()) { // Draw a notile sign
-    context.draw_surface(notile_surface, pos, 0, color, Blend(), z_pos);
-    context.draw_text(Resources::small_font, std::to_string(id),
-                      pos + Vector(16, 16), ALIGN_CENTER, z_pos, color);
   }
 }
 

@@ -136,16 +136,4 @@ BicyclePlatform::move_to(const Vector& pos) {
   center += shift;
 }
 
-void
-BicyclePlatform::editor_delete() {
-  master->remove_me();
-  slave->remove_me();
-}
-
-void
-BicyclePlatform::after_editor_set() {
-  MovingSprite::after_editor_set();
-  slave->change_sprite(sprite_name);
-}
-
 // EOF

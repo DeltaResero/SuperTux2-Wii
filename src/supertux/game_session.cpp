@@ -72,7 +72,6 @@ GameSession::GameSession(const std::string& levelfile_, Savegame& savegame, Stat
   playback_demo_stream(0),
   demo_controller(0),
   play_time(0),
-  edit_mode(false),
   levelintro_shown(false),
   coins_at_start(),
   bonus_at_start(),
@@ -105,11 +104,6 @@ GameSession::restart_level(bool after_death)
     bonus_at_start = currentStatus->bonus;
     max_fire_bullets_at_start = currentStatus->max_fire_bullets;
     max_ice_bullets_at_start = currentStatus->max_ice_bullets;
-
-  if (edit_mode) {
-    force_ghost_mode();
-    return (-1);
-  }
 
   game_pause   = false;
   end_sequence = 0;
@@ -309,26 +303,6 @@ GameSession::is_active() const
 }
 
 void
-GameSession::set_editmode(bool edit_mode_)
-{
-  if (this->edit_mode == edit_mode_) return;
-  this->edit_mode = edit_mode_;
-
-  currentsector->get_players()[0]->set_edit_mode(edit_mode_);
-
-  if (edit_mode_) {
-
-    // entering edit mode
-
-  } else {
-
-    // leaving edit mode
-    restart_level();
-
-  }
-}
-
-void
 GameSession::force_ghost_mode()
 {
   currentsector->get_players()[0]->set_ghost_mode(true);
@@ -510,8 +484,6 @@ GameSession::update(float elapsed_time)
     currentsector = sector;
     currentsector->play_looping_sounds();
     //Keep persistent across sectors
-    if(edit_mode)
-      currentsector->get_players()[0]->set_edit_mode(edit_mode);
     newsector = "";
     newspawnpoint = "";
   }
@@ -573,11 +545,6 @@ GameSession::finish(bool win)
 
   using namespace worldmap;
 
-  if (edit_mode) {
-    force_ghost_mode();
-    return;
-  }
-
   if(win) {
     if(WorldMap::current())
     {
@@ -616,12 +583,6 @@ GameSession::get_working_directory() const
 void
 GameSession::start_sequence(Sequence seq)
 {
-  // do not play sequences when in edit mode
-  if (edit_mode) {
-    force_ghost_mode();
-    return;
-  }
-
   // handle special "stoptux" sequence
   if (seq == SEQ_STOPTUX) {
     if (!end_sequence) {
