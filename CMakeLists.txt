@@ -118,6 +118,7 @@ OPTION(BUILD_TESTS "Build test cases" OFF)
 OPTION(ENABLE_OPENGL "Enable OpenGL support" ON)
 OPTION(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 OPTION(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
+
 IF(ENABLE_OPENGL)
   FIND_PACKAGE(OpenGL)
   IF(OPENGL_FOUND)
@@ -135,11 +136,43 @@ IF(ENABLE_OPENGL)
       ENDIF()
     ENDIF()
   ELSE()
-    FIND_PACKAGE(GLEW REQUIRED)
-    IF(GLEW_FOUND)
-      INCLUDE_DIRECTORIES(SYSTEM ${GLEW_INCLUDE_DIR})
-    ENDIF(GLEW_FOUND)
+    # Only require GLEW on desktop platforms
+    IF(NOT GL_VERSION_ES_CM_1_0)
+      FIND_PACKAGE(GLEW REQUIRED)
+      IF(GLEW_FOUND)
+        INCLUDE_DIRECTORIES(SYSTEM ${GLEW_INCLUDE_DIR})
+      ENDIF(GLEW_FOUND)
+    ENDIF()
   ENDIF()
+
+  # NPOT (Non-Power-Of-Two) texture support detection
+  # Desktop OpenGL with GLEW typically supports this via ARB extension
+  # OpenGL ES and embedded platforms may not support it
+  OPTION(ENABLE_NPOT_TEXTURES "Enable non-power-of-two texture support (requires hardware support)" ON)
+
+  IF(ENABLE_NPOT_TEXTURES)
+    # On desktop with GLEW, NPOT is detected at runtime via GLEW_ARB_texture_non_power_of_two
+    # On other platforms, we assume no NPOT support unless explicitly enabled
+    IF(NOT GL_VERSION_ES_CM_1_0 AND NOT GLBINDING_ENABLED)
+      # Desktop with GLEW - runtime detection will work
+      SET(HAVE_NPOT_TEXTURES TRUE)
+    ELSEIF(GLBINDING_ENABLED)
+      # glbinding - runtime detection via ContextInfo
+      SET(HAVE_NPOT_TEXTURES TRUE)
+    ELSE()
+      # OpenGL ES or other - assume no NPOT unless platform explicitly enables it
+      SET(HAVE_NPOT_TEXTURES FALSE)
+    ENDIF()
+  ELSE()
+    SET(HAVE_NPOT_TEXTURES FALSE)
+  ENDIF()
+
+  IF(HAVE_NPOT_TEXTURES)
+    MESSAGE(STATUS "NPOT texture support: Enabled (runtime detection)")
+  ELSE()
+    MESSAGE(STATUS "NPOT texture support: Disabled (will use power-of-two textures)")
+  ENDIF()
+
 ENDIF(ENABLE_OPENGL)
 
 OPTION(ENABLE_OPENAL "Enable OpenAL support (Disable for SDL2_mixer backend)" ON)
