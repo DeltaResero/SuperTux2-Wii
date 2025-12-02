@@ -27,6 +27,8 @@ using namespace gl;
 
 #else
 
+// Only include GLEW on desktop platforms that support it
+// OpenGL ES and embedded platforms don't use GLEW
 #ifndef GL_VERSION_ES_CM_1_0
 #  include <GL/glew.h>
 #endif
@@ -42,7 +44,7 @@ using namespace gl;
 #  include <GL/glext.h>
 #endif
 
-#endif
+#endif // USE_GLBINDING
 
 static inline void check_gl_error(const char* message)
 {

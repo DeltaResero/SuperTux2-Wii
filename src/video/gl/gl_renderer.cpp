@@ -125,8 +125,15 @@ GLRenderer::GLRenderer() :
     throw std::runtime_error(out.str());
   }
   log_info << "Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
+
+  #ifdef HAVE_NPOT_TEXTURES
   log_info << "GLEW_ARB_texture_non_power_of_two: " << static_cast<int>(GLEW_ARB_texture_non_power_of_two) << std::endl;
-#  endif
+  #else
+  log_info << "NPOT texture support: Disabled (forced POT textures)" << std::endl;
+  #endif
+  #endif
+#else
+  log_info << "OpenGL ES: Using power-of-two textures" << std::endl;
 #endif
 }
 

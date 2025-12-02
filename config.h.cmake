@@ -25,6 +25,9 @@
 
 #cmakedefine HAVE_OPENGL
 
+/* NPOT (Non-Power-Of-Two) texture support */
+#cmakedefine HAVE_NPOT_TEXTURES
+
 #cmakedefine HAVE_OPENAL
 #cmakedefine USE_SDL_MIXER
 

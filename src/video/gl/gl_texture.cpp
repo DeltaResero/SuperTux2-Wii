@@ -33,6 +33,32 @@ inline int next_power_of_two(int val)
   return result;
 }
 
+/**
+ * Checks if NPOT textures are supported at runtime.
+ * Returns true if the hardware/driver supports NPOT, false otherwise.
+ */
+inline bool has_npot_support()
+{
+#ifdef HAVE_NPOT_TEXTURES
+  // NPOT is enabled in build system - now check if hardware supports it
+  #ifdef USE_GLBINDING
+    static auto extensions = glbinding::ContextInfo::extensions();
+    return (extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end());
+  #else
+    #if !defined(GL_VERSION_ES_CM_1_0)
+      // Desktop OpenGL with GLEW - check the extension
+      return GLEW_ARB_texture_non_power_of_two;
+    #else
+      // OpenGL ES - typically no NPOT support in 1.x
+      return false;
+    #endif
+  #endif
+#else
+  // NPOT disabled at build time
+  return false;
+#endif
+}
+
 } // namespace
 
 GLTexture::GLTexture(unsigned int width, unsigned int height) :
@@ -58,7 +84,7 @@ GLTexture::GLTexture(unsigned int width, unsigned int height) :
     glBindTexture(GL_TEXTURE_2D, m_handle);
 
     glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA), m_texture_width,
-				 m_texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+                 m_texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     set_texture_params();
   } catch(...) {
@@ -74,33 +100,28 @@ GLTexture::GLTexture(SDL_Surface* image) :
   m_image_width(),
   m_image_height()
 {
-#ifdef GL_VERSION_ES_CM_1_0
-  m_texture_width = next_power_of_two(image->w);
-  m_texture_height = next_power_of_two(image->h);
-#else
-#  ifdef USE_GLBINDING
-  static auto extensions = glbinding::ContextInfo::extensions();
-  if (extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end())
-  {
-    m_texture_width  = image->w;
-    m_texture_height = image->h;
-  }
-#  else
-  if (GLEW_ARB_texture_non_power_of_two)
-  {
-    m_texture_width  = image->w;
-    m_texture_height = image->h;
-  }
-#  endif
-  else
-  {
-    m_texture_width = next_power_of_two(image->w);
-    m_texture_height = next_power_of_two(image->h);
-  }
-#endif
-
   m_image_width  = image->w;
   m_image_height = image->h;
+
+  // Determine texture dimensions based on NPOT support
+  if (has_npot_support())
+  {
+    // Hardware supports NPOT - use exact dimensions
+    m_texture_width  = image->w;
+    m_texture_height = image->h;
+  }
+  else
+  {
+    // No NPOT support - round up to power of two
+    m_texture_width = next_power_of_two(image->w);
+    m_texture_height = next_power_of_two(image->h);
+
+    // FIXME: At this point, if m_texture_width != m_image_width, we're using POT
+    // textures but haven't actually created the padded surface yet.
+    // This will cause rendering issues until we implements proper POT handling.
+    // For now, we just allocate the POT-sized texture and upload the NPOT data,
+    // which will work on NPOT-capable hardware but break on POT-only hardware.
+  }
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
   SDL_Surface* convert = SDL_CreateRGBSurface(0,
