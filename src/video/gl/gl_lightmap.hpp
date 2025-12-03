@@ -12,11 +12,15 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GL_LIGHTMAP_HPP
 #define HEADER_SUPERTUX_VIDEO_GL_LIGHTMAP_HPP
 
+#include <config.h>
 #include "video/lightmap.hpp"
+#include "video/color.hpp"
+
+#include <memory>
 
 struct DrawingRequest;
-
 class Texture;
+class GLTexture;
 
 class GLLightmap : public Lightmap
 {
@@ -44,7 +48,14 @@ private:
   int m_lightmap_height;
   float m_lightmap_uv_right;
   float m_lightmap_uv_bottom;
-  GLfloat m_old_viewport[4]; //holds vieport before redefining in start_draw - returned from glGet
+  GLfloat m_old_viewport[4]; //holds viewport before redefining in start_draw - returned from glGet
+  Color m_ambient_color;
+
+#ifdef USE_ROUNDTRIP_LIGHTMAP
+  // Buffer for round-trip lightmap mode (glReadPixels + glTexSubImage2D)
+  // Used on platforms where glCopyTexSubImage2D is not available (e.g., OpenGX/Wii)
+  GLubyte* m_lightmap_buffer;
+#endif
 
 private:
   GLLightmap(const GLLightmap&);
