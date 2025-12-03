@@ -28,6 +28,10 @@
 /* NPOT (Non-Power-Of-Two) texture support */
 #cmakedefine HAVE_NPOT_TEXTURES
 
+/* Lightmap rendering support */
+#cmakedefine HAVE_LIGHTMAP
+#cmakedefine USE_ROUNDTRIP_LIGHTMAP
+
 #cmakedefine HAVE_OPENAL
 #cmakedefine USE_SDL_MIXER
 

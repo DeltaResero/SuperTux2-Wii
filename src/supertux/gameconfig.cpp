@@ -20,6 +20,33 @@
 #include "util/writer.hpp"
 #include "util/log.hpp"
 #include "supertux/globals.hpp"
+#include <iostream>
+
+namespace {
+
+LightmapMode get_lightmap_mode_from_string(const std::string& mode_str)
+{
+  if (mode_str == "auto") return LightmapMode::AUTO;
+  if (mode_str == "native") return LightmapMode::NATIVE;
+  if (mode_str == "roundtrip") return LightmapMode::ROUNDTRIP;
+  if (mode_str == "disabled") return LightmapMode::DISABLED;
+
+  log_warning << "Unknown lightmap mode '" << mode_str << "', using auto" << std::endl;
+  return LightmapMode::AUTO;
+}
+
+std::string get_lightmap_mode_string(LightmapMode mode)
+{
+  switch (mode) {
+    case LightmapMode::AUTO: return "auto";
+    case LightmapMode::NATIVE: return "native";
+    case LightmapMode::ROUNDTRIP: return "roundtrip";
+    case LightmapMode::DISABLED: return "disabled";
+    default: return "auto";
+  }
+}
+
+} // namespace
 
 Config::Config() :
   profile(1),
@@ -35,6 +62,7 @@ Config::Config() :
   show_player_pos(false),
   sound_enabled(true),
   music_enabled(true),
+  lightmap_mode(LightmapMode::AUTO),
   random_seed(0), // set by time(), by default (unless in config)
   start_level(),
   enable_script_debugger(false),
@@ -85,6 +113,12 @@ Config::load()
     config_video_lisp.get("video", video_string);
     video = VideoSystem::get_video_system(video_string);
     config_video_lisp.get("vsync", try_vsync);
+
+    std::string lightmap_string;
+    if (config_video_lisp.get("lightmap_mode", lightmap_string))
+    {
+      lightmap_mode = get_lightmap_mode_from_string(lightmap_string);
+    }
 
     config_video_lisp.get("fullscreen_width",  fullscreen_size.width);
     config_video_lisp.get("fullscreen_height", fullscreen_size.height);
@@ -142,6 +176,7 @@ Config::save()
   writer.write("fullscreen", use_fullscreen);
   writer.write("video", VideoSystem::get_video_string(video));
   writer.write("vsync", try_vsync);
+  writer.write("lightmap_mode", get_lightmap_mode_string(lightmap_mode));
 
   writer.write("fullscreen_width",  fullscreen_size.width);
   writer.write("fullscreen_height", fullscreen_size.height);

@@ -21,6 +21,13 @@
 #include <ctime>
 #include <optional>
 
+enum class LightmapMode {
+  AUTO,      // Auto-detect best mode for platform
+  NATIVE,    // Use glCopyTexSubImage2D (fastest, desktop default)
+  ROUNDTRIP, // Use glReadPixels + glTexSubImage2D (OpenGL 1.x compatible)
+  DISABLED   // No lightmap rendering (full brightness)
+};
+
 class Config
 {
 public:
@@ -53,6 +60,9 @@ public:
   bool show_player_pos;
   bool sound_enabled;
   bool music_enabled;
+
+  /** Lightmap rendering mode */
+  LightmapMode lightmap_mode;
 
   /** initial random seed.  0 ==> set from time() */
   int random_seed;

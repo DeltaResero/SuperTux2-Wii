@@ -35,6 +35,7 @@
 #include "video/renderer.hpp"
 #include "video/surface.hpp"
 #include "video/texture_manager.hpp"
+#include "util/log.hpp"
 
 inline int next_po2(int val)
 {
@@ -45,12 +46,48 @@ inline int next_po2(int val)
   return result;
 }
 
+namespace {
+
+/**
+ * Determines the active lightmap mode based on config and build flags.
+ * Returns true if lightmap rendering should be active.
+ */
+bool should_use_lightmap()
+{
+#ifdef HAVE_LIGHTMAP
+  // Check user's config preference
+  switch (g_config->lightmap_mode) {
+    case LightmapMode::DISABLED:
+      return false;
+
+    case LightmapMode::NATIVE:
+    case LightmapMode::ROUNDTRIP:
+      return true;
+
+    case LightmapMode::AUTO:
+    default:
+      // In AUTO mode, use the build system's default
+      return true;
+  }
+#else
+  // Lightmap disabled at build time
+  return false;
+#endif
+}
+
+} // namespace
+
 GLLightmap::GLLightmap() :
   m_lightmap(),
   m_lightmap_width(),
   m_lightmap_height(),
   m_lightmap_uv_right(),
-  m_lightmap_uv_bottom()
+  m_lightmap_uv_bottom(),
+  m_old_viewport(),
+  m_ambient_color()
+#ifdef USE_ROUNDTRIP_LIGHTMAP
+  , m_lightmap_buffer(nullptr)
+#endif
 {
   m_lightmap_width = SCREEN_WIDTH / s_LIGHTMAP_DIV;
   m_lightmap_height = SCREEN_HEIGHT / s_LIGHTMAP_DIV;
@@ -62,15 +99,36 @@ GLLightmap::GLLightmap() :
   m_lightmap_uv_right = static_cast<float>(m_lightmap_width) / static_cast<float>(width);
   m_lightmap_uv_bottom = static_cast<float>(m_lightmap_height) / static_cast<float>(height);
   TextureManager::current()->register_texture(m_lightmap.get());
+
+#ifdef USE_ROUNDTRIP_LIGHTMAP
+  // Allocate buffer for round-trip mode
+  // Size: width * height * 4 bytes (RGBA)
+  // For typical 128x96 lightmap: ~49KB
+  m_lightmap_buffer = new GLubyte[m_lightmap_width * m_lightmap_height * 4];
+  log_info << "Lightmap: Using ROUNDTRIP mode (buffer size: "
+           << (m_lightmap_width * m_lightmap_height * 4) / 1024 << " KB)" << std::endl;
+#else
+  log_info << "Lightmap: Using NATIVE mode" << std::endl;
+#endif
 }
 
 GLLightmap::~GLLightmap()
 {
+#ifdef USE_ROUNDTRIP_LIGHTMAP
+  delete[] m_lightmap_buffer;
+  m_lightmap_buffer = nullptr;
+#endif
 }
 
 void
 GLLightmap::start_draw(const Color &ambient_color)
 {
+#ifdef HAVE_LIGHTMAP
+  if (!should_use_lightmap()) {
+    return; // Lightmap disabled, skip rendering
+  }
+
+  m_ambient_color = ambient_color;
 
   glGetFloatv(GL_VIEWPORT, m_old_viewport); //save viewport
   glViewport(m_old_viewport[0], m_old_viewport[3] - m_lightmap_height + m_old_viewport[1], m_lightmap_width, m_lightmap_height);
@@ -86,14 +144,41 @@ GLLightmap::start_draw(const Color &ambient_color)
 
   glClearColor( ambient_color.red, ambient_color.green, ambient_color.blue, 1 );
   glClear(GL_COLOR_BUFFER_BIT);
+#endif // HAVE_LIGHTMAP
 }
 
 void
 GLLightmap::end_draw()
 {
+#ifdef HAVE_LIGHTMAP
+  if (!should_use_lightmap()) {
+    return; // Lightmap disabled, skip rendering
+  }
+
   glDisable(GL_BLEND);
   glBindTexture(GL_TEXTURE_2D, m_lightmap->get_handle());
-  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_old_viewport[0], m_old_viewport[3] - m_lightmap_height + m_old_viewport[1], m_lightmap_width, m_lightmap_height);
+
+#ifdef USE_ROUNDTRIP_LIGHTMAP
+  // Round-trip mode: Read from framebuffer to CPU, then upload to texture
+  // This is used on platforms where glCopyTexSubImage2D is not available (e.g., OpenGX/Wii)
+
+  // Read pixels from framebuffer into CPU memory
+  glReadPixels(m_old_viewport[0],
+               m_old_viewport[3] - m_lightmap_height + m_old_viewport[1],
+               m_lightmap_width, m_lightmap_height,
+               GL_RGBA, GL_UNSIGNED_BYTE, m_lightmap_buffer);
+
+  // Upload from CPU memory to texture
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+                  m_lightmap_width, m_lightmap_height,
+                  GL_RGBA, GL_UNSIGNED_BYTE, m_lightmap_buffer);
+#else
+  // Native mode: Direct VRAM-to-VRAM copy (fastest)
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+                      m_old_viewport[0],
+                      m_old_viewport[3] - m_lightmap_height + m_old_viewport[1],
+                      m_lightmap_width, m_lightmap_height);
+#endif
 
   glViewport(m_old_viewport[0], m_old_viewport[1], m_old_viewport[2], m_old_viewport[3]);
   glMatrixMode(GL_PROJECTION);
@@ -109,11 +194,21 @@ GLLightmap::end_draw()
 
   glClearColor(0, 0, 0, 1 );
   glClear(GL_COLOR_BUFFER_BIT);
+#endif // HAVE_LIGHTMAP
 }
 
 void
 GLLightmap::do_draw()
 {
+#ifdef HAVE_LIGHTMAP
+  if (!should_use_lightmap()) {
+    return; // Lightmap disabled, skip rendering
+  }
+
+  // skip lightmap generation if ambient color is black
+  if(m_ambient_color.red == 0 && m_ambient_color.green == 0 && m_ambient_color.blue == 0)
+    return;
+
   // multiple the lightmap with the framebuffer
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
 
@@ -138,53 +233,91 @@ GLLightmap::do_draw()
   glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#endif // HAVE_LIGHTMAP
 }
 
 void
 GLLightmap::draw_surface(const DrawingRequest& request)
 {
-  GLPainter::draw_surface(request);
+#ifdef HAVE_LIGHTMAP
+  if (should_use_lightmap()) {
+    GLPainter::draw_surface(request);
+  }
+#endif
 }
 
 void
 GLLightmap::draw_surface_part(const DrawingRequest& request)
 {
-  GLPainter::draw_surface_part(request);
+#ifdef HAVE_LIGHTMAP
+  if (should_use_lightmap()) {
+    GLPainter::draw_surface_part(request);
+  }
+#endif
 }
 
 void
 GLLightmap::draw_gradient(const DrawingRequest& request)
 {
-  GLPainter::draw_gradient(request);
+#ifdef HAVE_LIGHTMAP
+  if (should_use_lightmap()) {
+    GLPainter::draw_gradient(request);
+  }
+#endif
 }
 
 void
 GLLightmap::draw_filled_rect(const DrawingRequest& request)
 {
-  GLPainter::draw_filled_rect(request);
+#ifdef HAVE_LIGHTMAP
+  if (should_use_lightmap()) {
+    GLPainter::draw_filled_rect(request);
+  }
+#endif
 }
 
 void
 GLLightmap::draw_inverse_ellipse(const DrawingRequest& request)
 {
-  GLPainter::draw_inverse_ellipse(request);
+#ifdef HAVE_LIGHTMAP
+  if (should_use_lightmap()) {
+    GLPainter::draw_inverse_ellipse(request);
+  }
+#endif
 }
 
 void
 GLLightmap::draw_line(const DrawingRequest& request)
 {
-  GLPainter::draw_line(request);
+#ifdef HAVE_LIGHTMAP
+  if (should_use_lightmap()) {
+    GLPainter::draw_line(request);
+  }
+#endif
 }
 
 void
 GLLightmap::draw_triangle(const DrawingRequest& request)
 {
-  GLPainter::draw_triangle(request);
+#ifdef HAVE_LIGHTMAP
+  if (should_use_lightmap()) {
+    GLPainter::draw_triangle(request);
+  }
+#endif
 }
 
 void
 GLLightmap::get_light(const DrawingRequest& request) const
 {
+#ifdef HAVE_LIGHTMAP
+  if (!should_use_lightmap()) {
+    // Lightmap disabled - return full brightness
+    const GetLightRequest* getlightrequest
+      = static_cast<GetLightRequest*>(request.request_data);
+    *(getlightrequest->color_ptr) = Color(1.0f, 1.0f, 1.0f);
+    return;
+  }
+
   const GetLightRequest* getlightrequest
     = static_cast<GetLightRequest*>(request.request_data);
 
@@ -196,6 +329,12 @@ GLLightmap::get_light(const DrawingRequest& request) const
   float posY = m_old_viewport[3] + m_old_viewport[1] - request.pos.y * m_lightmap_height / SCREEN_HEIGHT;
   glReadPixels((GLint) posX, (GLint) posY , 1, 1, GL_RGB, GL_FLOAT, pixels);
   *(getlightrequest->color_ptr) = Color( pixels[0], pixels[1], pixels[2]);
+#else
+  // Lightmap not compiled in - return full brightness
+  const GetLightRequest* getlightrequest
+    = static_cast<GetLightRequest*>(request.request_data);
+  *(getlightrequest->color_ptr) = Color(1.0f, 1.0f, 1.0f);
+#endif // HAVE_LIGHTMAP
 }
 
 // EOF

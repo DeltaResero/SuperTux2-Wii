@@ -173,6 +173,33 @@ IF(ENABLE_OPENGL)
     MESSAGE(STATUS "NPOT texture support: Disabled (will use power-of-two textures)")
   ENDIF()
 
+  # Lightmap rendering support
+  # Lightmaps provide dynamic lighting effects but require framebuffer operations
+  # that may not be available or performant on all platforms
+  OPTION(ENABLE_LIGHTMAP "Enable lightmap rendering (requires FBO or glReadPixels support)" ON)
+
+  IF(ENABLE_LIGHTMAP)
+    SET(HAVE_LIGHTMAP TRUE)
+    MESSAGE(STATUS "Lightmap rendering: Enabled")
+
+    # Detect if we need to use round-trip mode (glReadPixels + glTexSubImage2D)
+    # instead of native mode (glCopyTexSubImage2D)
+    # This is needed on platforms where glCopyTexSubImage2D is not implemented
+    OPTION(FORCE_ROUNDTRIP_LIGHTMAP "Force round-trip lightmap mode (for testing)" OFF)
+
+    IF(FORCE_ROUNDTRIP_LIGHTMAP)
+      SET(USE_ROUNDTRIP_LIGHTMAP TRUE)
+      MESSAGE(STATUS "Lightmap mode: ROUNDTRIP (forced)")
+    ELSE()
+      # Desktop platforms use native mode by default
+      # This will be overridden for specific platforms (like Wii) later
+      SET(USE_ROUNDTRIP_LIGHTMAP FALSE)
+      MESSAGE(STATUS "Lightmap mode: NATIVE (auto-detected)")
+    ENDIF()
+  ELSE()
+    MESSAGE(STATUS "Lightmap rendering: Disabled")
+  ENDIF()
+
 ENDIF(ENABLE_OPENGL)
 
 OPTION(ENABLE_OPENAL "Enable OpenAL support (Disable for SDL2_mixer backend)" ON)
