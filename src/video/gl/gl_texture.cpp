@@ -11,6 +11,7 @@
 
 #include "supertux/gameconfig.hpp"
 #include "video/gl/gl_texture.hpp"
+#include "util/log.hpp"
 
 #ifdef USE_GLBINDING
   #include <glbinding/ContextInfo.h>
@@ -115,14 +116,66 @@ GLTexture::GLTexture(SDL_Surface* image) :
     // No NPOT support - round up to power of two
     m_texture_width = next_power_of_two(image->w);
     m_texture_height = next_power_of_two(image->h);
-
-    // FIXME: At this point, if m_texture_width != m_image_width, we're using POT
-    // textures but haven't actually created the padded surface yet.
-    // This will cause rendering issues until we implements proper POT handling.
-    // For now, we just allocate the POT-sized texture and upload the NPOT data,
-    // which will work on NPOT-capable hardware but break on POT-only hardware.
   }
 
+  // Check for excessively large textures (sanity check)
+  if (m_texture_width > 4096 || m_texture_height > 4096)
+  {
+    log_warning << "Texture " << image->w << "x" << image->h
+                << " would require " << m_texture_width << "x" << m_texture_height
+                << " allocation (unusually large!)" << std::endl;
+  }
+
+  // Create POT surface if needed
+  SDL_Surface* surface_to_upload = image;
+  SDL_Surface* pot_surface = nullptr;
+
+  if (m_texture_width != image->w || m_texture_height != image->h)
+  {
+    // We need POT texture - create padded surface
+    // This ensures proper rendering on platforms without NPOT support
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    pot_surface = SDL_CreateRGBSurface(0,
+                                       m_texture_width, m_texture_height, 32,
+                                       0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+#else
+    pot_surface = SDL_CreateRGBSurface(0,
+                                       m_texture_width, m_texture_height, 32,
+                                       0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+#endif
+
+    if (!pot_surface)
+    {
+      throw std::runtime_error("Couldn't create POT surface: out of memory");
+    }
+
+    // Clear surface to transparent black to avoid garbage in padding area
+    Uint32 clear_color = SDL_MapRGBA(pot_surface->format, 0, 0, 0, 0);
+    SDL_FillRect(pot_surface, nullptr, clear_color);
+
+    // Disable blending for clean pixel copy
+    SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
+
+    // Blit original image into top-left corner of POT surface
+    if (SDL_BlitSurface(image, nullptr, pot_surface, nullptr) != 0)
+    {
+      SDL_FreeSurface(pot_surface);
+      std::ostringstream msg;
+      msg << "Failed to blit surface: " << SDL_GetError();
+      throw std::runtime_error(msg.str());
+    }
+
+    surface_to_upload = pot_surface;
+
+    // Log POT conversion for debugging
+    int padding_kb = ((m_texture_width * m_texture_height) - (image->w * image->h)) * 4 / 1024;
+    log_debug << "Texture " << image->w << "x" << image->h
+              << " padded to " << m_texture_width << "x" << m_texture_height
+              << " (+" << padding_kb << " KB padding)" << std::endl;
+  }
+
+  // Now create the format-converted surface for OpenGL upload
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
   SDL_Surface* convert = SDL_CreateRGBSurface(0,
                                               m_texture_width, m_texture_height, 32,
@@ -133,12 +186,17 @@ GLTexture::GLTexture(SDL_Surface* image) :
                                               0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 #endif
 
-  if(convert == 0) {
+  if(convert == nullptr)
+  {
+    if (pot_surface)
+    {
+      SDL_FreeSurface(pot_surface);
+    }
     throw std::runtime_error("Couldn't create texture: out of memory");
   }
 
-  SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
-  SDL_BlitSurface(image, 0, convert, 0);
+  SDL_SetSurfaceBlendMode(surface_to_upload, SDL_BLENDMODE_NONE);
+  SDL_BlitSurface(surface_to_upload, nullptr, convert, nullptr);
 
   assert_gl("before creating texture");
   glGenTextures(1, &m_handle);
@@ -173,7 +231,7 @@ GLTexture::GLTexture(SDL_Surface* image) :
                  m_texture_width, m_texture_height, 0, sdl_format,
                  GL_UNSIGNED_BYTE, convert->pixels);
 
-    // no not use mipmaps
+    // Don't use mipmaps
     if(false)
     {
       glGenerateMipmap(GL_TEXTURE_2D);
@@ -190,9 +248,18 @@ GLTexture::GLTexture(SDL_Surface* image) :
   } catch(...) {
     glDeleteTextures(1, &m_handle);
     SDL_FreeSurface(convert);
+    if (pot_surface)
+    {
+      SDL_FreeSurface(pot_surface);
+    }
     throw;
   }
+
   SDL_FreeSurface(convert);
+  if (pot_surface)
+  {
+    SDL_FreeSurface(pot_surface);
+  }
 }
 
 GLTexture::~GLTexture()
