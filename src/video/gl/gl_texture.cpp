@@ -166,6 +166,41 @@ GLTexture::GLTexture(SDL_Surface* image) :
       throw std::runtime_error(msg.str());
     }
 
+    // Edge Smearing (Guttering)
+    // Copy the last row and column into the padding area.
+    // This allows GL_LINEAR filtering to work without blending with transparent padding pixels,
+    // which eliminates visible seams between tiles.
+
+    SDL_Rect src_rect;
+    SDL_Rect dst_rect;
+
+    // Smear Right Edge
+    src_rect.x = image->w - 1;
+    src_rect.y = 0;
+    src_rect.w = 1;
+    src_rect.h = image->h;
+    dst_rect.x = image->w;
+    dst_rect.y = 0;
+    SDL_BlitSurface(image, &src_rect, pot_surface, &dst_rect);
+
+    // Smear Bottom Edge
+    src_rect.x = 0;
+    src_rect.y = image->h - 1;
+    src_rect.w = image->w;
+    src_rect.h = 1;
+    dst_rect.x = 0;
+    dst_rect.y = image->h;
+    SDL_BlitSurface(image, &src_rect, pot_surface, &dst_rect);
+
+    // Smear Bottom-Right Corner Pixel
+    src_rect.x = image->w - 1;
+    src_rect.y = image->h - 1;
+    src_rect.w = 1;
+    src_rect.h = 1;
+    dst_rect.x = image->w;
+    dst_rect.y = image->h;
+    SDL_BlitSurface(image, &src_rect, pot_surface, &dst_rect);
+
     surface_to_upload = pot_surface;
 
     // Log POT conversion for debugging
