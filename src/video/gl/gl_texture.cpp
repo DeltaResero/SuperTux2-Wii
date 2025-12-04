@@ -269,7 +269,7 @@ GLTexture::GLTexture(SDL_Surface* image) :
     // Don't use mipmaps
     if(false)
     {
-#if !defined(GL_VERSION_ES_CM_1_0)
+#if !defined(_WII_) && !defined(GL_VERSION_ES_CM_1_0)
       glGenerateMipmap(GL_TEXTURE_2D);
 #endif
     }

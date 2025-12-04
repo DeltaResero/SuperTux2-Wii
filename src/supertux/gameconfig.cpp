@@ -50,6 +50,22 @@ std::string get_lightmap_mode_string(LightmapMode mode)
 
 Config::Config() :
   profile(1),
+#ifdef _WII_
+  // Wii: Force 640x480 resolution and fullscreen
+  fullscreen_size(640, 480),
+  fullscreen_refresh_rate(60),
+  window_size(640, 480),
+  aspect_size(640, 480),
+  magnification(1.0f),
+  use_fullscreen(true),
+  video(VideoSystem::OPENGL),
+  try_vsync(true),
+  show_fps(false),
+  show_player_pos(false),
+  sound_enabled(true),
+  music_enabled(true),
+  lightmap_mode(LightmapMode::ROUNDTRIP),  // Force ROUNDTRIP on Wii
+#else
   fullscreen_size(0, 0),
   fullscreen_refresh_rate(0),
   window_size(1280, 800),
@@ -63,6 +79,7 @@ Config::Config() :
   sound_enabled(true),
   music_enabled(true),
   lightmap_mode(LightmapMode::AUTO),
+#endif
   random_seed(0), // set by time(), by default (unless in config)
   start_level(),
   enable_script_debugger(false),

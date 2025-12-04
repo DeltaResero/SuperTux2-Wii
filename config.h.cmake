@@ -9,7 +9,15 @@
 #define INSTALL_SUBDIR_BIN "${INSTALL_SUBDIR_BIN}"
 #define INSTALL_SUBDIR_SHARE "${INSTALL_SUBDIR_SHARE}"
 
+/* Wii platform detection */
+#cmakedefine _WII_
+#cmakedefine GEKKO
+
+#ifdef _WII_
+#define SIZEOF_VOID_P 4
+#else
 #define SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
+#endif
 #if SIZEOF_VOID_P == 8
 #define _SQ64
 #endif

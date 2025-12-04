@@ -133,7 +133,9 @@ GLRenderer::GLRenderer() :
 
 #else
   // Fallback logging for non-GLEW platforms
-  #ifdef GL_VERSION_ES_CM_1_0
+  #ifdef _WII_
+  log_info << "Wii/OpenGX: Using power-of-two textures" << std::endl;
+  #elif defined(GL_VERSION_ES_CM_1_0)
   log_info << "OpenGL ES: Using power-of-two textures" << std::endl;
   #else
   log_info << "OpenGL (No GLEW): Using power-of-two textures" << std::endl;
