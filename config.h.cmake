@@ -25,6 +25,9 @@
 
 #cmakedefine HAVE_OPENGL
 
+/* Define if GLEW is available */
+#cmakedefine HAVE_GLEW
+
 /* NPOT (Non-Power-Of-Two) texture support */
 #cmakedefine HAVE_NPOT_TEXTURES
 

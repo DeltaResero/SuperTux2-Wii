@@ -27,9 +27,8 @@ using namespace gl;
 
 #else
 
-// Only include GLEW on desktop platforms that support it
-// OpenGL ES and embedded platforms don't use GLEW
-#ifndef GL_VERSION_ES_CM_1_0
+// Only include GLEW if the build system found and enabled it
+#ifdef HAVE_GLEW
 #  include <GL/glew.h>
 #endif
 

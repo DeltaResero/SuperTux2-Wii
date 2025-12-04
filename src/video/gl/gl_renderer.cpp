@@ -115,8 +115,7 @@ GLRenderer::GLRenderer() :
   // Init the projection matrix, viewport and stuff
   apply_config();
 
-#ifndef GL_VERSION_ES_CM_1_0
-  #ifndef USE_GLBINDING
+#ifdef HAVE_GLEW
   GLenum err = glewInit();
   if (GLEW_OK != err)
   {
@@ -131,9 +130,14 @@ GLRenderer::GLRenderer() :
   #else
   log_info << "NPOT texture support: Disabled (forced POT textures)" << std::endl;
   #endif
-  #endif
+
 #else
+  // Fallback logging for non-GLEW platforms
+  #ifdef GL_VERSION_ES_CM_1_0
   log_info << "OpenGL ES: Using power-of-two textures" << std::endl;
+  #else
+  log_info << "OpenGL (No GLEW): Using power-of-two textures" << std::endl;
+  #endif
 #endif
 }
 
