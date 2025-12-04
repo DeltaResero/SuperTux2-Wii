@@ -16,7 +16,9 @@
 #include <glbinding/gl/gl.h>
 using namespace gl;
 #else
+#ifdef HAVE_GLEW
 #include <GL/glew.h>
+#endif
 
 #include "SDL_opengl.h"
 #endif
