@@ -39,6 +39,31 @@ CMAKE_MINIMUM_REQUIRED(VERSION 4.0)
 ## Project name to use as command prefix.
 PROJECT(SUPERTUX)
 
+## Detect Wii platform (Must be BEFORE endian check)
+IF(CMAKE_TOOLCHAIN_FILE MATCHES "Wii.cmake")
+  SET(WII TRUE)
+  MESSAGE(STATUS "Building for Nintendo Wii")
+
+  # Wii requires these settings
+  SET(ENABLE_OPENGL ON CACHE BOOL "Enable OpenGL support" FORCE)
+  SET(ENABLE_OPENAL OFF CACHE BOOL "Disable OpenAL (use SDL2_mixer)" FORCE)
+  SET(BUILD_TESTS OFF CACHE BOOL "Disable tests on Wii" FORCE)
+
+  # Force POT textures on Wii (no NPOT support in OpenGX)
+  SET(ENABLE_NPOT_TEXTURES OFF CACHE BOOL "Wii requires POT textures" FORCE)
+
+  # Force round-trip lightmap on Wii (glCopyTexSubImage2D not available in OpenGX)
+  SET(FORCE_ROUNDTRIP_LIGHTMAP ON CACHE BOOL "Wii requires round-trip lightmap" FORCE)
+
+  # Wii-specific definitions
+  ADD_DEFINITIONS(-D_WII_ -DGEKKO -DSDL_MAIN_HANDLED -DDISABLE_CONSOLE)
+
+  # Set installation paths for Wii (sd:/apps/supertux2/)
+  SET(INSTALL_SUBDIR_BIN "" CACHE STRING "Installation subdir for binaries")
+  SET(INSTALL_SUBDIR_SHARE "data" CACHE STRING "Installation subdir for data")
+  SET(INSTALL_SUBDIR_DOC "docs" CACHE STRING "Installation subdir for docs")
+ENDIF()
+
 ### CMake configuration
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk/cmake)
@@ -51,9 +76,14 @@ SET(APPDATADIR "${CMAKE_INSTALL_PREFIX}/share/games/supertux2")
 SET(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 SET(BUILD_CONFIG_DATA_DIR "${CMAKE_BINARY_DIR}/data")
 ## Check endianess
-
-INCLUDE(TestBigEndian)
-TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+IF(WII)
+  # PowerPC is always big-endian, skip the test for cross-compilation
+  SET(WORDS_BIGENDIAN 1)
+  MESSAGE(STATUS "Wii/PowerPC: Big-endian architecture")
+ELSE()
+  INCLUDE(TestBigEndian)
+  TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
+ENDIF()
 
 ## Add definitions
 IF(CMAKE_BUILD_TYPE MATCHES Release)
@@ -107,6 +137,14 @@ IF(WIN32)
   FIND_LIBRARY(SDL2_LIBRARIES NAMES SDL2 PATHS "${DEPENDENCY_FOLDER}/lib")
   FIND_LIBRARY(SDL2IMAGE_LIBRARIES NAMES SDL2_image PATHS "${DEPENDENCY_FOLDER}/lib")
   FIND_LIBRARY(SDL2MAIN_LIBRARIES NAMES SDL2main PATHS "${DEPENDENCY_FOLDER}/lib")
+ELSEIF(WII)
+  # Wii uses portlibs
+  SET(SDL2_INCLUDE_DIRS "${PORTLIBS}/include/SDL2")
+  SET(SDL2IMAGE_INCLUDE_DIRS "${PORTLIBS}/include/SDL2")
+  # Libraries are linked explicitly at the end to ensure correct order
+  SET(SDL2_LIBRARIES "")  # Will be added to final link step
+  SET(SDL2IMAGE_LIBRARIES "")
+  MESSAGE(STATUS "Wii SDL2 configured from portlibs")
 ELSE(WIN32)
   INCLUDE(FindPkgConfig)
   PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.1)
@@ -120,13 +158,25 @@ OPTION(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 OPTION(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
 
 IF(ENABLE_OPENGL)
-  FIND_PACKAGE(OpenGL)
-  IF(OPENGL_FOUND)
+  IF(WII)
+    # Wii uses OpenGX (OpenGL 1.2 wrapper for GX)
+    MESSAGE(STATUS "Using OpenGX for Wii OpenGL support")
+    SET(OPENGL_FOUND TRUE)
+    SET(OPENGL_LIBRARIES "-lGLU -lglut -lopengx")
+    SET(OPENGL_INCLUDE_DIR "${PORTLIBS}/include/GL")
     INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
     SET(HAVE_OPENGL TRUE)
-  ENDIF(OPENGL_FOUND)
+    SET(HAVE_GLEW FALSE) # Explicitly disable GLEW for Wii
+  ELSE()
+    FIND_PACKAGE(OpenGL)
+    IF(OPENGL_FOUND)
+      INCLUDE_DIRECTORIES(SYSTEM ${OPENGL_INCLUDE_DIR})
+      SET(HAVE_OPENGL TRUE)
+    ENDIF(OPENGL_FOUND)
 
-  SET(HAVE_GLEW FALSE)
+    SET(HAVE_GLEW FALSE)
+
+  ENDIF()
 
   IF(GLBINDING_ENABLED)
     FIND_PACKAGE(GLBINDING REQUIRED)
@@ -219,6 +269,10 @@ ELSE()
   IF(WIN32)
     FIND_PATH(SDL2MIXER_INCLUDE_DIRS NAMES SDL_mixer.h PATHS "${DEPENDENCY_FOLDER}/include/SDL2")
     FIND_LIBRARY(SDL2MIXER_LIBRARIES NAMES SDL2_mixer PATHS "${DEPENDENCY_FOLDER}/lib")
+  ELSEIF(WII)
+    SET(SDL2MIXER_INCLUDE_DIRS "${PORTLIBS}/include/SDL2")
+    # Libraries are linked explicitly at the end
+    MESSAGE(STATUS "Wii SDL2_mixer configured")
   ELSE()
     INCLUDE(FindPkgConfig)
     PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer>=2.0.0)
@@ -326,15 +380,32 @@ IF(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/squirrel/CMakeLists.txt)
 ENDIF()
 
 SET(SQUIRREL_PREFIX ${CMAKE_BINARY_DIR}/squirrel/)
-ExternalProject_Add(squirrel
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/squirrel/"
-  CMAKE_ARGS
+
+# Define base arguments for all platforms
+SET(SQUIRREL_CMAKE_ARGS
   -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
   -DCMAKE_INSTALL_PREFIX=${SQUIRREL_PREFIX}
-  -DINSTALL_INC_DIR=include)
+  -DINSTALL_INC_DIR=include
+)
+
+# Append Wii-specific arguments ONLY if building for Wii
+IF(WII)
+  LIST(APPEND SQUIRREL_CMAKE_ARGS
+    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+    -DBUILD_SHARED_LIBS=OFF
+    -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+    -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+  )
+  MESSAGE(STATUS "Configuring Squirrel for Wii cross-compilation")
+ENDIF()
+
+ExternalProject_Add(squirrel
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/squirrel/"
+  CMAKE_ARGS ${SQUIRREL_CMAKE_ARGS}
+)
 
 IF(WIN32)
   ADD_LIBRARY(squirrel_lib SHARED IMPORTED)
@@ -347,10 +418,12 @@ IF(WIN32)
   #For debug run purposes
   CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/msvc/run_supertux.bat.in" "${PROJECT_BINARY_DIR}/run_supertux.bat")
 ELSE()
+  # Force explicit paths for Wii/Linux to avoid prefix/suffix confusion
   ADD_LIBRARY(squirrel_lib STATIC IMPORTED)
-  SET_TARGET_PROPERTIES(squirrel_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}squirrel_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  SET_TARGET_PROPERTIES(squirrel_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/lib/libsquirrel_static.a")
+
   ADD_LIBRARY(sqstdlib_lib STATIC IMPORTED)
-  SET_TARGET_PROPERTIES(sqstdlib_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}sqstdlib_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  SET_TARGET_PROPERTIES(sqstdlib_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/lib/libsqstdlib_static.a")
 ENDIF()
 
 INCLUDE_DIRECTORIES(SYSTEM ${SQUIRREL_PREFIX}/include)
@@ -539,11 +612,17 @@ ELSE()
 ENDIF()
 
 IF(HAVE_OPENGL)
-  TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENGL_LIBRARY})
+  # Use OPENGL_LIBRARIES if available (Wii), otherwise fallback to OPENGL_LIBRARY (Desktop)
+  IF(DEFINED OPENGL_LIBRARIES)
+    TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENGL_LIBRARIES})
+  ELSE()
+    TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENGL_LIBRARY})
+  ENDIF()
   IF(GLBINDING_ENABLED)
     TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${GLBINDING_LIBRARIES})
   ELSE()
-    IF(GLEW_FOUND)
+    # Only link GLEW on non-Wii platforms
+    IF(NOT WII AND GLEW_FOUND)
       TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${GLEW_LIBRARY})
     ENDIF()
   ENDIF()
@@ -821,5 +900,36 @@ MARK_AS_ADVANCED(
   VORBIS_INCLUDE_DIR
   VORBIS_LIBRARY
 )
+
+# Add Wii-specific libraries and fix link order
+IF(WII)
+  # Explicitly list all dependencies in the correct order for static linking
+  # Order: SDL2_mixer -> Audio Codecs -> SDL2_image -> Image Codecs -> SDL2 -> OpenGX -> Wii System Libs
+  TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC
+    -lSDL2_mixer
+    -lmodplug -lopusfile -lopus -lvorbisidec -logg -lmad
+    -lSDL2_image
+    -lpng -ljpeg -lz
+    -lSDL2
+    ${OPENGL_LIBRARIES}
+    -lfreetype -lfat -lwiiuse -lbte -lwiikeyboard -laesnd -logc -lm
+  )
+
+  # Increase Stack Size to 2MB (2097152 bytes)
+  # This is critical! Without it, the game overwrites its own memory.
+  SET_TARGET_PROPERTIES(supertux2 PROPERTIES LINK_FLAGS "-Wl,--defsym,__stack_size=2097152")
+
+  # Convert ELF to DOL after build using elf2dol
+  ADD_CUSTOM_COMMAND(TARGET supertux2 POST_BUILD
+      COMMAND elf2dol $<TARGET_FILE:supertux2> ${CMAKE_BINARY_DIR}/boot.dol
+      COMMENT "Converting ELF to DOL for Wii..."
+  )
+
+  MESSAGE(STATUS "Wii build configured:")
+  MESSAGE(STATUS "  - Stack size: 2MB")
+  MESSAGE(STATUS "  - Output: boot.dol (for sd:/apps/supertux2/)")
+  MESSAGE(STATUS "  - NPOT textures: DISABLED (forced POT)")
+  MESSAGE(STATUS "  - Lightmap mode: ROUNDTRIP")
+ENDIF()
 
 # EOF

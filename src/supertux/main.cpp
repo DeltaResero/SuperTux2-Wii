@@ -49,6 +49,43 @@
 #include "video/renderer.hpp"
 #include "worldmap/worldmap.hpp"
 
+// --- Wii Specific Includes & Helpers ---
+#ifdef _WII_
+#include <gccore.h>
+#include <fat.h>
+#include <wiiuse/wpad.h>
+#include <unistd.h>
+#include <cstdlib>
+
+static void* xfb = nullptr;
+static GXRModeObj* rmode = nullptr;
+
+void wii_console_init()
+{
+  VIDEO_Init();
+  rmode = VIDEO_GetPreferredMode(nullptr);
+  xfb = MEM_K0_TO_K1(SYS_AllocateFramebuffer(rmode));
+
+  // Clear framebuffer to black to prevent visual garbage
+  VIDEO_ClearFrameBuffer(rmode, xfb, COLOR_BLACK);
+
+  // Calculate safe console dimensions to prevent buffer overflow (Overscan compensation)
+  int console_x = 20;
+  int console_y = 20;
+  int console_w = rmode->fbWidth - (console_x * 2);
+  int console_h = rmode->xfbHeight - (console_y * 2);
+
+  console_init(xfb, console_x, console_y, console_w, console_h, rmode->fbWidth * VI_DISPLAY_PIX_SZ);
+
+  VIDEO_Configure(rmode);
+  VIDEO_SetNextFramebuffer(xfb);
+  VIDEO_SetBlack(FALSE);
+  VIDEO_Flush();
+  VIDEO_WaitVSync();
+  if (rmode->viTVMode & VI_NON_INTERLACE) VIDEO_WaitVSync();
+}
+#endif // _WII_
+
 class ConfigSubsystem
 {
 public:
@@ -85,6 +122,12 @@ class SDLSubsystem
 public:
   SDLSubsystem()
   {
+#ifdef _WII_
+    // Initialize Wii hardware BEFORE SDL
+    WPAD_Init();
+    WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
+#endif
+
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
     {
       std::stringstream msg;
@@ -104,6 +147,7 @@ public:
 void
 Main::init_video()
 {
+#ifndef _WII_ // Wii: Skip window naming and icon loading (unnecessary and causes crashes)
   SDL_SetWindowTitle(VideoSystem::current()->get_renderer().get_window(), PACKAGE_NAME " " PACKAGE_VERSION);
 
   const char* icon_fname = "images/engine/icons/supertux-256x256.png";
@@ -117,6 +161,8 @@ Main::init_video()
     SDL_SetWindowIcon(VideoSystem::current()->get_renderer().get_window(), icon);
     SDL_FreeSurface(icon);
   }
+#endif
+
   SDL_ShowCursor(0);
 
   log_info << (g_config->use_fullscreen?"fullscreen ":"window ")
@@ -162,7 +208,9 @@ Main::launch_game()
   sound_manager.enable_sound(g_config->sound_enabled);
   sound_manager.enable_music(g_config->music_enabled);
 
+#ifndef DISABLE_CONSOLE
   Console console(console_buffer);
+#endif
 
   timelog("scripting");
   scripting::Scripting scripting(g_config->enable_script_debugger);
@@ -226,6 +274,19 @@ Main::launch_game()
 int
 Main::run(int argc, char** argv)
 {
+#ifdef _WII_
+  // Initialize Wii hardware FIRST
+  fatInitDefault();
+  wii_console_init();
+
+  printf("\n");
+  printf("==========================================\n");
+  printf("  SuperTux %s - Wii Port\n", PACKAGE_VERSION);
+  printf("==========================================\n");
+  printf("Initializing SD card and filesystem...\n");
+  printf("\n");
+#endif
+
 #ifdef WIN32
 	//SDL is used instead of PHYSFS because both create the same path in app data
 	//However, PHYSFS is not yet initizlized, and this should be run before anything is initialized
@@ -286,6 +347,23 @@ Main::run(int argc, char** argv)
     log_fatal << "Unexpected exception" << std::endl;
     result = 1;
   }
+
+  #ifdef _WII_
+  // Wii: Clean exit message
+  printf("\n");
+  printf("==========================================\n");
+  printf("  Press HOME button to exit to loader\n");
+  printf("==========================================\n");
+  while(1)
+  {
+    WPAD_ScanPads();
+    if (WPAD_ButtonsDown(0) & WPAD_BUTTON_HOME) break;
+    VIDEO_WaitVSync();
+  }
+
+  // Return to Homebrew Channel
+  SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0);
+#endif
 
   return result;
 }
