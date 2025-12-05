@@ -934,7 +934,7 @@ IF(WII)
 
   # Increase Stack Size to 2MB (2097152 bytes)
   # This is critical! Without it, the game overwrites its own memory.
-  SET_TARGET_PROPERTIES(supertux2 PROPERTIES LINK_FLAGS "-Wl,--defsym,__stack_size=2097152")
+  # SET_TARGET_PROPERTIES(supertux2 PROPERTIES LINK_FLAGS "-Wl,--defsym,__stack_size=2097152")
 
   # Convert ELF to DOL after build using elf2dol
   ADD_CUSTOM_COMMAND(TARGET supertux2 POST_BUILD
@@ -943,7 +943,7 @@ IF(WII)
   )
 
   MESSAGE(STATUS "Wii build configured:")
-  MESSAGE(STATUS "  - Stack size: 2MB")
+  #MESSAGE(STATUS "  - Stack size: 2MB")
   MESSAGE(STATUS "  - Output: boot.dol (for sd:/apps/supertux2/)")
   MESSAGE(STATUS "  - NPOT textures: DISABLED (forced POT)")
   MESSAGE(STATUS "  - Lightmap mode: ROUNDTRIP")
