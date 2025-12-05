@@ -17,6 +17,7 @@
 #include <sqstdstring.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <vector>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/squirrel_error.hpp"
@@ -39,11 +40,14 @@ __attribute__((__format__ (__printf__, 2, 0)))
 #endif
 void printfunc(HSQUIRRELVM, const char* fmt, ...)
 {
-  char buf[4096];
+  // Wii Fix: Use heap allocation (vector) instead of stack array
+  // 4KB on the stack can cause overflows in deep script recursion
+  std::vector<char> buf(4096);
+
   va_list arglist;
   va_start(arglist, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, arglist);
-  ConsoleBuffer::output << "[SQUIRREL] " << (const char*) buf << std::flush;
+  vsnprintf(buf.data(), buf.size(), fmt, arglist);
+  ConsoleBuffer::output << "[SQUIRREL] " << buf.data() << std::flush;
   va_end(arglist);
 }
 
