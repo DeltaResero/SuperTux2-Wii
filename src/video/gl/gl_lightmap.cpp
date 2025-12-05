@@ -100,6 +100,18 @@ GLLightmap::GLLightmap() :
   m_lightmap_uv_bottom = static_cast<float>(m_lightmap_height) / static_cast<float>(height);
   TextureManager::current()->register_texture(m_lightmap.get());
 
+  // CRITICAL FOR WII: Initialize lightmap texture to black
+  // OpenGX doesn't guarantee zero-initialization of textures
+  // Without this, you get garbage/noise in the lightmap
+#if defined(__wii__) || defined(_WII_) || defined(__gamecube__)
+  glBindTexture(GL_TEXTURE_2D, m_lightmap->get_handle());
+  std::vector<GLubyte> black_pixels(width * height * 4, 0);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
+                  GL_RGBA, GL_UNSIGNED_BYTE, black_pixels.data());
+  glBindTexture(GL_TEXTURE_2D, 0);
+  log_debug << "Wii: Cleared lightmap texture to prevent garbage" << std::endl;
+#endif
+
 #ifdef USE_ROUNDTRIP_LIGHTMAP
   // Allocate buffer for round-trip mode
   // Size: width * height * 4 bytes (RGBA)
