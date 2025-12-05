@@ -105,6 +105,12 @@ GLTexture::GLTexture(SDL_Surface* image) :
   m_image_height = image->h;
 
   // Determine texture dimensions based on NPOT support
+#if defined(__wii__) || defined(_WII_) || defined(__gamecube__)
+  // Wii/GameCube: Align to 4-pixel boundaries (GX requirement)
+  // This avoids forcing power-of-two which saves massive memory
+  m_texture_width = (image->w + 3) / 4 * 4;
+  m_texture_height = (image->h + 3) / 4 * 4;
+#else
   if (has_npot_support())
   {
     // Hardware supports NPOT - use exact dimensions
@@ -117,6 +123,7 @@ GLTexture::GLTexture(SDL_Surface* image) :
     m_texture_width = next_power_of_two(image->w);
     m_texture_height = next_power_of_two(image->h);
   }
+#endif
 
   // Check for excessively large textures (sanity check)
   if (m_texture_width > 4096 || m_texture_height > 4096)
