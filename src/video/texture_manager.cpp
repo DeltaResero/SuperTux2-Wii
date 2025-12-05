@@ -142,6 +142,19 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
 {
   SDL_Surface *image = nullptr;
 
+#ifdef _WII_
+  // Wii: Don't cache SDL_Surfaces - they consume all of MEM1 RAM
+  // Load fresh each time, convert to GL texture, then FREE immediately
+  image = IMG_Load_RW(get_physfs_SDLRWops(filename), 1);
+  if (!image)
+  {
+    std::ostringstream msg;
+    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
+
+  bool should_free_image = true;  // Mark for cleanup at end of function
+#else
   auto i = m_surfaces.find(filename);
   if (i != m_surfaces.end())
   {
@@ -160,10 +173,21 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
     m_surfaces[filename] = image;
   }
 
+  bool should_free_image = false;
+#endif
+
   auto format = image->format;
   if(format->Rmask == 0 && format->Gmask == 0 && format->Bmask == 0 && format->Amask == 0) {
     log_debug << "Wrong surface format for image " << filename << ". Compensating." << std::endl;
+    SDL_Surface* old_image = image;
     image = SDL_ConvertSurfaceFormat(image, SDL_PIXELFORMAT_RGBA8888, 0);
+
+    // If we owned the old image (Wii or previously converted), free it
+    if (should_free_image) {
+        SDL_FreeSurface(old_image);
+    }
+    // We definitely own the new converted surface
+    should_free_image = true;
   }
 
   SDLSurfacePtr subimage(SDL_CreateRGBSurfaceFrom(static_cast<uint8_t*>(image->pixels) +
@@ -178,10 +202,24 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
                                                   image->format->Amask));
   if (!subimage)
   {
+#ifdef _WII_
+    if (should_free_image) {
+      SDL_FreeSurface(image);
+    }
+#endif
     throw std::runtime_error("SDL_CreateRGBSurfaceFrom() call failed");
   }
 
-  return VideoSystem::current()->new_texture(subimage.get());
+  TexturePtr result = VideoSystem::current()->new_texture(subimage.get());
+
+#ifdef _WII_
+  // Wii: Free the source surface now that texture is uploaded to GPU VRAM
+  if (should_free_image) {
+    SDL_FreeSurface(image);
+  }
+#endif
+
+  return result;
 }
 
 TexturePtr
