@@ -268,9 +268,18 @@ GLRenderer::apply_config()
   SCREEN_WIDTH = logical_size.width;
   SCREEN_HEIGHT = logical_size.height;
 
-  if (m_viewport.x != 0 || m_viewport.y != 0)
+  // Determine if we need to clear buffers.
+  // Desktop: Only needed if there are letterbox borders (viewport offset).
+  // Wii: ALWAYS needed to prevent VRAM garbage on startup.
+  bool clear_buffers = (m_viewport.x != 0 || m_viewport.y != 0);
+#if defined(__wii__) || defined(_WII_) || defined(__gamecube__)
+  clear_buffers = true;
+#endif
+
+  if (clear_buffers)
   {
-    // Clear both buffers so that we get a clean black border without junk
+    // Clear both buffers so that we get a clean black screen/border without junk
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     SDL_GL_SwapWindow(m_window);
     glClear(GL_COLOR_BUFFER_BIT);
