@@ -49,8 +49,10 @@ IF(CMAKE_TOOLCHAIN_FILE MATCHES "Wii.cmake")
   SET(ENABLE_OPENAL OFF CACHE BOOL "Disable OpenAL (use SDL2_mixer)" FORCE)
   SET(BUILD_TESTS OFF CACHE BOOL "Disable tests on Wii" FORCE)
 
-  # Force POT textures on Wii (no NPOT support in OpenGX)
-  SET(ENABLE_NPOT_TEXTURES OFF CACHE BOOL "Wii requires POT textures" FORCE)
+  # Wii texture optimization: Use 4-pixel aligned textures (not POT)
+  # This is handled at runtime in gl_texture.cpp with explicit __wii__ checks
+  # We disable ENABLE_NPOT_TEXTURES so desktop NPOT code doesn't interfere
+  SET(ENABLE_NPOT_TEXTURES OFF CACHE BOOL "Wii uses custom 4-pixel alignment" FORCE)
 
   # Force 16-bit textures on Wii to save RAM
   SET(FORCE_16BIT_TEXTURES ON CACHE BOOL "Wii requires 16-bit textures" FORCE)
