@@ -54,6 +54,9 @@ IF(CMAKE_TOOLCHAIN_FILE MATCHES "Wii.cmake")
   # We disable ENABLE_NPOT_TEXTURES so desktop NPOT code doesn't interfere
   SET(ENABLE_NPOT_TEXTURES OFF CACHE BOOL "Wii uses custom 4-pixel alignment" FORCE)
 
+  # Force 16-bit Color (Display & Textures) on Wii to save RAM and Bandwidth
+  SET(ENABLE_16BIT_COLOR ON CACHE BOOL "Wii requires 16-bit color pipeline" FORCE)
+
   # Force round-trip lightmap on Wii (glCopyTexSubImage2D not available in OpenGX)
   SET(FORCE_ROUNDTRIP_LIGHTMAP ON CACHE BOOL "Wii requires round-trip lightmap" FORCE)
 
@@ -158,6 +161,19 @@ OPTION(BUILD_TESTS "Build test cases" OFF)
 OPTION(ENABLE_OPENGL "Enable OpenGL support" ON)
 OPTION(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 OPTION(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
+
+# 16-bit Color Support (RGBA4444 Textures + RGB565 Display)
+# Reduces RAM usage and Fillrate/Bandwidth requirements.
+# Recommended for low-spec platforms (Wii, Embedded).
+# Warning: May be slower on modern Desktop GPUs due to driver emulation.
+OPTION(ENABLE_16BIT_COLOR "Force 16-bit color pipeline (Display & Textures)" OFF)
+
+IF(ENABLE_16BIT_COLOR)
+  # We define this in config.h now
+  MESSAGE(STATUS "Graphics Mode: 16-bit (Low-Spec Optimization) - Enabled")
+ELSE()
+  MESSAGE(STATUS "Graphics Mode: 32-bit (High Quality) - Default")
+ENDIF()
 
 IF(ENABLE_OPENGL)
   IF(WII)

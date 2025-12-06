@@ -39,6 +39,9 @@
 /* NPOT (Non-Power-Of-Two) texture support */
 #cmakedefine HAVE_NPOT_TEXTURES
 
+/* 16-bit Color Mode (Display & Textures) */
+#cmakedefine ENABLE_16BIT_COLOR
+
 /* Lightmap rendering support */
 #cmakedefine HAVE_LIGHTMAP
 #cmakedefine USE_ROUNDTRIP_LIGHTMAP

@@ -274,7 +274,12 @@ SDLRenderer::apply_video_mode()
     else
     {
       SDL_DisplayMode mode;
+#ifdef ENABLE_16BIT_COLOR
+      mode.format = SDL_PIXELFORMAT_RGB565; // 16-bit Display
+      log_info << "Video Mode: 16-bit (RGB565) enabled (Low-Spec Optimization)" << std::endl;
+#else
       mode.format = SDL_PIXELFORMAT_RGB888;
+#endif
       mode.w = g_config->fullscreen_size.width;
       mode.h = g_config->fullscreen_size.height;
       mode.refresh_rate = g_config->fullscreen_refresh_rate;
