@@ -27,20 +27,19 @@ using namespace gl;
 
 #else
 
-// Only include GLEW if the build system found and enabled it
 #ifdef HAVE_GLEW
 #  include <GL/glew.h>
-#endif
-
-#if defined(MACOSX)
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glext.h>
-#elif defined(GL_VERSION_ES_CM_1_0)
-#  include <GLES/gl.h>
-#  include <GLES/glext.h>
 #else
-#  include <GL/gl.h>
-#  include <GL/glext.h>
+#  if defined(MACOSX)
+#    include <OpenGL/gl.h>
+#    include <OpenGL/glext.h>
+#  elif defined(GL_VERSION_ES_CM_1_0)
+#    include <GLES/gl.h>
+#    include <GLES/glext.h>
+#  else
+#    include <GL/gl.h>
+#    include <GL/glext.h>
+#  endif
 #endif
 
 #endif // USE_GLBINDING
