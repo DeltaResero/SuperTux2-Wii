@@ -10,6 +10,7 @@
 // (at your option) any later version.
 
 #include <iostream>
+#include <sstream>
 
 #include "video/sdl/sdl_lightmap.hpp"
 #include "video/sdl/sdl_surface_data.hpp"
