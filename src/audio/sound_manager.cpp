@@ -698,8 +698,13 @@ SoundManager::is_audio_enabled() const {
 
 #ifdef USE_SDL_MIXER
 void
-SoundManager::free_music(MusicResource* /*res*/)
+SoundManager::free_music(MusicResource* res)
 {
+  if (res && res->music)
+  {
+    Mix_FreeMusic(res->music);
+    res->music = nullptr;
+  }
 }
 
 void
