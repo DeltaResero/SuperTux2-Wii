@@ -10,6 +10,7 @@
 // (at your option) any later version.
 
 #include <config.h>
+#include <sstream>
 
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
