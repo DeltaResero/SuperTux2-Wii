@@ -26,6 +26,10 @@
 #include "video/glutil.hpp"
 #include "video/texture_ptr.hpp"
 
+#ifdef _WII_
+#include "video/wii_texture_policy.hpp"
+#endif
+
 class Texture;
 class GLTexture;
 class Rect;
