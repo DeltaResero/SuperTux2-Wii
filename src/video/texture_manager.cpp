@@ -29,6 +29,10 @@
 #include "video/gl/gl_texture.hpp"
 #endif
 
+#ifdef _WII_
+#include "video/wii_texture_policy.hpp"
+#endif
+
 TextureManager::TextureManager() :
   m_image_textures()
   ,m_surfaces()
@@ -69,8 +73,24 @@ TextureManager::get(const std::string& _filename)
 
   if(!texture) {
     texture = create_image_texture(filename);
+
+#ifdef _WII_
+    // Wii: Only cache textures according to policy
+    // This prevents GPU VRAM exhaustion from caching hundreds of textures
+    if (WiiTexturePolicy::should_cache_texture(filename)) {
+      texture->cache_filename = filename;
+      m_image_textures[filename] = texture;
+      // log_debug << "Wii: CACHED texture: " << filename << std::endl; // Uncomment for debug
+    } else {
+      // Don't cache - texture will be freed when last shared_ptr reference drops
+      // This allows the texture to be garbage collected when no longer in use
+      // log_debug << "Wii: NOT caching texture: " << filename << std::endl; // Uncomment for debug
+    }
+#else
+    // Desktop: Cache everything (plenty of VRAM)
     texture->cache_filename = filename;
     m_image_textures[filename] = texture;
+#endif
   }
 
   return texture;
@@ -93,8 +113,21 @@ TextureManager::get(const std::string& _filename, const Rect& rect)
 
   if(!texture) {
     texture = create_image_texture(filename, rect);
+
+#ifdef _WII_
+    // Wii: Apply same caching policy to sub-rectangle textures
+    if (WiiTexturePolicy::should_cache_texture(filename)) {
+      texture->cache_filename = key;
+      m_image_textures[key] = texture;
+      // log_debug << "Wii: CACHED texture rect: " << key << std::endl; // Uncomment for debug
+    } else {
+      // log_debug << "Wii: NOT caching texture rect: " << key << std::endl; // Uncomment for debug
+    }
+#else
+    // Desktop: Cache everything
     texture->cache_filename = key;
     m_image_textures[key] = texture;
+#endif
   }
 
   return texture;
