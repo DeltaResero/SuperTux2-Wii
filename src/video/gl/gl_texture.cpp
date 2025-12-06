@@ -218,22 +218,14 @@ GLTexture::GLTexture(SDL_Surface* image) :
   }
 
   // Now create the format-converted surface for OpenGL upload
-  SDL_Surface* convert = nullptr;
-
-#ifdef FORCE_16BIT_TEXTURES
-  // Use 16-bit textures (RGBA4444) to save 50% RAM
-  // R=0xF000, G=0x0F00, B=0x00F0, A=0x000F
-  convert = SDL_CreateRGBSurface(0, m_texture_width, m_texture_height, 16,
-                                 0xF000, 0x0F00, 0x00F0, 0x000F);
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+  SDL_Surface* convert = SDL_CreateRGBSurface(0,
+                                              m_texture_width, m_texture_height, 32,
+                                              0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
 #else
-  // Use standard 32-bit textures
-  #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    convert = SDL_CreateRGBSurface(0, m_texture_width, m_texture_height, 32,
-                                   0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
-  #else
-    convert = SDL_CreateRGBSurface(0, m_texture_width, m_texture_height, 32,
-                                   0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
-  #endif
+  SDL_Surface* convert = SDL_CreateRGBSurface(0,
+                                              m_texture_width, m_texture_height, 32,
+                                              0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 #endif
 
   if(convert == nullptr)
@@ -253,17 +245,10 @@ GLTexture::GLTexture(SDL_Surface* image) :
 
   try {
     GLenum sdl_format;
-    GLenum gl_type = GL_UNSIGNED_BYTE;
-
     if(convert->format->BytesPerPixel == 3)
       sdl_format = GL_RGB;
     else if(convert->format->BytesPerPixel == 4)
       sdl_format = GL_RGBA;
-    else if(convert->format->BytesPerPixel == 2) {
-      // 16-bit texture support
-      sdl_format = GL_RGBA;
-      gl_type = GL_UNSIGNED_SHORT_4_4_4_4;
-    }
     else {
       sdl_format = GL_RGBA;
       assert(false);
@@ -286,7 +271,7 @@ GLTexture::GLTexture(SDL_Surface* image) :
 
     glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
                  m_texture_width, m_texture_height, 0, sdl_format,
-                 gl_type, convert->pixels);
+                 GL_UNSIGNED_BYTE, convert->pixels);
 
     // Don't use mipmaps
     if(false)

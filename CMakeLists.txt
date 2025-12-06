@@ -54,9 +54,6 @@ IF(CMAKE_TOOLCHAIN_FILE MATCHES "Wii.cmake")
   # We disable ENABLE_NPOT_TEXTURES so desktop NPOT code doesn't interfere
   SET(ENABLE_NPOT_TEXTURES OFF CACHE BOOL "Wii uses custom 4-pixel alignment" FORCE)
 
-  # Force 16-bit textures on Wii to save RAM
-  SET(FORCE_16BIT_TEXTURES ON CACHE BOOL "Wii requires 16-bit textures" FORCE)
-
   # Force round-trip lightmap on Wii (glCopyTexSubImage2D not available in OpenGX)
   SET(FORCE_ROUNDTRIP_LIGHTMAP ON CACHE BOOL "Wii requires round-trip lightmap" FORCE)
 
@@ -208,18 +205,6 @@ IF(ENABLE_OPENGL)
   # Desktop OpenGL with GLEW typically supports this via ARB extension
   # OpenGL ES and embedded platforms may not support it
   OPTION(ENABLE_NPOT_TEXTURES "Enable non-power-of-two texture support (requires hardware support)" ON)
-
-  # 16-bit Texture Support (RGBA4444)
-  # Reduces texture memory usage by 50% at the cost of color precision
-  # Recommended for low-memory platforms (Wii, Embedded)
-  OPTION(FORCE_16BIT_TEXTURES "Force 16-bit (RGBA4444) textures to save memory" OFF)
-
-  IF(FORCE_16BIT_TEXTURES)
-    ADD_DEFINITIONS(-DFORCE_16BIT_TEXTURES)
-    MESSAGE(STATUS "Texture format: 16-bit (RGBA4444) - Memory optimized")
-  ELSE()
-    MESSAGE(STATUS "Texture format: 32-bit (RGBA8888) - High quality")
-  ENDIF()
 
   IF(ENABLE_NPOT_TEXTURES)
     # On desktop with GLEW, NPOT is detected at runtime via GLEW_ARB_texture_non_power_of_two
