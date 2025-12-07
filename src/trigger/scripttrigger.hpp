@@ -33,7 +33,6 @@ public:
 private:
   EventType triggerevent;
   std::string script;
-  Vector new_size;
   bool must_activate;
 };
 

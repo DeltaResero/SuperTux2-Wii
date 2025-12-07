@@ -22,8 +22,7 @@
 
 SequenceTrigger::SequenceTrigger(const ReaderMapping& reader) :
   triggerevent(),
-  sequence(SEQ_ENDSEQUENCE),
-  new_size()
+  sequence(SEQ_ENDSEQUENCE)
 {
   if (!reader.get("x", bbox.p1.x)) bbox.p1.x = 0;
   if (!reader.get("y", bbox.p1.y)) bbox.p1.y = 0;
@@ -40,8 +39,7 @@ SequenceTrigger::SequenceTrigger(const ReaderMapping& reader) :
 
 SequenceTrigger::SequenceTrigger(const Vector& pos, const std::string& sequence_name) :
   triggerevent(),
-  sequence(SEQ_ENDSEQUENCE),
-  new_size()
+  sequence(SEQ_ENDSEQUENCE)
 {
   bbox.set_pos(pos);
   bbox.set_size(32, 32);

@@ -46,10 +46,7 @@ TileMap::TileMap(const TileSet *new_tileset) :
   remaining_tint_fade_time(0),
   path(),
   walker(),
-  draw_target(DrawingContext::NORMAL),
-  new_size_x(0),
-  new_size_y(0),
-  add_path(false)
+  draw_target(DrawingContext::NORMAL)
 {
 }
 
@@ -75,10 +72,7 @@ TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
   remaining_tint_fade_time(0),
   path(),
   walker(),
-  draw_target(DrawingContext::NORMAL),
-  new_size_x(0),
-  new_size_y(0),
-  add_path(false)
+  draw_target(DrawingContext::NORMAL)
 {
   assert(tileset);
 

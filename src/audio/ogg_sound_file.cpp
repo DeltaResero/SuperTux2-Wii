@@ -19,8 +19,7 @@ OggSoundFile::OggSoundFile(const std::string& filename, double loop_begin_, doub
   file(nullptr),
   vorbis_file(),
   loop_begin(),
-  loop_at(),
-  normal_buffer_loop()
+  loop_at()
 {
   std::string path = FileSystem::find(filename);
   if (path.empty()) path = filename;

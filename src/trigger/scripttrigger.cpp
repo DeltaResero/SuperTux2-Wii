@@ -24,7 +24,6 @@
 ScriptTrigger::ScriptTrigger(const ReaderMapping& reader) :
   triggerevent(),
   script(),
-  new_size(),
   must_activate(false)
 {
   reader.get("x", bbox.p1.x);
@@ -48,7 +47,6 @@ ScriptTrigger::ScriptTrigger(const ReaderMapping& reader) :
 ScriptTrigger::ScriptTrigger(const Vector& pos, const std::string& script_) :
   triggerevent(),
   script(),
-  new_size(),
   must_activate()
 {
   bbox.set_pos(pos);

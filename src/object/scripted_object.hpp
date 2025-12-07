@@ -62,7 +62,6 @@ private:
   bool visible;
   bool new_vel_set;
   Vector new_vel;
-  Vector new_size;
 };
 
 #endif // HEADER_SUPERTUX_OBJECT_SCRIPTED_OBJECT_HPP

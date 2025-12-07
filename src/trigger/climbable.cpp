@@ -30,8 +30,7 @@ const float POSITION_FIX_AY = 50; // y-wise acceleration applied to player when 
 Climbable::Climbable(const ReaderMapping& reader) :
   climbed_by(0),
   activate_try_timer(),
-  message(),
-  new_size()
+  message()
 {
   reader.get("x", bbox.p1.x);
   reader.get("y", bbox.p1.y);
@@ -45,8 +44,7 @@ Climbable::Climbable(const ReaderMapping& reader) :
 Climbable::Climbable(const Rectf& area) :
   climbed_by(0),
   activate_try_timer(),
-  message(),
-  new_size()
+  message()
 {
   bbox = area;
 }

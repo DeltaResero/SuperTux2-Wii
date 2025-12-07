@@ -216,10 +216,6 @@ private:
 
   DrawingContext::Target draw_target; /**< set to LIGHTMAP to draw to lightmap */
 
-  int new_size_x;
-  int new_size_y;
-  bool add_path;
-
 private:
   TileMap(const TileMap&);
   TileMap& operator=(const TileMap&);

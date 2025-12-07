@@ -25,7 +25,6 @@ Wind::Wind(const ReaderMapping& reader) :
   blowing(),
   speed(),
   acceleration(),
-  new_size(),
   elapsed_time(0)
 {
   float w,h;

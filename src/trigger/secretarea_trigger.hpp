@@ -42,7 +42,6 @@ private:
   std::string message; /**< message to display, default "You found a secret area!" */
   std::string fade_tilemap; /**< tilemap to fade away when trigger is activated, or empty if you don't care */
   std::string script; /**< optional script to run when trigger is activated */
-  Vector new_size;
 };
 
 #endif // HEADER_SUPERTUX_TRIGGER_SECRETAREA_TRIGGER_HPP

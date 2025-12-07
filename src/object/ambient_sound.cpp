@@ -32,9 +32,7 @@ AmbientSound::AmbientSound(const ReaderMapping& lisp) :
   silence_distance(),
   maximumvolume(),
   targetvolume(),
-  currentvolume(),
-  volume_ptr(),
-  new_size()
+  currentvolume()
 {
   group = COLGROUP_DISABLED;
 
@@ -82,9 +80,7 @@ AmbientSound::AmbientSound(const Vector& pos, float factor, float bias, float vo
   silence_distance(),
   maximumvolume(),
   targetvolume(),
-  currentvolume(),
-  volume_ptr(),
-  new_size()
+  currentvolume()
 {
   group = COLGROUP_DISABLED;
 

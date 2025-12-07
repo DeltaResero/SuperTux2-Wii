@@ -29,8 +29,7 @@ ScriptedObject::ScriptedObject(const ReaderMapping& lisp) :
   physic_enabled(),
   visible(),
   new_vel_set(false),
-  new_vel(),
-  new_size()
+  new_vel()
 {
   if (!lisp.get("name", name)) name = "";
   if(name.empty()) {

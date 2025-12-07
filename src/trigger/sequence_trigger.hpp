@@ -37,7 +37,6 @@ public:
 private:
   EventType triggerevent;
   Sequence sequence;
-  Vector new_size;
 };
 
 #endif // HEADER_SUPERTUX_TRIGGER_SEQUENCE_TRIGGER_HPP
