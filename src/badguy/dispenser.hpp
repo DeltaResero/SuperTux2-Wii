@@ -75,7 +75,6 @@ private:
   } DispenserType;
 
   DispenserType type;
-  std::string type_str;
 };
 
 #endif // HEADER_SUPERTUX_BADGUY_DISPENSER_HPP
