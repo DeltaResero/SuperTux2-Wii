@@ -60,7 +60,7 @@ SpriteData::~SpriteData()
 void
 SpriteData::parse_action(const ReaderMapping& lisp, const std::string& basedir)
 {
-  auto action = std::unique_ptr<Action>(new Action);
+  auto action = std::make_unique<Action>();
 
   if(!lisp.get("name", action->name)) {
     if(!actions.empty())

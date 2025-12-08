@@ -142,7 +142,7 @@ MenuManager::MenuManager() :
   m_has_next_dialog(false),
   m_next_dialog(),
   m_menu_stack(),
-  m_transition(new MenuTransition)
+  m_transition(std::make_unique<MenuTransition>())
 {
   s_instance = this;
 }

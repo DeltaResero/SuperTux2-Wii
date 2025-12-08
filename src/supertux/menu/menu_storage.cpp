@@ -50,40 +50,40 @@ MenuStorage::create(MenuId menu_id)
   switch(menu_id)
   {
     case MAIN_MENU:
-      return std::unique_ptr<Menu>(new MainMenu);
+      return std::make_unique<MainMenu>();
 
     case OPTIONS_MENU:
-      return std::unique_ptr<Menu>(new OptionsMenu(true));
+      return std::make_unique<OptionsMenu>(true);
 
     case INGAME_OPTIONS_MENU:
-      return std::unique_ptr<Menu>(new OptionsMenu(false));
+      return std::make_unique<OptionsMenu>(false);
 
     case PROFILE_MENU:
-      return std::unique_ptr<Menu>(new ProfileMenu);
+      return std::make_unique<ProfileMenu>();
 
     case KEYBOARD_MENU:
-      return std::unique_ptr<Menu>(new KeyboardMenu(*InputManager::current()));
+      return std::make_unique<KeyboardMenu>(*InputManager::current());
 
     case JOYSTICK_MENU:
-      return std::unique_ptr<Menu>(new JoystickMenu(*InputManager::current()));
+      return std::make_unique<JoystickMenu>(*InputManager::current());
 
     case WORLDMAP_MENU:
-      return std::unique_ptr<Menu>(new WorldmapMenu);
+      return std::make_unique<WorldmapMenu>();
 
     case WORLDMAP_CHEAT_MENU:
-      return std::unique_ptr<Menu>(new WorldmapCheatMenu);
+      return std::make_unique<WorldmapCheatMenu>();
 
     case GAME_MENU:
-      return std::unique_ptr<Menu>(new GameMenu);
+      return std::make_unique<GameMenu>();
 
     case CHEAT_MENU:
-      return std::unique_ptr<Menu>(new CheatMenu);
+      return std::make_unique<CheatMenu>();
 
     case WORLDSET_MENU:
-      return std::unique_ptr<Menu>(new WorldSetMenu);
+      return std::make_unique<WorldSetMenu>();
 
     case CONTRIB_MENU:
-      return std::unique_ptr<Menu>(new ContribMenu);
+      return std::make_unique<ContribMenu>();
 
     case CONTRIB_WORLD_MENU:
       return 0; //return new ContribWorldMenu();

@@ -77,7 +77,7 @@ private:
 
 std::unique_ptr<SoundSource> create_dummy_sound_source()
 {
-  return std::unique_ptr<SoundSource>(new DummySoundSource);
+  return std::make_unique<DummySoundSource>();
 }
 
 // EOF

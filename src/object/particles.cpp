@@ -42,7 +42,7 @@ Particles::Particles(const Vector& epicenter, int min_angle, int max_angle,
   // create particles
   for(int p = 0; p < number; p++)
   {
-    auto particle = std::unique_ptr<Particle>(new Particle);
+    auto particle = std::make_unique<Particle>();
     particle->pos = epicenter;
 
     float angle = graphicsRandom.rand(min_angle, max_angle)
@@ -81,7 +81,7 @@ Particles::Particles(const Vector& epicenter, int min_angle, int max_angle,
   // create particles
   for(int p = 0; p < number; p++)
   {
-    auto particle = std::unique_ptr<Particle>(new Particle);
+    auto particle = std::make_unique<Particle>();
     particle->pos = epicenter;
 
     float velocity = (min_initial_velocity == max_initial_velocity) ? min_initial_velocity :

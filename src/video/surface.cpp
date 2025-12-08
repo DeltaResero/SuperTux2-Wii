@@ -67,8 +67,7 @@ Surface::~Surface()
 SurfacePtr
 Surface::clone() const
 {
-  SurfacePtr surface(new Surface(*this));
-  return surface;
+  return SurfacePtr(new Surface(*this));
 }
 
 /** flip the surface horizontally */

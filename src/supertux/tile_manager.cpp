@@ -37,7 +37,7 @@ TileManager::get_tileset(const std::string &filename)
   }
   else
   {
-    std::unique_ptr<TileSet> tileset(new TileSet(filename));
+    auto tileset = std::make_unique<TileSet>(filename);
     TileSet* result = tileset.get();
     tilesets.insert(std::make_pair(filename, std::move(tileset)));
     return result;

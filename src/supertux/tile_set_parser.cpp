@@ -142,8 +142,8 @@ TileSetParser::parse_tile(const ReaderMapping& reader)
     imagespecs = parse_imagespecs(images);
   }
 
-  std::unique_ptr<Tile> tile(new Tile(imagespecs, editor_imagespecs, attributes, data, fps,
-                                      object_name, object_data));
+  auto tile = std::make_unique<Tile>(imagespecs, editor_imagespecs, attributes, data, fps,
+                                      object_name, object_data);
   m_tileset.add_tile(id, std::move(tile));
 }
 
@@ -264,10 +264,10 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
                                                                  y + editor_imagespecs[j].rect.get_top() + 32)));
         }
 
-        std::unique_ptr<Tile> tile(new Tile(tile_imagespecs, tile_editor_imagespecs,
+        auto tile = std::make_unique<Tile>(tile_imagespecs, tile_editor_imagespecs,
                                             (has_attributes ? attributes[i] : 0),
                                             (has_datas ? datas[i] : 0),
-                                            fps));
+                                            fps);
 
         m_tileset.add_tile(ids[i], std::move(tile));
       }

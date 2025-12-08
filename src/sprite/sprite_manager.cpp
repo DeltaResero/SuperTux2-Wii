@@ -46,7 +46,7 @@ SpriteManager::create(const std::string& name)
     data = i->second.get();
   }
 
-  return SpritePtr(new Sprite(*data));
+  return std::make_unique<Sprite>(*data);
 }
 
 SpriteData*
@@ -80,8 +80,7 @@ SpriteManager::load(const std::string& filename)
     msg << "'" << filename << "' is not a supertux-sprite file";
     throw std::runtime_error(msg.str());
   } else {
-    std::unique_ptr<SpriteData> data (
-      new SpriteData(root.get_mapping(), FileSystem::dirname(filename)) );
+    auto data = std::make_unique<SpriteData>(root.get_mapping(), FileSystem::dirname(filename));
     sprites[filename] = std::move(data);
 
     return sprites[filename].get();

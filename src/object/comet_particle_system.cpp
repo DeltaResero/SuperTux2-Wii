@@ -43,7 +43,7 @@ void CometParticleSystem::init()
   // create some random comets
   size_t cometcount = 2;
   for(size_t i=0; i<cometcount; ++i) {
-    auto particle = std::unique_ptr<CometParticle>(new CometParticle);
+    auto particle = std::make_unique<CometParticle>();
     particle->pos.x = graphicsRandom.rand(int(virtual_width));
     particle->pos.y = graphicsRandom.rand(int(virtual_height));
     int cometsize = graphicsRandom.rand(2);
