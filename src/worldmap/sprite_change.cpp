@@ -11,6 +11,9 @@
 
 #include <config.h>
 
+#include <algorithm>
+#include <vector>
+
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "util/reader_mapping.hpp"
@@ -45,7 +48,10 @@ SpriteChange::SpriteChange(const ReaderMapping& lisp) :
 
 SpriteChange::~SpriteChange()
 {
-  all_sprite_changes.remove(this);
+  all_sprite_changes.erase(
+    std::remove(all_sprite_changes.begin(), all_sprite_changes.end(), this),
+    all_sprite_changes.end()
+  );
 }
 
 void
@@ -88,7 +94,7 @@ SpriteChange::clear_stay_action(bool propagate)
   }
 }
 
-std::list<SpriteChange*> SpriteChange::all_sprite_changes;
+std::vector<SpriteChange*> SpriteChange::all_sprite_changes;
 
 }
 

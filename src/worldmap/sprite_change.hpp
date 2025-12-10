@@ -12,7 +12,7 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_SPRITE_CHANGE_HPP
 #define HEADER_SUPERTUX_WORLDMAP_SPRITE_CHANGE_HPP
 
-#include <list>
+#include <vector>
 #include <memory>
 #include <string>
 
@@ -74,7 +74,7 @@ private:
   bool in_stay_action;
 
 private:
-  static std::list<SpriteChange*> all_sprite_changes;
+  static std::vector<SpriteChange*> all_sprite_changes;
 };
 
 } // namespace worldmap

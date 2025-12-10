@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #include "control/controller.hpp"
 #include "math/vector.hpp"
