@@ -157,9 +157,8 @@ public:
 /**
    * returns a list of players currently in the sector
    */
-  std::vector<Player*> get_players() const {
-    return std::vector<Player*>(1, this->player);
-  }
+  const std::vector<Player*>& get_players() const;
+
   Player *get_nearest_player (const Vector& pos) const;
   Player *get_nearest_player (const Rectf& pos) const
   {
@@ -309,6 +308,8 @@ public: // TODO make this private again
   DisplayEffect* effect;
 
 private:
+  mutable std::vector<Player*> m_players_cache;
+
   Sector(const Sector&);
   Sector& operator=(const Sector&);
 };

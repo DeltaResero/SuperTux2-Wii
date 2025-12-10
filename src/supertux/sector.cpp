@@ -75,7 +75,8 @@ Sector::Sector(Level* parent) :
   player(0),
   solid_tilemaps(),
   camera(0),
-  effect(0)
+  effect(0),
+  m_players_cache()
 {
   PlayerStatus* player_status;
   player_status = GameSession::current()->get_savegame().get_player_status();
@@ -1183,10 +1184,21 @@ Sector::free_line_of_sight(const Vector& line_start, const Vector& line_end, con
   return true;
 }
 
+const std::vector<Player*>&
+Sector::get_players() const
+{
+  if (m_players_cache.empty() && player) {
+    m_players_cache.push_back(player);
+  } else if (!player && !m_players_cache.empty()) {
+    m_players_cache.clear();
+  }
+  return m_players_cache;
+}
+
 bool
 Sector::can_see_player(const Vector& eye) const
 {
-    const std::vector<Player*> players = get_players();
+    const std::vector<Player*>& players = get_players();
     for (const auto& pl : players) {
       // test for free line of sight to any of all four corners and the middle of the player's bounding box
       if (free_line_of_sight(eye, pl->get_bbox().p1, pl)) return true;
@@ -1375,7 +1387,7 @@ Sector::get_nearest_player (const Vector& pos) const
   Player *nearest_player = NULL;
   float nearest_dist = std::numeric_limits<float>::max();
 
-  std::vector<Player*> players = get_players();
+  const std::vector<Player*>& players = get_players();
   for (auto& this_player : players)
   {
     if (this_player->is_dying() || this_player->is_dead())
@@ -1396,7 +1408,7 @@ std::vector<MovingObject*>
 Sector::get_nearby_objects (const Vector& center, float max_distance) const
 {
   std::vector<MovingObject*> ret;
-  std::vector<Player*> players = Sector::current()->get_players();
+  const std::vector<Player*>& players = Sector::current()->get_players();
 
   for (size_t i = 0; i < players.size (); i++) {
     float distance = players[i]->get_bbox ().distance (center);
