@@ -284,7 +284,7 @@ Console::move_cursor(int offset_)
 // TODO: Fix rough documentation
 namespace {
 
-void sq_insert_commands(std::list<std::string>& cmds, HSQUIRRELVM vm, const std::string& table_prefix, const std::string& search_prefix);
+void sq_insert_commands(std::deque<std::string>& cmds, HSQUIRRELVM vm, const std::string& table_prefix, const std::string& search_prefix);
 
 /**
  * Acts upon key,value on top of stack:
@@ -292,7 +292,7 @@ void sq_insert_commands(std::list<std::string>& cmds, HSQUIRRELVM vm, const std:
  * Calls sq_insert_commands if search_prefix starts with table_prefix+key (and value is a table/class/instance);
  */
 void
-sq_insert_command(std::list<std::string>& cmds, HSQUIRRELVM vm, const std::string& table_prefix, const std::string& search_prefix)
+sq_insert_command(std::deque<std::string>& cmds, HSQUIRRELVM vm, const std::string& table_prefix, const std::string& search_prefix)
 {
   const SQChar* key_chars;
   if (SQ_FAILED(sq_getstring(vm, -2, &key_chars))) return;
@@ -332,7 +332,7 @@ sq_insert_command(std::list<std::string>& cmds, HSQUIRRELVM vm, const std::strin
  * calls sq_insert_command for all entries of table/class on top of stack
  */
 void
-sq_insert_commands(std::list<std::string>& cmds, HSQUIRRELVM vm, const std::string& table_prefix, const std::string& search_prefix)
+sq_insert_commands(std::deque<std::string>& cmds, HSQUIRRELVM vm, const std::string& table_prefix, const std::string& search_prefix)
 {
   sq_pushnull(vm); // push iterator
   while (SQ_SUCCEEDED(sq_next(vm,-2))) {
@@ -358,7 +358,7 @@ Console::autocomplete()
   std::string prefix = m_inputBuffer.substr(autocompleteFrom, m_inputBufferPosition - autocompleteFrom);
   m_buffer.addLines("> " + prefix);
 
-  std::list<std::string> cmds;
+  std::deque<std::string> cmds;
 
   ready_vm();
 
@@ -554,7 +554,7 @@ Console::draw(DrawingContext& context) const
   }
 
   int skipLines = -m_offset;
-  for (std::list<std::string>::iterator i = m_buffer.m_lines.begin(); i != m_buffer.m_lines.end(); ++i)
+  for (std::deque<std::string>::iterator i = m_buffer.m_lines.begin(); i != m_buffer.m_lines.end(); ++i)
   {
     if (skipLines-- > 0) continue;
     lineNo++;

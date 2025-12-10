@@ -12,7 +12,7 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_CONSOLE_HPP
 #define HEADER_SUPERTUX_SUPERTUX_CONSOLE_HPP
 
-#include <list>
+#include <deque>
 #include <memory>
 #include <squirrel.h>
 #include <sstream>
@@ -33,7 +33,7 @@ public:
   static ConsoleStreamBuffer s_outputBuffer; /**< stream buffer used by output stream */
 
 public:
-  std::list<std::string> m_lines; /**< backbuffer of lines sent to the console. New lines get added to front. */
+  std::deque<std::string> m_lines; /**< backbuffer of lines sent to the console. New lines get added to front. */
   Console* m_console;
 
 public:
@@ -87,8 +87,8 @@ private:
   std::string m_inputBuffer; /**< string used for keyboard input */
   int m_inputBufferPosition; /**< position in inputBuffer before which to append new characters */
 
-  std::list<std::string> m_history; /**< command history. New lines get added to back. */
-  std::list<std::string>::iterator m_history_position; /**< item of command history that is currently displayed */
+  std::deque<std::string> m_history; /**< command history. New lines get added to back. */
+  std::deque<std::string>::iterator m_history_position; /**< item of command history that is currently displayed */
 
   SurfacePtr m_background; /**< console background image */
   SurfacePtr m_background2; /**< second, moving console background image */
