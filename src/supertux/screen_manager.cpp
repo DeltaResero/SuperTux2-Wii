@@ -167,7 +167,9 @@ ScreenManager::draw(DrawingContext& context)
     m_screen_fade->draw(context);
   }
 
+#ifndef DISABLE_CONSOLE
   Console::current()->draw(context);
+#endif
 
   if (g_config->show_fps)
   {
@@ -220,7 +222,9 @@ ScreenManager::update_gamelogic(float elapsed_time)
     m_screen_fade->update(elapsed_time);
   }
 
+#ifndef DISABLE_CONSOLE
   Console::current()->update(elapsed_time);
+#endif
 }
 
 void

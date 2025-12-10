@@ -44,6 +44,7 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
   if (key_mapping != m_keyboard_config.keymap.end() &&
       key_mapping->second == Controller::CONSOLE)
   {
+#ifndef DISABLE_CONSOLE
     if (event.type == SDL_KEYDOWN)
     {
       // text input gets locked between the console-key being pressed
@@ -57,12 +58,15 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
     {
       m_lock_text_input = false;
     }
+#endif
   }
+#ifndef DISABLE_CONSOLE
   else if (Console::current()->hasFocus())
   {
     // if console is open: send key there
     process_console_key_event(event);
   }
+#endif
   else if (MenuManager::instance().is_active())
   {
     // if menu mode: send key there
@@ -88,17 +92,20 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
 void
 KeyboardManager::process_text_input_event(const SDL_TextInputEvent& event)
 {
+#ifndef DISABLE_CONSOLE
   if (!m_lock_text_input && Console::current()->hasFocus()) {
     for(int i = 0; event.text[i] != '\0'; ++i)
     {
       Console::current()->input(event.text[i]);
     }
   }
+#endif
 }
 
 void
 KeyboardManager::process_console_key_event(const SDL_KeyboardEvent& event)
 {
+#ifndef DISABLE_CONSOLE
   if (event.type != SDL_KEYDOWN) return;
   auto console = Console::current();
 
@@ -142,6 +149,7 @@ KeyboardManager::process_console_key_event(const SDL_KeyboardEvent& event)
     default:
       break;
   }
+#endif
 }
 
 void

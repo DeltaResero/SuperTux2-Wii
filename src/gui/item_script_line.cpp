@@ -35,7 +35,11 @@ ItemScriptLine::ItemScriptLine(std::string* input_, int id_) :
 void
 ItemScriptLine::draw(DrawingContext& context, Vector pos, int menu_width, bool active) {
   std::string r_input = *input;
+#ifndef DISABLE_CONSOLE
   auto font = Console::current()->get_font();
+#else
+  auto font = Resources::fixed_font; // Fallback font
+#endif
   bool fl = active && (int(real_time*2)%2);
   if ( fl ) {
     r_input += "_";
@@ -46,7 +50,11 @@ ItemScriptLine::draw(DrawingContext& context, Vector pos, int menu_width, bool a
 
 int
 ItemScriptLine::get_width() const {
+#ifndef DISABLE_CONSOLE
   return Console::current()->get_font()->get_text_width(*input) + 16 + flickw;
+#else
+  return Resources::fixed_font->get_text_width(*input) + 16 + flickw;
+#endif
 }
 
 void

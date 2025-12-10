@@ -47,19 +47,23 @@ std::ostream& log_info_f(const char* file, int line)
 
 std::ostream& log_warning_f(const char* file, int line)
 {
+#ifndef DISABLE_CONSOLE
   if(g_config && g_config->developer_mode &&
      Console::current() && !Console::current()->hasFocus()) {
     Console::current()->open();
   }
+#endif
   return (log_generic_f ("[WARNING]", file, line));
 }
 
 std::ostream& log_fatal_f(const char* file, int line)
 {
+#ifndef DISABLE_CONSOLE
   if(g_config && g_config->developer_mode &&
      Console::current() && !Console::current()->hasFocus()) {
     Console::current()->open();
   }
+#endif
   return (log_generic_f ("[FATAL]", file, line));
 }
 

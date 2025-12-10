@@ -22,7 +22,11 @@
 #include "video/font_ptr.hpp"
 #include "video/surface_ptr.hpp"
 
+#ifndef DISABLE_CONSOLE
 class Console;
+#else
+class Console; // Forward declaration might still be needed by pointers, though we guard usage
+#endif
 class ConsoleStreamBuffer;
 class DrawingContext;
 
@@ -33,8 +37,10 @@ public:
   static ConsoleStreamBuffer s_outputBuffer; /**< stream buffer used by output stream */
 
 public:
+#ifndef DISABLE_CONSOLE
   std::deque<std::string> m_lines; /**< backbuffer of lines sent to the console. New lines get added to front. */
   Console* m_console;
+#endif
 
 public:
   ConsoleBuffer();
@@ -44,13 +50,16 @@ public:
 
   void flush(ConsoleStreamBuffer& buffer); /**< act upon changes in a ConsoleStreamBuffer */
 
+#ifndef DISABLE_CONSOLE
   void set_console(Console* console);
+#endif
 
 private:
   ConsoleBuffer(const ConsoleBuffer&) = delete;
   ConsoleBuffer& operator=(const ConsoleBuffer&) = delete;
 };
 
+#ifndef DISABLE_CONSOLE
 class Console : public Currenton<Console>
 {
 public:
@@ -119,6 +128,7 @@ private:
   Console(const Console&);
   Console & operator=(const Console&);
 };
+#endif // DISABLE_CONSOLE
 
 class ConsoleStreamBuffer : public std::stringbuf
 {
