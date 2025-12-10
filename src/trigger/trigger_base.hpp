@@ -12,7 +12,7 @@
 #ifndef HEADER_SUPERTUX_TRIGGER_TRIGGER_BASE_HPP
 #define HEADER_SUPERTUX_TRIGGER_TRIGGER_BASE_HPP
 
-#include <list>
+#include <vector>
 #include <memory>
 
 #include "sprite/sprite_ptr.hpp"
@@ -56,7 +56,7 @@ private:
   bool lasthit;
   bool hit;
 
-  std::list<Player*> losetouch_listeners; /**< Players that will be informed when we lose touch with them */
+  std::vector<Player*> losetouch_listeners; /**< Players that will be informed when we lose touch with them */
 
 private:
   TriggerBase(const TriggerBase&);

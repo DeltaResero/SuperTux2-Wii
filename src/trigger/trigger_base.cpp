@@ -11,6 +11,7 @@
 
 #include "trigger/trigger_base.hpp"
 
+#include <algorithm>
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 
@@ -74,13 +75,10 @@ TriggerBase::collision(GameObject& other, const CollisionHit& )
 void
 TriggerBase::object_removed(GameObject* object)
 {
-  for (auto i = losetouch_listeners.begin(); i != losetouch_listeners.end(); ++i) {
-    auto p = *i;
-    if (p == object) {
-      losetouch_listeners.erase(i);
-      break;
-    }
-  }
+  losetouch_listeners.erase(
+    std::remove(losetouch_listeners.begin(), losetouch_listeners.end(), object),
+    losetouch_listeners.end()
+  );
 }
 
 // EOF
