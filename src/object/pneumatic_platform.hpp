@@ -12,6 +12,7 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 
+#include <vector>
 #include "object/moving_sprite.hpp"
 
 /**
@@ -45,7 +46,7 @@ protected:
   float start_y; /**< vertical start position */
   float offset_y; /**< vertical offset from the start position in px */
   float speed_y; /**< vertical speed */
-  std::set<GameObject*> contacts; /**< objects that are currently pushing on the platform */
+  std::vector<GameObject*> contacts; /**< objects that are currently pushing on the platform */
 
 private:
   PneumaticPlatform(const PneumaticPlatform&);

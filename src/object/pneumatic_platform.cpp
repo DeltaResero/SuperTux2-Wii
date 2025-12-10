@@ -11,6 +11,9 @@
 
 #include "object/pneumatic_platform.hpp"
 
+#include <algorithm>
+#include <vector>
+
 #include "object/player.hpp"
 #include "object/portable.hpp"
 #include "supertux/object_factory.hpp"
@@ -67,13 +70,24 @@ PneumaticPlatform::collision(GameObject& other, const CollisionHit& )
 
   auto pl = dynamic_cast<Player*>(mo);
   if (pl) {
-    if (pl->is_big()) contacts.insert(0);
+    if (pl->is_big()) {
+      // Use nullptr (0) to represent extra weight for big tux
+      if (std::find(contacts.begin(), contacts.end(), nullptr) == contacts.end()) {
+        contacts.push_back(nullptr);
+      }
+    }
     auto po = pl->get_grabbed_object();
     auto pomo = dynamic_cast<MovingObject*>(po);
-    if (pomo) contacts.insert(pomo);
+    if (pomo) {
+      if (std::find(contacts.begin(), contacts.end(), pomo) == contacts.end()) {
+        contacts.push_back(pomo);
+      }
+    }
   }
 
-  contacts.insert(&other);
+  if (std::find(contacts.begin(), contacts.end(), &other) == contacts.end()) {
+    contacts.push_back(&other);
+  }
   return FORCE_MOVE;
 }
 

@@ -12,6 +12,7 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 
+#include <vector>
 #include "object/moving_sprite.hpp"
 
 /**
@@ -46,7 +47,7 @@ protected:
   float radius; /**< radius of circle */
   float angle; /**< current angle */
   float angular_speed; /**< angular speed in rad per second */
-  std::set<GameObject*> contacts; /**< objects that are currently pushing on the platform */
+  std::vector<GameObject*> contacts; /**< objects that are currently pushing on the platform */
   float momentum; /** angular momentum in rad per second per second*/
 
 private:
