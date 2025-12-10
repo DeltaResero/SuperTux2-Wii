@@ -14,6 +14,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <map>
 
 #include "math/rectf.hpp"
 #include "math/vector.hpp"
@@ -119,7 +120,7 @@ private:
     Glyph() :
       advance(),
       offset(),
-      surface_idx(),
+      surface_idx(-1),
       rect()
     {}
   };
@@ -134,8 +135,8 @@ private:
   int border;
   bool rtl;
 
-  /** 65536 of glyphs */
-  std::vector<Glyph> glyphs;
+  /** Map of unicode codepoints to glyphs */
+  std::map<uint32_t, Glyph> glyphs;
 };
 
 #endif // HEADER_SUPERTUX_VIDEO_FONT_HPP

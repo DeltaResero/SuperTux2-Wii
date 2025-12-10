@@ -61,10 +61,8 @@ Font::Font(GlyphWidth glyph_width_,
   shadowsize(shadowsize_),
   border(0),
   rtl(false),
-  glyphs(65536)
+  glyphs()
 {
-  for(unsigned int i=0; i<65536;i++) glyphs[i].surface_idx = -1;
-
   const std::string fontdir = FileSystem::dirname(filename);
   const std::string fontname = FileSystem::basename(filename);
 
@@ -197,7 +195,9 @@ Font::loadFontSurface(
       int y = row * (char_height + 2*border) + border;
       int x = col * (char_width + 2*border) + border;
       if( ++col == wrap ) { col=0; row++; }
-      if( *chr == 0x0020 && glyphs[0x20].surface_idx != -1) continue;
+
+      // Check if space (0x20) is already loaded
+      if( *chr == 0x0020 && glyphs.find(0x20) != glyphs.end() ) continue;
 
       Glyph glyph;
       glyph.surface_idx   = surface_idx;
@@ -271,10 +271,14 @@ Font::get_text_width(const std::string& text) const
     }
     else
     {
-      if( glyphs.at(*it).surface_idx != -1 )
-        curr_width += glyphs[*it].advance;
-      else
-        curr_width += glyphs[0x20].advance;
+      auto it_glyph = glyphs.find(*it);
+      if( it_glyph != glyphs.end() )
+        curr_width += it_glyph->second.advance;
+      else {
+        auto it_space = glyphs.find(0x20);
+        if (it_space != glyphs.end())
+            curr_width += it_space->second.advance;
+      }
     }
   }
 
@@ -416,30 +420,38 @@ Font::draw_chars(Renderer *renderer, bool notshadow, const std::string& text,
     }
     else if(*it == ' ')
     {
-      p.x += glyphs[0x20].advance;
+      auto it_space = glyphs.find(0x20);
+      if (it_space != glyphs.end())
+        p.x += it_space->second.advance;
     }
     else
     {
       Glyph glyph;
-      if( glyphs.at(*it).surface_idx != -1 )
-        glyph = glyphs[*it];
-      else
-        glyph = glyphs[0x20];
+      auto it_glyph = glyphs.find(*it);
+      if( it_glyph != glyphs.end() )
+        glyph = it_glyph->second;
+      else {
+        auto it_space = glyphs.find(0x20);
+        if (it_space != glyphs.end())
+            glyph = it_space->second;
+      }
 
-      DrawingRequest request;
+      if (glyph.surface_idx != -1) {
+          DrawingRequest request;
 
-      request.pos = p + glyph.offset;
-      request.drawing_effect = drawing_effect;
-      request.color = color;
-      request.alpha = alpha;
+          request.pos = p + glyph.offset;
+          request.drawing_effect = drawing_effect;
+          request.color = color;
+          request.alpha = alpha;
 
-      SurfacePartRequest surfacepartrequest;
-      surfacepartrequest.srcrect = glyph.rect;
-      surfacepartrequest.dstsize = glyph.rect.get_size();
-      surfacepartrequest.surface = notshadow ? glyph_surfaces[glyph.surface_idx].get() : shadow_surfaces[glyph.surface_idx].get();
+          SurfacePartRequest surfacepartrequest;
+          surfacepartrequest.srcrect = glyph.rect;
+          surfacepartrequest.dstsize = glyph.rect.get_size();
+          surfacepartrequest.surface = notshadow ? glyph_surfaces[glyph.surface_idx].get() : shadow_surfaces[glyph.surface_idx].get();
 
-      request.request_data = &surfacepartrequest;
-      renderer->draw_surface_part(request);
+          request.request_data = &surfacepartrequest;
+          renderer->draw_surface_part(request);
+      }
 
       p.x += glyph.advance;
     }
