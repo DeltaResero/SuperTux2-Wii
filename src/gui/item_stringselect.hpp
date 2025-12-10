@@ -32,7 +32,7 @@ class ItemStringSelect : public MenuItem
     /** Processes the menu action. */
     virtual void process_action(MenuAction action);
 
-    std::vector<std::string> list; // list of values for a STRINGSELECT item
+    const std::vector<std::string>* list; // pointer to list of values for a STRINGSELECT item
     int* selected; // currently selected item
 
   private:

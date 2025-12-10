@@ -189,7 +189,7 @@ Statistics::draw_worldmap_info(DrawingContext& context, float target_time)
 }
 
 void
-Statistics::draw_endseq_panel(DrawingContext& context, Statistics* best_stats, SurfacePtr backdrop)
+Statistics::draw_endseq_panel(DrawingContext& context, Statistics* best_stats, const SurfacePtr& backdrop)
 {
   // skip draw if stats were declared invalid
   if (!valid) return;
