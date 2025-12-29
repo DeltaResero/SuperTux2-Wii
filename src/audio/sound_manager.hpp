@@ -99,6 +99,7 @@ public:
 
 #ifdef USE_SDL_MIXER
   void clear_music_cache();
+  void clear_sound_cache();
 
   // Needed by MusicRef
   struct MusicResource {

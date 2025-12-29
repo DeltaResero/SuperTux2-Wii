@@ -35,33 +35,28 @@
 #include <sstream>
 #include <version.h>
 
-TitleScreen::TitleScreen(Savegame& savegame) :
-  frame(),
-  controller(),
-  titlesession(),
-  copyright_text()
-{
+TitleScreen::TitleScreen(Savegame &savegame)
+    : frame(), controller(), titlesession(), copyright_text() {
   controller.reset(new CodeController());
   titlesession.reset(new GameSession("levels/misc/menu.stl", savegame));
 
-  Player* player = titlesession->get_current_sector()->player;
+  Player *player = titlesession->get_current_sector()->player;
   player->set_controller(controller.get());
-  player->set_speedlimit(230); //MAX_WALK_XM
+  player->set_speedlimit(230); // MAX_WALK_XM
 
   frame = Surface::create("images/engine/menu/frame.png");
-  copyright_text = "SuperTux " PACKAGE_VERSION "\n" +
-    _("Copyright") + " (c) 2003-2016 SuperTux Devel Team\n" +
-    _("This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to\n"
-      "redistribute it under certain conditions; see the license file for details.\n"
-   );
+  copyright_text = "SuperTux " PACKAGE_VERSION "\n" + _("Copyright") +
+                   " (c) 2003-2016 SuperTux Devel Team\n" +
+                   _("This game comes with ABSOLUTELY NO WARRANTY. This is "
+                     "free software, and you are welcome to\n"
+                     "redistribute it under certain conditions; see the "
+                     "license file for details.\n");
 }
 
-void
-TitleScreen::make_tux_jump()
-{
+void TitleScreen::make_tux_jump() {
   static bool jumpWasReleased = false;
-  Sector* sector  = titlesession->get_current_sector();
-  Player* tux = sector->player;
+  Sector *sector = titlesession->get_current_sector();
+  Player *tux = sector->player;
 
   controller->update();
   controller->press(Controller::RIGHT);
@@ -78,72 +73,64 @@ TitleScreen::make_tux_jump()
   }
 
   // Wrap around at the end of the level back to the beginning
-  if(sector->get_width() - 320 < tux->get_pos().x) {
+  if (sector->get_width() - 320 < tux->get_pos().x) {
     sector->activate("main");
     sector->camera->reset(tux->get_pos());
   }
 }
 
-TitleScreen::~TitleScreen()
-{
+TitleScreen::~TitleScreen() {
 #ifdef USE_SDL_MIXER
   SoundManager::current()->clear_music_cache();
+  SoundManager::current()->clear_sound_cache();
 #endif
 }
 
-void
-TitleScreen::setup()
-{
-  Sector* sector = titlesession->get_current_sector();
-  if(Sector::current() != sector) {
+void TitleScreen::setup() {
+  Sector *sector = titlesession->get_current_sector();
+  if (Sector::current() != sector) {
     sector->play_music(LEVEL_MUSIC);
     // sector->activate(Vector) expects position calculated for big tux, but tux
     // might be small on the title screen
-    sector->activate(sector->player->get_pos() - Vector(0.f, sector->player->is_big() ? 0.f : 32.f));
+    sector->activate(sector->player->get_pos() -
+                     Vector(0.f, sector->player->is_big() ? 0.f : 32.f));
   }
 
   MenuManager::instance().set_menu(MenuStorage::MAIN_MENU);
-  ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>(new FadeIn(0.25)));
+  ScreenManager::current()->set_screen_fade(
+      std::unique_ptr<ScreenFade>(new FadeIn(0.25)));
 }
 
-void
-TitleScreen::leave()
-{
-  Sector* sector = titlesession->get_current_sector();
+void TitleScreen::leave() {
+  Sector *sector = titlesession->get_current_sector();
   sector->deactivate();
   MenuManager::instance().clear_menu_stack();
 }
 
-void
-TitleScreen::draw(DrawingContext& context)
-{
-  Sector* sector  = titlesession->get_current_sector();
+void TitleScreen::draw(DrawingContext &context) {
+  Sector *sector = titlesession->get_current_sector();
   sector->draw(context);
 
-  context.draw_surface_part(frame,
-                            Rectf(0, 0, frame->get_width(), frame->get_height()),
-                            Rectf(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
-                            LAYER_FOREGROUND1);
+  context.draw_surface_part(
+      frame, Rectf(0, 0, frame->get_width(), frame->get_height()),
+      Rectf(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), LAYER_FOREGROUND1);
 
-  context.draw_text(Resources::small_font,
-                    copyright_text,
-                    Vector(5, SCREEN_HEIGHT - 50),
-                    ALIGN_LEFT, LAYER_FOREGROUND1);
+  context.draw_text(Resources::small_font, copyright_text,
+                    Vector(5, SCREEN_HEIGHT - 50), ALIGN_LEFT,
+                    LAYER_FOREGROUND1);
 }
 
-void
-TitleScreen::update(float elapsed_time)
-{
+void TitleScreen::update(float elapsed_time) {
   ScreenManager::current()->set_speed(0.6f);
-  Sector* sector  = titlesession->get_current_sector();
+  Sector *sector = titlesession->get_current_sector();
   sector->update(elapsed_time);
 
   make_tux_jump();
 
   // reopen menu if user closed it (so that the app doesn't close when user
   // accidently hit ESC)
-  if(!MenuManager::instance().is_active() && !ScreenManager::current()->has_pending_fadeout())
-  {
+  if (!MenuManager::instance().is_active() &&
+      !ScreenManager::current()->has_pending_fadeout()) {
     MenuManager::instance().set_menu(MenuStorage::MAIN_MENU);
   }
 }
