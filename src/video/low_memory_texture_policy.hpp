@@ -1,18 +1,18 @@
-// src/video/wii_texture_policy.hpp
+// src/video/low_memory_texture_policy.hpp
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 // SuperTux - Texture Caching Policy for Low-End Systems
 // Determines which textures should be kept in cache on memory-constrained
 // systems
 
-#ifndef HEADER_SUPERTUX_VIDEO_WII_TEXTURE_POLICY_HPP
-#define HEADER_SUPERTUX_VIDEO_WII_TEXTURE_POLICY_HPP
+#ifndef HEADER_SUPERTUX_VIDEO_LOW_MEMORY_TEXTURE_POLICY_HPP
+#define HEADER_SUPERTUX_VIDEO_LOW_MEMORY_TEXTURE_POLICY_HPP
 
-#ifdef USE_SDL_MIXER
+#ifdef ENABLE_LOW_MEMORY
 
 #include <string>
 
-namespace WiiTexturePolicy {
+namespace LowMemoryTexturePolicy {
 
 /**
  * Determines if a texture should be kept in the texture cache.
@@ -91,7 +91,7 @@ inline bool should_cache_texture(const std::string &filename) {
   return false;
 }
 
-} // namespace WiiTexturePolicy
+} // namespace LowMemoryTexturePolicy
 
-#endif // USE_SDL_MIXER
-#endif // HEADER_SUPERTUX_VIDEO_WII_TEXTURE_POLICY_HPP
+#endif // ENABLE_LOW_MEMORY
+#endif // HEADER_SUPERTUX_VIDEO_LOW_MEMORY_TEXTURE_POLICY_HPP

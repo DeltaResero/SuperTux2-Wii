@@ -131,7 +131,7 @@ WorldMap::~WorldMap() {
 
   sq_collectgarbage(global_vm);
 
-#ifdef USE_SDL_MIXER
+#ifdef ENABLE_LOW_MEMORY
   SoundManager::current()->clear_music_cache();
   SoundManager::current()->clear_sound_cache();
 #endif

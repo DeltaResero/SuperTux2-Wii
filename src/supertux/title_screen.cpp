@@ -80,7 +80,7 @@ void TitleScreen::make_tux_jump() {
 }
 
 TitleScreen::~TitleScreen() {
-#ifdef USE_SDL_MIXER
+#ifdef ENABLE_LOW_MEMORY
   SoundManager::current()->clear_music_cache();
   SoundManager::current()->clear_sound_cache();
 #endif

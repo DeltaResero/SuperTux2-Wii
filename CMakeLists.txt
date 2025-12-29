@@ -60,6 +60,9 @@ IF(CMAKE_TOOLCHAIN_FILE MATCHES "Wii.cmake")
   # Force round-trip lightmap on Wii (glCopyTexSubImage2D not available in OpenGX)
   SET(FORCE_ROUNDTRIP_LIGHTMAP ON CACHE BOOL "Wii requires round-trip lightmap" FORCE)
 
+  # Force aggressive memory optimizations
+  SET(ENABLE_LOW_MEMORY ON CACHE BOOL "Enable aggressive memory optimizations" FORCE)
+
   # Wii-specific definitions
   ADD_DEFINITIONS(-D_WII_ -DGEKKO -DSDL_MAIN_HANDLED -DDISABLE_CONSOLE)
 
@@ -161,6 +164,15 @@ OPTION(BUILD_TESTS "Build test cases" OFF)
 OPTION(ENABLE_OPENGL "Enable OpenGL support" ON)
 OPTION(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 OPTION(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
+
+OPTION(ENABLE_LOW_MEMORY "Enable aggressive memory optimizations (audio/texture cache clearing, 16-bit color, etc.)" OFF)
+
+if(ENABLE_LOW_MEMORY)
+  add_definitions(-DENABLE_LOW_MEMORY)
+  message(STATUS "Low Memory Mode: Enabled")
+else()
+  message(STATUS "Low Memory Mode: Disabled")
+endif()
 
 # 16-bit Color Support (RGBA4444 Textures + RGB565 Display)
 # Reduces RAM usage and Fillrate/Bandwidth requirements.

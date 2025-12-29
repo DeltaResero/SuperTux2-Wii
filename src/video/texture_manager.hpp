@@ -26,26 +26,21 @@
 #include "video/glutil.hpp"
 #include "video/texture_ptr.hpp"
 
-#ifdef _WII_
-#include "video/wii_texture_policy.hpp"
-#endif
-
 class Texture;
 class GLTexture;
 class Rect;
 
-class TextureManager : public Currenton<TextureManager>
-{
+class TextureManager : public Currenton<TextureManager> {
 public:
   TextureManager();
   ~TextureManager();
 
-  TexturePtr get(const std::string& filename);
-  TexturePtr get(const std::string& filename, const Rect& rect);
+  TexturePtr get(const std::string &filename);
+  TexturePtr get(const std::string &filename, const Rect &rect);
 
 #ifdef HAVE_OPENGL
-  void register_texture(GLTexture* texture);
-  void remove_texture(GLTexture* texture);
+  void register_texture(GLTexture *texture);
+  void remove_texture(GLTexture *texture);
 
   void save_textures();
   void reload_textures();
@@ -54,37 +49,38 @@ public:
 private:
   friend class Texture;
 
-  typedef std::map<std::string, std::weak_ptr<Texture> > ImageTextures;
+  typedef std::map<std::string, std::weak_ptr<Texture>> ImageTextures;
   ImageTextures m_image_textures;
 
-  typedef std::map<std::string, SDL_Surface*> Surfaces;
+  typedef std::map<std::string, SDL_Surface *> Surfaces;
   Surfaces m_surfaces;
 
 private:
-  void reap_cache_entry(const std::string& filename);
+  void reap_cache_entry(const std::string &filename);
 
-  TexturePtr create_image_texture(const std::string& filename, const Rect& rect);
+  TexturePtr create_image_texture(const std::string &filename,
+                                  const Rect &rect);
 
   /** on failure a dummy texture is returned and no exception is thrown */
-  TexturePtr create_image_texture(const std::string& filename);
+  TexturePtr create_image_texture(const std::string &filename);
 
   /** throw an exception on error */
-  TexturePtr create_image_texture_raw(const std::string& filename);
-  TexturePtr create_image_texture_raw(const std::string& filename, const Rect& rect);
+  TexturePtr create_image_texture_raw(const std::string &filename);
+  TexturePtr create_image_texture_raw(const std::string &filename,
+                                      const Rect &rect);
 
   TexturePtr create_dummy_texture();
 
 #ifdef HAVE_OPENGL
 private:
-  typedef std::set<GLTexture*> Textures;
+  typedef std::set<GLTexture *> Textures;
   Textures m_textures;
 
-  struct SavedTexture
-  {
-    GLTexture* texture;
+  struct SavedTexture {
+    GLTexture *texture;
     GLint width;
     GLint height;
-    char* pixels;
+    char *pixels;
     GLint border;
 
     GLint min_filter;
@@ -95,7 +91,7 @@ private:
   std::vector<SavedTexture> m_saved_textures;
 
 private:
-  void save_texture(GLTexture* texture);
+  void save_texture(GLTexture *texture);
 #endif
 };
 

@@ -245,10 +245,12 @@ void SoundManager::preload(const std::string &filename) {
     return;
 
 #ifdef USE_SDL_MIXER
-  // Skip preloading on SDL_mixer builds to save memory on low-end systems.
+#ifdef ENABLE_LOW_MEMORY
+  // Skip preloading on low memory builds.
   // Sounds will load on-demand when first played, then cache until scene ends.
   (void)filename;
   return;
+#endif
 #endif
 
 #ifdef HAVE_OPENAL
@@ -697,6 +699,23 @@ void SoundManager::clear_sound_cache() {
 #endif
 
 #ifdef HAVE_OPENAL
+void SoundManager::clear_music_cache() {
+  // OpenAL uses streaming for music, no persistent cache to clear.
+}
+
+void SoundManager::clear_sound_cache() {
+  // Stop all sounds first to ensure buffers aren't in use
+  stop_sounds();
+
+  size_t count = buffers.size();
+  for (auto &buffer : buffers) {
+    alDeleteBuffers(1, &buffer.second);
+  }
+  buffers.clear();
+
+  log_info << "Cleared " << count << " cached OpenAL buffers" << std::endl;
+}
+
 ALenum SoundManager::get_sample_format(const SoundFile &file) {
   if (file.channels == 2) {
     if (file.bits_per_sample == 16) {

@@ -29,8 +29,8 @@
 #include "video/gl/gl_texture.hpp"
 #endif
 
-#ifdef USE_SDL_MIXER
-#include "video/wii_texture_policy.hpp"
+#ifdef ENABLE_LOW_MEMORY
+#include "video/low_memory_texture_policy.hpp"
 #endif
 
 TextureManager::TextureManager()
@@ -67,8 +67,8 @@ TexturePtr TextureManager::get(const std::string &_filename) {
   if (!texture) {
     texture = create_image_texture(filename);
 
-#ifdef USE_SDL_MIXER
-    if (WiiTexturePolicy::should_cache_texture(filename)) {
+#ifdef ENABLE_LOW_MEMORY
+    if (LowMemoryTexturePolicy::should_cache_texture(filename)) {
       texture->cache_filename = filename;
       m_image_textures[filename] = texture;
     } else {
@@ -97,8 +97,8 @@ TexturePtr TextureManager::get(const std::string &_filename, const Rect &rect) {
   if (!texture) {
     texture = create_image_texture(filename, rect);
 
-#ifdef USE_SDL_MIXER
-    if (WiiTexturePolicy::should_cache_texture(filename)) {
+#ifdef ENABLE_LOW_MEMORY
+    if (LowMemoryTexturePolicy::should_cache_texture(filename)) {
       texture->cache_filename = key;
       m_image_textures[key] = texture;
     } else {
