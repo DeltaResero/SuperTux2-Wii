@@ -19,25 +19,17 @@
 #include <sstream>
 #include <stdexcept>
 
+SpriteManager::SpriteManager() : sprites() {}
 
-SpriteManager::SpriteManager() :
-  sprites()
-{
-}
+SpriteManager::~SpriteManager() {}
 
-SpriteManager::~SpriteManager()
-{
-}
-
-SpritePtr
-SpriteManager::create(const std::string& name)
-{
+SpritePtr SpriteManager::create(const std::string &name) {
   Sprites::iterator i = sprites.find(name);
-  SpriteData* data;
-  if(i == sprites.end()) {
+  SpriteData *data;
+  if (i == sprites.end()) {
     // try loading the spritefile
     data = load(name);
-    if(data == NULL) {
+    if (data == NULL) {
       std::stringstream msg;
       msg << "Sprite '" << name << "' not found.";
       throw std::runtime_error(msg.str());
@@ -49,24 +41,23 @@ SpriteManager::create(const std::string& name)
   return std::make_unique<Sprite>(*data);
 }
 
-SpriteData*
-SpriteManager::load(const std::string& filename)
-{
+SpriteData *SpriteManager::load(const std::string &filename) {
   ReaderDocument doc;
 
   try {
-    if(filename.size() >= 7 && filename.compare(filename.size() - 7, 7, ".sprite") == 0) {
+    if (filename.size() >= 7 &&
+        filename.compare(filename.size() - 7, 7, ".sprite") == 0) {
       // Sprite file
       doc = ReaderDocument::parse(filename);
     } else {
       // Load image file directly
       std::stringstream lisptext;
       lisptext << "(supertux-sprite (action "
-               <<    "(name \"default\") "
-               <<    "(images \"" << FileSystem::basename(filename) << "\")))";
+               << "(name \"default\") "
+               << "(images \"" << FileSystem::basename(filename) << "\")))";
       doc = ReaderDocument::parse(lisptext);
     }
-  } catch(const std::exception& e) {
+  } catch (const std::exception &e) {
     std::ostringstream msg;
     msg << "Parse error when trying to load sprite '" << filename
         << "': " << e.what() << "\n";
@@ -75,12 +66,13 @@ SpriteManager::load(const std::string& filename)
 
   auto root = doc.get_root();
 
-  if(root.get_name() != "supertux-sprite") {
+  if (root.get_name() != "supertux-sprite") {
     std::ostringstream msg;
     msg << "'" << filename << "' is not a supertux-sprite file";
     throw std::runtime_error(msg.str());
   } else {
-    auto data = std::make_unique<SpriteData>(root.get_mapping(), FileSystem::dirname(filename));
+    auto data = std::make_unique<SpriteData>(root.get_mapping(),
+                                             FileSystem::dirname(filename));
     sprites[filename] = std::move(data);
 
     return sprites[filename].get();
