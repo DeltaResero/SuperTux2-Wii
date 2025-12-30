@@ -66,16 +66,26 @@ Font::Font(GlyphWidth glyph_width_,
   const std::string fontdir = FileSystem::dirname(filename);
   const std::string fontname = FileSystem::basename(filename);
 
+#ifdef ENABLE_LOW_MEMORY
+  // On low memory systems, we only load the exact font requested.
+  // Wildcard loading of localized variants is disabled to save RAM.
+  loadFontFile(filename);
+#else
   // scan for prefix-filename in addons search path
   std::string search_path = FileSystem::find(fontdir);
   if (!search_path.empty() && std::filesystem::is_directory(search_path)) {
-      for (const auto& entry : std::filesystem::directory_iterator(search_path)) {
-          std::string filename_ = entry.path().filename().string();
-          if( filename_.rfind(fontname) != std::string::npos ) {
-            loadFontFile(FileSystem::join(fontdir, filename_));
-          }
+    for (const auto& entry : std::filesystem::directory_iterator(search_path)) {
+      std::string filename_ = entry.path().filename().string();
+      // Only load if it's the exact fontname OR if it's a specific variant
+      // that doesn't just happen to contain the fontname as a suffix.
+      if (filename_ == fontname) {
+        loadFontFile(FileSystem::join(fontdir, filename_));
       }
+      // We could add logic here for specific language prefixes if needed,
+      // but for now, we tighten it to minimize memory.
+    }
   }
+#endif
 }
 
 void
@@ -85,7 +95,7 @@ Font::loadFontFile(const std::string &filename)
   log_debug_ << "Loading font: " << filename << std::endl;
   auto doc = ReaderDocument::parse(filename);
   auto root = doc.get_root();
-  if (root.get_name() != "supertux-font") {
+  if(root.get_name() != "supertux-font") {
     std::ostringstream msg;
     msg << "Font file:" << filename << ": is not a supertux-font file";
     throw std::runtime_error(msg.str());
