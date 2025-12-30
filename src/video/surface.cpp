@@ -15,118 +15,69 @@
 
 #include <SDL.h>
 
+#include "util/log.hpp"
 #include "video/texture.hpp"
 #include "video/video_system.hpp"
 
-SurfacePtr
-Surface::create(const std::string& file)
-{
+SurfacePtr Surface::create(const std::string &file) {
   return SurfacePtr(new Surface(file));
 }
 
-SurfacePtr
-Surface::create(const std::string& file, const Rect& rect)
-{
+SurfacePtr Surface::create(const std::string &file, const Rect &rect) {
   return SurfacePtr(new Surface(file, rect));
 }
 
-Surface::Surface(const std::string& file) :
-  texture(TextureManager::current()->get(file)),
-  surface_data(),
-  rect(0, 0,
-      Size(texture->get_image_width(),
-           texture->get_image_height())),
-  flipx(false)
-{
+Surface::Surface(const std::string &file)
+    : texture(TextureManager::current()->get(file)), surface_data(),
+      rect(0, 0,
+           Size(texture ? texture->get_image_width() : 0,
+                texture ? texture->get_image_height() : 0)),
+      flipx(false) {
+  if (!texture) {
+    log_warning << "Surface created with NULL texture for file: " << file
+                << std::endl;
+  }
   surface_data = VideoSystem::current()->new_surface_data(*this);
 }
 
-Surface::Surface(const std::string& file, const Rect& rect_) :
-  texture(TextureManager::current()->get(file, rect_)),
-  surface_data(),
-  rect(0, 0, Size(rect_.get_width(), rect_.get_height())),
-  flipx(false)
-{
+Surface::Surface(const std::string &file, const Rect &rect_)
+    : texture(TextureManager::current()->get(file, rect_)), surface_data(),
+      rect(0, 0, Size(rect_.get_width(), rect_.get_height())), flipx(false) {
+  if (!texture) {
+    log_warning << "Surface created with NULL texture for file (with rect): "
+                << file << std::endl;
+  }
   surface_data = VideoSystem::current()->new_surface_data(*this);
 }
 
-Surface::Surface(const Surface& rhs) :
-  texture(rhs.texture),
-  surface_data(),
-  rect(rhs.rect),
-  flipx(false)
-{
+Surface::Surface(const Surface &rhs)
+    : texture(rhs.texture), surface_data(), rect(rhs.rect), flipx(false) {
   surface_data = VideoSystem::current()->new_surface_data(*this);
 }
 
-Surface::~Surface()
-{
-  VideoSystem::current()->free_surface_data(surface_data);
-}
+Surface::~Surface() { VideoSystem::current()->free_surface_data(surface_data); }
 
-SurfacePtr
-Surface::clone() const
-{
-  return SurfacePtr(new Surface(*this));
-}
+SurfacePtr Surface::clone() const { return SurfacePtr(new Surface(*this)); }
 
 /** flip the surface horizontally */
-void Surface::hflip()
-{
-  flipx = !flipx;
-}
+void Surface::hflip() { flipx = !flipx; }
 
-bool Surface::get_flipx() const
-{
-  return flipx;
-}
+bool Surface::get_flipx() const { return flipx; }
 
-TexturePtr
-Surface::get_texture() const
-{
-  return texture;
-}
+TexturePtr Surface::get_texture() const { return texture; }
 
-SurfaceData*
-Surface::get_surface_data() const
-{
-  return surface_data;
-}
+SurfaceData *Surface::get_surface_data() const { return surface_data; }
 
-int
-Surface::get_x() const
-{
-  return rect.left;
-}
+int Surface::get_x() const { return rect.left; }
 
-int
-Surface::get_y() const
-{
-  return rect.top;
-}
+int Surface::get_y() const { return rect.top; }
 
-int
-Surface::get_width() const
-{
-  return rect.get_width();
-}
+int Surface::get_width() const { return rect.get_width(); }
 
-int
-Surface::get_height() const
-{
-  return rect.get_height();
-}
+int Surface::get_height() const { return rect.get_height(); }
 
-Vector
-Surface::get_position() const
-{
-  return Vector(get_x(), get_y());
-}
+Vector Surface::get_position() const { return Vector(get_x(), get_y()); }
 
-Vector
-Surface::get_size() const
-{
-  return Vector(get_width(), get_height());
-}
+Vector Surface::get_size() const { return Vector(get_width(), get_height()); }
 
 // EOF

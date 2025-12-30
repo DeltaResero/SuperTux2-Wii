@@ -451,6 +451,9 @@ void SoundManager::play_music(const std::string &filename, bool fade) {
   if (it != musics.end() && it->second.music != nullptr) {
     if (current_music_resource && current_music_resource != &(it->second)) {
       current_music_resource->refcount--;
+#if defined(ENABLE_LOW_MEMORY) && defined(USE_SDL_MIXER)
+      clear_music_cache();
+#endif
     }
 
     current_music_resource = &(it->second);
@@ -470,6 +473,9 @@ void SoundManager::play_music(const std::string &filename, bool fade) {
   if (current_music_resource) {
     current_music_resource->refcount--;
     current_music_resource = nullptr;
+#if defined(ENABLE_LOW_MEMORY) && defined(USE_SDL_MIXER)
+    clear_music_cache();
+#endif
   }
 
   std::string load_filename = filename;
@@ -670,6 +676,7 @@ void SoundManager::free_music(MusicResource *res) {
 }
 
 void SoundManager::clear_music_cache() {
+  size_t count = 0;
   for (auto it = musics.begin(); it != musics.end();) {
     if (it->second.refcount <= 0) {
       if (it->second.music) {
@@ -677,9 +684,13 @@ void SoundManager::clear_music_cache() {
         it->second.music = nullptr;
       }
       it = musics.erase(it);
+      count++;
     } else {
       ++it;
     }
+  }
+  if (count > 0) {
+    log_info << "Cleared " << count << " cached music track(s)" << std::endl;
   }
 }
 
