@@ -32,23 +32,15 @@
 #
 
 
+### CMake configuration
+
+# The upper bound of the range opts in to the current policy behaviour
+# without raising the version a builder has to have installed.
+CMAKE_MINIMUM_REQUIRED(VERSION 3.16...4.0)
+
 ## Project name to use as command prefix.
 
 PROJECT(SUPERTUX)
-
-
-### CMake configuration
-
-# allow building with CMake 2.8. Set compatibility options. Use some bundled modules as a fallback
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-IF(COMMAND cmake_policy)
-  CMAKE_POLICY(SET CMP0003 NEW)
-  CMAKE_POLICY(SET CMP0008 NEW)
-  CMAKE_POLICY(SET CMP0023 NEW)
-  IF(POLICY CMP0043)
-    CMAKE_POLICY(SET CMP0043 OLD)
-  ENDIF(POLICY CMP0043)
-ENDIF(COMMAND cmake_policy)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk/cmake)
 INCLUDE(ConfigureFiles)
@@ -111,16 +103,7 @@ ENDIF(WIN32)
 
 ## Add lots of dependencies to compiler switches
 
-SET(Boost_ADDITIONAL_VERSIONS "1.41" "1.41.0")
-OPTION(ENABLE_BOOST_STATIC_LIBS "Use boost static libraries" ON)
-IF(ENABLE_BOOST_STATIC_LIBS)
-  SET(Boost_USE_STATIC_LIBS TRUE)
-ELSE(ENABLE_BOOST_STATIC_LIBS)
-  SET(Boost_USE_STATIC_LIBS FALSE)
-ENDIF(ENABLE_BOOST_STATIC_LIBS)
-FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem system date_time)
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem date_time)
 
 IF(WIN32)
   FIND_PATH(SDL2_INCLUDE_DIRS NAMES SDL.h PATHS "${DEPENDENCY_FOLDER}/include/SDL2")
@@ -197,6 +180,7 @@ IF(NOT USE_SYSTEM_PHYSFS)
 	ExternalProject_Add(physfs
 	  SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/physfs/"
 	  CMAKE_ARGS
+	  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 	  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 	  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 	  -DCMAKE_INSTALL_PREFIX=${PHYSFS_PREFIX}
@@ -213,6 +197,7 @@ IF(NOT USE_SYSTEM_PHYSFS)
 		ADD_LIBRARY(physfs_lib STATIC IMPORTED)
 		SET_TARGET_PROPERTIES(physfs_lib PROPERTIES IMPORTED_LOCATION "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}")
 	ENDIF()
+	ADD_DEPENDENCIES(physfs_lib physfs)
 	SET(PHYSFS_INCLUDE_DIR "${PHYSFS_PREFIX}/include/")
 ENDIF()
 
@@ -328,6 +313,7 @@ SET(SQUIRREL_PREFIX ${CMAKE_BINARY_DIR}/squirrel/)
 ExternalProject_Add(squirrel
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/squirrel/"
   CMAKE_ARGS
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
   -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -350,6 +336,8 @@ ELSE()
 	ADD_LIBRARY(sqstdlib_lib STATIC IMPORTED)
 	SET_TARGET_PROPERTIES(sqstdlib_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}sqstdlib_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 ENDIF()
+ADD_DEPENDENCIES(squirrel_lib squirrel)
+ADD_DEPENDENCIES(sqstdlib_lib squirrel)
 
 INCLUDE_DIRECTORIES(SYSTEM ${SQUIRREL_PREFIX}/include)
 
@@ -359,23 +347,25 @@ IF(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/CMakeLists.txt)
   message(FATAL_ERROR "tinygettext submodule is not checked out or ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/CMakeLists.txt is missing")
 ENDIF()
 
-set(TINYGETTEXT_PREFIX ${CMAKE_BINARY_DIR}/tinygettext/)
-ExternalProject_Add(tinygettext
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/tinygettext/"
-  CMAKE_ARGS
-  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-  -DBUILD_SHARED_LIBS=OFF
-  -DHAVE_SDL=ON
-  -DCMAKE_INSTALL_PREFIX=${TINYGETTEXT_PREFIX}
-  -DSDL2_INCLUDE_DIRS=${SDL2_INCLUDE_DIRS}
-  -DLIB_SUFFIX=${LIB_SUFFIX})
+# Built in this project's own scope rather than as an external project,
+# so that it reads SDL2_INCLUDE_DIRS directly instead of having the list
+# passed to it through a command line that would split on the separator.
+# Both settings have to be cache entries because tinygettext declares
+# them with option(), which under its own policy scope takes precedence
+# over an ordinary variable.
+SET(HAVE_SDL ON CACHE BOOL "Use SDL_iconv" FORCE)
+SET(BUILD_SHARED_LIBS OFF CACHE BOOL "Build tinygettext as a static archive" FORCE)
 
-ADD_LIBRARY(tinygettext_lib STATIC IMPORTED)
-SET_TARGET_PROPERTIES(tinygettext_lib PROPERTIES IMPORTED_LOCATION "${TINYGETTEXT_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}tinygettext${CMAKE_STATIC_LIBRARY_SUFFIX}")
+# tinygettext still declares cmake_minimum_required(VERSION 2.4), which
+# current CMake rejects outright. The override is dropped again straight
+# after so that it applies to nothing else.
+SET(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+ADD_SUBDIRECTORY(external/tinygettext EXCLUDE_FROM_ALL)
+UNSET(CMAKE_POLICY_VERSION_MINIMUM)
 
-INCLUDE_DIRECTORIES(SYSTEM ${TINYGETTEXT_PREFIX}/include)
+ADD_LIBRARY(tinygettext_lib ALIAS tinygettext)
+
+INCLUDE_DIRECTORIES(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/include)
 
 ## Some additional include paths
 
@@ -617,7 +607,7 @@ TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC tinygettext_lib)
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC sexp)
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
-TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC Boost::filesystem Boost::date_time)
 IF(USE_SYSTEM_PHYSFS)
     TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${PHYSFS_LIBRARY})
 ELSE()
@@ -781,7 +771,7 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 ## CPack/Installation-specific stuff
 
 INCLUDE(InstallRequiredSystemLibraries)
-SET(DIRS ${Boost_LIBRARY_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
+SET(DIRS ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DISABLE_CPACK_BUNDLING)
     SET(INFOPLIST_CFBUNDLEEXECUTABLE "SuperTux")
@@ -884,7 +874,6 @@ MARK_AS_ADVANCED(
 
 MARK_AS_ADVANCED(
   Boost_INCLUDE_DIR
-  Boost_LIBRARIES
 )
 
 MARK_AS_ADVANCED(
