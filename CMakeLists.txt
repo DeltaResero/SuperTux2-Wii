@@ -523,11 +523,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
 endif()
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  ADD_DEFINITIONS(-DMACOSX)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-
 ## On Windows, add an icon
 
 IF(WIN32)
@@ -610,10 +605,6 @@ IF(USE_SYSTEM_PHYSFS)
 ELSE()
     ADD_DEPENDENCIES(supertux2_lib physfs)
     TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC physfs_lib)
-    IF(APPLE)
-        TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC "-framework CoreFoundation")
-		TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC "-framework IOKit")
-    ENDIF()
 ENDIF()
 
 IF(HAVE_OPENGL)
@@ -657,7 +648,6 @@ endif()
 
 ## Install stuff
 
-OPTION(DISABLE_CPACK_BUNDLING "Build an .app bundle without CPack" OFF)
 IF(WIN32 AND NOT UNIX)
 
   SET(INSTALL_SUBDIR_BIN "bin" CACHE STRING "Installation subdir for binaries")
@@ -684,33 +674,14 @@ IF(WIN32 AND NOT UNIX)
   ENDIF()
 
 ELSE(WIN32 AND NOT UNIX)
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
-
-  SET(INFOPLIST_CFBUNDLEEXECUTABLE "supertux2")
-
-  SET(INSTALL_SUBDIR_BIN "SuperTux.app/Contents/MacOS" CACHE STRING "Installation subdir for binaries")
-  SET(INSTALL_SUBDIR_SHARE "SuperTux.app/Contents/Resources/data" CACHE STRING "Installation subdir for data")
-  SET(INSTALL_SUBDIR_DOC "SuperTux.app/Contents/Resources" CACHE STRING "Installation subdir for docs")
-
-  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/info.plist.in ${CMAKE_BINARY_DIR}/tools/darwin/info.plist)
-  INSTALL(FILES ${CMAKE_BINARY_DIR}/tools/darwin/info.plist DESTINATION "SuperTux.app/Contents/")
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/receipt DESTINATION "SuperTux.app/Contents/_MASReceipt/")
-
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.icns DESTINATION "SuperTux.app/Contents/Resources/")
-
-ELSE(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
-
   SET(INSTALL_SUBDIR_BIN "games" CACHE STRING "Installation subdir for binaries")
   SET(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
   SET(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
 
   INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop DESTINATION "share/applications")
 
-  SET(APPS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${INSTALL_SUBDIR_BIN}/supertux2")
-
   INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
 
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
 ENDIF(WIN32 AND NOT UNIX)
 
 INSTALL(TARGETS supertux2 DESTINATION ${INSTALL_SUBDIR_BIN})
@@ -768,41 +739,6 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 ## CPack/Installation-specific stuff
 
 INCLUDE(InstallRequiredSystemLibraries)
-SET(DIRS ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DISABLE_CPACK_BUNDLING)
-    SET(INFOPLIST_CFBUNDLEEXECUTABLE "SuperTux")
-
-    FIND_PACKAGE(png)
-    foreach (_file ${PNG_LIBRARIES})
-        get_filename_component(_resolvedFile "${_file}" REALPATH)
-        get_filename_component(_name "${_file}" NAME)
-	INSTALL(FILES ${_resolvedFile} DESTINATION "MacOS" RENAME ${_name})
-    endforeach()
-    FIND_PACKAGE(jpeg)
-    foreach (_file ${JPEG_LIBRARIES})
-        get_filename_component(_resolvedFile "${_file}" REALPATH)
-        get_filename_component(_name "${_file}" NAME)
-	INSTALL(FILES ${_resolvedFile} DESTINATION "MacOS" RENAME ${_name})
-    endforeach()
-
-    INSTALL(CODE "
-       if(\"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/\" MATCHES \".*\\\\.app.*\")
-       include(BundleUtilities)
-       fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
-       endif()
-       ")
-
-    CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/info.plist.in" "${CMAKE_BINARY_DIR}/tools/darwin/info.plist")
-
-    SET(CPACK_BUNDLE_NAME "SuperTux")
-    SET(CPACK_BUNDLE_PLIST "${CMAKE_BINARY_DIR}/tools/darwin/info.plist")
-    SET(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.icns")
-    SET(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/startup.sh")
-    SET(CPACK_DMG_VOLUME_NAME "SuperTux ${SUPERTUX_VERSION_STRING}")
-    SET(CPACK_DMG_DS_STORE "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/DS_Store")
-    SET(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/background.png")
-ENDIF()
 
 
 
@@ -861,8 +797,6 @@ MARK_AS_ADVANCED(
   CMAKE_INSTALL_PREFIX
   EXECUTABLE_OUTPUT_PATH
   LIBRARY_OUTPUT_PATH
-  CMAKE_OSX_ARCHITECTURES
-  CMAKE_OSX_SYSROOT
 )
 
 MARK_AS_ADVANCED(
