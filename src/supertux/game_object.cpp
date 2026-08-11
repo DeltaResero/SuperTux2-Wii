@@ -73,11 +73,4 @@ GameObject::del_remove_listener(ObjectRemoveListener* listener)
   }
 }
 
-void
-GameObject::save(Writer& writer) {
-  if(name != "") {
-    writer.write("name", name, false);
-  }
-}
-
 /* EOF */

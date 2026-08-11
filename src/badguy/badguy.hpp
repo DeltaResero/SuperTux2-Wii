@@ -45,7 +45,6 @@ public:
       state and calls active_update and inactive_update */
   virtual void update(float elapsed_time) override;
 
-  virtual void save(Writer& writer) override;
   virtual std::string get_class() const override {
     return "badguy";
   }

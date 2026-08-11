@@ -59,12 +59,6 @@ SequenceTrigger::~SequenceTrigger()
 }
 
 void
-SequenceTrigger::save(Writer& writer) {
-  MovingObject::save(writer);
-  writer.write("sequence", sequence_to_string(sequence), false);
-}
-
-void
 SequenceTrigger::event(Player& player, EventType type)
 {
   if(type == triggerevent) {

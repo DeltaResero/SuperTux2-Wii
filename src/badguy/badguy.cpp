@@ -267,15 +267,6 @@ BadGuy::update(float elapsed_time)
   on_ground_flag = false;
 }
 
-void
-BadGuy::save(Writer& writer) {
-  MovingSprite::save(writer);
-  writer.write("direction", dir_to_string(dir), false);
-  if(!dead_script.empty()) {
-    writer.write("dead-script", dead_script, false);
-  }
-}
-
 Direction
 BadGuy::str2dir(const std::string& dir_str) const
 {

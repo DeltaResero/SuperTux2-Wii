@@ -99,25 +99,6 @@ Gradient::Gradient(const ReaderMapping& reader) :
 
 }
 
-void
-Gradient::save(Writer& writer) {
-  GameObject::save(writer);
-  writer.write("layer", layer);
-  switch (gradient_direction) {
-    case HORIZONTAL:        writer.write("direction", "horizontal"       , false); break;
-    case VERTICAL_SECTOR:   writer.write("direction", "vertical_sector"  , false); break;
-    case HORIZONTAL_SECTOR: writer.write("direction", "horizontal_sector", false); break;
-    case VERTICAL: break;
-  }
-  if(gradient_direction == HORIZONTAL || gradient_direction == HORIZONTAL_SECTOR) {
-    writer.write("left_color" , gradient_top.toVector());
-    writer.write("right_color", gradient_bottom.toVector());
-  } else {
-    writer.write("top_color"   , gradient_top.toVector());
-    writer.write("bottom_color", gradient_bottom.toVector());
-  }
-}
-
 Gradient::~Gradient()
 {
 }

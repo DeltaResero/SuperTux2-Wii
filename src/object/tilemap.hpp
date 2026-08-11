@@ -40,7 +40,6 @@ public:
   TileMap(const TileSet *tileset, const ReaderMapping& reader);
   virtual ~TileMap();
 
-  virtual void save(Writer& writer);
   std::string get_display_name() const {
     return _("Tile map");
   }

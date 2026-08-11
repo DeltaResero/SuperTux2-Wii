@@ -21,7 +21,6 @@
 #include <string>
 
 #include "util/gettext.hpp"
-#include "util/writer.hpp"
 
 class DrawingContext;
 class GameObject;
@@ -61,7 +60,6 @@ public:
   /** This function saves the object.
    *  Editor will use that.
    */
-  virtual void save(Writer& writer);
   virtual std::string get_class() const {
     return "game-object";
   }

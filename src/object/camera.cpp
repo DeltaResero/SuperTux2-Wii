@@ -27,7 +27,6 @@
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 
 /* this is the fractional distance toward the peek
    position to move each frame; lower is slower,
@@ -115,22 +114,6 @@ public:
     }
   }
 };
-
-void
-Camera::save(Writer& writer){
-  GameObject::save(writer);
-  if (defaultmode == AUTOSCROLL && !autoscroll_path->is_valid()) {
-    defaultmode = NORMAL;
-  }
-  switch (defaultmode) {
-    case NORMAL: writer.write("mode", "normal", false); break;
-    case MANUAL: writer.write("mode", "manual", false); break;
-    case AUTOSCROLL:
-      writer.write("mode", "autoscroll", false);
-      autoscroll_path->save(writer);
-    case SCROLLTO: break;
-  }
-}
 
 Camera::Camera(Sector* newsector, const std::string& name_) :
   ExposedObject<Camera, scripting::Camera>(this),

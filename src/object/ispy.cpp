@@ -51,14 +51,6 @@ Ispy::Ispy(const ReaderMapping& reader) :
   sprite->set_action((dir == DOWN) ? "idle-down" : ((dir == LEFT) ? "idle-left" : "idle-right"));
 }
 
-void
-Ispy::save(Writer& writer) {
-  MovingSprite::save(writer);
-  if(dir != AUTO) {
-    writer.write("direction", dir_to_string(dir), false);
-  }
-}
-
 HitResponse
 Ispy::collision(GameObject& , const CollisionHit& )
 {

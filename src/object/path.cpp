@@ -26,7 +26,6 @@
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/log.hpp"
-#include "util/writer.hpp"
 
 Path::Path() :
   nodes(),
@@ -95,30 +94,6 @@ Path::read(const ReaderMapping& reader)
 
   if (nodes.empty())
     throw std::runtime_error("Path with zero nodes");
-}
-
-void
-Path::save(Writer& writer) {
-  if (!is_valid()) return;
-
-  writer.start_list("path");
-
-  switch (mode) {
-    case ONE_SHOT:  writer.write("mode", "oneshot"  , false); break;
-    case PING_PONG: writer.write("mode", "pingpong" , false); break;
-    case CIRCULAR:  writer.write("mode", "circular" , false); break;
-    case UNORDERED: writer.write("mode", "unordered", false); break;
-  }
-
-  for(auto& nod : nodes) {
-    writer.start_list("node");
-    writer.write("x", nod.position.x);
-    writer.write("y", nod.position.y);
-    writer.write("time", nod.time);
-    writer.end_list("node");
-  }
-
-  writer.end_list("path");
 }
 
 Vector

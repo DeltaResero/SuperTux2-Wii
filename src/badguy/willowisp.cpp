@@ -81,12 +81,6 @@ WillOWisp::WillOWisp(const ReaderMapping& reader) :
 }
 
 void
-WillOWisp::save(Writer& writer) {
-  BadGuy::save(writer);
-  writer.write("running", mystate == STATE_PATHMOVING_TRACK);
-}
-
-void
 WillOWisp::active_update(float elapsed_time)
 {
   auto player = get_nearest_player();

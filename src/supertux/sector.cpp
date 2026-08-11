@@ -52,7 +52,6 @@
 #include "util/file_system.hpp"
 #include "util/reader_collection.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 
 Sector* Sector::_current = 0;
 
@@ -1406,40 +1405,6 @@ void Sector::play_looping_sounds()
   for(const auto& object : gameobjects) {
     object->play_looping_sounds();
   }
-}
-
-void
-Sector::save(Writer &writer)
-{
-  writer.start_list("sector", false);
-
-  writer.write("name", name, false);
-  writer.write("ambient-light", ambient_light.toVector());
-
-  if (init_script.size()) {
-    writer.write("init-script", init_script,false);
-  }
-  if (music.size()) {
-    writer.write("music", music, false);
-  }
-
-  writer.write("gravity", gravity);
-
-  // saving spawnpoints
-  /*for(auto i = spawnpoints.begin(); i != spawnpoints.end(); ++i) {
-    std::shared_ptr<SpawnPoint> spawny = *i;
-    spawny->save(writer);
-  }*/
-  // Do not save spawnpoints since we have spawnpoint markers.
-
-  // saving oběcts (not really)
-  for(auto& obj : gameobjects) {
-    writer.start_list(obj->get_class());
-    obj->save(writer);
-    writer.end_list(obj->get_class());
-  }
-
-  writer.end_list("sector");
 }
 
 /* vim: set sw=2 sts=2 et : */

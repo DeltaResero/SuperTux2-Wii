@@ -24,7 +24,6 @@
 #include "math/vector.hpp"
 
 class ReaderMapping;
-class Writer;
 
 class Path
 {
@@ -34,7 +33,6 @@ public:
   ~Path();
 
   void read(const ReaderMapping& reader);
-  void save(Writer& writer);
 
   Vector get_base() const;
 

@@ -30,11 +30,4 @@ MovingObject::~MovingObject()
 {
 }
 
-void
-MovingObject::save(Writer& writer) {
-  GameObject::save(writer);
-  writer.write("x", bbox.p1.x);
-  writer.write("y", bbox.p1.y);
-}
-
 /* EOF */

@@ -59,13 +59,6 @@ Platform::Platform(const ReaderMapping& reader, const std::string& default_sprit
   }
 }
 
-void
-Platform::save(Writer& writer) {
-  MovingSprite::save(writer);
-  writer.write("running", walker->is_moving());
-  path->save(writer);
-}
-
 /*
   Platform::Platform(const Platform& other) :
   MovingSprite(other),

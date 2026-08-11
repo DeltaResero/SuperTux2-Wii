@@ -102,7 +102,6 @@ public:
   /** This function saves the object.
    *  Editor will use that.
    */
-  virtual void save(Writer& writer);
   virtual std::string get_class() const {
     return "moving-object";
   }

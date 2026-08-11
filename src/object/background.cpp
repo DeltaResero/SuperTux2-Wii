@@ -144,22 +144,6 @@ Background::~Background()
 }
 
 void
-Background::save(Writer& writer) {
-  GameObject::save(writer);
-  switch (alignment) {
-    case LEFT_ALIGNMENT:   writer.write("alignment", "left",   false); break;
-    case RIGHT_ALIGNMENT:  writer.write("alignment", "right",  false); break;
-    case TOP_ALIGNMENT:    writer.write("alignment", "top",    false); break;
-    case BOTTOM_ALIGNMENT: writer.write("alignment", "bottom", false); break;
-    case NO_ALIGNMENT: break;
-  }
-
-  if (speed_y != speed) {
-    writer.write("speed_y", speed_y);
-  }
-}
-
-void
 Background::update(float delta)
 {
   scroll_offset += scroll_speed * delta;
