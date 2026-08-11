@@ -56,10 +56,9 @@ in the library package.
 
 **Note II:** We tried to write our code clean, portable and platform neutral,
 so it should be possible to compile it on a wide range of platforms and also
-with other compilers than gcc or clang. We use [Travis CI](https://travis-ci.org/)
-to test commits and pull requests in our repository, but unfortunately it's not
-always possible to test the code in very exotic setups. However, feel free to
-report issues to our bug tracker on GitHub or to supertux-devel@lists.lethargik.org.
+with other compilers than gcc or clang. It is not always possible to test the
+code in very exotic setups, so feel free to report issues to our bug tracker on
+GitHub or to supertux-devel@lists.lethargik.org.
 
 **Note III (regarding glbinding):** To use glbinding instead of GLEW, call `cmake`
 with the flag -DGLBINDING_ENABLED=ON

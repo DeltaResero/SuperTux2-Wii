@@ -36,10 +36,7 @@ using namespace gl;
 #  include <GL/glew.h>
 #endif
 
-#if defined(MACOSX)
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glext.h>
-#elif defined(GL_VERSION_ES_CM_1_0)
+#if defined(GL_VERSION_ES_CM_1_0)
 #  include <GLES/gl.h>
 #  include <GLES/glext.h>
 #else

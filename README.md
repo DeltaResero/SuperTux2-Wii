@@ -1,8 +1,5 @@
 # SuperTux
 
-[![Build Status](https://travis-ci.org/SuperTux/supertux.svg?branch=master)](https://travis-ci.org/SuperTux/supertux)
-[![AppVeyor Build Satus](https://ci.appveyor.com/api/projects/status/github/SuperTux/supertux?svg=true&branch=master)](https://ci.appveyor.com/project/supertux/supertux-9ml4d/branch/master)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/4025/badge.svg)](https://scan.coverity.com/projects/4025)
 [![Github All Releases](https://img.shields.io/github/downloads/supertux/supertux/total.svg?maxAge=2592000)](https://github.com/SuperTux/supertux)
 [![#supertux on freenode](https://img.shields.io/badge/freenode-%23supertux-brightgreen.svg)](https://webchat.freenode.net/?channels=supertux)
 
@@ -39,12 +36,9 @@ Please see them:
 
 * `INSTALL.md` - Requirements, compiling and installing.
 * `README.md` - This file
-* `NEWS.md` - Changes since the previous versions of SuperTux.
-* `LICENSE.txt` - The GNU General Public License, under whose terms SuperTux is
+* `LICENSE` - The GNU General Public License, under whose terms SuperTux is
 licensed. (Most of the data subdirectory is also licensed under
 CC-by-SA)
-* `docs/levelguidelines.txt` - Very useful information for those that want to
-design levels for SuperTux.
 * `data/credits.stxt` - Credits for people that contributed to the creation of
 SuperTux. (You can view these in the game menu as well.)
 
