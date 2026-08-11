@@ -34,7 +34,7 @@ public:
    *    |  \             \ |        /  |       | /
    *    *---*              *       *---*       *
    *
-   * Deform flags: (see docs/aatriangletypes.png for details)
+   * Deform flags:
    */
   enum Direction {
     SOUTHWEST = 0,
