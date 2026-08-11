@@ -166,11 +166,6 @@ void debug_draw_solids_only(bool enable)
   ::Sector::draw_solids_only = enable;
 }
 
-void debug_draw_editor_images(bool enable)
-{
-  Tile::draw_editor_images = enable;
-}
-
 void debug_worldmap_ghost(bool enable)
 {
   using namespace worldmap;

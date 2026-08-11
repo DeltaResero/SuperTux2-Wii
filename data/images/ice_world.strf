@@ -142,7 +142,6 @@
 (tiles
 	(width 4)(height 4)
 	(images "worldmap/shared/invisible_paths.png")
-	(editor-images "worldmap/shared/invisible_paths-editor.png")
 	(ids
 		30 31 32 33
 		34 35 36 37

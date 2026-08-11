@@ -23,13 +23,10 @@
 #include "math/aatriangle.hpp"
 #include "video/drawing_context.hpp"
 
-bool Tile::draw_editor_images = false;
 
 Tile::Tile() :
   imagespecs(),
   images(),
-  editor_imagespecs(),
-  editor_images(),
   attributes(0),
   data(0),
   fps(1),
@@ -38,13 +35,11 @@ Tile::Tile() :
 {
 }
 
-Tile::Tile(const std::vector<ImageSpec>& imagespecs_, const std::vector<ImageSpec>& editor_imagespecs_,
+Tile::Tile(const std::vector<ImageSpec>& imagespecs_,
            uint32_t attributes_, uint32_t data_, float fps_, std::string obj_name,
            std::string obj_data) :
   imagespecs(imagespecs_),
   images(),
-  editor_imagespecs(editor_imagespecs_),
-  editor_images(),
   attributes(attributes_),
   data(data_),
   fps(fps_),
@@ -83,41 +78,11 @@ Tile::load_images()
     }
   }
 
-  if(editor_images.size() == 0 && editor_imagespecs.size() != 0)
-  {
-    assert(editor_images.size() == 0);
-    for(const auto& spec : editor_imagespecs)
-    {
-      SurfacePtr surface;
-      if(spec.rect.get_width() <= 0)
-      {
-        surface = Surface::create(spec.file);
-      }
-      else
-      {
-        surface = Surface::create(spec.file,
-                                  Rect((int) spec.rect.p1.x,
-                                       (int) spec.rect.p1.y,
-                                       Size((int) spec.rect.get_width(),
-                                            (int) spec.rect.get_height())));
-      }
-      editor_images.push_back(surface);
-    }
-  }
 }
 
 SurfacePtr
 Tile::get_current_image() const
 {
-  if (draw_editor_images) {
-    if (editor_images.size() > 1) {
-      size_t frame = size_t(game_time * fps) % editor_images.size();
-      return editor_images[frame];
-    } else if (editor_images.size() == 1) {
-      return editor_images[0];
-    }
-  }
-
   if (images.size() > 1) {
     size_t frame = size_t(game_time * fps) % images.size();
     return images[frame];
@@ -154,8 +119,6 @@ void
 Tile::print_debug(int id) const
 {
   log_debug << " Tile: id " << id << ", data " << getData() << ", attributes " << getAttributes() << ":" << std::endl;
-  for(const auto& im : editor_imagespecs)
-    log_debug << "  Editor Imagespec: file " << im.file << "; rect " << im.rect << std::endl;
   for(const auto& im : imagespecs)
     log_debug << "  Imagespec:        file " << im.file << "; rect " << im.rect << std::endl;
 }

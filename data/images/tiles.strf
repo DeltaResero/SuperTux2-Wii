@@ -32,7 +32,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 14)")
-    (editor-images "objects/bonus_block/bonus-earth_flower.png")
     (data 14)
     (fps 15)
   )
@@ -55,7 +54,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 13)")
-    (editor-images "objects/bonus_block/bonus-air_flower.png")
     (data 13)
     (fps 15)
   )
@@ -78,7 +76,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 12)")
-    (editor-images "objects/bonus_block/bonus-levelflip.png")
     (data 12)
     (fps 15)
   )
@@ -101,7 +98,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 11)")
-    (editor-images "objects/bonus_block/bonus-explode.png")
     (data 11)
     (fps 15)
   )
@@ -124,7 +120,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 10)")
-    (editor-images "objects/bonus_block/bonus-rain.png")
     (data 10)
     (fps 15)
   )
@@ -147,7 +142,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 9)")
-    (editor-images "objects/bonus_block/bonus-rock.png")
     (data 9)
     (fps 15)
   )
@@ -170,7 +164,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 8)")
-    (editor-images "objects/bonus_block/bonus-porttramp.png")
     (data 8)
     (fps 15)
   )
@@ -193,7 +186,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 7)")
-    (editor-images "objects/bonus_block/bonus-tramp.png")
     (data 7)
     (fps 15)
   )
@@ -216,7 +208,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 6)")
-    (editor-images "objects/bonus_block/off.png")
     (data 6)
     (fps 15)
   )
@@ -668,7 +659,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 2)")
-    (editor-images "objects/bonus_block/bonus-fire_flower.png")
     (data 2)
     (fps 2)
   )
@@ -690,7 +680,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 3)")
-    (editor-images "objects/bonus_block/bonus-herring.png")
     (data 3)
     (fps 2)
   )
@@ -699,7 +688,6 @@
     (images
       "tiles/blocks/brick0.png"
     )
-    (editor-images "tiles/blocks/brick0_full.png")
     (solid #t)
     (object-name "brick")
     (object-data "(breakable #f) (sprite \"images/objects/bonus_block/brick.sprite\")")
@@ -709,7 +697,6 @@
     (images
       "tiles/blocks/brick1.png"
     )
-    (editor-images "tiles/blocks/brick1_full.png")
     (solid #t)
     (object-name "brick")
     (object-data "(breakable #f) (sprite \"images/objects/bonus_block/brickIce.sprite\")")
@@ -719,7 +706,6 @@
     (images
       "tiles/blocks/brick2.png"
     )
-    (editor-images "tiles/blocks/brick2_full.png")
     (solid #t)
     (object-name "brick")
     (object-data "(breakable #f) (sprite \"images/objects/bonus_block/brickWeb.sprite\")")
@@ -737,7 +723,6 @@
     (id 112)
     (solid #t)
     (object-name "invisible_block")
-    (editor-images "objects/bonus_block/bonus-invisible.png")
   )
   (tiles
     (width 3)
@@ -780,7 +765,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 4)")
-    (editor-images "objects/bonus_block/bonus-1up.png")
     (data 4)
     (fps 2)
   )
@@ -830,14 +814,12 @@
     (id 132)
     (object-name "sequencetrigger")
     (object-data "(width 32) (height 32) (sequence \"stoptux\")")
-    (editor-images "tiles/auxiliary/finalgoal.png")
     (data 1)
   )
   (tile
     (id 133)
     (object-name "sequencetrigger")
     (object-data "(width 32) (height 32) (sequence \"endsequence\")")
-    (editor-images "tiles/auxiliary/endseq.png")
   )
   ; For compatibility with 0.1.x levels, use tile to 1809-1814 instead
   (tile
@@ -882,7 +864,6 @@
     (solid #t)
     (object-name "bonusblock")
     (object-data "(sprite \"images/objects/bonus_block/bonusblock.sprite\") (data 5)")
-    (editor-images "objects/bonus_block/bonus-ice_flower.png")
     (data 5)
     (fps 2)
   )
@@ -1692,7 +1673,6 @@
   (tile
     (id 1311)
     (solid #t)
-    (editor-images "tiles/auxiliary/invisible-editor.png")
   )
   (tile
     (id 1312)
@@ -2944,7 +2924,6 @@
   (tile
     (id 2153)
     (unisolid #t)
-    (editor-images "tiles/auxiliary/invisible-unisolid-editor.png")
   )
 
 
@@ -3220,7 +3199,6 @@
         48   49   50   51
         64   65   66   67
     )
-    (editor-images "tiles/auxiliary/invisible-unisolid-slopes.png")
   )
 
   (tiles
