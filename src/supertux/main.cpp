@@ -52,7 +52,6 @@
 #include "supertux/title_screen.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "video/drawing_context.hpp"
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"

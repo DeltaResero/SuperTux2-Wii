@@ -48,7 +48,7 @@ public:
     return "goldbomb";
   }
   std::string get_display_name() const {
-    return _("Golden bomb");
+    return "Golden bomb";
   }
 
   void stop_looping_sounds();

@@ -40,7 +40,7 @@ public:
     return "toad";
   }
   std::string get_display_name() const {
-    return _("Toad");
+    return "Toad";
   }
 
 protected:

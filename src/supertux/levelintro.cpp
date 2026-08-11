@@ -26,7 +26,6 @@
 #include "supertux/sector.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/player_status.hpp"
-#include "util/gettext.hpp"
 
 #include <sstream>
 #include <boost/format.hpp>
@@ -117,7 +116,7 @@ LevelIntro::draw(DrawingContext& context)
 
   std::string author = level->get_author();
   if ((!author.empty()) && (author != "SuperTux Team")) {
-    std::string author_text = str(boost::format(_("contributed by %s")) % author);
+    std::string author_text = str(boost::format("contributed by %s") % author);
     context.draw_center_text(Resources::small_font, author_text, Vector(0, py), LAYER_FOREGROUND1, LevelIntro::author_color);
     py += static_cast<int>(Resources::small_font->get_height());
   }
@@ -138,20 +137,20 @@ LevelIntro::draw(DrawingContext& context)
   py += 32;
 
   {
-    context.draw_center_text(Resources::normal_font, std::string("- ") + _("Best Level Statistics") + std::string(" -"), Vector(0, py), LAYER_FOREGROUND1, LevelIntro::stat_hdr_color);
+    context.draw_center_text(Resources::normal_font, std::string("- ") + "Best Level Statistics" + std::string(" -"), Vector(0, py), LAYER_FOREGROUND1, LevelIntro::stat_hdr_color);
     py += static_cast<int>(Resources::normal_font->get_height());
   }
 
-  draw_stats_line(context, py, _("Coins"),
+  draw_stats_line(context, py, "Coins",
                   Statistics::coins_to_string((best_level_statistics && (best_level_statistics->coins >= 0)) ? best_level_statistics->coins : 0, stats.total_coins));
-  draw_stats_line(context, py, _("Badguys killed"),
+  draw_stats_line(context, py, "Badguys killed",
                   Statistics::frags_to_string((best_level_statistics && (best_level_statistics->coins >= 0)) ? best_level_statistics->badguys : 0, stats.total_badguys));
-  draw_stats_line(context, py, _("Secrets"),
+  draw_stats_line(context, py, "Secrets",
                   Statistics::secrets_to_string((best_level_statistics && (best_level_statistics->coins >= 0)) ? best_level_statistics->secrets : 0, stats.total_secrets));
-  draw_stats_line(context, py, _("Best time"),
+  draw_stats_line(context, py, "Best time",
                   Statistics::time_to_string((best_level_statistics && (best_level_statistics->coins >= 0)) ? best_level_statistics->time : 0));
   if(level->target_time) {
-    draw_stats_line(context, py, _("Level target time"),
+    draw_stats_line(context, py, "Level target time",
                   Statistics::time_to_string(level->target_time));
   }
 }

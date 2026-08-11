@@ -24,7 +24,6 @@
 #include "control/keyboard_manager.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/gameconfig.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "util/writer.hpp"
 

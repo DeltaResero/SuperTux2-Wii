@@ -41,7 +41,7 @@ public:
     return "flame";
   }
   std::string get_display_name() const {
-    return _("Flame");
+    return "Flame";
   }
 
   void stop_looping_sounds();

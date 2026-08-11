@@ -37,7 +37,7 @@ public:
     return "decal";
   }
   std::string get_display_name() const {
-    return _("Decal");
+    return "Decal";
   }
 
 private:

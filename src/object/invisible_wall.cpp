@@ -16,7 +16,6 @@
 
 #include "object/invisible_wall.hpp"
 
-#include "util/gettext.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
 

@@ -45,7 +45,7 @@ public:
     return "ghosttree";
   }
   std::string get_display_name() const {
-    return _("Ghost tree");
+    return "Ghost tree";
   }
 
 private:

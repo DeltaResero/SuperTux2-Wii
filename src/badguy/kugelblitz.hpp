@@ -40,7 +40,7 @@ public:
     return "kugelblitz";
   }
   std::string get_display_name() const {
-    return _("Kugelblitz");
+    return "Kugelblitz";
   }
 
 private:

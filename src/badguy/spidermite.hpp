@@ -36,7 +36,7 @@ public:
     return "spidermite";
   }
   std::string get_display_name() const {
-    return _("Spider mite");
+    return "Spider mite";
   }
 
 protected:

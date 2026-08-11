@@ -84,7 +84,7 @@ public:
     return "camera";
   }
   std::string get_display_name() const {
-    return _("Camera");
+    return "Camera";
   }
 
   Path* get_path() const;

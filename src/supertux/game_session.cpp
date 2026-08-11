@@ -46,7 +46,6 @@
 #include "supertux/screen_manager.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "worldmap/worldmap.hpp"
 
 #ifdef WIN32

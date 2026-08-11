@@ -39,7 +39,7 @@ public:
     return "coin";
   }
   std::string get_display_name() const {
-    return _("Coin");
+    return "Coin";
   }
 
   Path* get_path() const {

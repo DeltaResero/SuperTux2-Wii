@@ -38,7 +38,7 @@ public:
     return "infoblock";
   }
   std::string get_display_name() const {
-    return _("Info block");
+    return "Info block";
   }
 
 protected:

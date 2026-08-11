@@ -57,7 +57,7 @@ public:
     return "scriptedobject";
   }
   std::string get_display_name() const {
-    return _("Scripted object");
+    return "Scripted object";
   }
 
 private:

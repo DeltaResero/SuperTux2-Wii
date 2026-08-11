@@ -33,7 +33,7 @@ public:
     return "captainsnowball";
   }
   std::string get_display_name() const {
-    return _("Captain snowball");
+    return "Captain snowball";
   }
 
 protected:

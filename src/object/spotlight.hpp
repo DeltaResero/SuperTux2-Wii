@@ -40,7 +40,7 @@ public:
     return "spotlight";
   }
   std::string get_display_name() const {
-    return _("Spotlight");
+    return "Spotlight";
   }
 
 private:

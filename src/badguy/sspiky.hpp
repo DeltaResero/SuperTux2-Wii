@@ -36,7 +36,7 @@ public:
     return "sspiky";
   }
   std::string get_display_name() const {
-    return _("Sleeping spiky");
+    return "Sleeping spiky";
   }
 
 protected:

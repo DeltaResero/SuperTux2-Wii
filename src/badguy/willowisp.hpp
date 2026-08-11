@@ -57,7 +57,7 @@ public:
     return "willowisp";
   }
   std::string get_display_name() const {
-    return _("Will 'o' wisp");
+    return "Will 'o' wisp";
   }
 
   Path* get_path() const {

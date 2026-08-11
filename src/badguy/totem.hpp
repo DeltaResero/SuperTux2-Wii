@@ -38,7 +38,7 @@ public:
     return "totem";
   }
   std::string get_display_name() const {
-    return _("Totem");
+    return "Totem";
   }
 
 protected:

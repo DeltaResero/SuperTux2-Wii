@@ -48,7 +48,7 @@ public:
     return "mriceblock";
   }
   std::string get_display_name() const {
-    return _("Mr. Ice Block");
+    return "Mr. Ice Block";
   }
 
 protected:
@@ -82,7 +82,7 @@ public:
     return "smartblock";
   }
   std::string get_display_name() const {
-    return _("Smart Block");
+    return "Smart Block";
   }
 };
 

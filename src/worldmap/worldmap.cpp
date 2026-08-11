@@ -60,7 +60,6 @@
 #include "supertux/tile_set.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "util/reader.hpp"
 #include "util/reader_collection.hpp"
@@ -330,7 +329,7 @@ void
 WorldMap::load_level_information(LevelTile& level)
 {
   /** get special_tile's title */
-  level.title = _("<no title>");
+  level.title = "<no title>";
   level.target_time = 0.0f;
 
   try {

@@ -40,7 +40,7 @@ public:
     return "mole";
   }
   std::string get_display_name() const {
-    return _("Mole");
+    return "Mole";
   }
 
 private:

@@ -41,7 +41,7 @@ public:
     return "fish";
   }
   std::string get_display_name() const {
-    return _("Fish");
+    return "Fish";
   }
 
 private:

@@ -37,7 +37,7 @@ public:
     return "zeekling";
   }
   std::string get_display_name() const {
-    return _("Zeekling");
+    return "Zeekling";
   }
 
 private:

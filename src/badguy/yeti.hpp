@@ -41,7 +41,7 @@ public:
     return "yeti";
   }
   std::string get_display_name() const {
-    return _("Yeti");
+    return "Yeti";
   }
 
 private:

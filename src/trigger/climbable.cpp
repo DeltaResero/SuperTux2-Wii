@@ -20,7 +20,6 @@
 #include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/object_factory.hpp"
-#include "util/gettext.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
 
@@ -82,7 +81,7 @@ Climbable::draw(DrawingContext& context)
     context.push_transform();
     context.set_translation(Vector(0, 0));
     Vector pos = Vector(0, SCREEN_HEIGHT/2 - Resources::normal_font->get_height()/2);
-    context.draw_center_text(Resources::normal_font, _(message), pos, LAYER_HUD, Climbable::text_color);
+    context.draw_center_text(Resources::normal_font, message, pos, LAYER_HUD, Climbable::text_color);
     context.pop_transform();
   }
 }

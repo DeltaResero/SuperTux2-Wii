@@ -35,7 +35,7 @@ public:
   }
 
   std::string get_display_name() const {
-    return _("Ice flame");
+    return "Ice flame";
   }
 };
 

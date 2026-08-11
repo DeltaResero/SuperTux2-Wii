@@ -20,7 +20,6 @@
 #include <memory>
 #include <string>
 
-#include "util/gettext.hpp"
 
 class DrawingContext;
 class GameObject;
@@ -64,7 +63,7 @@ public:
     return "game-object";
   }
   virtual std::string get_display_name() const {
-    return _("Unknown object");
+    return "Unknown object";
   }
 
   /** returns true if the object is not scheduled to be removed yet */

@@ -41,7 +41,7 @@ public:
     return "rustytrampoline";
   }
   std::string get_display_name() const {
-    return _("Rusty trampoline");
+    return "Rusty trampoline";
   }
 
 private:

@@ -35,7 +35,7 @@ public:
     return "bicycle-platform";
   }
   std::string get_display_name() const {
-    return _("Bicycle platform");
+    return "Bicycle platform";
   }
 
   bool do_save() const {

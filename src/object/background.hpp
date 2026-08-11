@@ -54,7 +54,7 @@ public:
   { return layer; }
 
   std::string get_display_name() const {
-    return _("Background");
+    return "Background";
   }
 
 private:

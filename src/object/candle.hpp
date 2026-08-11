@@ -47,7 +47,7 @@ public:
     return "candle";
   }
   std::string get_display_name() const {
-    return _("Candle");
+    return "Candle";
   }
 
 private:

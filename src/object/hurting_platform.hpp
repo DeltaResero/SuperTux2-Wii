@@ -32,7 +32,7 @@ public:
     return "hurting_platform";
   }
   std::string get_display_name() const {
-    return _("Hurting platform");
+    return "Hurting platform";
   }
 
 private:

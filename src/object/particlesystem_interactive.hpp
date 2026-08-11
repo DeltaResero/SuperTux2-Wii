@@ -41,7 +41,7 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_display_name() const override
   {
-    return _("Interactive particle system");
+    return "Interactive particle system";
   }
 
 protected:

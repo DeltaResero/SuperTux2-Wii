@@ -31,7 +31,7 @@ public:
     return "crystallo";
   }
   std::string get_display_name() const {
-    return _("Crystallo");
+    return "Crystallo";
   }
 
   void active_update(float elapsed_time);

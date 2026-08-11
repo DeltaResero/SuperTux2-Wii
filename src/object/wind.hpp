@@ -59,7 +59,7 @@ public:
     return "wind";
   }
   std::string get_display_name() const {
-    return _("Wind");
+    return "Wind";
   }
 
 private:

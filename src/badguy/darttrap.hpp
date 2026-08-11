@@ -33,7 +33,7 @@ public:
     return "darttrap";
   }
   std::string get_display_name() const {
-    return _("Dart trap");
+    return "Dart trap";
   }
 
 protected:

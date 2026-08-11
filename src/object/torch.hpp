@@ -37,7 +37,7 @@ public:
     return "torch";
   }
   std::string get_display_name() const override {
-    return _("Torch");
+    return "Torch";
   }
 
 private:

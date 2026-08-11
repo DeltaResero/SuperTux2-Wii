@@ -31,7 +31,6 @@
 #include "supertux/resources.hpp"
 #include "supertux/screen_manager.hpp"
 #include "supertux/timer.hpp"
-#include "util/gettext.hpp"
 #include "video/color.hpp"
 #include "video/drawing_context.hpp"
 #include "video/font.hpp"

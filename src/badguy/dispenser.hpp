@@ -37,7 +37,7 @@ public:
     return "dispenser";
   }
   std::string get_display_name() const {
-    return _("Dispenser");
+    return "Dispenser";
   }
   std::string get_type_string() const {
     switch(type) {

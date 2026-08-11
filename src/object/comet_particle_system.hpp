@@ -42,7 +42,7 @@ public:
     return "particles-comets";
   }
   std::string get_display_name() const {
-    return _("Comet particles");
+    return "Comet particles";
   }
 
 private:

@@ -37,7 +37,7 @@ public:
     return "trampoline";
   }
   std::string get_display_name() const {
-    return _("Trampoline");
+    return "Trampoline";
   }
 
 private:

@@ -31,7 +31,6 @@
 #include "supertux/textscroller.hpp"
 #include "supertux/tile.hpp"
 #include "supertux/world.hpp"
-#include "util/gettext.hpp"
 #include "video/renderer.hpp"
 #include "video/video_system.hpp"
 #include "worldmap/tux.hpp"

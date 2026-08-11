@@ -32,7 +32,7 @@ public:
   }
 
   std::string get_display_name() const {
-    return _("Ghost flame");
+    return "Ghost flame";
   }
 };
 

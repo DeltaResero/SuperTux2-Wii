@@ -54,7 +54,7 @@ public:
   }
 
   std::string get_display_name() const {
-    return _("Gradient");
+    return "Gradient";
   }
 
   int get_layer() const

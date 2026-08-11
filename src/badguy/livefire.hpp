@@ -37,7 +37,7 @@ public:
     return "livefire";
   }
   virtual std::string get_display_name() const override {
-    return _("Live fire");
+    return "Live fire";
   }
 
 private:
@@ -63,7 +63,7 @@ public:
     return "livefire_asleep";
   }
   std::string get_display_name() const {
-    return _("Sleeping live fire");
+    return "Sleeping live fire";
   }
 };
 
@@ -77,7 +77,7 @@ public:
     return "livefire_dormant";
   }
   std::string get_display_name() const {
-    return _("Dormant live fire");
+    return "Dormant live fire";
   }
 };
 

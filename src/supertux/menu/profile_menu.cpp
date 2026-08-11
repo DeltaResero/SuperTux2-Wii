@@ -23,28 +23,27 @@
 #include "gui/menu_item.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
-#include "util/gettext.hpp"
 
 ProfileMenu::ProfileMenu()
 {
-  add_label(_("Select Profile"));
+  add_label("Select Profile");
   add_hl();
   for(int i = 1; i <= 5; ++i)
   {
     std::ostringstream out;
     if (i == g_config->profile)
     {
-      out << str(boost::format(_("[Profile %s]")) %i);
+      out << str(boost::format("[Profile %s]") %i);
     }
     else
     {
-      out << str(boost::format(_("Profile %s")) %i);
+      out << str(boost::format("Profile %s") %i);
     }
     add_entry(i, out.str());
   }
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

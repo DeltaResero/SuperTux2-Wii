@@ -69,7 +69,7 @@ public:
     return "leveltime";
   }
   std::string get_display_name() const {
-    return _("Level time");
+    return "Level time";
   }
 
 private:

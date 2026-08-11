@@ -34,7 +34,7 @@ public:
     return "angrystone";
   }
   std::string get_display_name() const {
-    return _("Angry stone");
+    return "Angry stone";
   }
 
 protected:
