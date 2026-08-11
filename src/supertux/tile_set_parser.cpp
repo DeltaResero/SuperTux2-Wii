@@ -55,15 +55,6 @@ TileSetParser::parse()
       ReaderMapping tile_mapping = iter.as_mapping();
       parse_tile(tile_mapping);
     }
-    else if (iter.get_key() == "tilegroup")
-    {
-      /* tilegroups are only interesting for the editor */
-      ReaderMapping reader = iter.as_mapping();
-      Tilegroup tilegroup;
-      reader.get("name", tilegroup.name);
-      reader.get("tiles", tilegroup.tiles);
-      m_tileset.tilegroups.push_back(tilegroup);
-    }
     else if (iter.get_key() == "tiles")
     {
       ReaderMapping tiles_mapping = iter.as_mapping();
