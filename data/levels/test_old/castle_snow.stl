@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Snow Castle Theme Test"))
+  (name "Snow Castle Theme Test")
   (author "Ingo Ruhnke")
   (sector
     (name "main")

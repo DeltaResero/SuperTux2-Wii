@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Bad Guys Stink!"))
+  (name "Bad Guys Stink!")
   (author "Jason W. Thompson")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)

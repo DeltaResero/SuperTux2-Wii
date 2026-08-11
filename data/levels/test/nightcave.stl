@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "NightCave test"))
+  (name "NightCave test")
   (author "ingo")
   (sector
     (name "main")

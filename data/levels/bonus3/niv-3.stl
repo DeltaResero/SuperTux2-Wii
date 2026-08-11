@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "The Toilette zone"))
+  (name "The Toilette zone")
   (author "GiBy")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 90)
@@ -26,8 +26,8 @@
       (y 608)
     )
     (infoblock
-      (message (_ "- Flush: 
-#Press the up key to flush! "))
+      (message "- Flush: 
+#Press the up key to flush! ")
       (x 896)
       (y 576)
     )
@@ -213,8 +213,8 @@
     (particles-ghosts
     )
     (infoblock
-      (message (_ "- A Way out?
-#Let's Jump! "))
+      (message "- A Way out?
+#Let's Jump! ")
       (x 2912)
       (y 96)
     )

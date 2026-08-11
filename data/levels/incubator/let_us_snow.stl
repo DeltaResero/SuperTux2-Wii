@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Let us snow!"))
+  (name "Let us snow!")
   (author "Hume")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)
@@ -202,8 +202,8 @@
       (bottom_color 1 1 1)
     )
     (infoblock
-      (message (_ "-Warning!
-#Beware the falling enemies!"))
+      (message "-Warning!
+#Beware the falling enemies!")
       (x 352)
       (y 928)
     )

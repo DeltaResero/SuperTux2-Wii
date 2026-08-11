@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Bonus Island II"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "Bonus Island II")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "SuperTux Team")
   (contact "http://developer.berlios.de/projects/supertux/")
   (license "GPL 2 / CC-by-sa 3.0")
@@ -9,7 +9,7 @@
     (music "music/salcon.ogg")
     (ambient-light 1 1 1)
     (special-tile
-      (map-message (_ "You found a secret place!"))
+      (map-message "You found a secret place!")
       (invisible-tile #t)
       (passive-message #t)
       (apply-to-direction "west")
@@ -17,7 +17,7 @@
       (y 20)
     )
     (special-tile
-      (map-message (_ "You found a secret place!"))
+      (map-message "You found a secret place!")
       (invisible-tile #t)
       (passive-message #t)
       (apply-to-direction "west")
@@ -26,14 +26,14 @@
     )
     (teleporter
       (spawnpoint "castle")
-      (message (_ "I wonder where that path leads to..."))
+      (message "I wonder where that path leads to...")
       (x 60)
       (y 20)
       (sprite "images/worldmap/common/teleporterdot.sprite")
     )
     (teleporter
       (spawnpoint "main")
-      (message (_ "Warp home..."))
+      (message "Warp home...")
       (x 25)
       (y 8)
       (sprite "images/worldmap/common/teleporterdot.sprite")

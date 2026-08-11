@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "A long adventure"))
+  (name "A long adventure")
   (author "hume")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)
@@ -1576,13 +1576,13 @@
       (y 448)
     )
     (infoblock
-      (message (_ "#Until this moment you have luck.
+      (message "#Until this moment you have luck.
 #The way here was hard.
 #You still have a long way to go.
 #You must know it well.
 #Even now you must not fail it.
 #Now go down to the shaft.
-#I hope you understood."))
+#I hope you understood.")
       (x 320)
       (y 416)
     )
@@ -3994,8 +3994,8 @@ Tux.activate()")
       )
     )
     (infoblock
-      (message (_ "-Congratulations!
-#You are in half the level! "))
+      (message "-Congratulations!
+#You are in half the level! ")
       (x 448)
       (y 544)
     )
@@ -4546,7 +4546,7 @@ Tux.activate()")
       (y 384)
     )
     (infoblock
-      (message (_ "-You are going wrong!"))
+      (message "-You are going wrong!")
       (x 2976)
       (y 2784)
     )

@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Door Test"))
+  (name "Door Test")
   (author "Mathnerd314")
   (sector
     (name "main")

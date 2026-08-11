@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Rising Lava Test"))
+  (name "Rising Lava Test")
   (author "Christoph Sommer")
   (sector
     (name "main")

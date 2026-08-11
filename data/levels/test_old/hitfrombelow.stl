@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Test of badguys hit from below"))
+  (name "Test of badguys hit from below")
   (author "Arvid")
   (license "GPL 2+ / CC-by-sa 3.0")
   (sector

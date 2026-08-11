@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Obstacle Course"))
+  (name "Obstacle Course")
   (author "NoNotCar")
   (license "GPL 2+ / CC-by-sa 3.0")
   (sector
@@ -45,7 +45,7 @@
       (y 520)
     )
     (infoblock
-      (message (_ "#If you get stuck, flip the switch to kill Tux."))
+      (message "#If you get stuck, flip the switch to kill Tux.")
       (x 3552)
       (y 832)
     )

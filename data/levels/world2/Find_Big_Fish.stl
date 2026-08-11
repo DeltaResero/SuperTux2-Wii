@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Find the Bigger Fish!"))
+  (name "Find the Bigger Fish!")
   (author "Wolfgang Becker")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)
@@ -446,7 +446,7 @@
       (y 448)
     )
     (infoblock
-      (message (_ "-A big fish... for you."))
+      (message "-A big fish... for you.")
       (x 352)
       (y 1056)
     )

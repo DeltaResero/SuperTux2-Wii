@@ -1,5 +1,5 @@
 (supertux-world
-  (title (_ "Incubator Island"))
+  (title "Incubator Island")
   (description "Proposed new levels for the main game")
   (hide-from-contribs #f)
   (levelset #f)

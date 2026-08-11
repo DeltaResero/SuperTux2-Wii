@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Don't miss your ride"))
+  (name "Don't miss your ride")
   (author "Torfi Gunnarsson")
   (target-time 0)
   (sector

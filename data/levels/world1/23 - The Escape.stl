@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "The Escape"))
+  (name "The Escape")
   (author "SuperTux Team")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 60)

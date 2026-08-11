@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Bonus Island III"))
+  (name "Bonus Island III")
   (author "Various Authors")
   (license "GPL 2 / CC-by-sa 3.0")
   (target-time 0)
@@ -9,7 +9,7 @@
     (music "music/voc-daytime2.music")
     (ambient-light 1 1 1)
     (special-tile
-      (map-message (_ "You found a secret place!"))
+      (map-message "You found a secret place!")
       (invisible-tile #t)
       (passive-message #t)
       (apply-to-direction "west")
@@ -17,7 +17,7 @@
       (y 30)
     )
     (special-tile
-      (map-message (_ "Congratulations... you found the secret pathway!"))
+      (map-message "Congratulations... you found the secret pathway!")
       (invisible-tile #t)
       (passive-message #t)
       (apply-to-direction "south")
@@ -75,7 +75,7 @@
     (teleporter
       (worldmap "levels/bonus3/worldmap.stwm")
       (spawnpoint "main")
-      (message (_ "Go Home"))
+      (message "Go Home")
       (sprite "images/worldmap/common/teleporterdot.sprite")
       (x 31)
       (y 10)
@@ -83,7 +83,7 @@
     (teleporter
       (worldmap "levels/bonus3/worldmap.stwm")
       (spawnpoint "main")
-      (message (_ "Go Home"))
+      (message "Go Home")
       (sprite "images/worldmap/common/teleporterdot.sprite")
       (x 37)
       (y 33)

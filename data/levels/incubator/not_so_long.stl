@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "The not so long way"))
+  (name "The not so long way")
   (author "Wolfs")
   (contact "pizzaservice at freenet.de")
   (license "GPL 2+ / CC-by-sa 3.0")

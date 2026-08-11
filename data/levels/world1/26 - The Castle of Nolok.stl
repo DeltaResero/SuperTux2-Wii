@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "The Castle of Nolok"))
+  (name "The Castle of Nolok")
   (author "SuperTux Team")
   (tileset "images/tiles.strf")
   (license "GPL 2+ / CC-by-sa 3.0")

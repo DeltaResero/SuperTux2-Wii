@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Slope Test"))
+  (name "Slope Test")
   (author "Matthias Braun")
   (sector
     (name "main")

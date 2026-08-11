@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Dark Snow Test (+Icecrusher)"))
+  (name "Dark Snow Test (+Icecrusher)")
   (author "ingo")
   (sector
     (name "main")

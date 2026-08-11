@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Luft Airship"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "Luft Airship")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Corlin Heydman")
   (target-time 0)
   (sector

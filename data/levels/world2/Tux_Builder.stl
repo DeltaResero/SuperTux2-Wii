@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Tux the Builder"))
+  (name "Tux the Builder")
   (author "Wolfgang Becker")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)
@@ -43,12 +43,12 @@
       (y 832)
     )
     (infoblock
-      (message (_ "-Portable Rocks:
+      (message "-Portable Rocks:
 
 !images/help/rockhowto1.png
 !images/help/rockhowto2.png
 !images/help/rockhowto3.png
-"))
+")
       (x 320)
       (y 704)
     )

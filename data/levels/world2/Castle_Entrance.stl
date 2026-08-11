@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Entrance to the Castle"))
+  (name "Entrance to the Castle")
   (author "Sam Townsend")
   (license "GPL 2")
   (sector

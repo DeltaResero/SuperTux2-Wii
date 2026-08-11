@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Climbable message test"))
+  (name "Climbable message test")
   (author "M. Teufel")
   (target-time 0)
   (sector
@@ -11,14 +11,14 @@
       (mode "normal")
     )
     (climbable
-      (message (_ "Up we go..."))
+      (message "Up we go...")
       (width 32)
       (height 412)
       (x 608)
       (y 608)
     )
     (climbable
-      (message (_ "Let's go down..."))
+      (message "Let's go down...")
       (width 32)
       (height 268)
       (x 320)

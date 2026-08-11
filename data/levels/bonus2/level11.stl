@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "The long cave"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "The long cave")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Torfi Gunnarsson")
   (target-time 0)
   (sector

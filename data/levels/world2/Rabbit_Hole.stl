@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Down The Rabbit Hole"))
+  (name "Down The Rabbit Hole")
   (author "SuperTux Team")
   (license "GPL 2+ / CC-by-sa 3.0")
   (sector
@@ -43,16 +43,16 @@
       (y 628.5126)
     )
     (infoblock
-      (message (_ "-Oh no!
+      (message "-Oh no!
 #The path is blocked! It
 #seems that the only way
 #leads through that dark
-#hole in the ground..."))
+#hole in the ground...")
       (x 2560)
       (y 320)
     )
     (infoblock
-      (message (_ "-Are you lost?"))
+      (message "-Are you lost?")
       (x 6208)
       (y 1280)
     )

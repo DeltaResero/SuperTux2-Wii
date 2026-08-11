@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Owls' Revenge"))
+  (name "Owls' Revenge")
   (author "Christoph Sommer")
   (license "CC-BY-SA 4.0 International")
   (target-time 0)

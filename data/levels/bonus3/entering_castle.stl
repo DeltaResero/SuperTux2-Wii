@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Entering the castle"))
+  (name "Entering the castle")
   (author "Wolfs")
   (contact "pizzaservice at freenet.de")
   (license "GPL 2+ / CC-by-sa 3.0")

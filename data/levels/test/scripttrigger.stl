@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Script Trigger Test"))
+  (name "Script Trigger Test")
   (author "Matthias Braun")
   (sector
     (name "main")

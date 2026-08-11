@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Roots, Woody Roots"))
+  (name "Roots, Woody Roots")
   (author "SuperTux Team")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)
@@ -197,12 +197,12 @@
       (y 2918.1)
     )
     (infoblock
-      (message (_ "-Hint:
+      (message "-Hint:
 #If there seems to be
 #no way to reach a door,
 #remember that you might
 #be supposed to come out
-#of that door..."))
+#of that door...")
       (x 2816)
       (y 1920)
     )

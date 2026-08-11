@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Forest Level 1"))
+  (name "Forest Level 1")
   (author "SuperTux Team")
   (license "GPL 2+ / CC-by-sa 3.0")
   (sector

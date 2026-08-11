@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Into the Dark"))
+  (name "Into the Dark")
   (author "LMH")
   (contact "lmh.0013@gmail.com")
   (license "GPL 2 / CC-by-sa 3.0")
@@ -221,13 +221,13 @@
       (y 928)
     )
     (infoblock
-      (message (_ "-Hint:
-#Use the fireflower to melt a path through the ice."))
+      (message "-Hint:
+#Use the fireflower to melt a path through the ice.")
       (x 4128)
       (y 544)
     )
     (infoblock
-      (message (_ "#Beware of fire!"))
+      (message "#Beware of fire!")
       (x 5664)
       (y 1120)
     )

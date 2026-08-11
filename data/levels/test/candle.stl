@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Candle Scripting Test"))
+  (name "Candle Scripting Test")
   (author "Marek Moeckel")
   (sector
     (name "main")

@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Lantern catches WillOWisp Test"))
+  (name "Lantern catches WillOWisp Test")
   (author "christoph")
   (sector
     (name "main")

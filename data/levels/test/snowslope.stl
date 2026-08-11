@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Snow Slope Tile Test"))
+  (name "Snow Slope Tile Test")
   (author "ingo")
   (sector
     (name "main")

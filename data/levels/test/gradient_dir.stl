@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Gradient scripting test"))
+  (name "Gradient scripting test")
   (author "Hume")
   (contact "Nemám zájem, aby mě někdo otravoval.")
   (license "GPL 2+ / CC-by-sa 3.0")
@@ -18,7 +18,7 @@
       (name "g")
     )
     (infoblock
-      (message (_ "-Set gradient direction to horizontal"))
+      (message "-Set gradient direction to horizontal")
       (x 320)
       (y 576)
     )
@@ -29,7 +29,7 @@
       (y 650)
     )
     (infoblock
-      (message (_ "-Set gradient direction to vertical"))
+      (message "-Set gradient direction to vertical")
       (x 460)
       (y 576)
     )
@@ -40,7 +40,7 @@
       (y 650)
     )
     (infoblock
-      (message (_ "-Set gradient direction to horizontal sector"))
+      (message "-Set gradient direction to horizontal sector")
       (x 580)
       (y 576)
     )
@@ -51,7 +51,7 @@
       (y 650)
     )
     (infoblock
-      (message (_ "-Set gradient direction to vertical sector"))
+      (message "-Set gradient direction to vertical sector")
       (x 700)
       (y 576)
     )
@@ -62,7 +62,7 @@
       (y 650)
     )
     (infoblock
-      (message (_ "-Swap gradient colors"))
+      (message "-Swap gradient colors")
       (x 820)
       (y 576)
     )
@@ -73,7 +73,7 @@
       (y 650)
     )
     (infoblock
-      (message (_ "-Set colors to orange - black"))
+      (message "-Set colors to orange - black")
       (x 940)
       (y 576)
     )
@@ -85,7 +85,7 @@
       (y 650)
     )
     (infoblock
-      (message (_ "-Set colors to red - green"))
+      (message "-Set colors to red - green")
       (x 1000)
       (y 576)
     )

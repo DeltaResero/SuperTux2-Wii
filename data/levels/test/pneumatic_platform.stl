@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Pneumatic Platform Test"))
+  (name "Pneumatic Platform Test")
   (author "Marek Moeckel")
   (sector
     (name "main")

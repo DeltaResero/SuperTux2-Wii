@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Oh no! More Snowballs!"))
+  (name "Oh no! More Snowballs!")
   (author "Voluptuous Pachyderm")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 80)

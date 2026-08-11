@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "The Cherry Frosting"))
+  (name "The Cherry Frosting")
   (author "Florian \"octo\" Forster")
   (contact "supertux at octo.it")
   (license "GPL 2+ / CC-by-sa 3.0")

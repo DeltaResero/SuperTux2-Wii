@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "...Where Everything Is Possible"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "...Where Everything Is Possible")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Marek Moeckel")
   (target-time 0)
   (sector

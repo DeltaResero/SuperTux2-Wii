@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Icyisland"))
+  (name "Icyisland")
   (author "SuperTux Team")
   (contact "http://supertuxproject.org/")
   (license "GPL 2 / CC-by-sa 3.0")
@@ -34,7 +34,7 @@
       (y 24)
     )
     (special-tile
-      (map-message (_ "You Found a Secret Area!"))
+      (map-message "You Found a Secret Area!")
       (invisible-tile #t)
       (passive-message #t)
       (apply-to-direction "east")

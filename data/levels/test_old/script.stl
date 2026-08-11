@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Scripted Cutscene Test"))
+  (name "Scripted Cutscene Test")
   (author "SuperTux Team")
   (sector
     (name "main")
