@@ -186,16 +186,6 @@ public:
   float get_height() const;
 
   /**
-   * returns the editor size (in tiles) of a sector
-   */
-  Size get_editor_size() const;
-
-  /**
-   * resize all tilemaps with given size
-   */
-  void resize_sector(Size& old_size, Size& new_size);
-
-  /**
    * globally changes solid tilemaps' tile ids
    */
   void change_solid_tiles(uint32_t old_tile_id, uint32_t new_tile_id);

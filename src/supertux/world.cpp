@@ -171,66 +171,6 @@ World::get_title() const
 }
 
 void
-World::save(bool retry)
-{
-  std::string filepath = m_basedir + "/info";
-
-  try {
-
-    { // make sure the levelset directory exists
-      std::string dirname = FileSystem::dirname(filepath);
-      if(!PHYSFS_exists(dirname.c_str()))
-      {
-        if(!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for levelset '"
-              << dirname << "': " <<PHYSFS_getLastError();
-          throw std::runtime_error(msg.str());
-        }
-      }
-
-      if(!PhysFSFileSystem::is_directory(dirname))
-      {
-        std::ostringstream msg;
-        msg << "Levelset path '" << dirname << "' is not a directory";
-        throw std::runtime_error(msg.str());
-      }
-    }
-
-    Writer writer(filepath);
-    writer.start_list("supertux-level-subset");
-
-    writer.write("title", m_title, true);
-    writer.write("description", m_description, true);
-    writer.write("levelset", m_is_levelset);
-    writer.write("hide-from-contribs", m_hide_from_contribs);
-
-    writer.end_list("supertux-level-subset");
-    log_warning << "Levelset info saved as " << filepath << "." << std::endl;
-  } catch(std::exception& e) {
-    if (retry) {
-      std::stringstream msg;
-      msg << "Problem when saving levelset info '" << filepath << "': " << e.what();
-      throw std::runtime_error(msg.str());
-    } else {
-      log_warning << "Failed to save the levelset info, retrying..." << std::endl;
-      { // create the levelset directory again
-        std::string dirname = FileSystem::dirname(filepath);
-        if(!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for levelset '"
-              << dirname << "': " <<PHYSFS_getLastError();
-          throw std::runtime_error(msg.str());
-        }
-      }
-      save(true);
-    }
-  }
-}
-
-void
 World::set_default_values()
 {
   m_title = "";
