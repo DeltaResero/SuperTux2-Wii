@@ -60,7 +60,9 @@ Gradient::get_direction() const
   if(direction == GradientDirection::VERTICAL_SECTOR)
     return "vertical_sector";
 
-  return NULL;
+  // Unreachable while the four cases above cover GradientDirection; matches
+  // the fallback the level reader applies to an unrecognised direction.
+  return "vertical";
 }
 
 void
