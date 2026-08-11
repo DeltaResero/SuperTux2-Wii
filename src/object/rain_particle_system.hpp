@@ -38,7 +38,7 @@ public:
     return "particles-rain";
   }
   std::string get_display_name() const {
-    return _("Rain particles");
+    return "Rain particles";
   }
 
 private:

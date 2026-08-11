@@ -31,7 +31,6 @@
 #include "supertux/textscroller.hpp"
 #include "supertux/tile.hpp"
 #include "supertux/world.hpp"
-#include "util/gettext.hpp"
 #include "video/renderer.hpp"
 #include "video/video_system.hpp"
 #include "worldmap/tux.hpp"
@@ -92,16 +91,6 @@ void shrink_screen(float dest_x, float dest_y, float seconds)
 void abort_screenfade()
 {
   ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>());
-}
-
-std::string translate(const std::string& text)
-{
-  return g_dictionary_manager->get_dictionary().translate(text);
-}
-
-std::string _(const std::string& text)
-{
-  return translate(text);
 }
 
 void display_text_file(const std::string& filename)

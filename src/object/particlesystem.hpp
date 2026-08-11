@@ -52,7 +52,7 @@ public:
   }
   virtual std::string get_display_name() const override
   {
-    return _("Particle system");
+    return "Particle system";
   }
 
   virtual void parse(const ReaderMapping& reader);

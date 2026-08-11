@@ -39,7 +39,7 @@ public:
     return "icecrusher";
   }
   std::string get_display_name() const {
-    return _("Ice crusher");
+    return "Ice crusher";
   }
 
 #if 0

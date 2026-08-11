@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Blind To The World"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "Blind To The World")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Daniel Alston")
   (target-time 0)
   (sector

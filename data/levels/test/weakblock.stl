@@ -1,6 +1,6 @@
 (supertux-level																																											
 	(version 2)																																										
-	(name (_ "Weakblock Test"))																																										
+	(name "Weakblock Test")																																										
 	(author "LMH")																																										
 	(license	"GPL 2 / CC-by-sa 3.0"	)																																								
 	(sector	(name	"main"	)																																							

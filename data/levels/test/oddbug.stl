@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "An Odd Bug"))
+  (name "An Odd Bug")
   (author "christoph")
   (sector
     (name "main")

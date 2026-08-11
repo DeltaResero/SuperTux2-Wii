@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "rusty trampoline test (C++ implementation)"))
+  (name "rusty trampoline test (C++ implementation)")
   (author "Jonas Kuemmerlin")
   (contact "rgcjonas@googlemail.com")
   (license "GPLv2+")

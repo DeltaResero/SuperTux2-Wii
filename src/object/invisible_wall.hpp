@@ -33,7 +33,7 @@ public:
     return "invisible_wall";
   }
   std::string get_display_name() const {
-    return _("Invisible wall");
+    return "Invisible wall";
   }
 
 private:

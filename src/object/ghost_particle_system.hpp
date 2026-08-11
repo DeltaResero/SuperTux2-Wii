@@ -40,7 +40,7 @@ public:
     return "particles-ghosts";
   }
   std::string get_display_name() const {
-    return _("Ghost particles");
+    return "Ghost particles";
   }
 
 private:

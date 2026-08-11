@@ -30,7 +30,7 @@ public:
     return "spiky";
   }
   std::string get_display_name() const {
-    return _("Spiky");
+    return "Spiky";
   }
 
 private:

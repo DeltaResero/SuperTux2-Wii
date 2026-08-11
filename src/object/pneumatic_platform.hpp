@@ -35,7 +35,7 @@ public:
     return "pneumatic-platform";
   }
   std::string get_display_name() const {
-    return _("Pneumatic platform");
+    return "Pneumatic platform";
   }
 
   bool do_save() const {

@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "A Path Trough The Clouds"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "A Path Trough The Clouds")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Tobe Deprez")
   (target-time 0)
   (sector

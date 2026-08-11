@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "A Fork in the Road"))
+  (name "A Fork in the Road")
   (author "LMH")
   (contact "lmh.0013@gmail.com")
   (license "GPL 2 / CC-by-sa 3.0")
@@ -350,24 +350,24 @@
       (y 904)
     )
     (infoblock
-      (message (_ "-Switches
+      (message "-Switches
 !images/objects/switch/left-0.png
 !images/objects/switch/switch-0.png
 !images/objects/switch/right-0.png
-#Switches can be used to do all manner of things. Press the UP key to use switches.  This one activates the lift to your right."))
+#Switches can be used to do all manner of things. Press the UP key to use switches.  This one activates the lift to your right.")
       (x 4960)
       (y 416)
     )
     (infoblock
-      (message (_ "-Trampolines
+      (message "-Trampolines
 !images/objects/trampoline/trampoline2-0.png
-#Trampolines allow Tux to jump to new heights. Hold down the jump key while bouncing on the trampoline to launch extra high."))
+#Trampolines allow Tux to jump to new heights. Hold down the jump key while bouncing on the trampoline to launch extra high.")
       (x 8384)
       (y 640)
     )
     (infoblock
-      (message (_ "- Climbing
-# Tux can climb!  Press the UP key to start climbing.  Press the ACTION key or jump to let go."))
+      (message "- Climbing
+# Tux can climb!  Press the UP key to start climbing.  Press the ACTION key or jump to let go.")
       (x 11264)
       (y 928)
     )

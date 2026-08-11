@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "On The Road Again"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "On The Road Again")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Nilrok")
   (target-time 0)
   (sector

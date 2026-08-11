@@ -16,7 +16,6 @@
 
 #include "math/random_generator.hpp"
 #include "object/path_walker.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 
 #include <math.h>

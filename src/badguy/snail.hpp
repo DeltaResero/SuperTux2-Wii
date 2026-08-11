@@ -41,7 +41,7 @@ public:
     return "snail";
   }
   std::string get_display_name() const {
-    return _("Snail");
+    return "Snail";
   }
 
 protected:

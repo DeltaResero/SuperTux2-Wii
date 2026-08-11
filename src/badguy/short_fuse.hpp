@@ -28,7 +28,7 @@ public:
     return "short_fuse";
   }
   std::string get_display_name() const {
-    return _("Short fuse");
+    return "Short fuse";
   }
 
 protected:

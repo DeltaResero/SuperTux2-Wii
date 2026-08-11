@@ -96,13 +96,6 @@ void shrink_screen(float dest_x, float dest_y, float seconds);
 void abort_screenfade();
 
 /**
- * Translate a text into the users language (by looking it up in the .po
- * files)
- */
-std::string translate(const std::string& text);
-std::string _(const std::string& text);
-
-/**
  * Load a script file and executes it. This is typically used to import
  * functions from external files.
  */

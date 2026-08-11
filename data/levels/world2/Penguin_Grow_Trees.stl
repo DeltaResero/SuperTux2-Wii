@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Penguins don't grow on Trees"))
+  (name "Penguins don't grow on Trees")
   (author "Wolfgang Becker")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)

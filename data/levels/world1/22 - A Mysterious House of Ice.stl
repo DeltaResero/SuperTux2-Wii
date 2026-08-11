@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "A Mysterious House of Ice"))
+  (name "A Mysterious House of Ice")
   (author "SuperTux Team")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 30)

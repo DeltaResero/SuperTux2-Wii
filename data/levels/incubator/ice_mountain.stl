@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Crystal Mountain"))
+  (name "Crystal Mountain")
   (author "Eliminator")
   (contact "Jacob_vejvoda@hotmail.com")
   (license "GPL 2+ / CC-by-sa 3.0")

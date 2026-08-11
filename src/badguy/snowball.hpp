@@ -28,7 +28,7 @@ public:
     return "snowball";
   }
   std::string get_display_name() const {
-    return _("Snowball");
+    return "Snowball";
   }
 
 protected:

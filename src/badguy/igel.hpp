@@ -37,7 +37,7 @@ public:
     return "igel";
   }
   std::string get_display_name() const {
-    return _("Igel");
+    return "Igel";
   }
 
 protected:

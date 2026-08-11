@@ -30,7 +30,6 @@
 #include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 
 ContribMenu::ContribMenu() :
   m_contrib_worlds()
@@ -50,7 +49,7 @@ ContribMenu::ContribMenu() :
     }
   }
 
-  add_label(_("Contrib Levels"));
+  add_label("Contrib Levels");
   add_hl();
 
   int i = 0;
@@ -91,7 +90,7 @@ ContribMenu::ContribMenu() :
           title << "[" << world->get_title() << "]";
           if (level_count == 0)
           {
-            title << " " << _("*NEW*");
+            title << " " << "*NEW*";
           }
           else
           {
@@ -122,7 +121,7 @@ ContribMenu::ContribMenu() :
           title << world->get_title();
           if (level_count == 0)
           {
-            title << " " << _("*NEW*");
+            title << " " << "*NEW*";
           }
           else
           {
@@ -144,7 +143,7 @@ ContribMenu::ContribMenu() :
   }
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 ContribMenu::~ContribMenu()

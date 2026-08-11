@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Into The Cave"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "Into The Cave")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Jason Kleinemas")
   (target-time 0)
   (sector

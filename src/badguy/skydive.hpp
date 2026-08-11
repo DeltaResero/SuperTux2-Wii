@@ -39,7 +39,7 @@ class SkyDive : public BadGuy, public Portable
       return "skydive";
     }
     std::string get_display_name() const {
-      return _("Sky dive");
+      return "Sky dive";
     }
 
   protected:

@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "New Bonus Block Sprite Test"))
+  (name "New Bonus Block Sprite Test")
   (author "165your4")
   (contact "isaac@montee.xyz")
   (license "GPL 2+ / CC-by-sa 3.0")

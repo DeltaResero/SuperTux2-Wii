@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "All That Glistens Is Not Gold"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "All That Glistens Is Not Gold")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Penguinmaster")
   (target-time 0)
   (sector

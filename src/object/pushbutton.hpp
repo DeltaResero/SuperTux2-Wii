@@ -33,7 +33,7 @@ public:
     return "pushbutton";
   }
   std::string get_display_name() const {
-    return _("Button");
+    return "Button";
   }
 
 private:

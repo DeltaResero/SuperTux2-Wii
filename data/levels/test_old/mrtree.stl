@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Mr. Tree and Mr. Cherry Test"))
+  (name "Mr. Tree and Mr. Cherry Test")
   (author "SuperTux Team")
   (sector
     (name "main")

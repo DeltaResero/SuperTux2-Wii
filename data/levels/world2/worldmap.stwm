@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Forest World"))
+  (name "Forest World")
   (author "SuperTux Team")
   (contact "http://supertuxproject.org/")
   (license "GPL 2 / CC-by-sa 3.0")

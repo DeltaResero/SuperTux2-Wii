@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Unstable Tile Test"))
+  (name "Unstable Tile Test")
   (author "Marek Moeckel")
   (sector
     (name "main")

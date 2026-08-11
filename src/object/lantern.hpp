@@ -53,7 +53,7 @@ public:
     return "lantern";
   }
   std::string get_display_name() const {
-    return _("Lantern");
+    return "Lantern";
   }
 
 private:

@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Snow Air Tile Test"))
+  (name "Snow Air Tile Test")
   (author "No Author")
   (sector
     (name "main")

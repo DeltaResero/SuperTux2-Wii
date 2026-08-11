@@ -22,7 +22,6 @@
 #include "supertux/object_factory.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/sector.hpp"
-#include "util/gettext.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 #include "video/drawing_context.hpp"
@@ -46,7 +45,7 @@ SecretAreaTrigger::SecretAreaTrigger(const ReaderMapping& reader) :
   reader.get("fade-tilemap", fade_tilemap);
   reader.get("message", message);
   if(message.empty()) {
-    message = _("You found a secret area!");
+    message = "You found a secret area!";
   }
   reader.get("script", script);
 
@@ -56,7 +55,7 @@ SecretAreaTrigger::SecretAreaTrigger(const ReaderMapping& reader) :
 SecretAreaTrigger::SecretAreaTrigger(const Rectf& area, std::string fade_tilemap_) :
   message_timer(),
   message_displayed(),
-  message(_("You found a secret area!")),
+  message("You found a secret area!"),
   fade_tilemap(fade_tilemap_),
   script(),
   new_size()

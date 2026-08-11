@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "A Short Visit to El Castillo"))
+  (name "A Short Visit to El Castillo")
   (author "Christoph Sommer")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)

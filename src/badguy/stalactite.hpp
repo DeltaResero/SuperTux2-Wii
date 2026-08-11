@@ -39,7 +39,7 @@ public:
     return "stalactite";
   }
   std::string get_display_name() const {
-    return _("Stalactite");
+    return "Stalactite";
   }
 
 protected:

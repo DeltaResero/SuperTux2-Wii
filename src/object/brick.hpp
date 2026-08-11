@@ -32,7 +32,7 @@ public:
     return "brick";
   }
   std::string get_display_name() const {
-    return _("Brick");
+    return "Brick";
   }
 
 protected:

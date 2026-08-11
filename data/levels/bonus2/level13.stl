@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "snarf"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "snarf")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Thomas Nilsen")
   (target-time 0)
   (sector

@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "eman level ehT <---"))
+  (name "eman level ehT <---")
   (author "Esteban")
   (contact "supertuxeditor@yahoo.es")
   (license "GPL 2+ / CC-by-sa 3.0")

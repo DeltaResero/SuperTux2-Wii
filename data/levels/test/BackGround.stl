@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Forest Background Test"))
+  (name "Forest Background Test")
   (author "slacker")
   (sector
     (name "main")

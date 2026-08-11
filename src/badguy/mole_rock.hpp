@@ -45,7 +45,7 @@ public:
     return "mole_rock";
   }
   std::string get_display_name() const {
-    return _("Mole's rock");
+    return "Mole's rock";
   }
 
 protected:

@@ -17,15 +17,11 @@
 #ifndef HEADER_SUPERTUX_PHYSFS_FILE_SYSTEM_HPP
 #define HEADER_SUPERTUX_PHYSFS_FILE_SYSTEM_HPP
 
-#include <tinygettext/file_system.hpp>
+#include <string>
 
-class PhysFSFileSystem : public tinygettext::FileSystem
+class PhysFSFileSystem
 {
 public:
-  PhysFSFileSystem();
-
-  std::vector<std::string>    open_directory(const std::string& pathname);
-  std::unique_ptr<std::istream> open_file(const std::string& filename);
   static bool is_directory(const std::string& filename);
 };
 

@@ -78,7 +78,7 @@ public:
     return "thunderstorm";
   }
   std::string get_display_name() const {
-    return _("Thunderstorm");
+    return "Thunderstorm";
   }
 
 private:

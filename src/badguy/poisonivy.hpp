@@ -30,7 +30,7 @@ public:
     return "poisonivy";
   }
   std::string get_display_name() const {
-    return _("Poisonous ivy");
+    return "Poisonous ivy";
   }
 
 protected:

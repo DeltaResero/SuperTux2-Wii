@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Tux is hungry!"))
+  (name "Tux is hungry!")
   (author "Hume")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)

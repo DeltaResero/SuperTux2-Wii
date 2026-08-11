@@ -29,7 +29,7 @@ public:
     return "mrtree";
   }
   std::string get_display_name() const {
-    return _("Mr. Tree");
+    return "Mr. Tree";
   }
 
 protected:

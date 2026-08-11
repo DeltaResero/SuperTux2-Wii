@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Tile Platform Test"))
+  (name "Tile Platform Test")
   (author "Mathnerd314")
   (sector
     (name "main")

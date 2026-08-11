@@ -35,7 +35,7 @@ public:
     return "yeti_stalactite";
   }
   std::string get_display_name() const {
-    return _("Yeti's stalactite");
+    return "Yeti's stalactite";
   }
 
 };

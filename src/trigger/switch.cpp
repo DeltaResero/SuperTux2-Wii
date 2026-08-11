@@ -23,7 +23,6 @@
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 #include "trigger/switch.hpp"
-#include "util/gettext.hpp"
 
 #include <sstream>
 

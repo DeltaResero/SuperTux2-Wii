@@ -38,7 +38,7 @@ public:
     return "weak_block";
   }
   std::string get_display_name() const {
-    return _("Weak block");
+    return "Weak block";
   }
 
 protected:

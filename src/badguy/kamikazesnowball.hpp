@@ -31,7 +31,7 @@ public:
     return "kamikazesnowball";
   }
   virtual std::string get_display_name() const {
-    return _("Kamikaze snowball");
+    return "Kamikaze snowball";
   }
 
 protected:
@@ -51,7 +51,7 @@ class LeafShot : public KamikazeSnowball
       return "leafshot";
     }
     std::string get_display_name() const {
-      return _("Leaf Shot");
+      return "Leaf Shot";
     }
 };
 

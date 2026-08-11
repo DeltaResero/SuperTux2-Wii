@@ -33,7 +33,7 @@ public:
     return "plant";
   }
   std::string get_display_name() const {
-    return _("Plant");
+    return "Plant";
   }
 
 protected:

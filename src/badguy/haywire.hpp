@@ -42,7 +42,7 @@ public:
     return "haywire";
   }
   std::string get_display_name() const {
-    return _("Haywire");
+    return "Haywire";
   }
 
 protected:

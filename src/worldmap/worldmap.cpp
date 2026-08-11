@@ -60,7 +60,6 @@
 #include "supertux/tile_set.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "util/reader.hpp"
 #include "util/reader_collection.hpp"
@@ -237,7 +236,6 @@ WorldMap::load(const std::string& filename)
   levels_path = FileSystem::dirname(map_filename);
 
   try {
-    register_translation_directory(map_filename);
     auto doc = ReaderDocument::parse(map_filename);
     auto root = doc.get_root();
 
@@ -331,14 +329,13 @@ void
 WorldMap::load_level_information(LevelTile& level)
 {
   /** get special_tile's title */
-  level.title = _("<no title>");
+  level.title = "<no title>";
   level.target_time = 0.0f;
 
   try {
     std::string filename = levels_path + level.get_name();
     if(levels_path == "./")
       filename = level.get_name();
-    register_translation_directory(filename);
     auto doc = ReaderDocument::parse(filename);
     auto root = doc.get_root();
     if(root.get_name() != "supertux-level") {

@@ -27,10 +27,6 @@
 #include <iostream>
 #include <physfs.h>
 #include <stdio.h>
-#include <tinygettext/log.hpp>
-extern "C" {
-#include <findlocale.h>
-}
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
@@ -56,7 +52,6 @@ extern "C" {
 #include "supertux/title_screen.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "video/drawing_context.hpp"
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"
@@ -92,32 +87,6 @@ public:
     g_config.reset();
   }
 };
-
-void
-Main::init_tinygettext()
-{
-  g_dictionary_manager.reset(new tinygettext::DictionaryManager(std::unique_ptr<tinygettext::FileSystem>(new PhysFSFileSystem), "UTF-8"));
-
-  tinygettext::Log::set_log_info_callback(log_info_callback);
-  tinygettext::Log::set_log_warning_callback(log_warning_callback);
-  tinygettext::Log::set_log_error_callback(log_error_callback);
-
-  g_dictionary_manager->add_directory("locale");
-
-  // Config setting "locale" overrides language detection
-  if (!g_config->locale.empty())
-  {
-    g_dictionary_manager->set_language(tinygettext::Language::from_name(g_config->locale));
-  }
-  else
-  {
-    FL_Locale *locale;
-    FL_FindLocale(&locale);
-    tinygettext::Language language = tinygettext::Language::from_spec( locale->lang?locale->lang:"", locale->country?locale->country:"", locale->variant?locale->variant:"");
-    FL_FreeLocale(&locale);
-    g_dictionary_manager->set_language(language);
-  }
-}
 
 class PhysfsSubsystem
 {
@@ -464,8 +433,6 @@ Main::run(int argc, char** argv)
     ConfigSubsystem config_subsystem;
     args.merge_into(*g_config);
 
-    timelog("tinygettext");
-    init_tinygettext();
 
     switch (args.get_action())
     {
@@ -496,8 +463,6 @@ Main::run(int argc, char** argv)
     log_fatal << "Unexpected exception" << std::endl;
     result = 1;
   }
-
-  g_dictionary_manager.reset();
 
   return result;
 }

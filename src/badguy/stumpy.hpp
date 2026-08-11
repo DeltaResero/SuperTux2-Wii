@@ -35,7 +35,7 @@ public:
     return "stumpy";
   }
   std::string get_display_name() const {
-    return _("Stumpy");
+    return "Stumpy";
   }
 
 protected:

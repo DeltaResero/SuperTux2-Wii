@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Halloween 2014"))
+  (name "Halloween 2014")
   (author "Ingo Ruhnke <grumbel@gmail.com>")
   (target-time 0)
   (sector

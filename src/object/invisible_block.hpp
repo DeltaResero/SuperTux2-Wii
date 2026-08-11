@@ -29,7 +29,7 @@ public:
     return "invisible_block";
   }
   std::string get_display_name() const {
-    return _("Invisible block");
+    return "Invisible block";
   }
 
   virtual void draw(DrawingContext& context);

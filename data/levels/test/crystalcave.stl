@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Crystal Cave test"))
+  (name "Crystal Cave test")
   (author "ingo")
   (sector
     (name "main")

@@ -20,12 +20,9 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "util/gettext.hpp"
 #include "util/reader_collection.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_error.hpp"
-
-bool ReaderMapping::translations_enabled = true;
 
 ReaderMapping::ReaderMapping() :
   m_doc(nullptr),
@@ -137,11 +134,8 @@ ReaderMapping::get(const char* key, std::string& value) const
                item[1].as_array()[0].is_symbol() &&
                item[1].as_array()[0].as_string() == "_" &&
                item[1].as_array()[1].is_string()) {
-      if (translations_enabled) {
-        value = _(item[1].as_array()[1].as_string());
-      } else {
-        value = item[1].as_array()[1].as_string();
-      }
+      // Tolerated for hand-installed levels; this tree does not write it.
+      value = item[1].as_array()[1].as_string();
       return true;
     } else {
       raise_exception(*m_doc, item[1], "expected string");

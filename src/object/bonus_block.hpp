@@ -34,7 +34,7 @@ public:
     return "bonusblock";
   }
   std::string get_display_name() const {
-    return _("Bonus block");
+    return "Bonus block";
   }
   enum Contents {
     CONTENT_COIN,

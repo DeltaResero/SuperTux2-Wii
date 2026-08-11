@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Nice Ice"))
+  (name "Nice Ice")
   (author "sK!LL")
   (license "GPL 2+ / CC-by-sa 3.0")
   (target-time 0)
@@ -86,7 +86,7 @@
       (y 285.254)
     )
     (infoblock
-      (message (_ "#Use the enemy to finish this level!"))
+      (message "#Use the enemy to finish this level!")
       (x 8879.03)
       (y 837.657)
     )

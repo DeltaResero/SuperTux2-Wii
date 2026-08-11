@@ -27,7 +27,6 @@
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/timer.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "video/drawing_context.hpp"
 

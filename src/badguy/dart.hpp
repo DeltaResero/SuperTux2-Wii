@@ -46,7 +46,7 @@ public:
     return "dart";
   }
   std::string get_display_name() const {
-    return _("Dart");
+    return "Dart";
   }
 
   bool is_flammable() const;

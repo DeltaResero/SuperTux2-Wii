@@ -36,7 +36,7 @@ public:
     return "jumpy";
   }
   std::string get_display_name() const {
-    return _("Jumpy");
+    return "Jumpy";
   }
 
 private:

@@ -18,7 +18,6 @@
 
 #include <iostream>
 
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -81,7 +80,7 @@ JoystickConfig::reversemap_joyhat(Controller::Control c) const
 void
 JoystickConfig::print_joystick_mappings() const
 {
-  std::cout << _("Joystick Mappings") << std::endl;
+  std::cout << "Joystick Mappings" << std::endl;
   std::cout << "-----------------" << std::endl;
   for(const auto& i : joy_axis_map) {
     std::cout << "Axis: " << i.first.second << " -> " << i.second << std::endl;

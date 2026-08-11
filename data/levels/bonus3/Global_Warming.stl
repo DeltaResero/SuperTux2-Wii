@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Global Warming"))
+  (name "Global Warming")
   (author "Devyn Collier Johnson")
   (contact "DevynCJohnson@Gmail.com")
   (license "GPLv3")

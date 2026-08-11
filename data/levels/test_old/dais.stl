@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Badguys Stay on Moving Platform Test"))
+  (name "Badguys Stay on Moving Platform Test")
   (author "Marek Moeckel")
   (sector
     (name "main")

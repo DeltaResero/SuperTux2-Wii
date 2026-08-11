@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Lightmap Test"))
+  (name "Lightmap Test")
   (author "")
   (sector
     (name "main")

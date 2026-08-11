@@ -41,7 +41,7 @@ public:
   virtual ~TileMap();
 
   std::string get_display_name() const {
-    return _("Tile map");
+    return "Tile map";
   }
 
   virtual void update(float elapsed_time);

@@ -34,7 +34,7 @@ public:
     return "powerup";
   }
   std::string get_display_name() const {
-    return _("Power up");
+    return "Power up";
   }
 
 private:

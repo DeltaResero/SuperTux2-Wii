@@ -40,7 +40,7 @@ public:
     return "mrcandle";
   }
   std::string get_display_name() const {
-    return _("Mr. Candle");
+    return "Mr. Candle";
   }
 
 private:

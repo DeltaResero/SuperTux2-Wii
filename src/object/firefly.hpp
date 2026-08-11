@@ -33,7 +33,7 @@ public:
     return "firefly";
   }
   std::string get_display_name() const {
-    return _("Reset point");
+    return "Reset point";
   }
 
 private:

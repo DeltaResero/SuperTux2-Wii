@@ -36,7 +36,7 @@ public:
     return "smartball";
   }
   std::string get_display_name() const {
-    return _("Smart Ball");
+    return "Smart Ball";
   }
 
 protected:

@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "You have 1 minute"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "You have 1 minute")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Denilson")
   (target-time 0)
   (sector

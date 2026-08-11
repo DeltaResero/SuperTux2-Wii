@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Key Door Test"))
+  (name "Key Door Test")
   (author "slacker")
   (sector
     (name "main")
@@ -52,9 +52,9 @@
       )
     )
     (infoblock
-      (message (_ "#Remember that you can type
+      (message "#Remember that you can type
 #sector.add_key(key);
-#keys are air, wood, earth, fire and water"))
+#keys are air, wood, earth, fire and water")
       (x 192)
       (y 576)
     )

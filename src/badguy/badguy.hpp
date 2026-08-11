@@ -50,7 +50,7 @@ public:
   }
 
   virtual std::string get_display_name() const override {
-    return _("Badguy");
+    return "Badguy";
   }
 
   /** Called when a collision with another object occurred. The

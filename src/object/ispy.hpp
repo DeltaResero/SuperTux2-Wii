@@ -35,7 +35,7 @@ public:
     return "ispy";
   }
   std::string get_display_name() const {
-    return _("Ispy");
+    return "Ispy";
   }
 
 private:

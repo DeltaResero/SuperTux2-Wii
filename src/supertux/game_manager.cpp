@@ -84,7 +84,6 @@ GameManager::get_level_name(const std::string& filename) const
 {
   try
   {
-    register_translation_directory(filename);
     auto doc = ReaderDocument::parse(filename);
     auto root = doc.get_root();
 

@@ -42,7 +42,7 @@ public:
     return "mrbomb";
   }
   std::string get_display_name() const {
-    return _("Mr. Bomb");
+    return "Mr. Bomb";
   }
 
 protected:

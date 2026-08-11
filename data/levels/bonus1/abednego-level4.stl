@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Train Leaves in One Minute"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "Train Leaves in One Minute")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Abednego")
   (target-time 0)
   (sector

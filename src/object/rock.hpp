@@ -39,7 +39,7 @@ public:
     return "rock";
   }
   std::string get_display_name() const {
-    return _("Rock");
+    return "Rock";
   }
 
 protected:

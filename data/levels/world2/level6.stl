@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "No Name"))
+  (name "No Name")
   (author "Anubis")
   (license "GPL 2+ / CC-by-sa 3.0")
   (sector

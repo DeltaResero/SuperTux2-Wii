@@ -39,7 +39,7 @@ public:
     return "magicblock";
   }
   std::string get_display_name() const {
-    return _("Magic block");
+    return "Magic block";
   }
 
 private:

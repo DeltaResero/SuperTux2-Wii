@@ -1,6 +1,6 @@
 (supertux-level
   (version 2)
-  (name (_ "Have I been here before?"))  (license "GPL 2+ / CC-by-sa 3.0")
+  (name "Have I been here before?")  (license "GPL 2+ / CC-by-sa 3.0")
   (author "Jason W. Thompson")
   (target-time 0)
   (sector

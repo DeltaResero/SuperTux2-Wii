@@ -36,7 +36,7 @@ public:
     return "unstable_tile";
   }
   std::string get_display_name() const {
-    return _("Unstable tile");
+    return "Unstable tile";
   }
 
 private:

@@ -33,7 +33,6 @@
 #include "supertux/textscroller.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
 
@@ -54,11 +53,10 @@ TitleScreen::TitleScreen(Savegame& savegame) :
   player->set_speedlimit(230); //MAX_WALK_XM
 
   frame = Surface::create("images/engine/menu/frame.png");
-  copyright_text = "SuperTux " PACKAGE_VERSION "\n" +
-    _("Copyright") + " (c) 2003-2016 SuperTux Devel Team\n" +
-    _("This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to\n"
-      "redistribute it under certain conditions; see the license file for details.\n"
-   );
+  copyright_text = "SuperTux " PACKAGE_VERSION "\n"
+    "Copyright (c) 2003-2016 SuperTux Devel Team\n"
+    "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to\n"
+    "redistribute it under certain conditions; see the license file for details.\n";
 }
 
 void
