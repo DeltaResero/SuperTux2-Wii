@@ -84,7 +84,7 @@ enter the current level.
 
 With the release of SuperTux 0.4.0 (December 2015), we wanted to provide a
 fairly stable release. The release of SuperTux 0.5.0 should have fixed some
-stability issues from 0.4.0 and introduced a new level editor. Development of
+stability issues from 0.4.0. Development of
 the game will continue (of course), now working towards more releases.
 Most notably, development focus will be shifted on providing a better gameplay
 experience.
