@@ -13,7 +13,7 @@ function level2_init()
   }
   Tux.deactivate();
   Effect.sixteen_to_nine(2);
-  Text.set_text(translate("---Insert Cutscene Here---"));
+  Text.set_text("---Insert Cutscene Here---");
   Tux.walk(100);
   Text.fade_in(2);
   wait(4);

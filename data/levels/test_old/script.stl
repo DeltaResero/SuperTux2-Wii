@@ -9,7 +9,7 @@
 local logo = FloatingImage(\"images/objects/logo/logo.sprite\");
 logo.set_visible(true);
         
-Text.set_text(translate(\"The Crazy Nolok Dance\"));
+Text.set_text(\"The Crazy Nolok Dance\");
 Text.fade_in(2);
 TUX.set_action(\"jump-left\");
 wait(4);

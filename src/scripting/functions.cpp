@@ -94,16 +94,6 @@ void abort_screenfade()
   ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>());
 }
 
-std::string translate(const std::string& text)
-{
-  return text;
-}
-
-std::string _(const std::string& text)
-{
-  return translate(text);
-}
-
 void display_text_file(const std::string& filename)
 {
   ScreenManager::current()->push_screen(std::unique_ptr<Screen>(new TextScroller(filename)));
