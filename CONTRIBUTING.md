@@ -28,17 +28,11 @@ Please include the following details in your issue report so that we can investi
   gdb or a core dump. If you're on GNU/Linux and your distro is using systemd, it's
   highly likely that a core dump is available using `coredumpctl(1)`.
 
-### Translation issues
-
-Please use Transifex to fix or report translation related issues.
-
 ## Pull requests
 
 - No duplicate pull requests, please.
 - Please test your code to see if it works correctly. If the pull request
   is untested or work-in-progress, please mention that.
-- Pull requests importing translation updates from Transifex are, unless requested
-  by a contributor, not very welcome.
 - Commit messages should follow this style:
   - First line: Short summary, up to 72 characters
   - An empty line, separating message subject and body
