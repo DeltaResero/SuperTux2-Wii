@@ -17,7 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 
-#include "editor/object_option.hpp"
 #include "gui/menu_action.hpp"
 #include "object/moving_sprite.hpp"
 #include "supertux/direction.hpp"
@@ -46,20 +45,12 @@ public:
       state and calls active_update and inactive_update */
   virtual void update(float elapsed_time) override;
 
-  virtual void save(Writer& writer) override;
   virtual std::string get_class() const override {
     return "badguy";
   }
 
   virtual std::string get_display_name() const override {
     return _("Badguy");
-  }
-
-  virtual ObjectSettings get_settings() override {
-    ObjectSettings result = MovingSprite::get_settings();
-    result.options.push_back( dir_option(&dir) );
-    result.options.push_back( ObjectOption(MN_SCRIPT, _("Death script"), &dead_script));
-    return result;
   }
 
   /** Called when a collision with another object occurred. The

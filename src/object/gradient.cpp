@@ -16,7 +16,6 @@
 
 #include "object/gradient.hpp"
 
-#include "editor/editor.hpp"
 #include "object/camera.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/object_factory.hpp"
@@ -100,49 +99,6 @@ Gradient::Gradient(const ReaderMapping& reader) :
 
 }
 
-void
-Gradient::save(Writer& writer) {
-  GameObject::save(writer);
-  writer.write("layer", layer);
-  switch (gradient_direction) {
-    case HORIZONTAL:        writer.write("direction", "horizontal"       , false); break;
-    case VERTICAL_SECTOR:   writer.write("direction", "vertical_sector"  , false); break;
-    case HORIZONTAL_SECTOR: writer.write("direction", "horizontal_sector", false); break;
-    case VERTICAL: break;
-  }
-  if(gradient_direction == HORIZONTAL || gradient_direction == HORIZONTAL_SECTOR) {
-    writer.write("left_color" , gradient_top.toVector());
-    writer.write("right_color", gradient_bottom.toVector());
-  } else {
-    writer.write("top_color"   , gradient_top.toVector());
-    writer.write("bottom_color", gradient_bottom.toVector());
-  }
-}
-
-ObjectSettings
-Gradient::get_settings() {
-  ObjectSettings result = GameObject::get_settings();
-
-  if (gradient_direction == HORIZONTAL || gradient_direction == HORIZONTAL_SECTOR) {
-    result.options.push_back( ObjectOption(MN_COLOR, _("Left Colour"), &gradient_top));
-    result.options.push_back( ObjectOption(MN_COLOR, _("Right Colour"), &gradient_bottom));
-  } else {
-    result.options.push_back( ObjectOption(MN_COLOR, _("Top Colour"), &gradient_top));
-    result.options.push_back( ObjectOption(MN_COLOR, _("Bottom Colour"), &gradient_bottom));
-  }
-
-  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &layer));
-  ObjectOption doo(MN_STRINGSELECT, _("Direction"), &gradient_direction);
-  doo.select.push_back(_("vertical"));
-  doo.select.push_back(_("horizontal"));
-  doo.select.push_back(_("vertical sector"));
-  doo.select.push_back(_("horizontal sector"));
-  result.options.push_back(doo);
-
-  result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
-  return result;
-}
-
 Gradient::~Gradient()
 {
 }
@@ -193,11 +149,6 @@ Gradient::draw(DrawingContext& context)
   context.set_translation(Vector(0, 0));
   context.draw_gradient(gradient_top, gradient_bottom, layer, gradient_direction, gradient_region);
   context.pop_transform();
-}
-
-bool
-Gradient::do_save() const {
-  return !Editor::is_active() || !Editor::current()->get_worldmap_mode();
 }
 
 /* EOF */

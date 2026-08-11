@@ -27,7 +27,6 @@ public:
   BonusBlock(const ReaderMapping& lisp);
   virtual ~BonusBlock();
   HitResponse collision(GameObject& other, const CollisionHit& hit);
-  virtual void save(Writer& writer);
 
   void try_open(Player *player);
   void try_drop(Player *player);
@@ -52,8 +51,6 @@ public:
     CONTENT_RAIN,
     CONTENT_EXPLODE
   };
-
-  virtual ObjectSettings get_settings();
 
 protected:
   virtual void hit(Player& player);

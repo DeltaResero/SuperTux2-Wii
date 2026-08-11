@@ -43,8 +43,6 @@ public:
     return _("Toad");
   }
 
-  void after_editor_set();
-
 protected:
   enum ToadState {
     IDLE,

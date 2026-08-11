@@ -56,9 +56,6 @@ public:
     return _("Lantern");
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
 private:
   Color lightcolor;
   SpritePtr lightsprite;

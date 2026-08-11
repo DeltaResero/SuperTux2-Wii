@@ -16,7 +16,6 @@
 
 #include "object/platform.hpp"
 
-#include "editor/editor.hpp"
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/object_factory.hpp"
@@ -58,21 +57,6 @@ Platform::Platform(const ReaderMapping& reader, const std::string& default_sprit
     walker.reset(new PathWalker(path.get(), running));
     bbox.set_pos(path->get_base());
   }
-}
-
-void
-Platform::save(Writer& writer) {
-  MovingSprite::save(writer);
-  writer.write("running", walker->is_moving());
-  path->save(writer);
-}
-
-ObjectSettings
-Platform::get_settings() {
-  ObjectSettings result = MovingSprite::get_settings();
-  result.options.push_back( Path::get_mode_option(&path->mode) );
-  result.options.push_back( PathWalker::get_running_option(&walker->running) );
-  return result;
 }
 
 /*
@@ -138,12 +122,8 @@ Platform::update(float elapsed_time)
   }
 
   Vector new_pos = walker->advance(elapsed_time);
-  if (Editor::is_active()) {
-    set_pos(new_pos);
-  } else {
-    movement = new_pos - get_pos();
-    speed = movement / elapsed_time;
-  }
+  movement = new_pos - get_pos();
+  speed = movement / elapsed_time;
 
 }
 
@@ -163,16 +143,6 @@ void
 Platform::stop_moving()
 {
   walker->stop_moving();
-}
-
-void
-Platform::move_to(const Vector& pos)
-{
-  Vector shift = pos - bbox.p1;
-  if (path) {
-    path->move_by(shift);
-  }
-  set_pos(pos);
 }
 
 /* EOF */

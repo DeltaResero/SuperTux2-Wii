@@ -27,7 +27,6 @@ class Ispy : public MovingSprite
 {
 public:
   Ispy(const ReaderMapping& lisp);
-  virtual void save(Writer& writer);
 
   HitResponse collision(GameObject& other, const CollisionHit& hit);
 
@@ -38,9 +37,6 @@ public:
   std::string get_display_name() const {
     return _("Ispy");
   }
-
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
 
 private:
   enum IspyState {

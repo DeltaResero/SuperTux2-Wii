@@ -29,13 +29,9 @@ public:
   SequenceTrigger(const ReaderMapping& reader);
   SequenceTrigger(const Vector& pos, const std::string& sequence_name);
   ~SequenceTrigger();
-  virtual void save(Writer& writer);
   std::string get_class() const {
     return "sequencetrigger";
   }
-
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
 
   void event(Player& player, EventType type);
   void draw(DrawingContext& context);

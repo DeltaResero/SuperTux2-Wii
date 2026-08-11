@@ -30,7 +30,6 @@ public:
   Background();
   Background(const ReaderMapping& reader);
   virtual ~Background();
-  virtual void save(Writer& writer);
 
   void set_image(const std::string& name);
   void set_image(const std::string& name, float bkgd_speed);
@@ -56,12 +55,6 @@ public:
 
   std::string get_display_name() const {
     return _("Background");
-  }
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
-  virtual const std::string get_icon_path() const {
-    return "images/engine/editor/background.png";
   }
 
 private:

@@ -38,7 +38,6 @@ class Camera : public GameObject,
 public:
   Camera(Sector* sector, const std::string& name = std::string());
   virtual ~Camera();
-  virtual void save(Writer& writer);
 
   /// parse camera mode from lisp file
   void parse(const ReaderMapping& reader);
@@ -81,19 +80,11 @@ public:
    * get the coordinates of the point directly in the center of this camera
    */
   Vector get_center() const;
-  virtual bool do_save() const;
   std::string get_class() const {
     return "camera";
   }
   std::string get_display_name() const {
     return _("Camera");
-  }
-
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
-  virtual const std::string get_icon_path() const {
-    return "images/engine/editor/camera.png";
   }
 
   Path* get_path() const;

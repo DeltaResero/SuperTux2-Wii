@@ -16,45 +16,16 @@
 
 #include "supertux/tile_set.hpp"
 
-#include "editor/editor.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/tile_set_parser.hpp"
 #include "video/drawing_context.hpp"
 #include "video/surface.hpp"
 
-Tilegroup::Tilegroup() :
-  name(),
-  tiles()
-{
-  tiles.clear();
-}
-
-Tilegroup::~Tilegroup() {
-
-}
-
-/*
-  tiles(),
-  tiles_loaded(false),
-  tilegroups()
-{
-  tiles.resize(1, 0);
-  tiles[0] = new Tile();
-  tilegroups.clear();
-}
-
-TileSet::TileSet(const std::string& filename) :
-  tiles(),
-  tiles_loaded(true),
-  tilegroups()
-*/
 TileSet::TileSet() :
   m_tiles(1),
-  notile_surface(Surface::create("images/tiles/auxiliary/notile.png")),
-  tilegroups()
+  notile_surface(Surface::create("images/tiles/auxiliary/notile.png"))
 {
   m_tiles[0] = std::unique_ptr<Tile>(new Tile);
-  tilegroups.clear();
 }
 
 TileSet::TileSet(const std::string& filename) :
@@ -147,10 +118,6 @@ TileSet::draw_tile(DrawingContext& context, uint32_t id, const Vector& pos,
   if (tile) {
     tile->load_images();
     tile->draw(context, pos, z_pos, color);
-  } else if (Editor::is_active()) { // Draw a notile sign
-    context.draw_surface(notile_surface, pos, 0, color, Blend(), z_pos);
-    context.draw_text(Resources::small_font, std::to_string(id),
-                      pos + Vector(16, 16), ALIGN_CENTER, z_pos, color);
   }
 }
 

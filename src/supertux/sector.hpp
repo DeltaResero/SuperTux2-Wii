@@ -23,7 +23,6 @@
 
 #include "supertux/direction.hpp"
 #include "supertux/game_object_ptr.hpp"
-#include "util/writer.hpp"
 #include "video/color.hpp"
 #include "object/anchor_point.hpp"
 
@@ -79,7 +78,6 @@ public:
 
   void draw(DrawingContext& context);
 
-  void save(Writer &writer);
 
   /// stops all looping sounds in whole sector.
   void stop_looping_sounds();
@@ -186,16 +184,6 @@ public:
    * returns the height (in px) of a sector)
    */
   float get_height() const;
-
-  /**
-   * returns the editor size (in tiles) of a sector
-   */
-  Size get_editor_size() const;
-
-  /**
-   * resize all tilemaps with given size
-   */
-  void resize_sector(Size& old_size, Size& new_size);
 
   /**
    * globally changes solid tilemaps' tile ids

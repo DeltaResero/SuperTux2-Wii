@@ -31,7 +31,6 @@ class DrawingContext;
 class Tile
 {
 public:
-  static bool draw_editor_images;
   /// bitset for tile attributes
   enum {
     /** solid tile that is indestructible by Tux */
@@ -104,8 +103,6 @@ public:
 private:
   std::vector<ImageSpec> imagespecs;
   std::vector<SurfacePtr>  images;
-  std::vector<ImageSpec> editor_imagespecs;
-  std::vector<SurfacePtr>  editor_images;
 
   /// tile attributes
   uint32_t attributes;
@@ -120,7 +117,7 @@ private:
 
 public:
   Tile();
-  Tile(const std::vector<ImageSpec>& images, const std::vector<ImageSpec>& editor_images,
+  Tile(const std::vector<ImageSpec>& images,
        uint32_t attributes, uint32_t data, float fps, std::string obj_name = "",
        std::string obj_data = "");
   ~Tile();

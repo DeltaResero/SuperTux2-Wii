@@ -31,7 +31,6 @@ class WillOWisp : public BadGuy,
 {
 public:
   WillOWisp(const ReaderMapping& reader);
-  virtual void save(Writer& writer);
 
   void activate();
   void deactivate();
@@ -60,9 +59,6 @@ public:
   std::string get_display_name() const {
     return _("Will 'o' wisp");
   }
-
-  virtual ObjectSettings get_settings();
-  virtual void move_to(const Vector& pos);
 
   Path* get_path() const {
     return path.get();

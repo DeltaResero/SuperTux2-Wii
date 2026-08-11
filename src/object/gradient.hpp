@@ -31,8 +31,6 @@ public:
   Gradient();
   Gradient(const ReaderMapping& reader);
   virtual ~Gradient();
-  virtual bool do_save() const;
-  virtual void save(Writer& writer);
 
   void set_gradient(Color top, Color bottom);
 
@@ -61,12 +59,6 @@ public:
 
   int get_layer() const
   { return layer; }
-
-  virtual ObjectSettings get_settings();
-
-  virtual const std::string get_icon_path() const {
-    return "images/engine/editor/gradient.png";
-  }
 
 private:
   int layer;

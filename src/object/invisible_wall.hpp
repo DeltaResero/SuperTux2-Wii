@@ -36,9 +36,6 @@ public:
     return _("Invisible wall");
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
 private:
   void update(float elapsed_time);
 

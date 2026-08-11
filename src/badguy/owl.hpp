@@ -27,7 +27,6 @@ class Owl : public BadGuy
 public:
   Owl(const ReaderMapping& reader);
   Owl(const Vector& pos, Direction d);
-  virtual void save(Writer& writer);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);
@@ -43,8 +42,6 @@ public:
   std::string get_display_name() const {
     return _("Owl");
   }
-
-  void after_editor_set();
 
 protected:
   bool is_above_player() const;

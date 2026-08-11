@@ -19,7 +19,6 @@
 #include <math.h>
 #include <physfs.h>
 
-#include "editor/editor.hpp"
 #include "object/path_walker.hpp"
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -28,7 +27,6 @@
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 
 /* this is the fractional distance toward the peek
    position to move each frame; lower is slower,
@@ -116,52 +114,6 @@ public:
     }
   }
 };
-
-void
-Camera::save(Writer& writer){
-  GameObject::save(writer);
-  if (defaultmode == AUTOSCROLL && !autoscroll_path->is_valid()) {
-    defaultmode = NORMAL;
-  }
-  switch (defaultmode) {
-    case NORMAL: writer.write("mode", "normal", false); break;
-    case MANUAL: writer.write("mode", "manual", false); break;
-    case AUTOSCROLL:
-      writer.write("mode", "autoscroll", false);
-      autoscroll_path->save(writer);
-    case SCROLLTO: break;
-  }
-}
-
-ObjectSettings
-Camera::get_settings() {
-  ObjectSettings result = GameObject::get_settings();
-
-  ObjectOption moo(MN_STRINGSELECT, _("Mode"), &defaultmode);
-  moo.select.push_back(_("normal"));
-  moo.select.push_back(_("manual"));
-  result.options.push_back(moo);
-
-  if (autoscroll_walker.get() && autoscroll_path->is_valid()) {
-    result.options.push_back( Path::get_mode_option(&autoscroll_path->mode) );
-  }
-
-  return result;
-}
-
-void
-Camera::after_editor_set() {
-  if (autoscroll_walker.get() && autoscroll_path->is_valid()) {
-    if (defaultmode != AUTOSCROLL) {
-      autoscroll_path->nodes.clear();
-    }
-  } else {
-    if (defaultmode == AUTOSCROLL) {
-      autoscroll_path.reset(new Path(Vector(0,0)));
-      autoscroll_walker.reset(new PathWalker(autoscroll_path.get()));
-    }
-  }
-}
 
 Camera::Camera(Sector* newsector, const std::string& name_) :
   ExposedObject<Camera, scripting::Camera>(this),
@@ -684,8 +636,4 @@ Camera::get_path() const {
   return autoscroll_path.get();
 }
 
-bool
-Camera::do_save() const {
-  return !Editor::is_active() || !Editor::current()->get_worldmap_mode();
-}
 /* EOF */

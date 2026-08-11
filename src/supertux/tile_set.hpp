@@ -28,14 +28,6 @@
 class DrawingContext;
 class Tile;
 
-class Tilegroup{
-  public:
-    Tilegroup();
-    ~Tilegroup();
-    std::string name;
-    std::vector<int> tiles;
-};
-
 class TileSet
 {
 private:
@@ -46,8 +38,6 @@ public:
   TileSet(const std::string& filename);
   TileSet();
   ~TileSet();
-
-  std::vector<Tilegroup> tilegroups;
 
   void merge(const TileSet *tileset, uint32_t start, uint32_t end,
              uint32_t offset);

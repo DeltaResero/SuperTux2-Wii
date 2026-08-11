@@ -51,8 +51,6 @@ public:
   // loads a levelfile
   //void load(const std::string& filename);
 
-  // saves to a levelfile
-  void save(const std::string& filename, bool retry = false);
 
   void add_sector(std::unique_ptr<Sector> sector);
   const std::string& get_name() const { return name; }
