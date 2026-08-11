@@ -53,8 +53,6 @@ public:
     return _("Badguy");
   }
 
-  // get_settings removed
-
   /** Called when a collision with another object occurred. The
       default implementation calls collision_player, collision_solid,
       collision_badguy and collision_squished */
