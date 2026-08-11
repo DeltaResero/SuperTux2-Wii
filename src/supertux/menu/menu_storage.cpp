@@ -17,7 +17,6 @@
 #include "supertux/menu/menu_storage.hpp"
 
 #include "supertux/globals.hpp"
-#include "supertux/menu/addon_menu.hpp"
 #include "supertux/menu/cheat_menu.hpp"
 #include "supertux/menu/contrib_menu.hpp"
 #include "supertux/menu/game_menu.hpp"
@@ -97,15 +96,6 @@ MenuStorage::create(MenuId menu_id)
 
     case CONTRIB_WORLD_MENU:
       return 0; //return new ContribWorldMenu();
-
-    case ADDON_MENU:
-      return std::unique_ptr<Menu>(new AddonMenu);
-
-    case LANGPACK_MENU:
-      return std::unique_ptr<Menu>(new AddonMenu(true));
-
-    case LANGPACK_AUTO_UPDATE_MENU:
-      return std::unique_ptr<Menu>(new AddonMenu(true, true));
 
     case NO_MENU:
       return std::unique_ptr<Menu>();

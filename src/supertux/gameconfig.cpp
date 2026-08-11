@@ -18,9 +18,7 @@
 
 #include <stdexcept>
 
-#include "addon/addon_manager.hpp"
 #include "control/input_manager.hpp"
-#include "util/reader_collection.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
@@ -50,11 +48,9 @@ Config::Config() :
   locale(),
   keyboard_config(),
   joystick_config(),
-  addons(),
   developer_mode(false),
   christmas_mode(false),
-  transitions_enabled(true),
-  repository_url()
+  transitions_enabled(true)
 {
 }
 
@@ -86,7 +82,6 @@ Config::load()
   config_lisp.get("transitions_enabled", transitions_enabled);
   config_lisp.get("locale", locale);
   config_lisp.get("random_seed", random_seed);
-  config_lisp.get("repository_url", repository_url);
 
   ReaderMapping config_video_lisp;
   if(config_lisp.get("video", config_video_lisp))
@@ -131,30 +126,6 @@ Config::load()
       joystick_config.read(joystick_lisp);
     }
   }
-
-  ReaderCollection config_addons_lisp;
-  if (config_lisp.get("addons", config_addons_lisp))
-  {
-    for(auto const& addon_node : config_addons_lisp.get_objects())
-    {
-      if (addon_node.get_name() == "addon")
-      {
-        auto addon = addon_node.get_mapping();
-
-        std::string id;
-        bool enabled = false;
-        if (addon.get("id", id) &&
-            addon.get("enabled", enabled))
-        {
-          addons.push_back({id, enabled});
-        }
-      }
-      else
-      {
-        log_warning << "Unknown token in config file: " << addon_node.get_name() << std::endl;
-      }
-    }
-  }
 }
 
 void
@@ -173,7 +144,6 @@ Config::save()
   }
   writer.write("transitions_enabled", transitions_enabled);
   writer.write("locale", locale);
-  writer.write("repository_url", repository_url);
 
   writer.start_list("video");
   writer.write("fullscreen", use_fullscreen);
@@ -210,16 +180,6 @@ Config::save()
     writer.end_list("joystick");
   }
   writer.end_list("control");
-
-  writer.start_list("addons");
-  for(const auto& addon : addons)
-  {
-    writer.start_list("addon");
-    writer.write("id", addon.id);
-    writer.write("enabled", addon.enabled);
-    writer.end_list("addon");
-  }
-  writer.end_list("addons");
 
   writer.end_list("supertux-config");
 }

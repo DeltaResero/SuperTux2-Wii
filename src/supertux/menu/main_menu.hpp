@@ -19,12 +19,10 @@
 
 #include "gui/menu.hpp"
 
-class AddonMenu;
 class WorldSetMenu;
 
 enum MainMenuIDs {
   MNID_STARTGAME,
-  MNID_ADDONS,
   MNID_OPTIONMENU,
   MNID_CREDITS,
   MNID_QUITMAINMENU

@@ -28,12 +28,6 @@ Please include the following details in your issue report so that we can investi
   gdb or a core dump. If you're on GNU/Linux and your distro is using systemd, it's
   highly likely that a core dump is available using `coredumpctl(1)`.
 
-### Add-on related issues
-
-No support is provided for third-party add-ons (that doesn't include official
-add-ons or language packs). However, a pull request against the SuperTux/addons
-repository containing a fix is always welcome.
-
 ### Translation issues
 
 Please use Transifex to fix or report translation related issues.

@@ -23,7 +23,6 @@
 #include "supertux/fadeout.hpp"
 #include "supertux/game_manager.hpp"
 #include "supertux/globals.hpp"
-#include "supertux/menu/addon_menu.hpp"
 #include "supertux/menu/contrib_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/options_menu.hpp"
@@ -40,7 +39,6 @@ MainMenu::MainMenu()
   set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 35);
 
   add_entry(MNID_STARTGAME, _("Start Game"));
-  add_entry(MNID_ADDONS, _("Add-ons"));
   add_submenu(_("Options"), MenuStorage::OPTIONS_MENU);
   add_entry(MNID_CREDITS, _("Credits"));
   add_entry(MNID_QUITMAINMENU, _("Quit"));
@@ -62,12 +60,6 @@ MainMenu::menu_action(MenuItem* item)
       // World selection menu
       MenuManager::instance().push_menu(MenuStorage::WORLDSET_MENU);
       break;
-
-    case MNID_ADDONS:
-      // Add-ons Menu
-      MenuManager::instance().push_menu(MenuStorage::ADDON_MENU);
-      break;
-
 
     case MNID_CREDITS:
       MenuManager::instance().clear_menu_stack();

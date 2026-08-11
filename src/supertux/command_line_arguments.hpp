@@ -74,8 +74,6 @@ public:
   
   boost::optional<bool> christmas_mode;
 
-  boost::optional<std::string> repository_url;
-
   // boost::optional<std::string> locale;
 
 public:

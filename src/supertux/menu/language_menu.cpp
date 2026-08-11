@@ -20,10 +20,8 @@
 extern "C" {
 #include <findlocale.h>
 }
-#include "addon/addon_manager.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
-#include "supertux/menu/addon_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
@@ -93,8 +91,6 @@ LanguageMenu::menu_action(MenuItem* item)
       }
     }
   }
-  if(g_dictionary_manager->get_language().get_language() != "en")
-    MenuManager::instance().push_menu(MenuStorage::LANGPACK_AUTO_UPDATE_MENU);
 }
 
 /* EOF */
