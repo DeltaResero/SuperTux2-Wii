@@ -76,8 +76,6 @@ public:
 
   boost::optional<std::string> repository_url;
 
-  boost::optional<std::string> edit_level;
-
   // boost::optional<std::string> locale;
 
 public:
