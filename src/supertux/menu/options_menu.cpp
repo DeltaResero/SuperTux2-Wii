@@ -22,9 +22,9 @@
 #include "supertux/gameconfig.hpp"
 #include "supertux/menu/joystick_menu.hpp"
 #include "supertux/menu/keyboard_menu.hpp"
-#include "supertux/menu/language_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/profile_menu.hpp"
+#include "util/gettext.hpp"
 #include "util/string_util.hpp"
 #include "video/renderer.hpp"
 
@@ -181,11 +181,8 @@ OptionsMenu::OptionsMenu(bool complete) :
 
   if (complete)
   {
-    // Language and profile changes are only be possible in the
-    // main menu, since elsewhere it might not always work fully
-    add_submenu(_("Select Language"), MenuStorage::LANGUAGE_MENU)
-      ->set_help(_("Select a different language to display text in"));
-
+    // Profile changes are only possible in the main menu, since
+    // elsewhere it might not always work fully
     add_submenu(_("Select Profile"), MenuStorage::PROFILE_MENU)
       ->set_help(_("Select a profile to play with"));
   }

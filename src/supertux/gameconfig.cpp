@@ -45,7 +45,6 @@ Config::Config() :
   start_demo(),
   record_demo(),
   tux_spawn_pos(),
-  locale(),
   keyboard_config(),
   joystick_config(),
   developer_mode(false),
@@ -80,7 +79,6 @@ Config::load()
     }
   }
   config_lisp.get("transitions_enabled", transitions_enabled);
-  config_lisp.get("locale", locale);
   config_lisp.get("random_seed", random_seed);
 
   ReaderMapping config_video_lisp;
@@ -143,7 +141,6 @@ Config::save()
     writer.write("christmas", christmas_mode);
   }
   writer.write("transitions_enabled", transitions_enabled);
-  writer.write("locale", locale);
 
   writer.start_list("video");
   writer.write("fullscreen", use_fullscreen);
