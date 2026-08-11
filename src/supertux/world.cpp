@@ -121,7 +121,6 @@ World::load_(const std::string& directory)
   }
 
   try {
-    register_translation_directory(filename);
     auto doc = ReaderDocument::parse(filename);
     auto root = doc.get_root();
 

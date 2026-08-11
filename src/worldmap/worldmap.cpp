@@ -237,7 +237,6 @@ WorldMap::load(const std::string& filename)
   levels_path = FileSystem::dirname(map_filename);
 
   try {
-    register_translation_directory(map_filename);
     auto doc = ReaderDocument::parse(map_filename);
     auto root = doc.get_root();
 
@@ -338,7 +337,6 @@ WorldMap::load_level_information(LevelTile& level)
     std::string filename = levels_path + level.get_name();
     if(levels_path == "./")
       filename = level.get_name();
-    register_translation_directory(filename);
     auto doc = ReaderDocument::parse(filename);
     auto root = doc.get_root();
     if(root.get_name() != "supertux-level") {

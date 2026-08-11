@@ -25,7 +25,6 @@
 #include "util/reader_fwd.hpp"
 
 int reader_get_layer(const ReaderMapping& reader, int def);
-void register_translation_directory(const std::string& filename);
 
 #endif
 

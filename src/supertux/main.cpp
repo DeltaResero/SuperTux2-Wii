@@ -27,7 +27,6 @@
 #include <iostream>
 #include <physfs.h>
 #include <stdio.h>
-#include <tinygettext/log.hpp>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
@@ -89,18 +88,6 @@ public:
     g_config.reset();
   }
 };
-
-void
-Main::init_tinygettext()
-{
-  g_dictionary_manager.reset(new tinygettext::DictionaryManager(std::unique_ptr<tinygettext::FileSystem>(new PhysFSFileSystem), "UTF-8"));
-
-  tinygettext::Log::set_log_info_callback(log_info_callback);
-  tinygettext::Log::set_log_warning_callback(log_warning_callback);
-  tinygettext::Log::set_log_error_callback(log_error_callback);
-
-  g_dictionary_manager->add_directory("locale");
-}
 
 class PhysfsSubsystem
 {
@@ -447,8 +434,6 @@ Main::run(int argc, char** argv)
     ConfigSubsystem config_subsystem;
     args.merge_into(*g_config);
 
-    timelog("tinygettext");
-    init_tinygettext();
 
     switch (args.get_action())
     {
@@ -479,8 +464,6 @@ Main::run(int argc, char** argv)
     log_fatal << "Unexpected exception" << std::endl;
     result = 1;
   }
-
-  g_dictionary_manager.reset();
 
   return result;
 }
