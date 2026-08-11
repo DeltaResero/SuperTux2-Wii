@@ -29,6 +29,7 @@
 #include "gui/menu_manager.hpp"
 #include "supertux/menu/download_dialog.hpp"
 #include "util/gettext.hpp"
+#include "util/log.hpp"
 
 namespace {
 
