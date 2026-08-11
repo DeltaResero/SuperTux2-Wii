@@ -54,7 +54,6 @@ public:
   {
     return _("Particle system");
   }
-  virtual ObjectSettings get_settings() override;
 
   virtual void parse(const ReaderMapping& reader);
   virtual void draw(DrawingContext& context) override;

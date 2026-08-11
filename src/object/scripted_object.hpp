@@ -60,8 +60,6 @@ public:
     return _("Scripted object");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   Physic physic;
   bool solid;

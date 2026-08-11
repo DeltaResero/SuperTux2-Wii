@@ -27,7 +27,7 @@ public:
 
   void try_break(Player* player);
   HitResponse collision(GameObject& other, const CollisionHit& hit);
-  virtual ObjectSettings get_settings();
+
   std::string get_class() const {
     return "brick";
   }

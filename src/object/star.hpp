@@ -28,9 +28,6 @@ public:
   virtual void draw(DrawingContext& context);
   virtual void collision_solid(const CollisionHit& hit);
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit);
-  virtual bool do_save() const {
-    return false;
-  }
 
 private:
   Physic physic;

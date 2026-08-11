@@ -40,8 +40,6 @@ public:
     return _("Trampoline");
   }
 
-  virtual ObjectSettings get_settings();
-
 private:
   bool portable;
 

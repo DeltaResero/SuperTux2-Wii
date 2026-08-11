@@ -31,9 +31,6 @@ public:
     return "scripttrigger";
   }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
   void write(Writer& writer);
   void event(Player& player, EventType type);
   void draw(DrawingContext& context);

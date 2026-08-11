@@ -25,9 +25,6 @@ class GrowUp : public MovingSprite
 {
 public:
   GrowUp(Direction direction = RIGHT);
-  virtual bool do_save() const {
-    return false;
-  }
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);

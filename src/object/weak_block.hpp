@@ -41,8 +41,6 @@ public:
     return _("Weak block");
   }
 
-  virtual ObjectSettings get_settings();
-
 protected:
   /**
    * called by self when hit by a bullet

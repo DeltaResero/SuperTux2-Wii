@@ -50,9 +50,6 @@ public:
   //Tux can only go this fast. If set to 0 no special limit is used, only the default limits.
   void set_speedlimit(float newlimit);
   float get_speedlimit() const;
-  virtual bool do_save() const {
-    return false;
-  }
 
 public:
   Player(PlayerStatus* player_status, const std::string& name);
@@ -201,12 +198,6 @@ public:
   void set_ghost_mode(bool enable);
 
   /**
-   * Switches edit mode on/off.
-   * In edit mode, Tux will enter ghost_mode instead of dying.
-   */
-  void set_edit_mode(bool enable);
-
-  /**
    * Returns whether ghost mode is currently enabled
    */
   bool get_ghost_mode() const { return ghost_mode; }
@@ -328,7 +319,6 @@ public:
   void try_grab();
 
   bool ghost_mode; /**< indicates if Tux should float around and through solid objects */
-  bool edit_mode; /**< indicates if Tux should switch to ghost mode rather than dying */
 
   Timer unduck_hurt_timer; /**< if Tux wants to stand up again after ducking and cannot, this timer is started */
 

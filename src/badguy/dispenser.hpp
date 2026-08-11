@@ -54,9 +54,6 @@ public:
     }
   }
 
-  ObjectSettings get_settings();
-  void after_editor_set();
-
 protected:
   bool collision_squished(GameObject& object);
   HitResponse collision(GameObject& other, const CollisionHit& hit);

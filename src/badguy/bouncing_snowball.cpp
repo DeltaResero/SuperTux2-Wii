@@ -85,11 +85,4 @@ BouncingSnowball::collision_badguy(BadGuy& , const CollisionHit& hit)
   return CONTINUE;
 }
 
-void
-BouncingSnowball::after_editor_set()
-{
-  BadGuy::after_editor_set();
-  sprite->set_action(dir == LEFT ? "left" : "right");
-}
-
 /* EOF */

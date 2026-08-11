@@ -33,8 +33,6 @@ public:
     return "door";
   }
 
-  virtual ObjectSettings get_settings();
-
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
   virtual void event(Player& player, EventType type);
