@@ -23,7 +23,7 @@
 #include <stdexcept>
 
 #include "math/rect.hpp"
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_file.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "video/sdl_surface_ptr.hpp"
@@ -154,7 +154,7 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
   }
   else
   {
-    image = IMG_Load_RW(get_physfs_SDLRWops(filename), 1);
+    image = IMG_Load_RW(sdl_rwops_from_file(filename), 1);
     if (!image)
     {
       std::ostringstream msg;
@@ -206,7 +206,7 @@ TextureManager::create_image_texture(const std::string& filename)
 TexturePtr
 TextureManager::create_image_texture_raw(const std::string& filename)
 {
-  SDLSurfacePtr image(IMG_Load_RW(get_physfs_SDLRWops(filename), 1));
+  SDLSurfacePtr image(IMG_Load_RW(sdl_rwops_from_file(filename), 1));
   if (!image)
   {
     std::ostringstream msg;

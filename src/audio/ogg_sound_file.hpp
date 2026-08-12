@@ -17,7 +17,8 @@
 #ifndef HEADER_SUPERTUX_AUDIO_OGG_SOUND_FILE_HPP
 #define HEADER_SUPERTUX_AUDIO_OGG_SOUND_FILE_HPP
 
-#include <physfs.h>
+#include <fstream>
+#include <string>
 #include <vorbis/vorbisfile.h>
 
 #include "audio/sound_file.hpp"
@@ -25,7 +26,7 @@
 class OggSoundFile : public SoundFile
 {
 public:
-  OggSoundFile(PHYSFS_file* file, double loop_begin, double loop_at);
+  OggSoundFile(const std::string& filename, double loop_begin, double loop_at);
   ~OggSoundFile();
 
   size_t read(void* buffer, size_t buffer_size);
@@ -37,7 +38,7 @@ private:
   static int cb_close(void* source);
   static long cb_tell(void* source);
 
-  PHYSFS_file*   file;
+  std::ifstream  file;
   OggVorbis_File vorbis_file;
   ogg_int64_t    loop_begin;
   ogg_int64_t    loop_at;

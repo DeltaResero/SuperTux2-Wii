@@ -15,11 +15,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "util/file_system.hpp"
 #include "video/gl/gl_renderer.hpp"
 
 #include <iomanip>
 #include <iostream>
-#include <physfs.h>
 #include "SDL.h"
 
 #include "supertux/gameconfig.hpp"
@@ -187,8 +187,6 @@ GLRenderer::do_take_screenshot()
   delete[](pixels);
 
   // save screenshot
-  static const std::string writeDir = PHYSFS_getWriteDir();
-  static const std::string dirSep = PHYSFS_getDirSeparator();
   static const std::string baseName = "screenshot";
   static const std::string fileExt = ".bmp";
   std::string fullFilename;
@@ -198,8 +196,8 @@ GLRenderer::do_take_screenshot()
     oss << std::setw(3) << std::setfill('0') << num;
     oss << fileExt;
     std::string fileName = oss.str();
-    fullFilename = writeDir + dirSep + fileName;
-    if (!PHYSFS_exists(fileName.c_str())) {
+    fullFilename = FileSystem::write_path(fileName);
+    if (FileSystem::find(fileName).empty()) {
       SDL_SaveBMP(shot_surf, fullFilename.c_str());
       log_info << "Wrote screenshot to \"" << fullFilename << "\"" << std::endl;
       SDL_FreeSurface(shot_surf);

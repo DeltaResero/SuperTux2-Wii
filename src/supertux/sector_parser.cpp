@@ -43,7 +43,7 @@
 #include "object/snow_particle_system.hpp"
 #include "object/text_object.hpp"
 #include "object/tilemap.hpp"
-#include "physfs/ifile_streambuf.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/collision.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/direction.hpp"
@@ -194,7 +194,7 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
     if (backgroundimage == "arctis2.jpg") backgroundimage = "arctis.jpg";
     if (backgroundimage == "ocean.png") backgroundimage = "ocean.jpg";
     backgroundimage = "images/background/" + backgroundimage;
-    if (!PHYSFS_exists(backgroundimage.c_str())) {
+    if (FileSystem::find(backgroundimage).empty()) {
       log_warning << "Background image \"" << backgroundimage << "\" not found. Ignoring." << std::endl;
       backgroundimage = "";
     }

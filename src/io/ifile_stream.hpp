@@ -14,18 +14,17 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
-#define HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
+#ifndef HEADER_SUPERTUX_IO_IFILE_STREAM_HPP
+#define HEADER_SUPERTUX_IO_IFILE_STREAM_HPP
 
-#include <memory>
-#include <istream>
-#include <physfs.h>
+#include <fstream>
+#include <string>
 
-class IFileStream : public std::istream
+/** Opens a name relative to the search path for reading. Throws
+    std::runtime_error when no search path entry holds it, so callers may
+    rely on a constructed stream being open. */
+class IFileStream : public std::ifstream
 {
-protected:
-  std::unique_ptr<std::streambuf> sb;
-
 public:
   IFileStream(const std::string& filename);
   ~IFileStream();

@@ -16,8 +16,7 @@
 
 #include <algorithm>
 
-#include "physfs/ifile_streambuf.hpp"
-#include "physfs/physfs_file_system.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/serialize.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/gameconfig.hpp"
@@ -71,12 +70,12 @@ World::create(const std::string& title, const std::string& desc)
 
   //Find a non-existing fitting directory name
   std::string dirname = base;
-  if (PHYSFS_exists(dirname.c_str())) {
+  if (!FileSystem::find(dirname).empty()) {
     int num = 1;
     do {
       num++;
       dirname = base + std::to_string(num);
-    } while ( PHYSFS_exists(dirname.c_str()) );
+    } while ( !FileSystem::find(dirname).empty() );
   }
 
   world->create_(dirname, title, desc);
@@ -114,7 +113,7 @@ World::load_(const std::string& directory)
 
   std::string filename = m_basedir + "/info";
 
-  if(!PHYSFS_exists(filename.c_str()))
+  if(FileSystem::find(filename).empty())
   {
     set_default_values();
     return;

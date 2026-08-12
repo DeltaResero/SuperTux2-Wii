@@ -24,9 +24,8 @@
 #include <string.h>
 #include <stdexcept>
 #include <SDL_image.h>
-#include <physfs.h>
 
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_file.hpp"
 #include "supertux/screen.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
@@ -75,14 +74,11 @@ Font::Font(GlyphWidth glyph_width_,
   const std::string fontname = FileSystem::basename(filename);
 
   // scan for prefix-filename across the whole search path
-  char **rc = PHYSFS_enumerateFiles(fontdir.c_str());
-  for (char **i = rc; *i != NULL; i++) {
-    std::string filename_(*i);
+  for (const std::string& filename_ : FileSystem::enumerate(fontdir)) {
     if( filename_.rfind(fontname) != std::string::npos ) {
       loadFontFile(fontdir + filename_);
     }
   }
-  PHYSFS_freeList(rc);
 }
 
 void
@@ -188,7 +184,7 @@ Font::loadFontSurface(
   if( glyph_width_ == VARIABLE ) {
     //this does not work:
     // surface = ((SDL::Texture *)glyph_surface.get_texture())->get_texture();
-    surface = IMG_Load_RW(get_physfs_SDLRWops("images/engine/fonts/"+glyphimage), 1);
+    surface = IMG_Load_RW(sdl_rwops_from_file("images/engine/fonts/"+glyphimage), 1);
     if(surface == NULL) {
       std::ostringstream msg;
       msg << "Couldn't load image '" << glyphimage << "' :" << SDL_GetError();

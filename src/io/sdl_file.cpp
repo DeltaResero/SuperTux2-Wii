@@ -14,31 +14,25 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_OFILE_STREAMBUF_HPP
-#define HEADER_SUPERTUX_PHYSFS_OFILE_STREAMBUF_HPP
+#include "io/sdl_file.hpp"
 
-#include <streambuf>
-#include <physfs.h>
+#include <stdexcept>
 
-class OFileStreambuf : public std::streambuf
+#include "util/file_system.hpp"
+
+SDL_RWops* sdl_rwops_from_file(const std::string& filename)
 {
-public:
-  OFileStreambuf(const std::string& filename);
-  ~OFileStreambuf();
+  const std::string path = FileSystem::find(filename);
+  if (path.empty()) {
+    throw std::runtime_error("Couldn't open '" + filename + "': not found");
+  }
 
-protected:
-  virtual int overflow(int c);
-  virtual int sync();
+  SDL_RWops* ops = SDL_RWFromFile(path.c_str(), "rb");
+  if (ops == nullptr) {
+    throw std::runtime_error("Couldn't open '" + path + "': " + SDL_GetError());
+  }
 
-private:
-  PHYSFS_file* file;
-  char buf[1024];
-
-private:
-  OFileStreambuf(const OFileStreambuf&);
-  OFileStreambuf& operator=(const OFileStreambuf&);
-};
-
-#endif
+  return ops;
+}
 
 /* EOF */

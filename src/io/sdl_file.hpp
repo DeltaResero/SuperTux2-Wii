@@ -14,18 +14,17 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "physfs/ifile_stream.hpp"
+#ifndef HEADER_SUPERTUX_IO_SDL_FILE_HPP
+#define HEADER_SUPERTUX_IO_SDL_FILE_HPP
 
-#include "physfs/ifile_streambuf.hpp"
+#include <SDL.h>
+#include <string>
 
-IFileStream::IFileStream(const std::string& filename) :
-  std::istream(nullptr), sb(new IFileStreambuf(filename))
-{
-  init(sb.get());
-}
+/** Opens a name relative to the search path as an SDL_RWops. Throws
+    std::runtime_error rather than returning null, so callers may hand the
+    result straight to SDL_image with the free flag set. */
+SDL_RWops* sdl_rwops_from_file(const std::string& filename);
 
-IFileStream::~IFileStream()
-{
-}
+#endif
 
 /* EOF */

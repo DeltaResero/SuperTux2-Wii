@@ -18,10 +18,10 @@
 
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
+#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"
 
-#include <physfs.h>
 #include <stdexcept>
 
 MovingSprite::MovingSprite(const Vector& pos, const std::string& sprite_name_,
@@ -60,7 +60,7 @@ MovingSprite::MovingSprite(const ReaderMapping& reader, const std::string& sprit
   reader.get("sprite", this->sprite_name);
 
   //make the sprite go defaut when the sprite file is invalid
-  if (sprite_name.empty() || !PHYSFS_exists(sprite_name.c_str())) {
+  if (sprite_name.empty() || FileSystem::find(sprite_name).empty()) {
     sprite_name = sprite_name_;
   }
 

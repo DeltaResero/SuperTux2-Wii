@@ -18,17 +18,27 @@
 
 #include <assert.h>
 
-OggSoundFile::OggSoundFile(PHYSFS_file* file_, double loop_begin_, double loop_at_) :
+#include "audio/sound_error.hpp"
+#include "util/file_system.hpp"
+
+OggSoundFile::OggSoundFile(const std::string& filename, double loop_begin_, double loop_at_) :
   file(),
   vorbis_file(),
   loop_begin(),
   loop_at(),
   normal_buffer_loop()
 {
-  this->file = file_;
+  const std::string path = FileSystem::find(filename);
+  if(path.empty())
+    throw SoundError("Couldn't open '" + filename + "': not found");
+
+  file.open(path, std::ios::in | std::ios::binary);
+  if(!file.is_open())
+    throw SoundError("Couldn't open '" + path + "'");
 
   ov_callbacks callbacks = { cb_read, cb_seek, cb_close, cb_tell };
-  ov_open_callbacks(file, &vorbis_file, 0, 0, callbacks);
+  if(ov_open_callbacks(&file, &vorbis_file, 0, 0, callbacks) < 0)
+    throw SoundError("Couldn't read vorbis file '" + path + "'");
 
   vorbis_info* vi = ov_info(&vorbis_file, -1);
 
@@ -105,54 +115,57 @@ OggSoundFile::reset()
 size_t
 OggSoundFile::cb_read(void* ptr, size_t size, size_t nmemb, void* source)
 {
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
-
-  PHYSFS_sint64 res
-    = PHYSFS_readBytes(file, ptr, static_cast<PHYSFS_uint32> (size) * static_cast<PHYSFS_uint32> (nmemb));
-  if(res <= 0)
+  auto file = reinterpret_cast<std::ifstream*> (source);
+  if(size == 0)
     return 0;
 
-  return static_cast<size_t> (res) / size;
+  file->read(static_cast<char*> (ptr), static_cast<std::streamsize> (size * nmemb));
+  const std::streamsize got = file->gcount();
+  if(file->bad())
+    return 0;
+
+  // A short read is how vorbisfile discovers the end; clear it so the next
+  // seek is not refused by a sticky eofbit.
+  file->clear();
+
+  return static_cast<size_t> (got) / size;
 }
 
 int
 OggSoundFile::cb_seek(void* source, ogg_int64_t offset, int whence)
 {
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
+  auto file = reinterpret_cast<std::ifstream*> (source);
+  std::ios::seekdir dir;
 
   switch(whence) {
-    case SEEK_SET:
-      if(PHYSFS_seek(file, static_cast<PHYSFS_uint64> (offset)) == 0)
-        return -1;
-      break;
-    case SEEK_CUR:
-      if(PHYSFS_seek(file, PHYSFS_tell(file) + offset) == 0)
-        return -1;
-      break;
-    case SEEK_END:
-      if(PHYSFS_seek(file, PHYSFS_fileLength(file) + offset) == 0)
-        return -1;
-      break;
+    case SEEK_SET: dir = std::ios::beg; break;
+    case SEEK_CUR: dir = std::ios::cur; break;
+    case SEEK_END: dir = std::ios::end; break;
     default:
       assert(false);
       return -1;
   }
+
+  file->clear();
+  if(!file->seekg(static_cast<std::streamoff> (offset), dir))
+    return -1;
+
   return 0;
 }
 
 int
 OggSoundFile::cb_close(void* source)
 {
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
-  PHYSFS_close(file);
+  // The stream is a member of the OggSoundFile and closes with it.
+  (void) source;
   return 0;
 }
 
 long
 OggSoundFile::cb_tell(void* source)
 {
-  auto file = reinterpret_cast<PHYSFS_file*> (source);
-  return static_cast<long> (PHYSFS_tell(file));
+  auto file = reinterpret_cast<std::ifstream*> (source);
+  return static_cast<long> (file->tellg());
 }
 
 /* EOF */

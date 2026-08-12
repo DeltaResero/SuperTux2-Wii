@@ -16,7 +16,7 @@
 
 #include "util/writer.hpp"
 
-#include "physfs/ofile_stream.hpp"
+#include "io/ofile_stream.hpp"
 #include "util/log.hpp"
 
 Writer::Writer(const std::string& filename) :

@@ -14,14 +14,32 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_PHYSFS_SDL_HPP
-#define HEADER_SUPERTUX_PHYSFS_PHYSFS_SDL_HPP
+#include "io/ifile_stream.hpp"
 
-#include <SDL.h>
-#include <string>
+#include <stdexcept>
 
-SDL_RWops* get_physfs_SDLRWops(const std::string& filename);
+#include "util/file_system.hpp"
 
-#endif
+IFileStream::IFileStream(const std::string& filename) :
+  std::ifstream()
+{
+  if (filename.empty()) {
+    throw std::runtime_error("Couldn't open file: empty filename");
+  }
+
+  const std::string path = FileSystem::find(filename);
+  if (path.empty()) {
+    throw std::runtime_error("Couldn't open file '" + filename + "': not found");
+  }
+
+  open(path, std::ios::in | std::ios::binary);
+  if (!is_open()) {
+    throw std::runtime_error("Couldn't open file '" + path + "'");
+  }
+}
+
+IFileStream::~IFileStream()
+{
+}
 
 /* EOF */

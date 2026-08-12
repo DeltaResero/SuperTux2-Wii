@@ -14,34 +14,24 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_IFILE_STREAMBUF_HPP
-#define HEADER_SUPERTUX_PHYSFS_IFILE_STREAMBUF_HPP
+#ifndef HEADER_SUPERTUX_IO_OFILE_STREAM_HPP
+#define HEADER_SUPERTUX_IO_OFILE_STREAM_HPP
 
-#include <streambuf>
-#include <physfs.h>
+#include <fstream>
+#include <string>
 
-/** This class implements a C++ streambuf object for physfs files.
- * So that you can use normal istream operations on them
- */
-class IFileStreambuf : public std::streambuf
+/** Creates a name relative to the write directory. Throws
+    std::runtime_error when it cannot be opened, so callers may rely on a
+    constructed stream being open. */
+class OFileStream : public std::ofstream
 {
 public:
-  IFileStreambuf(const std::string& filename);
-  ~IFileStreambuf();
-
-protected:
-  virtual int underflow();
-  virtual pos_type seekoff(off_type pos, std::ios_base::seekdir,
-                           std::ios_base::openmode);
-  virtual pos_type seekpos(pos_type pos, std::ios_base::openmode);
+  OFileStream(const std::string& filename);
+  ~OFileStream();
 
 private:
-  PHYSFS_file* file;
-  char buf[1024];
-
-private:
-  IFileStreambuf(const IFileStreambuf&);
-  IFileStreambuf& operator=(const IFileStreambuf&);
+  OFileStream(const OFileStream&) = delete;
+  OFileStream& operator=(const OFileStream&) = delete;
 };
 
 #endif

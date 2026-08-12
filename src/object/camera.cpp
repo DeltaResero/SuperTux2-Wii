@@ -17,13 +17,13 @@
 #include "object/camera.hpp"
 
 #include <math.h>
-#include <physfs.h>
 
 #include "object/path_walker.hpp"
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"
+#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -245,7 +245,7 @@ Camera::update(float elapsed_time)
 void
 Camera::reload_config()
 {
-  if(PHYSFS_exists("camera.cfg")) {
+  if(!FileSystem::find("camera.cfg").empty()) {
     try {
       config->load("camera.cfg");
       log_info << "Loaded camera.cfg." << std::endl;
