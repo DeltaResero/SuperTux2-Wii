@@ -1,3 +1,6 @@
+// src/object/trampoline.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Trampoline
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //

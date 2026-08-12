@@ -1,3 +1,6 @@
+// src/supertux/tile_manager.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2004 Tobias Glaesser <tobi.web@gmx.de>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>

@@ -1,3 +1,6 @@
+// src/badguy/iceflame.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux badguy - Iceflame a flame-like enemy that can be killed with fireballs
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //

@@ -1,3 +1,6 @@
+// src/supertux/sector.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //

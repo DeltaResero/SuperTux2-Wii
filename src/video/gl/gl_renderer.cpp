@@ -1,3 +1,6 @@
+// src/video/gl/gl_renderer.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //	Updated by GiBy 2013 for SDL2 <giby_the_kid@yahoo.fr>

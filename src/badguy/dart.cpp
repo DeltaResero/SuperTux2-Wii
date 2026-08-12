@@ -1,3 +1,6 @@
+// src/badguy/dart.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  Dart - Your average poison dart
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //

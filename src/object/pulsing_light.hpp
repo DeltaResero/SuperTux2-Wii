@@ -1,3 +1,6 @@
+// src/object/pulsing_light.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Pulsing Light
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //

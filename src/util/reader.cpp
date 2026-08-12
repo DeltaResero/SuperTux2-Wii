@@ -1,3 +1,6 @@
+// src/util/reader.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 /*
  * src/util/reader.cpp - Utility functions for config handling.
  * Copyright (C) 2010  Florian Forster

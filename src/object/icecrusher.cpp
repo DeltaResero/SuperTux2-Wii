@@ -1,3 +1,6 @@
+// src/object/icecrusher.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  IceCrusher - A block to stand on, which can drop down to crush the player
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>

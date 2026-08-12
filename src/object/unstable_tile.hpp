@@ -1,3 +1,6 @@
+// src/object/unstable_tile.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Unstable Tile
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>

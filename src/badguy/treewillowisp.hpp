@@ -1,3 +1,6 @@
+// src/badguy/treewillowisp.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - "Will-O-Wisp" Badguy
 //  Copyright (C) 2007 Matthias Braun <matze@braunis.de>
 //

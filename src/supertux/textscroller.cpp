@@ -1,3 +1,6 @@
+// src/supertux/textscroller.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2016 M. Teufel <mteufel@urandom.eu.org>

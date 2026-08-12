@@ -1,3 +1,6 @@
+// src/supertux/menu/world_set_menu.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2015 Matthew <thebatmankiller3@gmail.com>
 //

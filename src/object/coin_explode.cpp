@@ -1,3 +1,6 @@
+// src/object/coin_explode.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  CoinExplode - several coins are hurled through the air
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //

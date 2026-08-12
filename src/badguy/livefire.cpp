@@ -1,3 +1,6 @@
+// src/badguy/livefire.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux badguy - walking flame that glows
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //

@@ -1,3 +1,6 @@
+// src/math/random_generator.cpp
+// SPDX-License-Identifier: BSD-3-Clause
+//
 // $Id$
 //
 // A strong random number generator

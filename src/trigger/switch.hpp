@@ -1,3 +1,6 @@
+// src/trigger/switch.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Switch Trigger
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //

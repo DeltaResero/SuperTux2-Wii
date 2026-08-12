@@ -1,3 +1,6 @@
+// src/math/aatriangle.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  $Id$
 //
 //  SuperTux

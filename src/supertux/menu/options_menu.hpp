@@ -1,3 +1,6 @@
+// src/supertux/menu/options_menu.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2004 Tobas Glaesser <tobi.web@gmx.de>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
