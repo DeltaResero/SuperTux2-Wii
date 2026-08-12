@@ -27,8 +27,8 @@
 #include "supertux/resources.hpp"
 #include "supertux/player_status.hpp"
 
+#include <format>
 #include <sstream>
-#include <boost/format.hpp>
 
 LevelIntro::LevelIntro(const Level* level_, const Statistics* best_level_statistics_, const PlayerStatus* player_status_) :
   level(level_),
@@ -116,7 +116,7 @@ LevelIntro::draw(DrawingContext& context)
 
   std::string author = level->get_author();
   if ((!author.empty()) && (author != "SuperTux Team")) {
-    std::string author_text = str(boost::format("contributed by %s") % author);
+    std::string author_text = std::format("contributed by {}", author);
     context.draw_center_text(Resources::small_font, author_text, Vector(0, py), LAYER_FOREGROUND1, LevelIntro::author_color);
     py += static_cast<int>(Resources::small_font->get_height());
   }

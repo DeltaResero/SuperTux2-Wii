@@ -20,11 +20,10 @@
 #include <version.h>
 
 #include <SDL_image.h>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/optional.hpp>
 #include <array>
+#include <filesystem>
 #include <iostream>
+#include <optional>
 #include <physfs.h>
 #include <stdio.h>
 
@@ -91,13 +90,13 @@ public:
 class PhysfsSubsystem
 {
 private:
-  boost::optional<std::string> m_forced_datadir;
-  boost::optional<std::string> m_forced_userdir;
+  std::optional<std::string> m_forced_datadir;
+  std::optional<std::string> m_forced_userdir;
 
 public:
   PhysfsSubsystem(const char* argv0,
-                  boost::optional<std::string> forced_datadir,
-                  boost::optional<std::string> forced_userdir) :
+                  std::optional<std::string> forced_datadir,
+                  std::optional<std::string> forced_userdir) :
     m_forced_datadir(forced_datadir),
     m_forced_userdir(forced_userdir)
   {
@@ -183,20 +182,20 @@ public:
 	std::string olduserdir = FileSystem::join(physfs_userdir, "." PACKAGE_NAME);
 #endif
 	if (FileSystem::is_directory(olduserdir)) {
-	  boost::filesystem::path olduserpath(olduserdir);
-	  boost::filesystem::path userpath(userdir);
+	  std::filesystem::path olduserpath(olduserdir);
+	  std::filesystem::path userpath(userdir);
 	  
-	  boost::filesystem::directory_iterator end_itr;
+	  std::filesystem::directory_iterator end_itr;
 
 	  bool success = true;
 
 	  // cycle through the directory
-	  for (boost::filesystem::directory_iterator itr(olduserpath); itr != end_itr; ++itr) {
+	  for (std::filesystem::directory_iterator itr(olduserpath); itr != end_itr; ++itr) {
 		try
 		{
-		  boost::filesystem::rename(itr->path().string().c_str(), userpath / itr->path().filename());
+		  std::filesystem::rename(itr->path().string().c_str(), userpath / itr->path().filename());
 		}
-		catch (const boost::filesystem::filesystem_error& err)
+		catch (const std::filesystem::filesystem_error& err)
 		{
 		  success = false;
 		  log_warning << "Failed to move contents of config directory: " << err.what();
@@ -205,9 +204,9 @@ public:
 	  if (success) {
 	    try
 		{
-		  boost::filesystem::remove_all(olduserpath);
+		  std::filesystem::remove_all(olduserpath);
 		}
-		catch (const boost::filesystem::filesystem_error& err)
+		catch (const std::filesystem::filesystem_error& err)
 		{
 		  success = false;
 		  log_warning << "Failed to remove old config directory: " << err.what();

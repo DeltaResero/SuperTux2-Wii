@@ -17,6 +17,7 @@
 #include "supertux/console.hpp"
 
 #include <assert.h>
+#include <iostream>
 #include <math.h>
 
 #include "physfs/ifile_stream.hpp"
