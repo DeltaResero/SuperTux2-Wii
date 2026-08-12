@@ -16,64 +16,36 @@
 
 #include "util/log.hpp"
 
+#include <filesystem>
 #include <sstream>
 #include <stdexcept>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <vector>
-
-#ifdef _WIN32
-#  include <shlwapi.h>
-#else
-#  include <unistd.h>
-#endif
 
 namespace FileSystem {
 
+/* These three take real host paths. Everything below them manipulates the
+   virtual paths the search path is addressed with, where the separator is
+   always '/' and std::filesystem's host semantics would be wrong. */
+
 bool exists(const std::string& path)
 {
-#ifdef _WIN32
-  DWORD dwAttrib = GetFileAttributes(path.c_str());
-
-  return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-          !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-  return !access(path.c_str(), F_OK);
-#endif
+  std::error_code ec;
+  return std::filesystem::exists(path, ec);
 }
 
 bool is_directory(const std::string& path)
 {
-  struct stat info;
-
-  if (stat(path.c_str(), &info ) != 0)
-  {
-    // access error
-    return false;
-  }
-  else if (info.st_mode & S_IFDIR)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  std::error_code ec;
+  return std::filesystem::is_directory(path, ec);
 }
 
 void mkdir(const std::string& directory)
 {
-#ifdef _WIN32
-  if (!CreateDirectory(directory.c_str(), NULL))
+  std::error_code ec;
+  if (!std::filesystem::create_directory(directory, ec))
   {
     throw std::runtime_error("failed to create directory: "  + directory);
   }
-#else
-  if (::mkdir(directory.c_str(), 0777) != 0)
-  {
-    throw std::runtime_error("failed to create directory: "  + directory);
-  }
-#endif
 }
 
 std::string dirname(const std::string& filename)
