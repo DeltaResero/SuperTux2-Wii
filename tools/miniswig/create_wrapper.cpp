@@ -1,3 +1,5 @@
+// tools/miniswig/create_wrapper.cpp
+//
 #include <config.h>
 
 #include "tree.hpp"

@@ -1,3 +1,5 @@
+// tools/miniswig/tree.hpp
+//
 #ifndef __TREE_H__
 #define __TREE_H__
 

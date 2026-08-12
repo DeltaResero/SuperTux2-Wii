@@ -1,3 +1,5 @@
+// tools/miniswig/main.cpp
+//
 #include <config.h>
 
 #include <iostream>

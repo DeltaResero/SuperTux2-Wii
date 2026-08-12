@@ -1,3 +1,5 @@
+// tools/miniswig/xmlwriter.cpp
+//
 #include <config.h>
 
 #include <stdexcept>

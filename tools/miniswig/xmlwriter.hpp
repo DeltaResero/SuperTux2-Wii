@@ -1,3 +1,5 @@
+// tools/miniswig/xmlwriter.hpp
+//
 #ifndef __XMLWRITER_H__
 #define __XMLWRITER_H__
 
