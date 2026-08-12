@@ -15,7 +15,7 @@ function intro_scene2()
   Effect.fade_in(5);
   wait(5);
   Camera.scroll_to(3100, 945, 8);
-  NOLOK.set_visible(true);  
+  NOLOK.set_visible(true);
   NOLOK.set_velocity(500,0);
   wait(8);
   SUPERTUX.set_visible(true);

@@ -20,6 +20,7 @@
 
 #include <config.h>
 
+#include <cstring>
 #include <stdint.h>
 #include <sstream>
 #include <physfs.h>
