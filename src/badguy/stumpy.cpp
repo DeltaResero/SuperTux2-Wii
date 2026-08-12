@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/stumpy.hpp"
+#include <numbers>
 
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
@@ -103,7 +104,7 @@ Stumpy::collision_squished(GameObject& object)
     // TODO: provide convenience function in MovingSprite or MovingObject?
     for (int i = 0; i < 25; i++) {
       Vector ppos = bbox.get_middle();
-      float angle = graphicsRandom.randf(-M_PI_2, M_PI_2);
+      float angle = graphicsRandom.randf(-(std::numbers::pi / 2), (std::numbers::pi / 2));
       float velocity = graphicsRandom.randf(45, 90);
       float vx = sin(angle)*velocity;
       float vy = -cos(angle)*velocity;

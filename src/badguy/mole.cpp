@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio/sound_manager.hpp"
+#include <numbers>
 #include "badguy/mole.hpp"
 #include "badguy/mole_rock.hpp"
 #include "math/random_generator.hpp"
@@ -89,7 +90,7 @@ Mole::collision_squished(GameObject& )
 void
 Mole::throw_rock()
 {
-  float angle = gameRandom.rand(90 - 15, 90 + 15) * (M_PI / 180);
+  float angle = gameRandom.rand(90 - 15, 90 + 15) * (std::numbers::pi / 180);
   float vx = cos(angle) * THROW_VELOCITY;
   float vy = -sin(angle) * THROW_VELOCITY;
 

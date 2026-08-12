@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/pulsing_light.hpp"
+#include <numbers>
 #include <math.h>
 
 #include "math/random_generator.hpp"
@@ -50,7 +51,7 @@ PulsingLight::draw(DrawingContext& context)
 {
   Color old_color = color;
 
-  color.alpha *= min_alpha + ((max_alpha - min_alpha) * cos(2 * M_PI * t / cycle_len));
+  color.alpha *= min_alpha + ((max_alpha - min_alpha) * cos(2 * std::numbers::pi * t / cycle_len));
   Light::draw(context);
 
   color = old_color;

@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/iceflame.hpp"
+#include <numbers>
 
 #include <math.h>
 
@@ -38,7 +39,7 @@ void
 Iceflame::active_update(float elapsed_time)
 {
   Flame::active_update(elapsed_time);
-  sprite->set_angle(angle * 360.0f / (2*M_PI) * 3);
+  sprite->set_angle(angle * 360.0f / (2*std::numbers::pi) * 3);
 }
 
 void

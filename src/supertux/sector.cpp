@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "supertux/sector.hpp"
+#include <numbers>
 
 #include <algorithm>
 #include <math.h>
@@ -965,7 +966,7 @@ Sector::handle_collisions()
     Vector mov = moving_object->get_movement();
 
     // make sure movement is never faster than MAX_SPEED. Norm is pretty fat, so two addl. checks are done before.
-    if (((mov.x > MAX_SPEED * M_SQRT1_2) || (mov.y > MAX_SPEED * M_SQRT1_2)) && (mov.norm() > MAX_SPEED)) {
+    if (((mov.x > MAX_SPEED * (std::numbers::sqrt2 / 2)) || (mov.y > MAX_SPEED * (std::numbers::sqrt2 / 2))) && (mov.norm() > MAX_SPEED)) {
       moving_object->movement = mov.unit() * MAX_SPEED;
       //log_debug << "Temporarily reduced object's speed of " << mov.norm() << " to " << moving_object->movement.norm() << "." << std::endl;
     }

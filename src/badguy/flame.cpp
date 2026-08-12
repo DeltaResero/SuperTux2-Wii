@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/flame.hpp"
+#include <numbers>
 
 #include <math.h>
 
@@ -55,7 +56,7 @@ Flame::Flame(const ReaderMapping& reader) :
 void
 Flame::active_update(float elapsed_time)
 {
-  angle = fmodf(angle + elapsed_time * speed, (float) (2*M_PI));
+  angle = fmodf(angle + elapsed_time * speed, (float) (2*std::numbers::pi));
   Vector newpos(start_position.x + cos(angle) * radius,
                 start_position.y + sin(angle) * radius);
   movement = newpos - get_pos();

@@ -15,6 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/camera.hpp"
+#include <numbers>
 
 #include <math.h>
 
@@ -206,7 +207,7 @@ Camera::shake(float time, float x, float y)
   shaketimer.start(time);
   shakedepth_x = x;
   shakedepth_y = y;
-  shakespeed = M_PI/2 / time;
+  shakespeed = std::numbers::pi/2 / time;
 }
 
 void
