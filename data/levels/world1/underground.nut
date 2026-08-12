@@ -1,5 +1,5 @@
 if(! ("underground" in state)){
-	state.underground <- false;
+  state.underground <- false;
   print("[DEBUG] Underground state initialized\n");
 }
 
