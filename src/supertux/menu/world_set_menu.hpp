@@ -35,3 +35,5 @@ public:
 
 
 #endif // WORLD_SET_MENU_HPP_INCLUDED
+
+/* EOF */

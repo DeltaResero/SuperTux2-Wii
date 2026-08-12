@@ -117,3 +117,5 @@ inline bool operator!=(const Size& lhs, const Size& rhs)
 std::ostream& operator<<(std::ostream& s, const Size& size);
 
 #endif
+
+/* EOF */
