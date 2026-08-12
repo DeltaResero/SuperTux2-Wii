@@ -207,7 +207,7 @@ Camera::shake(float time, float x, float y)
   shaketimer.start(time);
   shakedepth_x = x;
   shakedepth_y = y;
-  shakespeed = std::numbers::pi/2 / time;
+  shakespeed = std::numbers::pi_v<float>/2 / time;
 }
 
 void

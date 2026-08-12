@@ -39,7 +39,7 @@ void
 Iceflame::active_update(float elapsed_time)
 {
   Flame::active_update(elapsed_time);
-  sprite->set_angle(angle * 360.0f / (2*std::numbers::pi) * 3);
+  sprite->set_angle(angle * 360.0f / (2*std::numbers::pi_v<float>) * 3);
 }
 
 void

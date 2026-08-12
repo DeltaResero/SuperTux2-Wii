@@ -56,7 +56,7 @@ Flame::Flame(const ReaderMapping& reader) :
 void
 Flame::active_update(float elapsed_time)
 {
-  angle = fmodf(angle + elapsed_time * speed, (float) (2*std::numbers::pi));
+  angle = fmodf(angle + elapsed_time * speed, 2*std::numbers::pi_v<float>);
   Vector newpos(start_position.x + cos(angle) * radius,
                 start_position.y + sin(angle) * radius);
   movement = newpos - get_pos();

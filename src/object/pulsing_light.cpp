@@ -51,7 +51,7 @@ PulsingLight::draw(DrawingContext& context)
 {
   Color old_color = color;
 
-  color.alpha *= min_alpha + ((max_alpha - min_alpha) * cos(2 * std::numbers::pi * t / cycle_len));
+  color.alpha *= min_alpha + ((max_alpha - min_alpha) * cos(2 * std::numbers::pi_v<float> * t / cycle_len));
   Light::draw(context);
 
   color = old_color;

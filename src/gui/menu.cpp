@@ -346,7 +346,7 @@ Menu::draw_item(DrawingContext& context, int index)
 
   if(active_item == index)
   {
-    float blink = (sinf(real_time * std::numbers::pi * 1.0f)/2.0f + 0.5f) * 0.5f + 0.25f;
+    float blink = (sinf(real_time * std::numbers::pi_v<float> * 1.0f)/2.0f + 0.5f) * 0.5f + 0.25f;
     context.draw_filled_rect(Rectf(Vector(pos.x - menu_width/2 + 10 - 2, y_pos - 12 - 2),
                                    Vector(pos.x + menu_width/2 - 10 + 2, y_pos + 12 + 2)),
                              Color(1.0f, 1.0f, 1.0f, blink),
