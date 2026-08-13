@@ -46,7 +46,7 @@ uint32_t decode_utf8(const std::string& text, size_t& p)
 {
   uint32_t c1 = (unsigned char) text[p+0];
 
-  if (has_multibyte_mark(c1)) std::runtime_error("Malformed utf-8 sequence");
+  if (has_multibyte_mark(c1)) throw std::runtime_error("Malformed utf-8 sequence");
 
   if ((c1 & 0200) == 0000) {
     // 0xxx.xxxx: 1 byte sequence
@@ -76,7 +76,7 @@ uint32_t decode_utf8(const std::string& text, size_t& p)
     if(p+3 >= text.size()) throw std::range_error("Malformed utf-8 sequence");
     uint32_t c2 = (unsigned char) text[p+1];
     uint32_t c3 = (unsigned char) text[p+2];
-    uint32_t c4 = (unsigned char) text[p+4];
+    uint32_t c4 = (unsigned char) text[p+3];
     if (!has_multibyte_mark(c2)) throw std::runtime_error("Malformed utf-8 sequence");
     if (!has_multibyte_mark(c3)) throw std::runtime_error("Malformed utf-8 sequence");
     if (!has_multibyte_mark(c4)) throw std::runtime_error("Malformed utf-8 sequence");
@@ -96,8 +96,9 @@ UTF8Iterator::UTF8Iterator(const std::string& text_) :
 {
   try {
     chr = decode_utf8(text, pos);
-  } catch (std::exception) {
-    log_debug << "Malformed utf-8 sequence beginning with " << *(reinterpret_cast<const uint32_t*>(text.c_str() + pos)) << " found " << std::endl;
+  } catch (const std::exception&) {
+    log_debug << "Malformed utf-8 sequence at byte " << pos << " starting with "
+              << static_cast<unsigned>(static_cast<unsigned char>(text[pos])) << std::endl;
     chr = 0;
   }
 }
@@ -112,8 +113,9 @@ UTF8Iterator::done() const
 UTF8Iterator::operator++() {
     try {
       chr = decode_utf8(text, pos);
-    } catch (std::exception) {
-      log_debug << "Malformed utf-8 sequence beginning with " << *(reinterpret_cast<const uint32_t*>(text.c_str() + pos)) << " found " << std::endl;
+    } catch (const std::exception&) {
+      log_debug << "Malformed utf-8 sequence at byte " << pos << " starting with "
+                << static_cast<unsigned>(static_cast<unsigned char>(text[pos])) << std::endl;
       chr = 0;
       ++pos;
     }
