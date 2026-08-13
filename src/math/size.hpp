@@ -37,11 +37,6 @@ public:
     height(height_)
   {}
 
-  Size(const Size& rhs) :
-    width(rhs.width),
-    height(rhs.height)
-  {}
-
   explicit Size(const Sizef& rhs);
 
   Size& operator*=(int factor)

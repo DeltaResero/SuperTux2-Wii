@@ -131,7 +131,7 @@ SoundManager::intern_create_sound_source(const std::string& filename)
     } else {
       std::unique_ptr<StreamSoundSource> source_(new StreamSoundSource);
       source_->set_sound_file(std::move(file));
-      return std::move(source_);
+      return source_;
     }
 
     log_debug << "Uncached sound \"" << filename << "\" requested to be played" << std::endl;

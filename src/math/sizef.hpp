@@ -44,11 +44,6 @@ public:
     height(height_)
   {}
 
-  Sizef(const Sizef& rhs) :
-    width(rhs.width),
-    height(rhs.height)
-  {}
-
   Sizef(const Size& rhs);
 
   Sizef& operator*=(float factor)

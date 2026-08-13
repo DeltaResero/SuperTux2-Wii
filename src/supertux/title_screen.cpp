@@ -100,7 +100,16 @@ TitleScreen::setup()
   Sector* sector = titlesession->get_current_sector();
   if(Sector::current() != sector) {
     sector->play_music(LEVEL_MUSIC);
-    sector->activate(sector->player->get_pos());
+
+    /* activate() wants a spawnpoint, which it reads as the top of a big Tux
+       and drops a tile for a small one so that either lands feet first on the
+       same ground. Tux is already standing where he belongs, so work back to
+       the spawnpoint that leaves him there. Keep this in step with the drop
+       in Sector::activate. */
+    Player* tux = sector->player;
+    Vector spawn = tux->get_pos();
+    if (!tux->is_big()) spawn.y -= 32;
+    sector->activate(spawn);
   }
 
   MenuManager::instance().set_menu(MenuStorage::MAIN_MENU);

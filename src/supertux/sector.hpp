@@ -166,6 +166,14 @@ public:
   std::vector<Player*> get_players() const {
     return std::vector<Player*>(1, this->player);
   }
+
+  /** The bullets currently in the sector. Kept in step with the object list
+      as objects are added and removed, so it always holds exactly the
+      bullets that are in play. */
+  const std::vector<Bullet*>& get_bullets() const {
+    return bullets;
+  }
+
   Player *get_nearest_player (const Vector& pos) const;
   Player *get_nearest_player (const Rectf& pos) const
   {

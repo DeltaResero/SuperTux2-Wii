@@ -25,6 +25,7 @@
 #include <sqstdstring.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <vector>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/squirrel_error.hpp"
@@ -47,12 +48,26 @@ __attribute__((__format__ (__printf__, 2, 0)))
 #endif
 void printfunc(HSQUIRRELVM, const char* fmt, ...)
 {
-  char buf[4096];
+  /* This is registered as both the print and the error handler, so a line can
+     be anything from a script's own message to a compiler error. Hold the
+     usual short one here and only go to the heap for one that does not fit. */
+  char line[256];
+
   va_list arglist;
   va_start(arglist, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, arglist);
-  ConsoleBuffer::output << "[SQUIRREL] " << (const char*) buf << std::flush;
+  va_list overflow;
+  va_copy(overflow, arglist);
+  const int length = vsnprintf(line, sizeof(line), fmt, arglist);
   va_end(arglist);
+
+  if (length >= 0 && static_cast<size_t>(length) < sizeof(line)) {
+    ConsoleBuffer::output << "[SQUIRREL] " << line << std::flush;
+  } else if (length > 0) {
+    std::vector<char> rest(static_cast<size_t>(length) + 1);
+    vsnprintf(rest.data(), rest.size(), fmt, overflow);
+    ConsoleBuffer::output << "[SQUIRREL] " << rest.data() << std::flush;
+  }
+  va_end(overflow);
 }
 
 } // namespace

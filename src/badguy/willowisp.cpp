@@ -116,10 +116,6 @@ WillOWisp::active_update(float elapsed_time)
       break;
 
     case STATE_WARPING:
-      if(sprite->animation_done()) {
-        remove_me();
-      }
-
     case STATE_VANISHING: {
       Vector dir_ = dist.unit();
       movement = dir_ * elapsed_time * flyspeed;
