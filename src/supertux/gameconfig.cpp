@@ -37,6 +37,7 @@ Config::Config() :
   magnification(0.0f),
   use_fullscreen(false),
   video(VideoSystem::AUTO_VIDEO),
+  audio_backend(AudioBackend::Automatic),
   try_vsync(true),
   show_fps(false),
   show_player_pos(false),

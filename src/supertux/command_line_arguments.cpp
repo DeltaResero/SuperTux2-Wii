@@ -42,6 +42,7 @@ CommandLineArguments::CommandLineArguments() :
   aspect_size(),
   use_fullscreen(),
   video(),
+  audio_backend(),
   show_fps(),
   show_player_pos(),
   sound_enabled(),
@@ -86,6 +87,7 @@ CommandLineArguments::print_help(const char* arg0) const
             << "  -g, --geometry WIDTHxHEIGHT  Run SuperTux in given resolution" << "\n"
             << "  -a, --aspect WIDTH:HEIGHT    Run SuperTux with given aspect ratio" << "\n"
             << "  -d, --default                Reset video settings to default values" << "\n"
+            << "  --audio-backend BACKEND      Use BACKEND for sound: auto, openal or sdl" << "\n"
             << "  --renderer RENDERER          Use sdl, opengl, or auto to render" << "\n" << "\n"
             << "Audio Options:" << "\n"
             << "  --disable-sound              Disable sound effects" << "\n"
@@ -258,6 +260,18 @@ CommandLineArguments::parse_args(int argc, char** argv)
         video = VideoSystem::get_video_system(argv[i]);
       }
     }
+    else if (arg == "--audio-backend")
+    {
+      i += 1;
+      if (i >= argc)
+      {
+        throw std::runtime_error("Need to specify a backend for audio-backend argument");
+      }
+      else
+      {
+        audio_backend = audio_backend_from_string(argv[i]);
+      }
+    }
     else if (arg == "--show-fps")
     {
       show_fps = true;
@@ -362,6 +376,7 @@ CommandLineArguments::merge_into(Config& config)
   merge_option(aspect_size);
   merge_option(use_fullscreen);
   merge_option(video);
+  merge_option(audio_backend);
   merge_option(show_fps);
   merge_option(show_player_pos);
   merge_option(sound_enabled);

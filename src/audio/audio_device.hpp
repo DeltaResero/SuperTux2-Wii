@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
 //  SuperTux
+//  Copyright (C) 2026 DeltaResero
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -25,6 +26,15 @@
 
 class SoundSource;
 class Vector;
+
+/** Which library plays the sound. Automatic takes whichever was built,
+    favouring OpenAL when both were. Deliberately not spelled in capitals:
+    al.h defines a bare OPENAL of its own. */
+enum class AudioBackend { Automatic, OpenAL, SdlMixer };
+
+/** Read a backend name as written on the command line. Throws for a name
+    that is not one, or for one that this build does not have. */
+AudioBackend audio_backend_from_string(const std::string& name);
 
 /**
  * The sound hardware, and everything that knows how to talk to it. The sound

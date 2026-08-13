@@ -23,6 +23,11 @@
 
 #cmakedefine HAVE_OPENGL
 
+/* Which sound backends were built in. Either or both. When both are here,
+   --audio-backend says which one runs. */
+#cmakedefine ENABLE_OPENAL
+#cmakedefine ENABLE_SDL_MIXER
+
 #define BUILD_DATA_DIR "${BUILD_DATA_DIR}"
 
 #define BUILD_CONFIG_DATA_DIR "${BUILD_CONFIG_DATA_DIR}"

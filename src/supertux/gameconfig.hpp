@@ -24,6 +24,7 @@
 #include "control/keyboard_config.hpp"
 #include "math/size.hpp"
 #include "math/vector.hpp"
+#include "audio/audio_device.hpp"
 #include "video/video_system.hpp"
 
 #include <ctime>
@@ -56,6 +57,9 @@ public:
 
   bool use_fullscreen;
   VideoSystem::Enum video;
+
+  /** Which sound backend to run when more than one was built in. */
+  AudioBackend audio_backend;
   bool try_vsync;
   bool show_fps;
   bool show_player_pos;

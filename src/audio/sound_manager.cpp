@@ -19,6 +19,8 @@
 
 #include "audio/sound_manager.hpp"
 
+#include <config.h>
+
 #include <SDL.h>
 #include <cmath>
 #include <assert.h>
@@ -27,9 +29,16 @@
 #include <memory>
 
 #include "audio/dummy_sound_source.hpp"
+#ifdef ENABLE_OPENAL
 #include "audio/openal_device.hpp"
+#endif
+#ifdef ENABLE_SDL_MIXER
+#include "audio/sdl_mixer_device.hpp"
+#endif
 #include "audio/sound_file.hpp"
 #include "audio/sound_source.hpp"
+#include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "util/log.hpp"
 
 namespace {
@@ -68,10 +77,31 @@ float silence_range()
                  + LISTENER_SETBACK * LISTENER_SETBACK);
 }
 
+/** Build whichever backend was asked for, out of the ones this build has.
+    AUTO favours OpenAL when both are here, so that leaving the flag alone
+    keeps the desktop sounding as it did. */
+std::unique_ptr<AudioDevice> open_device(AudioBackend wanted)
+{
+#ifdef ENABLE_SDL_MIXER
+  if (wanted == AudioBackend::SdlMixer)
+    return std::unique_ptr<AudioDevice>(new SDLMixerDevice);
+#endif
+#ifdef ENABLE_OPENAL
+  if (wanted == AudioBackend::OpenAL || wanted == AudioBackend::Automatic)
+    return std::unique_ptr<AudioDevice>(new OpenALDevice);
+#endif
+#ifdef ENABLE_SDL_MIXER
+  /* Only reachable when this build has no OpenAL, which is the console. */
+  return std::unique_ptr<AudioDevice>(new SDLMixerDevice);
+#else
+  return std::unique_ptr<AudioDevice>(new OpenALDevice);
+#endif
+}
+
 } // namespace
 
 SoundManager::SoundManager() :
-  m_device(new OpenALDevice),
+  m_device(open_device(g_config ? g_config->audio_backend : AudioBackend::Automatic)),
   sound_enabled(false),
   sources(),
   update_list(),

@@ -36,7 +36,7 @@
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 
-std::unique_ptr<SoundFile> load_music_file(const std::string& filename)
+MusicReference load_music_reference(const std::string& filename)
 {
   auto doc = ReaderDocument::parse(filename);
   auto root = doc.get_root();
@@ -44,27 +44,32 @@ std::unique_ptr<SoundFile> load_music_file(const std::string& filename)
   {
     throw SoundError("file is not a supertux-music file.");
   }
-  else
-  {
-    auto music = root.get_mapping();
 
-    std::string raw_music_file;
-    float loop_begin = 0;
-    float loop_at    = -1;
+  auto music = root.get_mapping();
 
-    music.get("file", raw_music_file);
-    music.get("loop-begin", loop_begin);
-    music.get("loop-at", loop_at);
+  MusicReference reference;
+  reference.loop_begin = 0;
+  reference.loop_at    = -1;
 
-    if(loop_begin < 0) {
-      throw SoundError("can't loop from negative value");
-    }
+  music.get("file", reference.file);
+  music.get("loop-begin", reference.loop_begin);
+  music.get("loop-at", reference.loop_at);
 
-    std::string basedir = FileSystem::dirname(filename);
-    raw_music_file = FileSystem::normalize(basedir + raw_music_file);
-
-    return std::unique_ptr<SoundFile>(new OggSoundFile(raw_music_file, loop_begin, loop_at));
+  if(reference.loop_begin < 0) {
+    throw SoundError("can't loop from negative value");
   }
+
+  std::string basedir = FileSystem::dirname(filename);
+  reference.file = FileSystem::normalize(basedir + reference.file);
+
+  return reference;
+}
+
+std::unique_ptr<SoundFile> load_music_file(const std::string& filename)
+{
+  const MusicReference reference = load_music_reference(filename);
+  return std::unique_ptr<SoundFile>(
+    new OggSoundFile(reference.file, reference.loop_begin, reference.loop_at));
 }
 
 std::unique_ptr<SoundFile> load_sound_file(const std::string& filename)
