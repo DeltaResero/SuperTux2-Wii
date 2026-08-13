@@ -520,12 +520,22 @@ GameSession::update(float elapsed_time)
   if(currentsector->player->invincible_timer.started()) {
     if(currentsector->player->invincible_timer.get_timeleft() <=
        TUX_INVINCIBLE_TIME_WARNING) {
-      currentsector->play_music(HERRING_WARNING_MUSIC);
+      if(currentsector->get_music_type() != HERRING_WARNING_MUSIC) {
+        currentsector->play_music(HERRING_WARNING_MUSIC);
+      }
     } else {
-      currentsector->play_music(HERRING_MUSIC);
+      if(currentsector->get_music_type() != HERRING_MUSIC) {
+        currentsector->play_music(HERRING_MUSIC);
+      }
     }
   } else if(currentsector->get_music_type() != LEVEL_MUSIC) {
-    currentsector->play_music(LEVEL_MUSIC);
+    /* Dying stops the invincibility timer, so a death with the star still on
+       arrives here on the very next frame. Death has already begun fading the
+       music out across its animation, and starting the level music here would
+       cut that fade off and play over it. */
+    if(!currentsector->player->is_dying()) {
+      currentsector->play_music(LEVEL_MUSIC);
+    }
   }
   if (reset_button) {
     reset_button = false;
