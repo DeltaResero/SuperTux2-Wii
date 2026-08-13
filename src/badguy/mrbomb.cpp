@@ -103,6 +103,16 @@ MrBomb::active_update(float elapsed_time)
   WalkingBadguy::active_update(elapsed_time);
 }
 
+/* This file hands make_shared both a Bomb and an Explosion, so when the
+   shared_ptr below is destroyed the compiler guesses the release might be the
+   Bomb one and warns that destroying a Bomb there would run past the end of
+   the smaller Explosion block. The guess is guarded by a check on the type
+   that can never pass, and the warning arrives from inside <memory> rather
+   than from here, so this is the only place it can be answered. Take the
+   pragma off and rebuild if either object stops being made here. */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+
 void
 MrBomb::kill_fall()
 {
@@ -114,6 +124,8 @@ MrBomb::kill_fall()
 
   run_dead_script();
 }
+
+#pragma GCC diagnostic pop
 
 void
 MrBomb::ignite()
