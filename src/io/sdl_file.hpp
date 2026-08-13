@@ -1,3 +1,6 @@
+// src/io/sdl_file.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -14,13 +17,16 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_PHYSFS_SDL_HPP
-#define HEADER_SUPERTUX_PHYSFS_PHYSFS_SDL_HPP
+#ifndef HEADER_SUPERTUX_IO_SDL_FILE_HPP
+#define HEADER_SUPERTUX_IO_SDL_FILE_HPP
 
 #include <SDL.h>
 #include <string>
 
-SDL_RWops* get_physfs_SDLRWops(const std::string& filename);
+/** Opens a name relative to the search path as an SDL_RWops. Throws
+    std::runtime_error rather than returning null, so callers may hand the
+    result straight to SDL_image with the free flag set. */
+SDL_RWops* sdl_rwops_from_file(const std::string& filename);
 
 #endif
 

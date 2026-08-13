@@ -1,3 +1,6 @@
+// src/supertux/sector.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -15,6 +18,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "supertux/sector.hpp"
+#include <numbers>
 
 #include <algorithm>
 #include <math.h>
@@ -35,7 +39,7 @@
 #include "object/smoke_cloud.hpp"
 #include "object/text_object.hpp"
 #include "object/tilemap.hpp"
-#include "physfs/ifile_streambuf.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/collision.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/game_session.hpp"
@@ -276,10 +280,9 @@ Sector::activate(const Vector& player_pos)
   //Run default.nut just before init script
   //Check to see if it's in a levelset (info file)
   std::string basedir = FileSystem::dirname(get_level()->filename);
-  if(PHYSFS_exists((basedir + "/info").c_str())) {
+  if(!FileSystem::find(basedir + "/info").empty()) {
     try {
-      IFileStreambuf ins(basedir + "/default.nut");
-      std::istream in(&ins);
+      IFileStream in(basedir + "/default.nut");
       run_script(in, "default.nut");
     } catch(std::exception& ) {
       // doesn't exist or erroneous; do nothing
@@ -966,7 +969,7 @@ Sector::handle_collisions()
     Vector mov = moving_object->get_movement();
 
     // make sure movement is never faster than MAX_SPEED. Norm is pretty fat, so two addl. checks are done before.
-    if (((mov.x > MAX_SPEED * M_SQRT1_2) || (mov.y > MAX_SPEED * M_SQRT1_2)) && (mov.norm() > MAX_SPEED)) {
+    if (((mov.x > MAX_SPEED * (std::numbers::sqrt2_v<float> / 2)) || (mov.y > MAX_SPEED * (std::numbers::sqrt2_v<float> / 2))) && (mov.norm() > MAX_SPEED)) {
       moving_object->movement = mov.unit() * MAX_SPEED;
       //log_debug << "Temporarily reduced object's speed of " << mov.norm() << " to " << moving_object->movement.norm() << "." << std::endl;
     }

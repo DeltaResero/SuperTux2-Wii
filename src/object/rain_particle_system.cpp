@@ -1,3 +1,6 @@
+// src/object/rain_particle_system.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //

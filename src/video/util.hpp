@@ -1,3 +1,6 @@
+// src/video/util.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2013 Ingo Ruhnke <grumbel@gmail.com>
 //

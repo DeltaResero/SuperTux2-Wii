@@ -1,3 +1,6 @@
+// src/object/coin_rain.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //

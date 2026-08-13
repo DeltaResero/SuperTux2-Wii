@@ -1,3 +1,6 @@
+// src/object/rusty_trampoline.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Rusty Trampoline
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //  Copyright (C) 2011 Jonas Kuemmerlin <rgcjonas@googlemail.com>

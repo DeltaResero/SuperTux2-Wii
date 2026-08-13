@@ -1,3 +1,6 @@
+// src/object/pneumatic_platform.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - PneumaticPlatform
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //

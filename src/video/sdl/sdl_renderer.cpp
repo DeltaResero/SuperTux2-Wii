@@ -1,3 +1,6 @@
+// src/video/sdl/sdl_renderer.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //	Updated by GiBy 2013 for SDL2 <giby_the_kid@yahoo.fr>
@@ -17,6 +20,7 @@
 
 #include "video/sdl/sdl_renderer.hpp"
 
+#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "video/drawing_request.hpp"
 #include "video/sdl/sdl_surface_data.hpp"
@@ -25,7 +29,6 @@
 
 #include <iomanip>
 #include <iostream>
-#include <physfs.h>
 #include <sstream>
 #include <stdexcept>
 #include "SDL2/SDL_video.h"
@@ -217,8 +220,6 @@ SDLRenderer::do_take_screenshot()
       else
       {
         // save screenshot
-        static const std::string writeDir = PHYSFS_getWriteDir();
-        static const std::string dirSep = PHYSFS_getDirSeparator();
         static const std::string baseName = "screenshot";
         static const std::string fileExt = ".bmp";
         std::string fullFilename;
@@ -228,8 +229,8 @@ SDLRenderer::do_take_screenshot()
           oss << std::setw(3) << std::setfill('0') << num;
           oss << fileExt;
           std::string fileName = oss.str();
-          fullFilename = writeDir + dirSep + fileName;
-          if (!PHYSFS_exists(fileName.c_str())) {
+          fullFilename = FileSystem::write_path(fileName);
+          if (FileSystem::find(fileName).empty()) {
             SDL_SaveBMP(surface, fullFilename.c_str());
             log_info << "Wrote screenshot to \"" << fullFilename << "\"" << std::endl;
             return;

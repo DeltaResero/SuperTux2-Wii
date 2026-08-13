@@ -1,3 +1,6 @@
+// src/gui/menu.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -15,6 +18,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/menu.hpp"
+#include <numbers>
 
 #include <math.h>
 #include <stdexcept>
@@ -345,7 +349,7 @@ Menu::draw_item(DrawingContext& context, int index)
 
   if(active_item == index)
   {
-    float blink = (sinf(real_time * M_PI * 1.0f)/2.0f + 0.5f) * 0.5f + 0.25f;
+    float blink = (sinf(real_time * std::numbers::pi_v<float> * 1.0f)/2.0f + 0.5f) * 0.5f + 0.25f;
     context.draw_filled_rect(Rectf(Vector(pos.x - menu_width/2 + 10 - 2, y_pos - 12 - 2),
                                    Vector(pos.x + menu_width/2 - 10 + 2, y_pos + 12 + 2)),
                              Color(1.0f, 1.0f, 1.0f, blink),

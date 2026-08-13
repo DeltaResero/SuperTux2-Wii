@@ -1,3 +1,6 @@
+// src/object/thunderstorm.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Thunderstorm Game Object
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //

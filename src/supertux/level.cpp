@@ -1,3 +1,6 @@
+// src/supertux/level.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +22,7 @@
 #include "badguy/goldbomb.hpp"
 #include "object/bonus_block.hpp"
 #include "object/coin.hpp"
-#include "physfs/ifile_streambuf.hpp"
-#include "physfs/physfs_file_system.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/tile_manager.hpp"
 #include "supertux/tile_set.hpp"

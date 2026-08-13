@@ -1,3 +1,6 @@
+// src/object/decal.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Decal
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //

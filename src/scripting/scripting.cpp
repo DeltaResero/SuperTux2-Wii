@@ -1,3 +1,6 @@
+// src/scripting/scripting.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -23,7 +26,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/squirrel_error.hpp"
 #include "scripting/wrapper.hpp"
 #include "squirrel_util.hpp"

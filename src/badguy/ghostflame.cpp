@@ -1,3 +1,6 @@
+// src/badguy/ghostflame.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux badguy - Ghostflame a flame-like enemy that cannot be killed
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //

@@ -1,3 +1,6 @@
+// src/object/magicblock.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - MagicBlock
 //
 //  Magic Blocks are tile-like game objects that are sensitive to

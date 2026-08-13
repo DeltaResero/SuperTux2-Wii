@@ -1,3 +1,6 @@
+// src/audio/sound_file.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,8 +25,8 @@
 
 #include <cstring>
 #include <stdint.h>
+#include <fstream>
 #include <sstream>
-#include <physfs.h>
 
 #include "audio/sound_error.hpp"
 #include "audio/ogg_sound_file.hpp"
@@ -60,14 +63,7 @@ std::unique_ptr<SoundFile> load_music_file(const std::string& filename)
     std::string basedir = FileSystem::dirname(filename);
     raw_music_file = FileSystem::normalize(basedir + raw_music_file);
 
-    auto file = PHYSFS_openRead(raw_music_file.c_str());
-    if(!file) {
-      std::stringstream msg;
-      msg << "Couldn't open '" << raw_music_file << "': " << PHYSFS_getLastError();
-      throw SoundError(msg.str());
-    }
-
-    return std::unique_ptr<SoundFile>(new OggSoundFile(file, loop_begin, loop_at));
+    return std::unique_ptr<SoundFile>(new OggSoundFile(raw_music_file, loop_begin, loop_at));
   }
 }
 
@@ -78,27 +74,25 @@ std::unique_ptr<SoundFile> load_sound_file(const std::string& filename)
     return load_music_file(filename);
   }
 
-  auto file = PHYSFS_openRead(filename.c_str());
-  if(!file) {
-    std::stringstream msg;
-    msg << "Couldn't open '" << filename << "': " << PHYSFS_getLastError() << ", using dummy sound file.";
-    throw SoundError(msg.str());
+  const std::string path = FileSystem::find(filename);
+  if(path.empty()) {
+    throw SoundError("Couldn't open '" + filename + "': not found, using dummy sound file.");
   }
 
   try {
     char magic[4];
-    if(PHYSFS_readBytes(file, magic, sizeof(magic)) < static_cast<std::make_signed<size_t>::type>(sizeof(magic)))
-      throw SoundError("Couldn't read magic, file too short");
-    if (PHYSFS_seek(file, 0) == 0) {
-      std::stringstream msg;
-      msg << "Couldn't seek through sound file: " << PHYSFS_getLastError();
-      throw SoundError(msg.str());
+    {
+      std::ifstream in(path, std::ios::in | std::ios::binary);
+      if(!in.is_open())
+        throw SoundError("Couldn't open '" + path + "'");
+      if(!in.read(magic, sizeof(magic)))
+        throw SoundError("Couldn't read magic, file too short");
     }
 
     if(strncmp(magic, "RIFF", 4) == 0)
-      return std::unique_ptr<SoundFile>(new WavSoundFile(file));
+      return std::unique_ptr<SoundFile>(new WavSoundFile(filename));
     else if(strncmp(magic, "OggS", 4) == 0)
-      return std::unique_ptr<SoundFile>(new OggSoundFile(file, 0, -1));
+      return std::unique_ptr<SoundFile>(new OggSoundFile(filename, 0, -1));
     else
       throw SoundError("Unknown file format");
   } catch(std::exception& e) {

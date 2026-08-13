@@ -1,3 +1,6 @@
+// src/badguy/treewillowisp.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - "Will-O-Wisp" Badguy
 //  Copyright (C) 2007 Matthias Braun
 //
@@ -15,6 +18,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/treewillowisp.hpp"
+#include <numbers>
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
@@ -136,7 +140,7 @@ TreeWillOWisp::active_update(float elapsed_time)
     return;
   }
 
-  angle = fmodf(angle + elapsed_time * speed, (float) (2*M_PI));
+  angle = fmodf(angle + elapsed_time * speed, 2*std::numbers::pi_v<float>);
   Vector newpos(start_position + Vector(sin(angle) * radius, 0));
   movement = newpos - get_pos();
   float sizemod = cos(angle) * 0.8f;

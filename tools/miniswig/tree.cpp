@@ -1,3 +1,5 @@
+// tools/miniswig/tree.cpp
+//
 #include <config.h>
 #include "tree.hpp"
 

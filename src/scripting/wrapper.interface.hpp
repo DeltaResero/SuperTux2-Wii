@@ -1,3 +1,5 @@
+// src/scripting/wrapper.interface.hpp
+//
 /* This file is processed by miniswig to produce the scripting API */
 #include "scripting/ambient_sound.hpp"
 #include "scripting/anchor_points.hpp"

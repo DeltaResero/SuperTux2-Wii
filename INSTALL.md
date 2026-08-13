@@ -44,11 +44,10 @@ distributions.
 * C++ OpenGL library (choose one of the two options below):
   - [GLEW](http://glew.sourceforge.net/) or
   - [glbinding](https://github.com/hpicgs/glbinding)
-* [Boost](http://www.boost.org) smart_ptr and format headers, along with date_time and filesystem libraries
 * [libogg and libvorbis](https://www.xiph.org/)
 
 **Note I:** for any of the above listed libraries (OpenGL, SDL2, SDL2_image,
-OpenAL, GLEW/glbinding, Boost, libogg and libvorbis), you should
+OpenAL, GLEW/glbinding, libogg and libvorbis), you should
 also have development headers installed. Debian-based distributions have `-devel`
 packages containing the mentioned headers, on Arch Linux these should be included
 in the library package.

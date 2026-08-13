@@ -1,3 +1,6 @@
+// src/supertux/tile_set_parser.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2008 Matthias Braun <matze@braunis.de>,
 //                     Ingo Ruhnke <grumbel@gmail.com>

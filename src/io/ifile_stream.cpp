@@ -1,3 +1,6 @@
+// src/io/ifile_stream.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -14,27 +17,32 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_OFILE_STREAM_HPP
-#define HEADER_SUPERTUX_PHYSFS_OFILE_STREAM_HPP
+#include "io/ifile_stream.hpp"
 
-#include <memory>
-#include <ostream>
-#include <physfs.h>
+#include <stdexcept>
 
-class OFileStream : public std::ostream
+#include "util/file_system.hpp"
+
+IFileStream::IFileStream(const std::string& filename) :
+  std::ifstream()
 {
-protected:
-  std::unique_ptr<std::streambuf> sb;
+  if (filename.empty()) {
+    throw std::runtime_error("Couldn't open file: empty filename");
+  }
 
-public:
-  OFileStream(const std::string& filename);
-  ~OFileStream();
+  const std::string path = FileSystem::find(filename);
+  if (path.empty()) {
+    throw std::runtime_error("Couldn't open file '" + filename + "': not found");
+  }
 
-private:
-  OFileStream(const OFileStream&) = delete;
-  OFileStream& operator=(const OFileStream&) = delete;
-};
+  open(path, std::ios::in | std::ios::binary);
+  if (!is_open()) {
+    throw std::runtime_error("Couldn't open file '" + path + "'");
+  }
+}
 
-#endif
+IFileStream::~IFileStream()
+{
+}
 
 /* EOF */

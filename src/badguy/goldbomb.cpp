@@ -1,3 +1,6 @@
+// src/badguy/goldbomb.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux BadGuy GoldBomb - a bomb that throws up coins when exploding
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>

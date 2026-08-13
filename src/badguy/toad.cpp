@@ -1,3 +1,6 @@
+// src/badguy/toad.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  Toad - A jumping toad
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //

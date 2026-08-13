@@ -1,3 +1,6 @@
+// src/util/reader_document.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,8 +22,7 @@
 #include <sexp/parser.hpp>
 #include <sstream>
 
-#include "physfs/ifile_stream.hpp"
-#include "physfs/ifile_streambuf.hpp"
+#include "io/ifile_stream.hpp"
 #include "util/log.hpp"
 #include "util/reader_iterator.hpp"
 
@@ -36,8 +38,7 @@ ReaderDocument::parse(const std::string& filename)
 {
   log_debug << "ReaderDocument::parse: " << filename << std::endl;
 
-  IFileStreambuf ins(filename);
-  std::istream in(&ins);
+  IFileStream in(filename);
 
   if(!in.good()) {
     std::stringstream msg;

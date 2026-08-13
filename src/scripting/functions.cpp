@@ -1,3 +1,6 @@
+// src/scripting/functions.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,7 +23,7 @@
 #include "math/random_generator.hpp"
 #include "object/camera.hpp"
 #include "object/player.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/fadeout.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/gameconfig.hpp"

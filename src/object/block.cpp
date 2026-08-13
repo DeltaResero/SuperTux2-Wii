@@ -1,3 +1,6 @@
+// src/object/block.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -14,8 +17,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <physfs.h>
 
+#include "util/file_system.hpp"
 #include "object/block.hpp"
 
 #include "audio/sound_manager.hpp"
@@ -65,7 +68,7 @@ Block::Block(const ReaderMapping& lisp, const std::string& sprite_file) :
 
   std::string sf;
   lisp.get("sprite", sf);
-  if (sf.empty() || !PHYSFS_exists(sf.c_str())) {
+  if (sf.empty() || FileSystem::find(sf).empty()) {
     sf = sprite_file;
   }
   sprite = SpriteManager::current()->create(sf);

@@ -1,3 +1,6 @@
+// src/object/falling_coin.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Ondrej Hosek <ondra.hosek@gmail.com>
 //

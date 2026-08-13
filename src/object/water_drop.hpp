@@ -1,3 +1,6 @@
+// src/object/water_drop.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //

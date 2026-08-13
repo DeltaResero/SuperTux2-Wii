@@ -1,3 +1,6 @@
+// src/badguy/mrtree.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -15,6 +18,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/mrtree.hpp"
+#include <numbers>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/poisonivy.hpp"
@@ -74,7 +78,7 @@ MrTree::collision_squished(GameObject& object)
   // TODO: provide convenience function in MovingSprite or MovingObject?
   for (int px = (int)stumpy->get_bbox().p1.x; px < (int)stumpy->get_bbox().p2.x; px+=10) {
     Vector ppos = Vector(px, stumpy->get_bbox().p1.y-5);
-    float angle = graphicsRandom.randf(-M_PI_2, M_PI_2);
+    float angle = graphicsRandom.randf(-(std::numbers::pi_v<float> / 2), (std::numbers::pi_v<float> / 2));
     float velocity = graphicsRandom.randf(45, 90);
     float vx = sin(angle)*velocity;
     float vy = -cos(angle)*velocity;

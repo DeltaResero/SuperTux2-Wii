@@ -1,3 +1,5 @@
+// tools/miniswig/create_docu.cpp
+//
 #include <config.h>
 
 #include "tree.hpp"

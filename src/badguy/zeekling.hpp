@@ -1,3 +1,6 @@
+// src/badguy/zeekling.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  Zeekling - flyer that swoops down when she spots the player
 //  Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>

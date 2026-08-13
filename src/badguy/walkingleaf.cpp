@@ -1,3 +1,6 @@
+// src/badguy/walkingleaf.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Walking Leaf
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //

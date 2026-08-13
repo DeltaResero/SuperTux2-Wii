@@ -1,3 +1,6 @@
+// src/supertux/console.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Console
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -17,9 +20,10 @@
 #include "supertux/console.hpp"
 
 #include <assert.h>
+#include <iostream>
 #include <math.h>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/gameconfig.hpp"

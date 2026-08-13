@@ -1,3 +1,6 @@
+// src/supertux/menu/worldmap_menu.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //

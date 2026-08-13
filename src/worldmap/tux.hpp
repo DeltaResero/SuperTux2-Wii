@@ -1,3 +1,6 @@
+// src/worldmap/tux.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>

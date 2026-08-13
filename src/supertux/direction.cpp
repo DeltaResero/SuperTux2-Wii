@@ -1,3 +1,6 @@
+// src/supertux/direction.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2008 Ryan Flegel <rflegel@gmail.com>
 //

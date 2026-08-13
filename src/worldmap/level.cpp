@@ -1,3 +1,6 @@
+// src/worldmap/level.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -16,7 +19,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <config.h>
 
-#include <physfs.h>
 #include <stddef.h>
 
 #include "sprite/sprite.hpp"
@@ -62,7 +64,7 @@ LevelTile::LevelTile(const std::string& basedir_, const ReaderMapping& lisp) :
   if(basedir == "./")
     basedir = "";
 
-  if (!PHYSFS_exists((basedir + name).c_str()))
+  if (FileSystem::find(basedir + name).empty())
   {
     log_warning << "level file '" << name
                 << "' does not exist and will not be added to the worldmap" << std::endl;

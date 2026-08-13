@@ -1,3 +1,6 @@
+// src/badguy/poisonivy.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -15,6 +18,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/poisonivy.hpp"
+#include <numbers>
 #include "math/random_generator.hpp"
 #include "object/sprite_particle.hpp"
 #include "supertux/object_factory.hpp"
@@ -48,7 +52,7 @@ PoisonIvy::collision_squished(GameObject& object)
   // TODO: provide convenience function in MovingSprite or MovingObject?
   for (int i = 0; i < 3; i++) {
     Vector ppos = bbox.get_middle();
-    float angle = graphicsRandom.randf(-M_PI_2, M_PI_2);
+    float angle = graphicsRandom.randf(-(std::numbers::pi_v<float> / 2), (std::numbers::pi_v<float> / 2));
     float velocity = graphicsRandom.randf(350, 400);
     float vx = sin(angle)*velocity;
     float vy = -cos(angle)*velocity;

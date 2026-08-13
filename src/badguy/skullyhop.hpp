@@ -1,3 +1,6 @@
+// src/badguy/skullyhop.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SkullyHop - A Hopping Skull
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //

@@ -1,3 +1,6 @@
+// src/object/camera.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -15,15 +18,16 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/camera.hpp"
+#include <numbers>
 
 #include <math.h>
-#include <physfs.h>
 
 #include "object/path_walker.hpp"
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"
+#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -206,7 +210,7 @@ Camera::shake(float time, float x, float y)
   shaketimer.start(time);
   shakedepth_x = x;
   shakedepth_y = y;
-  shakespeed = M_PI/2 / time;
+  shakespeed = std::numbers::pi_v<float>/2 / time;
 }
 
 void
@@ -245,7 +249,7 @@ Camera::update(float elapsed_time)
 void
 Camera::reload_config()
 {
-  if(PHYSFS_exists("camera.cfg")) {
+  if(!FileSystem::find("camera.cfg").empty()) {
     try {
       config->load("camera.cfg");
       log_info << "Loaded camera.cfg." << std::endl;

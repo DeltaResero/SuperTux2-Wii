@@ -1,3 +1,6 @@
+// src/object/bonus_block.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -38,7 +41,6 @@
 #include "util/reader_mapping.hpp"
 
 #include <stdexcept>
-#include <physfs.h>
 
 BonusBlock::BonusBlock(const Vector& pos, int data) :
   Block(SpriteManager::current()->create("images/objects/bonus_block/bonusblock.sprite")),

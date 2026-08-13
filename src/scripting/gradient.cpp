@@ -1,3 +1,6 @@
+// src/scripting/gradient.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2016 Hume2 <teratux.mail@gmail.com>
 //
@@ -16,7 +19,6 @@
 
 #include "scripting/gradient.hpp"
 
-#include <physfs.h>
 
 #include "object/gradient.hpp"
 

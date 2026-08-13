@@ -1,3 +1,6 @@
+// src/supertux/savegame.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -19,13 +22,14 @@
 
 #include <algorithm>
 
-#include "physfs/ifile_streambuf.hpp"
-#include "physfs/physfs_file_system.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/scripting.hpp"
 #include "scripting/serialize.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/player_status.hpp"
 #include "util/file_system.hpp"
+#include <filesystem>
+
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -131,13 +135,13 @@ Savegame::load()
 
   clear_state_table();
 
-  if(!PHYSFS_exists(m_filename.c_str()))
+  if(FileSystem::find(m_filename).empty())
   {
     log_info << m_filename << " doesn't exist, not loading state" << std::endl;
   }
   else
   {
-    if(PhysFSFileSystem::is_directory(m_filename))
+    if(FileSystem::is_directory(FileSystem::find(m_filename)))
     {
       log_info << m_filename << " is a directory, not loading state" << std::endl;
       return;
@@ -230,18 +234,18 @@ Savegame::save()
 
   { // make sure the savegame directory exists
     std::string dirname = FileSystem::dirname(m_filename);
-    if(!PHYSFS_exists(dirname.c_str()))
+    if(FileSystem::find(dirname).empty())
     {
-      if(!PHYSFS_mkdir(dirname.c_str()))
+      const std::string path = FileSystem::write_path(dirname);
+      std::error_code ec;
+      if(path.empty() || !std::filesystem::create_directories(path, ec))
       {
-        std::ostringstream msg;
-        msg << "Couldn't create directory for savegames '"
-            << dirname << "': " <<PHYSFS_getLastError();
-        throw std::runtime_error(msg.str());
+        throw std::runtime_error("Couldn't create directory for savegames '" +
+                                 dirname + "'");
       }
     }
 
-    if(!PhysFSFileSystem::is_directory(dirname))
+    if(!FileSystem::is_directory(FileSystem::find(dirname)))
     {
       std::ostringstream msg;
       msg << "Savegame path '" << dirname << "' is not a directory";

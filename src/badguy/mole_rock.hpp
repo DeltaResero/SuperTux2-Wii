@@ -1,3 +1,6 @@
+// src/badguy/mole_rock.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  MoleRock - Rock thrown by "Mole" Badguy
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //

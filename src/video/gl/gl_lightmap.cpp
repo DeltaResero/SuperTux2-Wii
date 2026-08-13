@@ -1,3 +1,6 @@
+// src/video/gl/gl_lightmap.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -23,7 +26,6 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
-#include <physfs.h>
 #include <sstream>
 
 #include "supertux/gameconfig.hpp"

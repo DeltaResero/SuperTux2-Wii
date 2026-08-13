@@ -1,3 +1,6 @@
+// src/object/weak_block.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux - Weak Block
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>

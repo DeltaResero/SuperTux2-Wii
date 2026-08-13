@@ -1,3 +1,6 @@
+// src/io/ofile_stream.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -14,27 +17,29 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
-#define HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
+#include "io/ofile_stream.hpp"
 
-#include <memory>
-#include <istream>
-#include <physfs.h>
+#include <stdexcept>
 
-class IFileStream : public std::istream
+#include "util/file_system.hpp"
+
+OFileStream::OFileStream(const std::string& filename) :
+  std::ofstream()
 {
-protected:
-  std::unique_ptr<std::streambuf> sb;
+  const std::string path = FileSystem::write_path(filename);
+  if (path.empty()) {
+    throw std::runtime_error("Couldn't open file '" + filename +
+                             "': no write directory set");
+  }
 
-public:
-  IFileStream(const std::string& filename);
-  ~IFileStream();
+  open(path, std::ios::out | std::ios::binary | std::ios::trunc);
+  if (!is_open()) {
+    throw std::runtime_error("Couldn't open file '" + path + "'");
+  }
+}
 
-private:
-  IFileStream(const IFileStream&) = delete;
-  IFileStream& operator=(const IFileStream&) = delete;
-};
-
-#endif
+OFileStream::~OFileStream()
+{
+}
 
 /* EOF */

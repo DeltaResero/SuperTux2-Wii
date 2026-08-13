@@ -1,3 +1,6 @@
+// src/supertux/statistics.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux (Statistics module)
 //  Copyright (C) 2004 Ricardo Cruz <rick2@aeiou.pt>
 //  Copyright (C) 2006 Ondrej Hosek <ondra.hosek@gmail.com>

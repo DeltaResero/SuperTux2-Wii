@@ -1,3 +1,6 @@
+// src/gui/menu_item.hpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                2015 Hume2 <teratux.mail@gmail.com>

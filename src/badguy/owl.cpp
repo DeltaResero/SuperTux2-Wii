@@ -1,3 +1,6 @@
+// src/badguy/owl.cpp
+// SPDX-License-Identifier: GPL-3.0-or-later
+//
 //  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>

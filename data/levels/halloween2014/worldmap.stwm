@@ -7,9 +7,6 @@
     (name "main")
     (music "music/voc-dark.music")
     (ambient-light 0.75 0.75 0.75)
-    (camera
-      (mode "normal")
-    )
     (decal
       (x 272)
       (y 276)
