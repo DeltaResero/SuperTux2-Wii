@@ -41,6 +41,7 @@ const size_t STREAM_ABOVE = 100000;
 OpenALDevice::OpenALDevice() :
   m_device(nullptr),
   m_context(nullptr),
+  m_music(),
   m_buffers()
 {
   try {
@@ -73,6 +74,10 @@ OpenALDevice::OpenALDevice() :
 
 OpenALDevice::~OpenALDevice()
 {
+  /* The music streams through buffers of its own, so let it go before the
+     context that owns them. */
+  m_music.reset();
+
   for(const auto& buffer : m_buffers) {
     alDeleteBuffers(1, &buffer.second);
   }
@@ -153,6 +158,63 @@ OpenALDevice::preload(const std::string& filename)
 }
 
 void
+OpenALDevice::play_music(const std::string& filename, float fade_in)
+{
+  std::unique_ptr<StreamSoundSource> track(new StreamSoundSource);
+  track->set_sound_file(load_sound_file(filename));
+  track->set_looping(true);
+  /* Relative to the listener, so the fall off that places everything else
+     never touches it. */
+  track->set_relative(true);
+  if(fade_in > 0.0f)
+    track->set_fading(StreamSoundSource::FadingOn, fade_in);
+  track->play();
+
+  m_music = std::move(track);
+}
+
+void
+OpenALDevice::stop_music(float fade_out)
+{
+  if(fade_out > 0.0f) {
+    if(m_music && m_music->get_fade_state() != StreamSoundSource::FadingOff)
+      m_music->set_fading(StreamSoundSource::FadingOff, fade_out);
+  } else {
+    m_music.reset();
+  }
+}
+
+void
+OpenALDevice::pause_music(float fade_out)
+{
+  if(!m_music)
+    return;
+
+  if(fade_out > 0.0f) {
+    if(m_music->get_fade_state() != StreamSoundSource::FadingPause)
+      m_music->set_fading(StreamSoundSource::FadingPause, fade_out);
+  } else {
+    m_music->pause();
+  }
+}
+
+void
+OpenALDevice::resume_music(float fade_in)
+{
+  if(!m_music)
+    return;
+
+  if(fade_in > 0.0f) {
+    if(m_music->get_fade_state() != StreamSoundSource::FadingResume)
+      m_music->set_fading(StreamSoundSource::FadingResume, fade_in);
+  } else if(m_music->paused()) {
+    m_music->resume();
+  } else if(!m_music->playing()) {
+    m_music->play();
+  }
+}
+
+void
 OpenALDevice::set_listener_position(const Vector& pos)
 {
   alListener3f(AL_POSITION, pos.x, pos.y, -SoundManager::listener_setback());
@@ -174,6 +236,9 @@ OpenALDevice::set_listener_orientation(const Vector& at, const Vector& up)
 void
 OpenALDevice::update()
 {
+  if (m_music)
+    m_music->update();
+
   if (m_context)
   {
     alcProcessContext(m_context);

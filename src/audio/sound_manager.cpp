@@ -29,7 +29,7 @@
 #include "audio/dummy_sound_source.hpp"
 #include "audio/openal_device.hpp"
 #include "audio/sound_file.hpp"
-#include "audio/stream_sound_source.hpp"
+#include "audio/sound_source.hpp"
 #include "util/log.hpp"
 
 namespace {
@@ -50,10 +50,11 @@ const float LISTENER_SETBACK = 300.0f;
 
    A close sound, a ticking fuse or a flame, gets its own pair: how loud it is
    when Tux is standing on it, and how far along the ground it carries. Both
-   are measured along the ground, and the setback is added back before these
-   reach OpenAL, which measures from the listener. Giving a close sound a
-   silence distance directly instead was the mistake that made the fuse
-   inaudible: the setback swallowed all but a few tiles of its range. */
+   are measured along the ground, and the setback is added back by whichever
+   device is underneath, since a device measures from the listener. Giving a
+   close sound a silence distance directly instead was the mistake that made
+   the fuse inaudible: the setback swallowed all but a few tiles of its
+   range. */
 const float PLACED_LEVEL = 0.7f;
 const float CLOSE_LEVEL  = 0.5f;
 const float CLOSE_CARRY  = 480.0f;
@@ -74,7 +75,6 @@ SoundManager::SoundManager() :
   sound_enabled(false),
   sources(),
   update_list(),
-  music_source(),
   music_enabled(false),
   current_music()
 {
@@ -88,7 +88,6 @@ SoundManager::SoundManager() :
 SoundManager::~SoundManager()
 {
   /* Sources hold buffers the device owns, so they have to go first. */
-  music_source.reset();
   sources.clear();
   m_device.reset();
 }
@@ -152,22 +151,22 @@ SoundManager::manage_source(std::unique_ptr<SoundSource> source)
 }
 
 void
-SoundManager::register_for_update(StreamSoundSource* sss)
+SoundManager::register_for_update(SoundSource* source)
 {
-  if (sss)
+  if (source)
   {
-    update_list.push_back(sss);
+    update_list.push_back(source);
   }
 }
 
 void
-SoundManager::remove_from_update(StreamSoundSource* sss)
+SoundManager::remove_from_update(SoundSource* source)
 {
-  if (sss)
+  if (source)
   {
-    StreamSoundSources::iterator i = update_list.begin();
+    UpdateList::iterator i = update_list.begin();
     while( i != update_list.end() ){
-      if( *i == sss ){
+      if( *i == source ){
         i = update_list.erase(i);
       } else {
         ++i;
@@ -195,59 +194,40 @@ SoundManager::enable_music(bool enable)
   if(music_enabled) {
     play_music(current_music);
   } else {
-    if(music_source) {
-      music_source.reset();
-    }
+    m_device->stop_music(0);
   }
 }
 
 void
 SoundManager::stop_music(float fadetime)
 {
-  if(fadetime > 0) {
-    if(music_source
-       && music_source->get_fade_state() != StreamSoundSource::FadingOff)
-      music_source->set_fading(StreamSoundSource::FadingOff, fadetime);
-  } else {
-    music_source.reset();
-  }
+  m_device->stop_music(fadetime);
   current_music = "";
 }
 
 void
 SoundManager::play_music(const std::string& filename, bool fade)
 {
-  if(filename == current_music && music_source != NULL)
+  if(filename == current_music && m_device->has_music())
   {
-    if(music_source->paused())
-    {
-      music_source->resume();
-    }
-    else if(!music_source->playing())
-    {
-      music_source->play();
-    }
+    /* Already the right track, so see it running rather than start it over. */
+    m_device->resume_music(0);
     return;
   }
+
+  /* Remembered even when music is off, so that turning it back on picks up
+     where the game meant to be rather than in silence. */
   current_music = filename;
   if(!music_enabled)
     return;
 
   if(filename.empty()) {
-    music_source.reset();
+    m_device->stop_music(0);
     return;
   }
 
   try {
-    std::unique_ptr<StreamSoundSource> newmusic (new StreamSoundSource());
-    newmusic->set_sound_file(load_sound_file(filename));
-    newmusic->set_looping(true);
-    newmusic->set_relative(true);
-    if(fade)
-      newmusic->set_fading(StreamSoundSource::FadingOn, .5f);
-    newmusic->play();
-
-    music_source = std::move(newmusic);
+    m_device->play_music(filename, fade ? .5f : 0.0f);
   } catch(std::exception& e) {
     log_warning << "Couldn't play music file '" << filename << "': " << e.what() << std::endl;
     // When this happens, previous music continued playing, stop it, just in case.
@@ -258,16 +238,7 @@ SoundManager::play_music(const std::string& filename, bool fade)
 void
 SoundManager::pause_music(float fadetime)
 {
-  if(music_source == NULL)
-    return;
-
-  if(fadetime > 0) {
-    if(music_source
-       && music_source->get_fade_state() != StreamSoundSource::FadingPause)
-      music_source->set_fading(StreamSoundSource::FadingPause, fadetime);
-  } else {
-    music_source->pause();
-  }
+  m_device->pause_music(fadetime);
 }
 
 void
@@ -301,16 +272,7 @@ SoundManager::stop_sounds()
 void
 SoundManager::resume_music(float fadetime)
 {
-  if(music_source == NULL)
-    return;
-
-  if(fadetime > 0) {
-    if(music_source
-       && music_source->get_fade_state() != StreamSoundSource::FadingResume)
-      music_source->set_fading(StreamSoundSource::FadingResume, fadetime);
-  } else {
-    music_source->resume();
-  }
+  m_device->resume_music(fadetime);
 }
 
 float
@@ -390,18 +352,12 @@ SoundManager::update()
       ++i;
     }
   }
-  // check streaming sounds
-  if(music_source) {
-    music_source->update();
-  }
-
   m_device->update();
 
-  //run update() for stream_sound_source
-  StreamSoundSources::iterator s = update_list.begin();
-  while( s != update_list.end() ){
-    (*s)->update();
-    ++s;
+  /* Sources the caller holds rather than this manager, so they are not in
+     the list above and would otherwise never refill. */
+  for(auto* source : update_list) {
+    source->update();
   }
 }
 

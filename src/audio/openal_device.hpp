@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_AUDIO_OPENAL_DEVICE_HPP
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include <al.h>
@@ -29,6 +30,7 @@
 #include "audio/audio_device.hpp"
 
 class SoundFile;
+class StreamSoundSource;
 
 /** Everything that knows OpenAL. Opening it, holding the buffer of every
     short sound already read, and placing the listener. */
@@ -42,6 +44,12 @@ public:
 
   std::unique_ptr<SoundSource> create_source(const std::string& filename) override;
   void preload(const std::string& filename) override;
+
+  void play_music(const std::string& filename, float fade_in) override;
+  void stop_music(float fade_out) override;
+  void pause_music(float fade_out) override;
+  void resume_music(float fade_in) override;
+  bool has_music() const override { return m_music != nullptr; }
 
   void set_listener_position(const Vector& position) override;
   void set_listener_velocity(const Vector& velocity) override;
@@ -64,6 +72,10 @@ private:
 
   ALCdevice* m_device;
   ALCcontext* m_context;
+
+  /** The one track. Streamed a fragment at a time rather than held whole,
+      so the size of the file does not matter. */
+  std::unique_ptr<StreamSoundSource> m_music;
 
   /** Every short sound already read, by name. A sound is only held once
       however many things are playing it. */

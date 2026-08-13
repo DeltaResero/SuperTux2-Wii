@@ -52,6 +52,24 @@ public:
       does nothing for a file too large to be worth holding. */
   virtual void preload(const std::string& filename) = 0;
 
+  /* Music. One track plays at a time and the device owns it, which is the
+     shape both libraries take: SDL_mixer's music calls name no object at
+     all. Every fade is given in seconds, and a fade of zero acts at once.
+     Asking for a fade already under way is ignored rather than restarting
+     it. */
+
+  /** Start the named file looping. Throws if it cannot be read, leaving
+      whatever was playing alone. */
+  virtual void play_music(const std::string& filename, float fade_in) = 0;
+  /** Let the current track go. Nothing is loaded afterwards. */
+  virtual void stop_music(float fade_out) = 0;
+  virtual void pause_music(float fade_out) = 0;
+  /** Run the loaded track again, whether it was paused or had stopped. */
+  virtual void resume_music(float fade_in) = 0;
+
+  /** Whether a track is loaded at all, regardless of whether it is running. */
+  virtual bool has_music() const = 0;
+
   virtual void set_listener_position(const Vector& position) = 0;
   virtual void set_listener_velocity(const Vector& velocity) = 0;
   virtual void set_listener_orientation(const Vector& at, const Vector& up) = 0;

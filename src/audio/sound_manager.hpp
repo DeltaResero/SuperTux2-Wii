@@ -30,7 +30,6 @@
 class AudioDevice;
 class SoundFile;
 class SoundSource;
-class StreamSoundSource;
 
 class SoundManager : public Currenton<SoundManager>
 {
@@ -90,18 +89,12 @@ public:
   }
   void update();
 
-  /*
-   * Tell soundmanager to call update() for stream_sound_source.
-   */
-  void register_for_update( StreamSoundSource* sss );
-  /*
-   * Unsubscribe from updates for stream_sound_source.
-   */
-  void remove_from_update( StreamSoundSource* sss );
+  /** Ask to be updated every frame. For a source the caller holds itself,
+      which is therefore not in the list of sources this manages. */
+  void register_for_update( SoundSource* source );
+  void remove_from_update( SoundSource* source );
 
 private:
-  friend class StreamSoundSource;
-
   /** The hardware and the library that drives it. Never null once built, but
       ask is_open() before expecting anything of it. */
   std::unique_ptr<AudioDevice> m_device;
@@ -111,10 +104,8 @@ private:
   typedef std::vector<std::unique_ptr<SoundSource> > SoundSources;
   SoundSources sources;
 
-  typedef std::vector<StreamSoundSource*> StreamSoundSources;
-  StreamSoundSources update_list;
-
-  std::unique_ptr<StreamSoundSource> music_source;
+  typedef std::vector<SoundSource*> UpdateList;
+  UpdateList update_list;
 
   bool music_enabled;
   std::string current_music;
