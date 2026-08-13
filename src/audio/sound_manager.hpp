@@ -62,6 +62,15 @@ public:
   /// preloads a sound, so that you don't get a lag later when playing it
   void preload(const std::string& name);
 
+  /** The figures the fall off is built from, kept here so they all sit in
+      one file. A sound holds its level out as far as the listener stands
+      back, then fades to nothing by the matching silence distance. */
+  static float listener_setback();
+  static float placed_level();
+  static float placed_silence();
+  static float close_level();
+  static float close_silence();
+
   void set_listener_position(const Vector& position);
   void set_listener_velocity(const Vector& velocity);
   void set_listener_orientation(const Vector& at, const Vector& up);

@@ -26,7 +26,14 @@ OpenALSoundSource::OpenALSoundSource() :
 {
   alGenSources(1, &source);
   SoundManager::check_al_error("Couldn't create audio source: ");
-  set_reference_distance(128);
+
+  /* Give every source the ordinary fall off up front. A source that is never
+     placed sits on the listener, where the fall off leaves it alone, so this
+     costs nothing there. Without it a placed source that asks for neither
+     range would carry to the end of the level at full volume, which the
+     linear model does when it is handed no silence distance. */
+  alSourcef(source, AL_REFERENCE_DISTANCE, SoundManager::listener_setback());
+  alSourcef(source, AL_MAX_DISTANCE, SoundManager::placed_silence());
 }
 
 OpenALSoundSource::~OpenALSoundSource()
@@ -126,9 +133,22 @@ OpenALSoundSource::set_pitch(float pitch)
 }
 
 void
-OpenALSoundSource::set_reference_distance(float distance)
+OpenALSoundSource::set_placed_range()
 {
-  alSourcef(source, AL_REFERENCE_DISTANCE, distance);
+  alSourcef(source, AL_GAIN, SoundManager::placed_level());
+  alSourcef(source, AL_REFERENCE_DISTANCE, SoundManager::listener_setback());
+  alSourcef(source, AL_MAX_DISTANCE, SoundManager::placed_silence());
+}
+
+void
+OpenALSoundSource::set_close_range(float level)
+{
+  /* Holds its level out as far as the listener stands, so standing on one
+     gives the whole close level rather than a fraction of it, then falls to
+     nothing over the distance it is meant to carry. */
+  alSourcef(source, AL_GAIN, SoundManager::close_level() * level);
+  alSourcef(source, AL_REFERENCE_DISTANCE, SoundManager::listener_setback());
+  alSourcef(source, AL_MAX_DISTANCE, SoundManager::close_silence());
 }
 
 /* EOF */

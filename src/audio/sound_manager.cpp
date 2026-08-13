@@ -20,6 +20,7 @@
 #include "audio/sound_manager.hpp"
 
 #include <SDL.h>
+#include <cmath>
 #include <assert.h>
 #include <stdexcept>
 #include <sstream>
@@ -29,6 +30,43 @@
 #include "audio/sound_file.hpp"
 #include "audio/stream_sound_source.hpp"
 #include "util/log.hpp"
+
+namespace {
+
+/* Sound fades to nothing exactly where the engine stops running a badguy,
+   BadGuy::X_OFFSCREEN_DISTANCE. Beyond that a bouncing Mr Iceblock is simply
+   switched off, so anything still audible at that point stops mid sound
+   rather than fading. That distance is a fixed count of world units and not
+   a share of the view, so these follow it rather than the window size.
+
+   The listener is held back from the plane the game is drawn on so that a
+   sound beside Tux does not pan hard into one ear. */
+const float SILENCE_DISTANCE = 1280.0f;
+const float LISTENER_SETBACK = 300.0f;
+
+/* Levels, as fractions of an unplaced sound. A placed sound is part of the
+   scene rather than something happening to the player, so it sits under one.
+
+   A close sound, a ticking fuse or a flame, gets its own pair: how loud it is
+   when Tux is standing on it, and how far along the ground it carries. Both
+   are measured along the ground, and the setback is added back before these
+   reach OpenAL, which measures from the listener. Giving a close sound a
+   silence distance directly instead was the mistake that made the fuse
+   inaudible: the setback swallowed all but a few tiles of its range. */
+const float PLACED_LEVEL = 0.7f;
+const float CLOSE_LEVEL  = 0.5f;
+const float CLOSE_CARRY  = 480.0f;
+
+/** Distance at which a placed sound reaches silence, measured from the
+    listener rather than along the ground, since the setback above means the
+    two are not the same. */
+float silence_range()
+{
+  return std::sqrt(SILENCE_DISTANCE * SILENCE_DISTANCE
+                 + LISTENER_SETBACK * LISTENER_SETBACK);
+}
+
+} // namespace
 
 SoundManager::SoundManager() :
   device(0),
@@ -53,6 +91,7 @@ SoundManager::SoundManager() :
     alcMakeContextCurrent(context);
     check_alc_error("Couldn't select audio context: ");
 
+    alDistanceModel(AL_LINEAR_DISTANCE_CLAMPED);
     check_al_error("Audio error after init: ");
     sound_enabled = true;
     music_enabled = true;
@@ -190,6 +229,7 @@ SoundManager::play(const std::string& filename, const Vector& pos)
     if(pos.x < 0 || pos.y < 0) {
       source->set_relative(true);
     } else {
+      source->set_placed_range();
       source->set_position(pos);
     }
     source->play();
@@ -372,6 +412,36 @@ SoundManager::resume_music(float fadetime)
   }
 }
 
+float
+SoundManager::placed_level()
+{
+  return PLACED_LEVEL;
+}
+
+float
+SoundManager::placed_silence()
+{
+  return silence_range();
+}
+
+float
+SoundManager::close_level()
+{
+  return CLOSE_LEVEL;
+}
+
+float
+SoundManager::listener_setback()
+{
+  return LISTENER_SETBACK;
+}
+
+float
+SoundManager::close_silence()
+{
+  return std::sqrt(CLOSE_CARRY * CLOSE_CARRY + LISTENER_SETBACK * LISTENER_SETBACK);
+}
+
 void
 SoundManager::set_listener_position(const Vector& pos)
 {
@@ -382,7 +452,7 @@ SoundManager::set_listener_position(const Vector& pos)
     return;
   lastticks = current_ticks;
 
-  alListener3f(AL_POSITION, pos.x, pos.y, -300);
+  alListener3f(AL_POSITION, pos.x, pos.y, -LISTENER_SETBACK);
 }
 
 void

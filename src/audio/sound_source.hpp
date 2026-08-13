@@ -44,7 +44,14 @@ public:
   virtual void set_pitch(float pitch) = 0;
   virtual void set_position(const Vector& position) = 0;
   virtual void set_velocity(const Vector& velocity) = 0;
-  virtual void set_reference_distance(float distance) = 0;
+  /** Place this in the world. It holds its level nearby and reaches silence
+      at the distance the engine stops running the object that made it. */
+  virtual void set_placed_range() = 0;
+  /** Place this as a sound only meant to be heard from nearby, a ticking fuse
+      or a flame. It carries a short way and is silent well inside the view.
+      level scales it against other close sounds. Both of these settle the
+      gain, so call them before anything that sets it, not after. */
+  virtual void set_close_range(float level = 1.0f) = 0;
 
 private:
   SoundSource(const SoundSource&) = delete;

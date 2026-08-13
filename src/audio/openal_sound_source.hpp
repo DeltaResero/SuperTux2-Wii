@@ -45,7 +45,8 @@ public:
   virtual void set_pitch(float pitch);
   virtual void set_position(const Vector& position);
   virtual void set_velocity(const Vector& position);
-  virtual void set_reference_distance(float distance);
+  virtual void set_placed_range();
+  virtual void set_close_range(float level = 1.0f);
 
 protected:
   friend class SoundManager;

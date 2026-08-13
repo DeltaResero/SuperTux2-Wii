@@ -127,8 +127,7 @@ GoldBomb::collision_squished(GameObject& object)
     ticking = SoundManager::current()->create_sound_source("sounds/fizz.wav");
     ticking->set_position(get_pos());
     ticking->set_looping(true);
-    ticking->set_gain(2.0);
-    ticking->set_reference_distance(32);
+    ticking->set_close_range();
     ticking->play();
   }
   return true;

@@ -189,12 +189,12 @@ Haywire::start_exploding()
   ticking = SoundManager::current()->create_sound_source("sounds/fizz.wav");
   ticking->set_position(get_pos());
   ticking->set_looping(true);
-  ticking->set_reference_distance(32);
+  ticking->set_close_range();
   ticking->play();
   grunting = SoundManager::current()->create_sound_source("sounds/grunts.ogg");
   grunting->set_position(get_pos());
   grunting->set_looping(true);
-  grunting->set_reference_distance(32);
+  grunting->set_close_range();
   grunting->play();
 }
 

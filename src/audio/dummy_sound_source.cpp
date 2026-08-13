@@ -71,7 +71,11 @@ public:
   {
   }
 
-  virtual void set_reference_distance(float )
+  virtual void set_placed_range()
+  {
+  }
+
+  virtual void set_close_range(float )
   {
   }
 
