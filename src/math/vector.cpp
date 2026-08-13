@@ -23,7 +23,13 @@
 
 Vector Vector::unit() const
 {
-  return *this / norm();
+  const float length = norm();
+  /* A vector of no length points nowhere, and dividing by that length would
+     hand the caller a NaN that spreads into whatever position it is added to.
+     Answer with no direction instead. */
+  if (length == 0.0f) return Vector(0.0f, 0.0f);
+
+  return *this / length;
 }
 
 float Vector::norm() const
