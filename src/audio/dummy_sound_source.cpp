@@ -71,6 +71,24 @@ public:
   {
   }
 
+  virtual void pause()
+  {
+    is_playing = false;
+  }
+
+  virtual void resume()
+  {
+  }
+
+  virtual bool paused() const
+  {
+    return false;
+  }
+
+  virtual void update()
+  {
+  }
+
   virtual void set_placed_range()
   {
   }

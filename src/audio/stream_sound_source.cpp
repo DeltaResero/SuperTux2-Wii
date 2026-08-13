@@ -18,6 +18,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio/sound_file.hpp"
+#include "audio/openal_device.hpp"
 #include "audio/sound_manager.hpp"
 #include "audio/stream_sound_source.hpp"
 #include "supertux/timer.hpp"
@@ -31,7 +32,7 @@ StreamSoundSource::StreamSoundSource() :
   looping(false)
 {
   alGenBuffers(STREAMFRAGMENTS, buffers);
-  SoundManager::check_al_error("Couldn't allocate audio buffers: ");
+  OpenALDevice::check_al_error("Couldn't allocate audio buffers: ");
   //add me to update list
   SoundManager::current()->register_for_update( this );
 }
@@ -43,7 +44,7 @@ StreamSoundSource::~StreamSoundSource()
   file.reset();
   stop();
   alDeleteBuffers(STREAMFRAGMENTS, buffers);
-  SoundManager::check_al_error("Couldn't delete audio buffers: ");
+  OpenALDevice::check_al_error("Couldn't delete audio buffers: ");
 }
 
 void
@@ -67,7 +68,7 @@ StreamSoundSource::update()
   for(ALint i = 0; i < processed; ++i) {
     ALuint buffer;
     alSourceUnqueueBuffers(source, 1, &buffer);
-    SoundManager::check_al_error("Couldn't unqueue audio buffer: ");
+    OpenALDevice::check_al_error("Couldn't unqueue audio buffer: ");
 
     if(fillBufferAndQueue(buffer) == false)
       break;
@@ -131,12 +132,12 @@ StreamSoundSource::fillBufferAndQueue(ALuint buffer)
   } while(bytesread < STREAMFRAGMENTSIZE);
 
   if(bytesread > 0) {
-    ALenum format = SoundManager::get_sample_format(*file);
+    ALenum format = OpenALDevice::sample_format(*file);
     alBufferData(buffer, format, bufferdata.get(), bytesread, file->rate);
-    SoundManager::check_al_error("Couldn't refill audio buffer: ");
+    OpenALDevice::check_al_error("Couldn't refill audio buffer: ");
 
     alSourceQueueBuffers(source, 1, &buffer);
-    SoundManager::check_al_error("Couldn't queue audio buffer: ");
+    OpenALDevice::check_al_error("Couldn't queue audio buffer: ");
   }
 
   // return false if there aren't more buffers to fill
