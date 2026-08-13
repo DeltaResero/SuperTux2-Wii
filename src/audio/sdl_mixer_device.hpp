@@ -82,6 +82,9 @@ private:
   std::map<std::string, Mix_Chunk*> m_chunks;
 
   Mix_Music* m_music;
+  /** Where the track last was, in seconds, so that resuming after a fade to
+      silence picks up there rather than from the top. */
+  float m_last_position;
   /** Second to jump back to, and the second to jump at. A jump second of
       zero means the track loops whole and needs no watching. */
   float m_loop_begin;

@@ -37,12 +37,20 @@ const int MIXER_CHANNELS  = 2;
 const int MIXER_FRAGMENT  = 1024;
 const int MIXING_CHANNELS = 32;
 
+/** How far before the jump second the seek fires, in seconds. The reported
+    position only sits at the end of a file for about twenty milliseconds
+    before the track wraps and the intro replays, so waiting for the exact
+    second misses most loops. Firing this much early gives a whole frame or
+    two of room and costs the same sliver of tail. */
+const float LOOP_MARGIN = 0.15f;
+
 } // namespace
 
 SDLMixerDevice::SDLMixerDevice() :
   m_open(false),
   m_chunks(),
   m_music(nullptr),
+  m_last_position(0.0f),
   m_loop_begin(0.0f),
   m_loop_jump_at(0.0f),
   m_listener(0.0f, 0.0f)
@@ -116,6 +124,7 @@ SDLMixerDevice::release_music()
     Mix_HaltMusic();
     Mix_FreeMusic(m_music);
     m_music = nullptr;
+    m_last_position = 0.0f;
   }
 }
 
@@ -236,20 +245,30 @@ SDLMixerDevice::resume_music(float fade_in)
       Mix_FadeInMusic(m_music, -1, static_cast<int>(fade_in * 1000.0f));
     else
       Mix_PlayMusic(m_music, -1);
+
+    /* The track only stops while loaded when a fade to silence ran out, and
+       coming back from that means carrying on, not starting over. */
+    if(m_last_position > 0.0f)
+      Mix_SetMusicPosition(static_cast<double>(m_last_position));
   }
 }
 
 void
 SDLMixerDevice::follow_loop_point()
 {
-  if(m_music == nullptr || m_loop_jump_at <= 0.0f || !Mix_PlayingMusic())
+  if(m_music == nullptr || !Mix_PlayingMusic())
     return;
 
   const double at = Mix_GetMusicPosition(m_music);
   if(at < 0.0)
     return;   // this format cannot say where it is
 
-  if(at >= static_cast<double>(m_loop_jump_at))
+  m_last_position = static_cast<float>(at);
+
+  if(m_loop_jump_at <= 0.0f)
+    return;
+
+  if(at >= static_cast<double>(m_loop_jump_at) - LOOP_MARGIN)
     Mix_SetMusicPosition(static_cast<double>(m_loop_begin));
 }
 

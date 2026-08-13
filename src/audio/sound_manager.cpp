@@ -363,6 +363,12 @@ SoundManager::set_listener_orientation(const Vector& at, const Vector& up)
 void
 SoundManager::update()
 {
+  /* The device runs every frame. The SDL_mixer device watches the music's
+     position to seek at loop points, and the position only shows the end of
+     a track for about twenty milliseconds, so a slower cadence misses it.
+     Only the source reaping below stays on the old throttle. */
+  m_device->update();
+
   static Uint32 lasttime = SDL_GetTicks();
   Uint32 now = SDL_GetTicks();
 
@@ -382,7 +388,6 @@ SoundManager::update()
       ++i;
     }
   }
-  m_device->update();
 
   /* Sources the caller holds rather than this manager, so they are not in
      the list above and would otherwise never refill. */

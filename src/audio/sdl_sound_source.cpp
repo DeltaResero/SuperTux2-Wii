@@ -56,6 +56,10 @@ SDLSoundSource::holds_channel() const
 void
 SDLSoundSource::play()
 {
+  /* Playing again while already on a channel would strand that channel,
+     which for a looping sound means it never stops. */
+  stop();
+
   m_channel = Mix_PlayChannel(-1, m_chunk, m_looping ? -1 : 0);
   if(m_channel < 0)
     return;   // every channel busy; the sound is simply dropped
