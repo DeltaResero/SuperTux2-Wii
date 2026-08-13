@@ -19,13 +19,14 @@
 
 #include "audio/openal_sound_source.hpp"
 
+#include "audio/openal_device.hpp"
 #include "audio/sound_manager.hpp"
 
 OpenALSoundSource::OpenALSoundSource() :
   source()
 {
   alGenSources(1, &source);
-  SoundManager::check_al_error("Couldn't create audio source: ");
+  OpenALDevice::check_al_error("Couldn't create audio source: ");
 
   /* Give every source the ordinary fall off up front. A source that is never
      placed sits on the listener, where the fall off leaves it alone, so this
@@ -47,14 +48,14 @@ OpenALSoundSource::stop()
 {
   alSourceRewindv(1, &source); // Stops the source
   alSourcei(source, AL_BUFFER, AL_NONE);
-  SoundManager::check_al_error("Problem stopping audio source: ");
+  OpenALDevice::check_al_error("Problem stopping audio source: ");
 }
 
 void
 OpenALSoundSource::play()
 {
   alSourcePlay(source);
-  SoundManager::check_al_error("Couldn't start audio source: ");
+  OpenALDevice::check_al_error("Couldn't start audio source: ");
 }
 
 bool
@@ -69,7 +70,7 @@ void
 OpenALSoundSource::pause()
 {
   alSourcePause(source);
-  SoundManager::check_al_error("Couldn't pause audio source: ");
+  OpenALDevice::check_al_error("Couldn't pause audio source: ");
 }
 
 void

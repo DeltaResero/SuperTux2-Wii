@@ -49,7 +49,7 @@ public:
   virtual void set_close_range(float level = 1.0f);
 
 protected:
-  friend class SoundManager;
+  friend class OpenALDevice;
 
   ALuint source;
 

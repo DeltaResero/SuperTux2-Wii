@@ -25,6 +25,7 @@
 #include "math/size.hpp"
 #include "math/vector.hpp"
 #include "util/log.hpp"
+#include "audio/audio_device.hpp"
 #include "video/video_system.hpp"
 
 class Config;
@@ -59,6 +60,7 @@ public:
 
   std::optional<bool> use_fullscreen;
    std::optional<VideoSystem::Enum> video;
+   std::optional<AudioBackend> audio_backend;
   // std::optional<bool> try_vsync;
   std::optional<bool> show_fps;
   std::optional<bool> show_player_pos;

@@ -20,21 +20,16 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SOUND_MANAGER_HPP
 #define HEADER_SUPERTUX_AUDIO_SOUND_MANAGER_HPP
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <al.h>
-#include <alc.h>
-
 #include "math/vector.hpp"
 #include "util/currenton.hpp"
 
+class AudioDevice;
 class SoundFile;
 class SoundSource;
-class StreamSoundSource;
-class OpenALSoundSource;
 
 class SoundManager : public Currenton<SoundManager>
 {
@@ -88,49 +83,29 @@ public:
   bool is_music_enabled() const { return music_enabled; }
   bool is_sound_enabled() const { return sound_enabled; }
 
-  bool is_audio_enabled() const {
-    return device != 0 && context != 0;
-  }
+  bool is_audio_enabled() const;
   std::string get_current_music() const {
     return current_music;
   }
   void update();
 
-  /*
-   * Tell soundmanager to call update() for stream_sound_source.
-   */
-  void register_for_update( StreamSoundSource* sss );
-  /*
-   * Unsubscribe from updates for stream_sound_source.
-   */
-  void remove_from_update( StreamSoundSource* sss );
+  /** Ask to be updated every frame. For a source the caller holds itself,
+      which is therefore not in the list of sources this manages. */
+  void register_for_update( SoundSource* source );
+  void remove_from_update( SoundSource* source );
 
 private:
-  friend class OpenALSoundSource;
-  friend class StreamSoundSource;
+  /** The hardware and the library that drives it. Never null once built, but
+      ask is_open() before expecting anything of it. */
+  std::unique_ptr<AudioDevice> m_device;
 
-  /** creates a new sound source, might throw exceptions, never returns NULL */
-  std::unique_ptr<OpenALSoundSource> intern_create_sound_source(const std::string& filename);
-  static ALuint load_file_into_buffer(SoundFile& file);
-  static ALenum get_sample_format(const SoundFile& file);
-
-  static void print_openal_version();
-  void check_alc_error(const char* message) const;
-  static void check_al_error(const char* message);
-
-  ALCdevice* device;
-  ALCcontext* context;
   bool sound_enabled;
 
-  typedef std::map<std::string, ALuint> SoundBuffers;
-  SoundBuffers buffers;
-  typedef std::vector<std::unique_ptr<OpenALSoundSource> > SoundSources;
+  typedef std::vector<std::unique_ptr<SoundSource> > SoundSources;
   SoundSources sources;
 
-  typedef std::vector<StreamSoundSource*> StreamSoundSources;
-  StreamSoundSources update_list;
-
-  std::unique_ptr<StreamSoundSource> music_source;
+  typedef std::vector<SoundSource*> UpdateList;
+  UpdateList update_list;
 
   bool music_enabled;
   std::string current_music;

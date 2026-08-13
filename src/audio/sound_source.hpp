@@ -36,6 +36,13 @@ public:
   virtual void play() = 0;
   virtual void stop() = 0;
   virtual bool playing() const = 0;
+  virtual void pause() = 0;
+  virtual void resume() = 0;
+  virtual bool paused() const = 0;
+
+  /** Housekeeping between frames. Streaming sources refill here; the rest
+      have nothing to do. */
+  virtual void update() = 0;
 
   virtual void set_looping(bool looping) = 0;
   virtual void set_relative(bool relative) = 0;

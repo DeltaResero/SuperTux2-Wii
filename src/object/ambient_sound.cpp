@@ -139,6 +139,11 @@ AmbientSound::start_playing()
     if(!sound_source)
       throw std::runtime_error("file not found");
 
+    /* This class works out its own volume from the camera in update(), so the
+       sound rides on the listener and is left alone by the device. Without
+       this it sits at the world origin instead, and fades out as the level
+       goes on until the far end of any decent sized map is silent. */
+    sound_source->set_relative(true);
     sound_source->set_gain(0);
     sound_source->set_looping(true);
     currentvolume=targetvolume=1e-20f;
