@@ -136,6 +136,13 @@ SET(TEXTURE_ALIGNMENT 1 CACHE STRING "Round texture sides up to a multiple of th
 IF(NOT TEXTURE_ALIGNMENT MATCHES "^[1-9][0-9]*$")
   MESSAGE(FATAL_ERROR "TEXTURE_ALIGNMENT must be a positive whole number, got '${TEXTURE_ALIGNMENT}'")
 ENDIF()
+## The lightmap is drawn small and then multiplied over the finished frame.
+## By default it is drawn in a corner of the screen and copied out afterwards,
+## which needs glCopyTexSubImage2D. Where that call is missing but framebuffer
+## objects are present, the lightmap can be drawn straight into its texture
+## instead. Only one of the two is compiled in, since a target that lacks one
+## call cannot compile the path that uses it.
+OPTION(ENABLE_LIGHTMAP_FBO "Draw the lightmap into its texture with a framebuffer object" OFF)
 OPTION(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 OPTION(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
 IF(ENABLE_OPENGL)

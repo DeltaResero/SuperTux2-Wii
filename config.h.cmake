@@ -34,6 +34,10 @@
 /* Texture sides are rounded up to a multiple of this. 1 leaves them alone. */
 #define TEXTURE_ALIGNMENT ${TEXTURE_ALIGNMENT}
 
+/* Draw the lightmap into its own texture with a framebuffer object, rather
+   than drawing it on screen and copying the result back out. */
+#cmakedefine ENABLE_LIGHTMAP_FBO
+
 /* Which sound backends were built in. Either or both. When both are here,
    --audio-backend says which one runs. */
 #cmakedefine ENABLE_OPENAL
