@@ -116,6 +116,37 @@ GLTexture::GLTexture(SDL_Surface* image) :
   SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
   SDL_BlitSurface(image, 0, convert, 0);
 
+  /* Whatever the image does not cover is left transparent, and GL_LINEAR
+     mixes those empty pixels in every time it samples the last row or
+     column, which shows up as a faded line down the edge of the sprite.
+     Repeating the edge one pixel into the padding gives the filter the
+     image's own colour to blend with instead of a hole. One pixel is
+     enough, because the texture coordinates stop at the image and the rest
+     of the padding is never sampled. */
+  const bool pad_right  = static_cast<unsigned int>(image->w) < m_texture_width;
+  const bool pad_bottom = static_cast<unsigned int>(image->h) < m_texture_height;
+
+  if(pad_right)
+  {
+    SDL_Rect src = { image->w - 1, 0, 1, image->h };
+    SDL_Rect dst = { image->w,     0, 1, image->h };
+    SDL_BlitSurface(image, &src, convert, &dst);
+  }
+
+  if(pad_bottom)
+  {
+    SDL_Rect src = { 0, image->h - 1, image->w, 1 };
+    SDL_Rect dst = { 0, image->h,     image->w, 1 };
+    SDL_BlitSurface(image, &src, convert, &dst);
+  }
+
+  if(pad_right && pad_bottom)
+  {
+    SDL_Rect src = { image->w - 1, image->h - 1, 1, 1 };
+    SDL_Rect dst = { image->w,     image->h,     1, 1 };
+    SDL_BlitSurface(image, &src, convert, &dst);
+  }
+
   assert_gl("before creating texture");
   glGenTextures(1, &m_handle);
 
