@@ -28,9 +28,9 @@
 
 namespace {
 
-inline int next_power_of_two(int val)
+inline unsigned int next_power_of_two(unsigned int val)
 {
-  int result = 1;
+  unsigned int result = 1;
   while(result < val)
     result *= 2;
   return result;
@@ -38,7 +38,7 @@ inline int next_power_of_two(int val)
 
 /** Round up to a whole number of whatever the hardware stores textures in.
     With an alignment of one this hands back the size it was given. */
-inline int align_up(int val, int alignment)
+inline unsigned int align_up(unsigned int val, unsigned int alignment)
 {
   return (val + alignment - 1) / alignment * alignment;
 }
@@ -63,8 +63,10 @@ GLTexture::GLTexture(unsigned int width, unsigned int height) :
   try {
     glBindTexture(GL_TEXTURE_2D, m_handle);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA), m_texture_width,
-				 m_texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
+                 static_cast<GLsizei>(m_texture_width),
+                 static_cast<GLsizei>(m_texture_height),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     set_texture_params();
   } catch(...) {
@@ -95,27 +97,34 @@ GLTexture::GLTexture(SDL_Surface* image) :
   const bool npot = false;
 #endif
 
+  /* SDL states a surface's size as a signed number, though a surface never
+     has a negative side. Cross over once here rather than at every use. */
+  const unsigned int image_width  = static_cast<unsigned int>(image->w);
+  const unsigned int image_height = static_cast<unsigned int>(image->h);
+
   if (npot)
   {
-    m_texture_width  = align_up(image->w, TEXTURE_ALIGNMENT);
-    m_texture_height = align_up(image->h, TEXTURE_ALIGNMENT);
+    m_texture_width  = align_up(image_width, TEXTURE_ALIGNMENT);
+    m_texture_height = align_up(image_height, TEXTURE_ALIGNMENT);
   }
   else
   {
-    m_texture_width  = next_power_of_two(image->w);
-    m_texture_height = next_power_of_two(image->h);
+    m_texture_width  = next_power_of_two(image_width);
+    m_texture_height = next_power_of_two(image_height);
   }
 
-  m_image_width  = image->w;
-  m_image_height = image->h;
+  m_image_width  = image_width;
+  m_image_height = image_height;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
   SDL_Surface* convert = SDL_CreateRGBSurface(0,
-                                              m_texture_width, m_texture_height, 32,
+                                              static_cast<int>(m_texture_width),
+                                              static_cast<int>(m_texture_height), 32,
                                               0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
 #else
   SDL_Surface* convert = SDL_CreateRGBSurface(0,
-                                              m_texture_width, m_texture_height, 32,
+                                              static_cast<int>(m_texture_width),
+                                              static_cast<int>(m_texture_height), 32,
                                               0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 #endif
 
@@ -187,8 +196,9 @@ GLTexture::GLTexture(SDL_Surface* image) :
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
-                 m_texture_width, m_texture_height, 0, sdl_format,
-                 GL_UNSIGNED_BYTE, convert->pixels);
+                 static_cast<GLsizei>(m_texture_width),
+                 static_cast<GLsizei>(m_texture_height),
+                 0, sdl_format, GL_UNSIGNED_BYTE, convert->pixels);
 
     if(SDL_MUSTLOCK(convert))
     {

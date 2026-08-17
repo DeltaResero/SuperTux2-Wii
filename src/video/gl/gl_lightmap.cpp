@@ -44,9 +44,9 @@
 #include "video/surface.hpp"
 #include "video/texture_manager.hpp"
 
-inline int next_po2(int val)
+inline unsigned int next_po2(unsigned int val)
 {
-  int result = 1;
+  unsigned int result = 1;
   while(result < val)
     result *= 2;
 
@@ -62,8 +62,8 @@ GLLightmap::GLLightmap() :
 {
   m_lightmap_width = SCREEN_WIDTH / s_LIGHTMAP_DIV;
   m_lightmap_height = SCREEN_HEIGHT / s_LIGHTMAP_DIV;
-  unsigned int width = next_po2(m_lightmap_width);
-  unsigned int height = next_po2(m_lightmap_height);
+  unsigned int width = next_po2(static_cast<unsigned int>(m_lightmap_width));
+  unsigned int height = next_po2(static_cast<unsigned int>(m_lightmap_height));
 
   m_lightmap.reset(new GLTexture(width, height));
 
