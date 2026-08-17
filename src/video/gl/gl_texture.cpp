@@ -26,13 +26,6 @@
 
 namespace {
 
-#ifdef GL_VERSION_ES_CM_1_0
-inline bool is_power_of_2(int v)
-{
-  return (v & (v-1)) == 0;
-}
-#endif
-
 inline int next_power_of_two(int val)
 {
   int result = 1;
@@ -50,10 +43,6 @@ GLTexture::GLTexture(unsigned int width, unsigned int height) :
   m_image_width(),
   m_image_height()
 {
-#ifdef GL_VERSION_ES_CM_1_0
-  assert(is_power_of_2(width));
-  assert(is_power_of_2(height));
-#endif
   m_texture_width  = width;
   m_texture_height = height;
   m_image_width  = width;

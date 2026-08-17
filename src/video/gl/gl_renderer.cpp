@@ -42,10 +42,6 @@
 
 #define LIGHTMAP_DIV 5
 
-#ifdef GL_VERSION_ES_CM_1_0
-#  define glOrtho glOrthof
-#endif
-
 GLRenderer::GLRenderer() :
   m_window(),
   m_glcontext(),

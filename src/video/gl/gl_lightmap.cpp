@@ -84,11 +84,7 @@ GLLightmap::start_draw(const Color &ambient_color)
   glViewport(m_old_viewport[0], m_old_viewport[3] - m_lightmap_height + m_old_viewport[1], m_lightmap_width, m_lightmap_height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-#ifdef GL_VERSION_ES_CM_1_0
-  glOrthof(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#else
   glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#endif
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -106,11 +102,7 @@ GLLightmap::end_draw()
   glViewport(m_old_viewport[0], m_old_viewport[1], m_old_viewport[2], m_old_viewport[3]);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-#ifdef GL_VERSION_ES_CM_1_0
-  glOrthof(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#else
   glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#endif
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glEnable(GL_BLEND);
