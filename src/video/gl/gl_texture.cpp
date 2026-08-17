@@ -36,6 +36,13 @@ inline int next_power_of_two(int val)
   return result;
 }
 
+/** Round up to a whole number of whatever the hardware stores textures in.
+    With an alignment of one this hands back the size it was given. */
+inline int align_up(int val, int alignment)
+{
+  return (val + alignment - 1) / alignment * alignment;
+}
+
 } // namespace
 
 GLTexture::GLTexture(unsigned int width, unsigned int height) :
@@ -74,21 +81,24 @@ GLTexture::GLTexture(SDL_Surface* image) :
   m_image_height()
 {
   /* Whether the driver will take a texture whose sides are not powers of
-     two. It is an extension, so answering needs something to load it with;
-     a build with nothing to load it with has to assume the older rule. */
+     two. It is an extension, so answering needs something to load it with.
+     A build with no loader either has been told the answer or falls back on
+     the older rule, which costs roughly twice the memory. */
 #ifdef USE_GLBINDING
   static auto extensions = glbinding::ContextInfo::extensions();
   const bool npot = extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end();
 #elif defined(HAVE_GLEW)
   const bool npot = GLEW_ARB_texture_non_power_of_two != 0;
+#elif defined(HAVE_NPOT_TEXTURES)
+  const bool npot = true;
 #else
   const bool npot = false;
 #endif
 
   if (npot)
   {
-    m_texture_width  = image->w;
-    m_texture_height = image->h;
+    m_texture_width  = align_up(image->w, TEXTURE_ALIGNMENT);
+    m_texture_height = align_up(image->h, TEXTURE_ALIGNMENT);
   }
   else
   {

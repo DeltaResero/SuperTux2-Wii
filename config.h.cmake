@@ -27,6 +27,13 @@
    build gets the plain headers and asks the driver for nothing. */
 #cmakedefine HAVE_GLEW
 
+/* Set when the hardware takes textures of any size, for builds that have no
+   extension loader to ask. */
+#cmakedefine HAVE_NPOT_TEXTURES
+
+/* Texture sides are rounded up to a multiple of this. 1 leaves them alone. */
+#define TEXTURE_ALIGNMENT ${TEXTURE_ALIGNMENT}
+
 /* Which sound backends were built in. Either or both. When both are here,
    --audio-backend says which one runs. */
 #cmakedefine ENABLE_OPENAL

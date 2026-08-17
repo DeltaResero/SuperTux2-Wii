@@ -121,6 +121,21 @@ OPTION(ENABLE_OPENGL "Enable OpenGL support" ON)
 ## Hardware with a fixed 1.x pipeline has none to fetch and no GLEW built for
 ## it, so this has to come off without taking OpenGL with it.
 OPTION(ENABLE_GLEW "Use GLEW to load OpenGL extensions" ON)
+## Accepting a texture whose sides are not powers of two is an extension, so a
+## build with a loader asks the driver at runtime. A build with no loader
+## cannot ask and assumes the older rule, which rounds every texture up and
+## roughly doubles the memory they occupy. Hardware known to take any size can
+## say so here instead.
+OPTION(ENABLE_NPOT_TEXTURES "Assume the hardware accepts non-power-of-two textures" OFF)
+IF(ENABLE_NPOT_TEXTURES)
+  SET(HAVE_NPOT_TEXTURES TRUE)
+ENDIF()
+## Hardware that stores textures in fixed size tiles wants each side rounded up
+## to a multiple of the tile. 1 leaves the size alone.
+SET(TEXTURE_ALIGNMENT 1 CACHE STRING "Round texture sides up to a multiple of this many pixels")
+IF(NOT TEXTURE_ALIGNMENT MATCHES "^[1-9][0-9]*$")
+  MESSAGE(FATAL_ERROR "TEXTURE_ALIGNMENT must be a positive whole number, got '${TEXTURE_ALIGNMENT}'")
+ENDIF()
 OPTION(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 OPTION(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
 IF(ENABLE_OPENGL)
