@@ -35,13 +35,10 @@ using namespace gl;
 
 #else
 
-#ifndef GL_VERSION_ES_CM_1_0
+/* GLEW brings its own declarations of everything below it and refuses to be
+   included after them, so it is one or the other. */
+#ifdef HAVE_GLEW
 #  include <GL/glew.h>
-#endif
-
-#if defined(GL_VERSION_ES_CM_1_0)
-#  include <GLES/gl.h>
-#  include <GLES/glext.h>
 #else
 #  include <GL/gl.h>
 #  include <GL/glext.h>

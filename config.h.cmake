@@ -23,6 +23,10 @@
 
 #cmakedefine HAVE_OPENGL
 
+/* Whether GLEW is there to load OpenGL extensions with. Without it the
+   build gets the plain headers and asks the driver for nothing. */
+#cmakedefine HAVE_GLEW
+
 /* Which sound backends were built in. Either or both. When both are here,
    --audio-backend says which one runs. */
 #cmakedefine ENABLE_OPENAL

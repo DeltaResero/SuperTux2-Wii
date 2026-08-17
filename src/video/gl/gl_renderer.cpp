@@ -119,8 +119,7 @@ GLRenderer::GLRenderer() :
   // Init the projection matrix, viewport and stuff
   apply_config();
 
-#ifndef GL_VERSION_ES_CM_1_0
-  #ifndef USE_GLBINDING
+#ifdef HAVE_GLEW
   GLenum err = glewInit();
   if (GLEW_OK != err)
   {
@@ -130,7 +129,8 @@ GLRenderer::GLRenderer() :
   }
   log_info << "Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
   log_info << "GLEW_ARB_texture_non_power_of_two: " << static_cast<int>(GLEW_ARB_texture_non_power_of_two) << std::endl;
-#  endif
+#elif !defined(USE_GLBINDING)
+  log_info << "Using OpenGL with no extension loader" << std::endl;
 #endif
 }
 

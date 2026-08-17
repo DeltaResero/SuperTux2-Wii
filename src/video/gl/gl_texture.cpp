@@ -17,6 +17,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <config.h>
+
 #include "supertux/gameconfig.hpp"
 #include "video/gl/gl_texture.hpp"
 
@@ -71,30 +73,28 @@ GLTexture::GLTexture(SDL_Surface* image) :
   m_image_width(),
   m_image_height()
 {
-#ifdef GL_VERSION_ES_CM_1_0
-  m_texture_width = next_power_of_two(image->w);
-  m_texture_height = next_power_of_two(image->h);
-#else
-#  ifdef USE_GLBINDING
+  /* Whether the driver will take a texture whose sides are not powers of
+     two. It is an extension, so answering needs something to load it with;
+     a build with nothing to load it with has to assume the older rule. */
+#ifdef USE_GLBINDING
   static auto extensions = glbinding::ContextInfo::extensions();
-  if (extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end())
+  const bool npot = extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end();
+#elif defined(HAVE_GLEW)
+  const bool npot = GLEW_ARB_texture_non_power_of_two != 0;
+#else
+  const bool npot = false;
+#endif
+
+  if (npot)
   {
     m_texture_width  = image->w;
     m_texture_height = image->h;
   }
-#  else
-  if (GLEW_ARB_texture_non_power_of_two)
-  {
-    m_texture_width  = image->w;
-    m_texture_height = image->h;
-  }
-#  endif
   else
   {
-    m_texture_width = next_power_of_two(image->w);
+    m_texture_width  = next_power_of_two(image->w);
     m_texture_height = next_power_of_two(image->h);
   }
-#endif
 
   m_image_width  = image->w;
   m_image_height = image->h;
@@ -148,12 +148,6 @@ GLTexture::GLTexture(SDL_Surface* image) :
     glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
                  m_texture_width, m_texture_height, 0, sdl_format,
                  GL_UNSIGNED_BYTE, convert->pixels);
-
-    // no not use mipmaps
-    if(false)
-    {
-      glGenerateMipmap(GL_TEXTURE_2D);
-    }
 
     if(SDL_MUSTLOCK(convert))
     {
