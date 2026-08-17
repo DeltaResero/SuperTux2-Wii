@@ -18,6 +18,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 #include "video/sdl/sdl_lightmap.hpp"
 #include "video/sdl/sdl_surface_data.hpp"
