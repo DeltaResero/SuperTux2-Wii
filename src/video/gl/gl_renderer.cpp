@@ -372,6 +372,12 @@ GLRenderer::apply_video_mode()
     else
     {
       m_glcontext = SDL_GL_CreateContext(m_window);
+      if (!m_glcontext)
+      {
+        std::ostringstream msg;
+        msg << "Couldn't create OpenGL context: " << SDL_GetError();
+        throw std::runtime_error(msg.str());
+      }
 
       SCREEN_WIDTH = size.width;
       SCREEN_HEIGHT = size.height;
