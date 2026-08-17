@@ -110,7 +110,9 @@ IF(WIN32)
   FIND_LIBRARY(SDL2MAIN_LIBRARIES NAMES SDL2main PATHS "${DEPENDENCY_FOLDER}/lib")
 ELSE(WIN32)
   INCLUDE(FindPkgConfig)
-  PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.1)
+  ## 2.0.10 for SDL_RenderCopyExF, which the software renderer's lighting
+  ## needs to place a copy on a fraction of a pixel.
+  PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.10)
   PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 ENDIF(WIN32)
 SET(HAVE_SDL TRUE)
