@@ -53,6 +53,16 @@ GLRenderer::GLRenderer() :
   SDL_GetCurrentDisplayMode(0, &mode);
   m_desktop_size = Size(mode.w, mode.h);
 
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+  SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   5);
+  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  5);
+
+  apply_video_mode();
+
+  /* The swap interval belongs to a context, so asking for it before one
+     exists is refused. This has to come after the window is up. */
   if(g_config->try_vsync) {
     /* we want vsync for smooth scrolling */
     if (SDL_GL_SetSwapInterval(-1) != 0)
@@ -64,14 +74,6 @@ GLRenderer::GLRenderer() :
       }
     }
   }
-
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-  SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   5);
-  SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-  SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  5);
-
-  apply_video_mode();
 
 #ifdef USE_GLBINDING
 

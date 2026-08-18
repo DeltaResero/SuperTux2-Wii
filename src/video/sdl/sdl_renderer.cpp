@@ -83,12 +83,35 @@ SDLRenderer::SDLRenderer() :
 
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 
-  int ret = SDL_CreateWindowAndRenderer(width, height, flags,
-                                        &m_window, &m_renderer);
-
-  if(ret != 0) {
+  /* The window and the renderer are made separately because the call that
+     makes both at once takes flags for the window only, and the swap is
+     asked for through a renderer flag. */
+  m_window = SDL_CreateWindow("SuperTux",
+                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                              width, height, flags);
+  if(m_window == NULL) {
     std::stringstream msg;
     msg << "Couldn't set video mode (" << width << "x" << height
+        << "): " << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
+
+  Uint32 renderer_flags = 0;
+  if(g_config->try_vsync) {
+    renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
+  }
+
+  m_renderer = SDL_CreateRenderer(m_window, -1, renderer_flags);
+  if(m_renderer == NULL && renderer_flags != 0) {
+    /* Not every driver can wait for the vertical blank. Rather than run with
+       no renderer at all, ask again without it. */
+    log_info << "no support for vsync: " << SDL_GetError() << std::endl;
+    m_renderer = SDL_CreateRenderer(m_window, -1, 0);
+  }
+
+  if(m_renderer == NULL) {
+    std::stringstream msg;
+    msg << "Couldn't create renderer (" << width << "x" << height
         << "): " << SDL_GetError();
     throw std::runtime_error(msg.str());
   }
