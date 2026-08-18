@@ -23,6 +23,7 @@
 #include <memory>
 #include <SDL.h>
 
+#include "video/sdl/sdl_renderer.hpp"
 #include "video/video_system.hpp"
 
 class TextureManager;
@@ -30,7 +31,9 @@ class TextureManager;
 class SDLVideoSystem : public VideoSystem
 {
 private:
-  std::unique_ptr<Renderer> m_renderer;
+  /** Held as the SDL renderer rather than the general one, since the vsync
+      setting is asked for through the SDL renderer it wraps. */
+  std::unique_ptr<SDLRenderer> m_renderer;
   std::unique_ptr<Lightmap> m_lightmap;
   std::unique_ptr<TextureManager> m_texture_manager;
 
@@ -45,6 +48,9 @@ public:
 
   void apply_config() override;
   void resize(int w, int h) override;
+
+  void set_vsync(int mode) override;
+  int get_vsync() const override;
 
 private:
   SDLVideoSystem(const SDLVideoSystem&) = delete;

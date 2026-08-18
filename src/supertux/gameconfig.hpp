@@ -60,7 +60,11 @@ public:
 
   /** Which sound backend to run when more than one was built in. */
   AudioBackend audio_backend;
-  bool try_vsync;
+
+  /** How long to wait for the screen before showing a frame. 1 waits for
+      every refresh, 0 does not wait at all, and -1 waits unless the frame
+      is already late, in which case it goes out anyway and may tear. */
+  int vsync;
   bool show_fps;
   bool show_player_pos;
   bool sound_enabled;

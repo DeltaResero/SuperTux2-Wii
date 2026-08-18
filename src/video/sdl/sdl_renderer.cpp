@@ -96,8 +96,10 @@ SDLRenderer::SDLRenderer() :
     throw std::runtime_error(msg.str());
   }
 
+  /* This renderer waits or it does not, so the mode that lets a late frame
+     through is taken as a plain wait. */
   Uint32 renderer_flags = 0;
-  if(g_config->try_vsync) {
+  if(g_config->vsync != 0) {
     renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
   }
 

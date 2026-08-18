@@ -63,15 +63,16 @@ GLRenderer::GLRenderer() :
 
   /* The swap interval belongs to a context, so asking for it before one
      exists is refused. This has to come after the window is up. */
-  if(g_config->try_vsync) {
-    /* we want vsync for smooth scrolling */
-    if (SDL_GL_SetSwapInterval(-1) != 0)
+  if(SDL_GL_SetSwapInterval(g_config->vsync) != 0)
+  {
+    log_info << "no support for vsync mode " << g_config->vsync << ": "
+             << SDL_GetError() << std::endl;
+
+    /* A driver that will not let a late frame through can usually still
+       wait for every one, which is the nearest thing to what was asked. */
+    if(g_config->vsync == -1 && SDL_GL_SetSwapInterval(1) == 0)
     {
-      log_info << "no support for late swap tearing vsync: " << SDL_GetError() << std::endl;
-      if (SDL_GL_SetSwapInterval(1))
-      {
-        log_info << "no support for vsync: " << SDL_GetError() << std::endl;
-      }
+      g_config->vsync = 1;
     }
   }
 

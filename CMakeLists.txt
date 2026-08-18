@@ -111,8 +111,9 @@ IF(WIN32)
 ELSE(WIN32)
   INCLUDE(FindPkgConfig)
   ## 2.0.10 for SDL_RenderCopyExF, which the software renderer's lighting
-  ## needs to place a copy on a fraction of a pixel.
-  PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.10)
+  ## needs to place a copy on a fraction of a pixel, and 2.0.18 for
+  ## SDL_RenderSetVSync, which the vsync setting changes through.
+  PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.18)
   PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 ENDIF(WIN32)
 SET(HAVE_SDL TRUE)

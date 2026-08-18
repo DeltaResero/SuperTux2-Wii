@@ -38,7 +38,7 @@ Config::Config() :
   use_fullscreen(false),
   video(VideoSystem::AUTO_VIDEO),
   audio_backend(AudioBackend::Automatic),
-  try_vsync(true),
+  vsync(1),
   show_fps(false),
   show_player_pos(false),
   sound_enabled(true),
@@ -92,7 +92,20 @@ Config::load()
     std::string video_string;
     config_video_lisp.get("video", video_string);
     video = VideoSystem::get_video_system(video_string);
-    config_video_lisp.get("vsync", try_vsync);
+    /* This was on or off before it could also be adaptive. A file written by
+       an older build still says true or false there, and reading that as a
+       number throws, which would take the rest of the file down with it and
+       leave the player with nothing they had set. */
+    try
+    {
+      config_video_lisp.get("vsync", vsync);
+    }
+    catch(const std::exception&)
+    {
+      bool vsync_on = true;
+      config_video_lisp.get("vsync", vsync_on);
+      vsync = vsync_on ? 1 : 0;
+    }
 
     config_video_lisp.get("fullscreen_width",  fullscreen_size.width);
     config_video_lisp.get("fullscreen_height", fullscreen_size.height);
@@ -149,7 +162,7 @@ Config::save()
   writer.start_list("video");
   writer.write("fullscreen", use_fullscreen);
   writer.write("video", VideoSystem::get_video_string(video));
-  writer.write("vsync", try_vsync);
+  writer.write("vsync", vsync);
 
   writer.write("fullscreen_width",  fullscreen_size.width);
   writer.write("fullscreen_height", fullscreen_size.height);

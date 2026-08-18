@@ -20,6 +20,7 @@
 #include "video/sdl/sdl_video_system.hpp"
 
 #include "supertux/gameconfig.hpp"
+#include "util/log.hpp"
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"
 #include "video/sdl/sdl_lightmap.hpp"
@@ -77,6 +78,30 @@ SDLVideoSystem::resize(int w, int h)
 {
   m_renderer->resize(w, h);
   m_lightmap.reset(new SDLLightmap);
+}
+
+void
+SDLVideoSystem::set_vsync(int mode)
+{
+  /* This renderer waits or it does not. There is no mode where a late frame
+     is let through, so asking for one gets the plain wait. */
+  const int wait = (mode == 0) ? 0 : 1;
+  if(SDL_RenderSetVSync(m_renderer->get_sdl_renderer(), wait) != 0)
+  {
+    log_warning << "Couldn't set vsync mode " << mode << ": "
+                << SDL_GetError() << std::endl;
+  }
+}
+
+int
+SDLVideoSystem::get_vsync() const
+{
+  SDL_RendererInfo info;
+  if(SDL_GetRendererInfo(m_renderer->get_sdl_renderer(), &info) != 0)
+  {
+    return 0;
+  }
+  return (info.flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0;
 }
 
 /* EOF */

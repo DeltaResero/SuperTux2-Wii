@@ -27,8 +27,10 @@
 #include "supertux/menu/keyboard_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/profile_menu.hpp"
+#include "util/log.hpp"
 #include "util/string_util.hpp"
 #include "video/renderer.hpp"
+#include "video/video_system.hpp"
 
 #include <algorithm>
 #include <sstream>
@@ -39,6 +41,7 @@ enum OptionsMenuIDs {
   MNID_FULLSCREEN_RESOLUTION,
   MNID_MAGNIFICATION,
   MNID_ASPECTRATIO,
+  MNID_VSYNC,
   MNID_SOUND,
   MNID_MUSIC,
   MNID_DEVELOPER_MODE,
@@ -50,9 +53,11 @@ OptionsMenu::OptionsMenu(bool complete) :
   next_magnification(0),
   next_aspect_ratio(0),
   next_resolution(0),
+  next_vsync(0),
   magnifications(),
   aspect_ratios(),
-  resolutions()
+  resolutions(),
+  vsyncs()
 {
   add_label("Options");
   add_hl();
@@ -181,6 +186,25 @@ OptionsMenu::OptionsMenu(bool complete) :
     resolutions.push_back(fullscreen_size_str);
   }
 
+  vsyncs.clear();
+  vsyncs.push_back("on");
+  vsyncs.push_back("off");
+  vsyncs.push_back("adaptive");
+
+  /* Read back what the driver settled on rather than what was asked for,
+     since the two need not agree. */
+  switch (VideoSystem::current()->get_vsync())
+  {
+    case -1: next_vsync = 2; break;
+    case 0:  next_vsync = 1; break;
+    case 1:  next_vsync = 0; break;
+    default:
+      log_warning << "Unknown vsync mode: "
+                  << VideoSystem::current()->get_vsync() << std::endl;
+      next_vsync = 0;
+      break;
+  }
+
   if (complete)
   {
     // Profile changes are only possible in the main menu, since
@@ -200,6 +224,9 @@ OptionsMenu::OptionsMenu(bool complete) :
 
   auto aspect = add_string_select(MNID_ASPECTRATIO, "Aspect Ratio", &next_aspect_ratio, aspect_ratios);
   aspect->set_help("Adjust the aspect ratio");
+
+  auto vsync = add_string_select(MNID_VSYNC, "VSync", &next_vsync, vsyncs);
+  vsync->set_help("Wait for the screen before showing a frame, which stops it tearing. Adaptive waits unless the frame is already late");
 
   if (SoundManager::current()->is_audio_enabled()) {
     add_toggle(MNID_SOUND, "Sound", &g_config->sound_enabled)
@@ -242,6 +269,22 @@ void
 OptionsMenu::menu_action(MenuItem* item)
 {
   switch (item->id) {
+    case MNID_VSYNC:
+      {
+        int mode = 1;
+        switch (next_vsync)
+        {
+          case 0:  mode = 1;  break;
+          case 1:  mode = 0;  break;
+          case 2:  mode = -1; break;
+          default: assert(!"This must not be reached"); break;
+        }
+        g_config->vsync = mode;
+        VideoSystem::current()->set_vsync(mode);
+        g_config->save();
+      }
+      break;
+
     case MNID_ASPECTRATIO:
       {
         if (aspect_ratios[next_aspect_ratio] == "auto")
