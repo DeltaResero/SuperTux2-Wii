@@ -22,6 +22,7 @@
 #define HEADER_SUPERTUX_VIDEO_FONT_HPP
 
 #include <stdint.h>
+#include <map>
 #include <string>
 
 #include "math/rectf.hpp"
@@ -128,7 +129,7 @@ private:
     Glyph() :
       advance(),
       offset(),
-      surface_idx(),
+      surface_idx(-1),
       rect()
     {}
   };
@@ -143,8 +144,12 @@ private:
   int border;
   bool rtl;
 
-  /** 65536 of glyphs */
-  std::vector<Glyph> glyphs;
+  /** The glyphs the font actually defines, by code point. Absent means the
+      font has nothing to draw for that character. */
+  std::map<uint32_t, Glyph> glyphs;
+
+  /** The glyph to stand in with, or null when the font has no space. */
+  const Glyph* find_glyph(uint32_t code) const;
 };
 
 #endif
