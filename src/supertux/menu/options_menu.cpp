@@ -281,7 +281,6 @@ OptionsMenu::menu_action(MenuItem* item)
         }
         g_config->vsync = mode;
         VideoSystem::current()->set_vsync(mode);
-        g_config->save();
       }
       break;
 
@@ -351,22 +350,24 @@ OptionsMenu::menu_action(MenuItem* item)
     case MNID_FULLSCREEN:
       VideoSystem::current()->get_renderer().apply_config();
       MenuManager::instance().on_window_resize();
-      g_config->save();
       break;
 
     case MNID_SOUND:
       SoundManager::current()->enable_sound(g_config->sound_enabled);
-      g_config->save();
       break;
 
     case MNID_MUSIC:
       SoundManager::current()->enable_music(g_config->music_enabled);
-      g_config->save();
       break;
 
     default:
       break;
   }
+
+  /* Every item here changes a setting, so write the file once for all of
+     them rather than leaving each to remember. Only some of them used to,
+     and the rest were kept no further than the next clean shutdown. */
+  g_config->save();
 }
 
 /* EOF */
