@@ -345,7 +345,8 @@ Menu::draw_item(DrawingContext& context, int index)
   float x_pos       = pos.x - menu_width/2;
   float y_pos       = pos.y + 24*index - menu_height/2 + 12;
 
-  pitem->draw(context, Vector(x_pos, y_pos), menu_width, active_item == index);
+  pitem->draw(context, Vector(x_pos, y_pos), menu_width, get_value_width(),
+              active_item == index);
 
   if(active_item == index)
   {
@@ -368,15 +369,41 @@ Menu::get_width() const
 {
   /* The width of the menu has to be more than the width of the text
      with the most characters */
+  const float value_width = get_value_width();
   float menu_width = 0;
   for(unsigned int i = 0; i < items.size(); ++i)
   {
     float w = items[i]->get_width();
+
+    /* An item asks for room for its own longest value, but it is given the
+       column the whole menu shares, so make up the difference or a long name
+       beside a short value would run into the arrow. */
+    const float own_value = items[i]->get_value_width();
+    if(own_value > 0)
+      w += value_width - own_value;
+
     if(w > menu_width)
       menu_width = w;
   }
 
   return menu_width + 24;
+}
+
+float
+Menu::get_value_width() const
+{
+  /* One column for the whole menu, wide enough for the longest value any of
+     its settings can take, so the arrows sit in the same place on every row
+     rather than wherever each row's own values happen to end. */
+  float value_width = 0;
+  for(unsigned int i = 0; i < items.size(); ++i)
+  {
+    float w = items[i]->get_value_width();
+    if(w > value_width)
+      value_width = w;
+  }
+
+  return value_width;
 }
 
 float
@@ -481,7 +508,8 @@ Menu::event(const SDL_Event& ev)
         /* Ask the item what was pressed, since one drawn with an arrow at
            either end means different things at different places along it. */
         const MenuAction action = items[active_item]->get_click_action(
-          x - (pos.x - menu_width/2), static_cast<int>(menu_width));
+          x - (pos.x - menu_width/2), static_cast<int>(menu_width),
+          get_value_width());
 
         if(action != MENU_ACTION_NONE)
         {

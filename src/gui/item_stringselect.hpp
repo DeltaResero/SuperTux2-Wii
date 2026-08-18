@@ -32,20 +32,29 @@ class ItemStringSelect : public MenuItem
     ItemStringSelect(const std::string& text_, const std::vector<std::string>& list_, int* selected_, int _id = -1);
 
     /** Draws the menu item. */
-    virtual void draw(DrawingContext&, Vector pos, int menu_width, bool active);
+    virtual void draw(DrawingContext&, Vector pos, int menu_width, float value_width, bool active);
 
     /** Returns the minimum width of the menu item. */
     virtual int get_width() const;
+
+    /** Width of the longest value this setting can take. */
+    virtual float get_value_width() const;
 
     /** Processes the menu action. */
     virtual void process_action(MenuAction action);
 
     /** Steps the value when an arrow was clicked, and does nothing when the
         click landed anywhere else, since there is nothing else to press. */
-    virtual MenuAction get_click_action(float x_offset, int menu_width) const;
+    virtual MenuAction get_click_action(float x_offset, int menu_width,
+                                        float value_width) const;
 
     std::vector<std::string> list; // list of values for a STRINGSELECT item
     int* selected; // currently selected item
+
+  private:
+    /** Width of the longest value in the list, which is what the row is laid
+        out around so that stepping through the values moves nothing. */
+    float widest_value;
 
   private:
     ItemStringSelect(const ItemStringSelect&);

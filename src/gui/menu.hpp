@@ -86,6 +86,10 @@ public:
   float get_width() const;
   float get_height() const;
 
+  /** Width of the column the menu's settings show their values in, shared by
+      all of them so the arrows line up. */
+  float get_value_width() const;
+
   virtual void on_window_resize();
 
 protected:
