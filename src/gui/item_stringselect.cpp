@@ -65,6 +65,24 @@ ItemStringSelect::get_width() const {
   return Resources::normal_font->get_text_width(text) + Resources::normal_font->get_text_width(list[*selected]) + 64;
 }
 
+MenuAction
+ItemStringSelect::get_click_action(float x_offset, int menu_width) const {
+  /* The same places draw() puts the two arrows, so a press lands on whichever
+     one was drawn under it. */
+  const float roff = Resources::arrow_left->get_width();
+  const float sel_width = Resources::normal_font->get_text_width(list[*selected]);
+  const float left_arrow  = menu_width - sel_width - 2*roff - 8;
+  const float right_arrow = menu_width - roff - 8;
+
+  if(x_offset >= left_arrow && x_offset < left_arrow + roff)
+    return MENU_ACTION_LEFT;
+
+  if(x_offset >= right_arrow && x_offset < right_arrow + roff)
+    return MENU_ACTION_RIGHT;
+
+  return MENU_ACTION_NONE;
+}
+
 void
 ItemStringSelect::process_action(MenuAction action) {
   switch (action) {

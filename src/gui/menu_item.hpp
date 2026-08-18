@@ -53,6 +53,14 @@ class MenuItem
     /** Processes the menu action. */
     virtual void process_action(MenuAction action) { }
 
+    /** Which action a click at the given distance from the item's left edge
+        stands for. Items drawn with parts that mean different things, such as
+        an arrow at either end, answer for themselves, since only they know
+        where those parts were put. */
+    virtual MenuAction get_click_action(float x_offset, int menu_width) const {
+      return MENU_ACTION_HIT;
+    }
+
     /** Processes the given event. */
     virtual void event(const SDL_Event& ev) { }
 

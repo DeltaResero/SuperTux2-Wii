@@ -472,12 +472,21 @@ Menu::event(const SDL_Event& ev)
       int x = int(mouse_pos.x);
       int y = int(mouse_pos.y);
 
-      if(x > pos.x - get_width()/2 &&
-         x < pos.x + get_width()/2 &&
+      const float menu_width = get_width();
+      if(x > pos.x - menu_width/2 &&
+         x < pos.x + menu_width/2 &&
          y > pos.y - get_height()/2 &&
          y < pos.y + get_height()/2)
       {
-        process_action(MENU_ACTION_HIT);
+        /* Ask the item what was pressed, since one drawn with an arrow at
+           either end means different things at different places along it. */
+        const MenuAction action = items[active_item]->get_click_action(
+          x - (pos.x - menu_width/2), static_cast<int>(menu_width));
+
+        if(action != MENU_ACTION_NONE)
+        {
+          process_action(action);
+        }
       }
     }
     break;
