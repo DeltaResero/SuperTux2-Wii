@@ -71,15 +71,10 @@ Font::Font(GlyphWidth glyph_width_,
   rtl(false),
   glyphs()
 {
-  const std::string fontdir = FileSystem::dirname(filename);
-  const std::string fontname = FileSystem::basename(filename);
-
-  // scan for prefix-filename across the whole search path
-  for (const std::string& filename_ : FileSystem::enumerate(fontdir)) {
-    if( filename_.rfind(fontname) != std::string::npos ) {
-      loadFontFile(fontdir + filename_);
-    }
-  }
+  /* The same font is split into one file per writing system, the Latin one
+     named plainly and the rest carrying a prefix. Only the one asked for is
+     loaded; nothing here can produce a word in the others. */
+  loadFontFile(filename);
 }
 
 void
