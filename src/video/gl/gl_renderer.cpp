@@ -220,7 +220,12 @@ GLRenderer::flip()
 void
 GLRenderer::resize(int w, int h)
 {
-  g_config->window_size = Size(w, h);
+  /* While fullscreen the window is the size of the screen, and that is not
+     a size anybody chose, so it is not kept. */
+  if (!g_config->use_fullscreen)
+  {
+    g_config->window_size = Size(w, h);
+  }
 
   apply_config();
 }
@@ -230,9 +235,11 @@ GLRenderer::apply_config()
 {
   apply_video_mode();
 
-  Size target_size = g_config->use_fullscreen ?
-    ((g_config->fullscreen_size == Size(0, 0)) ? m_desktop_size : g_config->fullscreen_size) :
-    g_config->window_size;
+  /* Ask how big the window came out rather than working it back out from
+     the settings, since a window manager is free to hand back something
+     other than what was asked for. */
+  Size target_size;
+  SDL_GL_GetDrawableSize(m_window, &target_size.width, &target_size.height);
 
   /* Zero means take the shape of the screen the game is on. */
   float aspect_ratio = 0.0f;
