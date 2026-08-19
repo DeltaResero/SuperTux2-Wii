@@ -67,14 +67,12 @@ OptionsMenu::OptionsMenu(bool complete) :
      way, so that no screen can be made to show much more of a level than
      another. */
   magnifications.clear();
-  magnifications.push_back("50%");
-  magnifications.push_back("62.5%");
-  magnifications.push_back("80%");
+  magnifications.push_back("90%");
+  magnifications.push_back("95%");
   magnifications.push_back("100%");
-  magnifications.push_back("125%");
-  magnifications.push_back("160%");
-  magnifications.push_back("200%");
-  next_magnification = 3; // 100%, which is also what an unset value means
+  magnifications.push_back("105%");
+  magnifications.push_back("110%");
+  next_magnification = 2; // 100%, which is also what an unset value means
   // Gets the actual magnification:
   if (g_config->magnification != 0.0f)
   {

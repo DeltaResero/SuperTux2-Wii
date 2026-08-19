@@ -30,11 +30,22 @@ class Vector;
     pixels the screen has decides only how sharp the result is. */
 static const int LOGICAL_HEIGHT = 600;
 
-/** How far the zoom may go either way. Zooming out is what lets a player see
-    further than the level was drawn for, so the limit is the game's, not the
-    screen's. */
-static const float ZOOM_MIN = 0.5f;
-static const float ZOOM_MAX = 2.0f;
+/** How far the zoom may go either way. Both ends are set by something in the
+    game running out rather than by taste.
+
+    Pulling back stops where the smallest worldmap does. The narrowest is
+    1280 units across, and a wide screen shows 1066 of them at full size, so
+    below about 83% the map no longer reaches the sides and is drawn centred
+    with black beside it.
+
+    Pushing in stops where the title screen does. Its logo hangs 171 units
+    above the middle and stands 198 tall, so it needs 540 units of height and
+    is cut off above about 111%.
+
+    Ten percent either way sits inside both with room to spare, and is the
+    same distance in each direction. */
+static const float ZOOM_MIN = 0.9f;
+static const float ZOOM_MAX = 1.1f;
 
 /** The shapes the game will draw itself in. Anything wider is drawn at the
     widest and stretched, since the height is fixed and a wider shape is the
