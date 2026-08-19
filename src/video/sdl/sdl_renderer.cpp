@@ -39,19 +39,8 @@ SDLRenderer::SDLRenderer() :
   m_window(),
   m_renderer(),
   m_viewport(),
-  m_desktop_size(0, 0),
   m_scale(1.0f, 1.0f)
 {
-  SDL_DisplayMode mode;
-  if (SDL_GetDesktopDisplayMode(0, &mode) != 0)
-  {
-    log_warning << "Couldn't get desktop display mode: " << SDL_GetError() << std::endl;
-  }
-  else
-  {
-    m_desktop_size = Size(mode.w, mode.h);
-  }
-
   log_info << "creating SDLRenderer" << std::endl;
   int width  = g_config->window_size.width;
   int height = g_config->window_size.height;
@@ -343,26 +332,17 @@ SDLRenderer::apply_viewport()
     g_config->fullscreen_size :
     g_config->window_size;
 
-  float pixel_aspect_ratio = 1.0f;
+  /* Zero means take the shape of the screen the game is on. */
+  float aspect_ratio = 0.0f;
   if (g_config->aspect_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      g_config->aspect_size);
+    aspect_ratio = static_cast<float>(g_config->aspect_size.width) /
+                   static_cast<float>(g_config->aspect_size.height);
   }
-  else if (g_config->use_fullscreen)
-  {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      target_size);
-  }
-
-  // calculate the viewport
-  Size max_size(1280, 800);
-  Size min_size(640, 480);
 
   Size logical_size;
-  calculate_viewport(min_size, max_size,
-                     target_size,
-                     pixel_aspect_ratio,
+  calculate_viewport(target_size,
+                     aspect_ratio,
                      g_config->magnification,
                      m_scale, logical_size, m_viewport);
 

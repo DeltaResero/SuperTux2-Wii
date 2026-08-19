@@ -62,11 +62,11 @@ OptionsMenu::OptionsMenu(bool complete) :
   add_label("Options");
   add_hl();
 
+  /* How far in or out the view may be taken. A hundred percent is the area
+     the game is drawn for, and the two ends are as far as it will go either
+     way, so that no screen can be made to show much more of a level than
+     another. */
   magnifications.clear();
-  // These values go from screen:640/projection:1600 to
-  // screen:1600/projection:640 (i.e. 640, 800, 1024, 1280, 1600)
-  magnifications.push_back("auto");
-  magnifications.push_back("40%");
   magnifications.push_back("50%");
   magnifications.push_back("62.5%");
   magnifications.push_back("80%");
@@ -74,9 +74,9 @@ OptionsMenu::OptionsMenu(bool complete) :
   magnifications.push_back("125%");
   magnifications.push_back("160%");
   magnifications.push_back("200%");
-  magnifications.push_back("250%");
+  next_magnification = 3; // 100%, which is also what an unset value means
   // Gets the actual magnification:
-  if (g_config->magnification != 0.0f) //auto
+  if (g_config->magnification != 0.0f)
   {
     std::ostringstream out;
     out << (g_config->magnification*100) << "%";
@@ -306,11 +306,7 @@ OptionsMenu::menu_action(MenuItem* item)
       break;
 
     case MNID_MAGNIFICATION:
-      if (magnifications[next_magnification] == "auto")
-      {
-        g_config->magnification = 0.0f; // Magic value
-      }
-      else if(sscanf(magnifications[next_magnification].c_str(), "%f", &g_config->magnification) == 1)
+      if(sscanf(magnifications[next_magnification].c_str(), "%f", &g_config->magnification) == 1)
       {
         g_config->magnification /= 100.0f;
       }

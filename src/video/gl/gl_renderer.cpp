@@ -234,25 +234,18 @@ GLRenderer::apply_config()
     ((g_config->fullscreen_size == Size(0, 0)) ? m_desktop_size : g_config->fullscreen_size) :
     g_config->window_size;
 
-  float pixel_aspect_ratio = 1.0f;
+  /* Zero means take the shape of the screen the game is on. */
+  float aspect_ratio = 0.0f;
   if (g_config->aspect_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      g_config->aspect_size);
+    aspect_ratio = static_cast<float>(g_config->aspect_size.width) /
+                   static_cast<float>(g_config->aspect_size.height);
   }
-  else if (g_config->use_fullscreen)
-  {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      target_size);
-  }
-
-  Size max_size(1280, 800);
-  Size min_size(640, 480);
 
   Vector scale;
   Size logical_size;
-  calculate_viewport(min_size, max_size, target_size,
-                     pixel_aspect_ratio,
+  calculate_viewport(target_size,
+                     aspect_ratio,
                      g_config->magnification,
                      scale,
                      logical_size,
