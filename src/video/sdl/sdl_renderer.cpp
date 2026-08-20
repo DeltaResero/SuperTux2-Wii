@@ -280,6 +280,18 @@ SDLRenderer::apply_video_mode()
   if (!g_config->use_fullscreen)
   {
     SDL_SetWindowFullscreen(m_window, 0);
+
+    /* Ask for the size the window is meant to be whenever it is not already
+       it. Dragging the window to a new size records that size, so this asks
+       for nothing in that case. */
+    Size current_size;
+    SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
+    if (current_size != g_config->window_size)
+    {
+      SDL_SetWindowSize(m_window,
+                        g_config->window_size.width,
+                        g_config->window_size.height);
+    }
   }
   else
   {

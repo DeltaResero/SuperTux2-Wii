@@ -23,6 +23,8 @@
 
 #include "gui/menu.hpp"
 
+class ItemStringSelect;
+
 class OptionsMenu : public Menu
 {
   public:
@@ -30,17 +32,27 @@ class OptionsMenu : public Menu
     virtual ~OptionsMenu();
 
     void menu_action(MenuItem* item) override;
+    void on_window_resize() override;
+
+  private:
+    /** Points the one resolution row at whichever of the two settings is the
+        one in use, since only the mode the game is in can be changed. */
+    void update_resolution_item();
 
   private:
     int next_magnification;
     int next_aspect_ratio;
-    int next_resolution;
+    int next_window_resolution;
+    int next_fullscreen_resolution;
     int next_vsync;
 
     std::vector<std::string> magnifications;
     std::vector<std::string> aspect_ratios;
-    std::vector<std::string> resolutions;
+    std::vector<std::string> window_resolutions;
+    std::vector<std::string> fullscreen_resolutions;
     std::vector<std::string> vsyncs;
+
+    ItemStringSelect* resolution_item;
 };
 
 #endif

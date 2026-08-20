@@ -48,8 +48,16 @@ class ItemStringSelect : public MenuItem
     virtual MenuAction get_click_action(float x_offset, int menu_width,
                                         float value_width) const;
 
+    /** Puts a different set of values in the row, for a setting that means
+        something else than it did a moment ago. */
+    void set_list(const std::vector<std::string>& new_list, int* new_selected);
+
     std::vector<std::string> list; // list of values for a STRINGSELECT item
     int* selected; // currently selected item
+
+  private:
+    /** Works out how wide the row has to be to hold any of its values. */
+    void measure_list();
 
   private:
     /** Width of the longest value in the list, which is what the row is laid

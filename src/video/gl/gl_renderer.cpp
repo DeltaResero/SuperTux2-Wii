@@ -46,13 +46,8 @@ GLRenderer::GLRenderer() :
   m_window(),
   m_glcontext(),
   m_viewport(),
-  m_desktop_size(0, 0),
   m_fullscreen_active(false)
 {
-  SDL_DisplayMode mode;
-  SDL_GetCurrentDisplayMode(0, &mode);
-  m_desktop_size = Size(mode.w, mode.h);
-
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   5);
@@ -291,6 +286,18 @@ GLRenderer::apply_video_mode()
     if (!g_config->use_fullscreen)
     {
       SDL_SetWindowFullscreen(m_window, 0);
+
+      /* Ask for the size the window is meant to be whenever it is not already
+         it. Dragging the window to a new size records that size, so this asks
+         for nothing in that case. */
+      Size current_size;
+      SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
+      if (current_size != g_config->window_size)
+      {
+        SDL_SetWindowSize(m_window,
+                          g_config->window_size.width,
+                          g_config->window_size.height);
+      }
     }
     else
     {
@@ -347,8 +354,11 @@ GLRenderer::apply_video_mode()
     {
       if (g_config->fullscreen_size == Size(0, 0))
       {
+        /* This mode covers the screen whatever size is asked for, so the
+           window is made at the size it should go back to when fullscreen is
+           turned off. That is the size SDL remembers for it. */
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        size = m_desktop_size;
+        size = g_config->window_size;
       }
       else
       {

@@ -39,8 +39,24 @@ ItemStringSelect::ItemStringSelect(const std::string& text_, const std::vector<s
   selected(selected_),
   widest_value(0.0f)
 {
+  measure_list();
+}
+
+void
+ItemStringSelect::set_list(const std::vector<std::string>& new_list,
+                           int* new_selected)
+{
+  list = new_list;
+  selected = new_selected;
+  measure_list();
+}
+
+void
+ItemStringSelect::measure_list()
+{
   /* Room is kept for the longest value the setting can take, so that nothing
      moves as it is stepped through. */
+  widest_value = 0.0f;
   for(const auto& value : list)
   {
     widest_value = std::max(Resources::normal_font->get_text_width(value),
