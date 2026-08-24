@@ -39,11 +39,11 @@
 
 namespace {
 
-/* The smallest fullscreen mode worth offering. The menu is laid out for a
-   600 unit tall view, so anything shorter than this leaves the text too
-   coarse to read. */
+/* The smallest fullscreen mode worth offering. The view is a fixed 600 units
+   tall whatever the mode, so a screen with fewer lines than this squeezes
+   every glyph down with it until the text cannot be read. */
 const int MIN_FULLSCREEN_WIDTH = 640;
-const int MIN_FULLSCREEN_HEIGHT = 400;
+const int MIN_FULLSCREEN_HEIGHT = 480;
 
 } // namespace
 
