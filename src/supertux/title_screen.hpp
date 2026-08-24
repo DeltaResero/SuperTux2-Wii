@@ -51,6 +51,8 @@ private:
   std::unique_ptr<CodeController> controller;
   std::unique_ptr<GameSession> titlesession;
   std::string copyright_text;
+  std::string wrapped_copyright; /**< copyright_text broken to fit the screen */
+  int wrapped_width; /**< the width wrapped_copyright was broken for */
 
 private:
   TitleScreen(const TitleScreen&);

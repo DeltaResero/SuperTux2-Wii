@@ -42,11 +42,42 @@
 #include <sstream>
 #include <version.h>
 
+namespace {
+
+/** How far the notice sits in from the corner of the screen. */
+const float COPYRIGHT_MARGIN = 5.0f;
+
+/** Break every line of a text to a width, keeping the breaks already in it. */
+std::string wrap_to_screen(const FontPtr& font, const std::string& text, float width)
+{
+  std::string wrapped;
+  std::istringstream lines(text);
+  std::string line;
+
+  while (std::getline(lines, line))
+  {
+    std::string rest = line;
+    do
+    {
+      if (!wrapped.empty())
+        wrapped += "\n";
+      wrapped += font->wrap_to_width(rest, width, &rest);
+    }
+    while (!rest.empty());
+  }
+
+  return wrapped;
+}
+
+} // namespace
+
 TitleScreen::TitleScreen(Savegame& savegame) :
   frame(),
   controller(),
   titlesession(),
-  copyright_text()
+  copyright_text(),
+  wrapped_copyright(),
+  wrapped_width(0)
 {
   controller.reset(new CodeController());
   titlesession.reset(new GameSession("levels/misc/menu.stl", savegame));
@@ -56,10 +87,13 @@ TitleScreen::TitleScreen(Savegame& savegame) :
   player->set_speedlimit(230); //MAX_WALK_XM
 
   frame = Surface::create("images/engine/menu/frame.png");
+  /* Each line here is a whole thought. Where one is too long for the screen it
+     is broken up when it is drawn, so the breaks follow the width in use. */
   copyright_text = "SuperTux " PACKAGE_VERSION "\n"
     "Copyright (c) 2003-2016 SuperTux Devel Team\n"
-    "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to\n"
-    "redistribute it under certain conditions; see the license file for details.\n";
+    "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you "
+    "are welcome to redistribute it under certain conditions; see the license "
+    "file for details.";
 }
 
 void
@@ -135,9 +169,21 @@ TitleScreen::draw(DrawingContext& context)
                             Rectf(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
                             LAYER_FOREGROUND1);
 
+  /* Breaking the text costs a pass over every character, so it is kept until
+     the screen is a different width. */
+  if (wrapped_width != SCREEN_WIDTH)
+  {
+    wrapped_width = SCREEN_WIDTH;
+    wrapped_copyright = wrap_to_screen(Resources::small_font, copyright_text,
+                                       static_cast<float>(SCREEN_WIDTH) - COPYRIGHT_MARGIN * 2);
+  }
+
+  /* Sat against the bottom, so that the extra lines a narrow screen needs grow
+     upwards into the picture rather than off the end of it. */
+  float height = Resources::small_font->get_text_height(wrapped_copyright);
   context.draw_text(Resources::small_font,
-                    copyright_text,
-                    Vector(5, SCREEN_HEIGHT - 50),
+                    wrapped_copyright,
+                    Vector(COPYRIGHT_MARGIN, SCREEN_HEIGHT - COPYRIGHT_MARGIN - height),
                     ALIGN_LEFT, LAYER_FOREGROUND1);
 }
 
