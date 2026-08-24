@@ -30,7 +30,6 @@
 
 #include "util/currenton.hpp"
 #include "video/font_ptr.hpp"
-#include "video/surface_ptr.hpp"
 
 class Console;
 class ConsoleStreamBuffer;
@@ -106,13 +105,10 @@ private:
   std::list<std::string> m_history; /**< command history. New lines get added to back. */
   std::list<std::string>::iterator m_history_position; /**< item of command history that is currently displayed */
 
-  SurfacePtr m_background; /**< console background image */
-  SurfacePtr m_background2; /**< second, moving console background image */
 
   HSQUIRRELVM m_vm; /**< squirrel thread for the console (with custom roottable) */
   HSQOBJECT m_vm_object;
 
-  int m_backgroundOffset; /**< current offset of scrolling background image */
   float m_height; /**< height of the console in px */
   float m_alpha;
   int m_offset; /**< decrease to scroll text up */

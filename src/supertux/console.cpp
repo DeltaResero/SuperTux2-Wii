@@ -21,7 +21,6 @@
 
 #include <assert.h>
 #include <iostream>
-#include <math.h>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/scripting.hpp"
@@ -115,17 +114,18 @@ ConsoleBuffer::flush(ConsoleStreamBuffer& buffer)
 /// speed (pixels/s) the console closes
 static const float FADE_SPEED = 1;
 
+/* The panel the console sits on. Near black and opaque enough that the text
+   stays readable whatever the game is drawing behind it. */
+static const Color s_PANEL(19.0f/255.0f, 20.0f/255.0f, 28.0f/255.0f, 0.75f);
+
 Console::Console(ConsoleBuffer& buffer) :
   m_buffer(buffer),
   m_inputBuffer(),
   m_inputBufferPosition(0),
   m_history(),
   m_history_position(m_history.end()),
-  m_background(Surface::create("images/engine/console.png")),
-  m_background2(Surface::create("images/engine/console2.png")),
   m_vm(NULL),
   m_vm_object(),
-  m_backgroundOffset(0),
   m_height(0),
   m_alpha(1.0),
   m_offset(0),
@@ -527,8 +527,6 @@ Console::update(float elapsed_time)
     }
   }
 
-  m_backgroundOffset += 600 * elapsed_time;
-  if (m_backgroundOffset > (int)m_background->get_width()) m_backgroundOffset -= (int)m_background->get_width();
 }
 
 void
@@ -541,22 +539,8 @@ Console::draw(DrawingContext& context) const
 
   context.push_transform();
   context.set_alpha(m_alpha);
-  context.draw_surface(m_background2,
-                       Vector(SCREEN_WIDTH/2 - m_background->get_width()/2 - m_background->get_width() + m_backgroundOffset,
-                              m_height - m_background->get_height()),
-                       layer);
-  context.draw_surface(m_background2,
-                       Vector(SCREEN_WIDTH/2 - m_background->get_width()/2 + m_backgroundOffset,
-                              m_height - m_background->get_height()),
-                       layer);
-  for (int x = (SCREEN_WIDTH/2 - m_background->get_width()/2
-                - (static_cast<int>(ceilf((float)SCREEN_WIDTH /
-                                          (float)m_background->get_width()) - 1) * m_background->get_width()));
-       x < SCREEN_WIDTH;
-       x += m_background->get_width())
-  {
-    context.draw_surface(m_background, Vector(x, m_height - m_background->get_height()), layer);
-  }
+  context.draw_filled_rect(Rectf(0.0f, 0.0f, static_cast<float>(SCREEN_WIDTH), m_height),
+                           s_PANEL, layer);
 
   int lineNo = 0;
 
