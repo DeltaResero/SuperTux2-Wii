@@ -37,6 +37,16 @@
 #include <sstream>
 #include <stdio.h>
 
+namespace {
+
+/* The smallest fullscreen mode worth offering. The menu is laid out for a
+   600 unit tall view, so anything shorter than this leaves the text too
+   coarse to read. */
+const int MIN_FULLSCREEN_WIDTH = 640;
+const int MIN_FULLSCREEN_HEIGHT = 400;
+
+} // namespace
+
 enum OptionsMenuIDs {
   MNID_FULLSCREEN,
   MNID_RESOLUTION,
@@ -149,6 +159,22 @@ OptionsMenu::OptionsMenu(bool complete) :
   window_sizes.push_back(Size(1920, 1080));
   window_sizes.push_back(Size(1920, 1200));
   window_sizes.push_back(Size(2560, 1440));
+
+  /* A window cannot be larger than the desktop it sits on, so a size beyond
+     that is offered only to be cut back down by the window manager. The
+     desktop is asked rather than assumed, so that a screen the driver pans
+     around a larger virtual desktop still offers the sizes it can reach. */
+  SDL_DisplayMode desktop_mode;
+  if (SDL_GetDesktopDisplayMode(0, &desktop_mode) == 0)
+  {
+    window_sizes.erase(std::remove_if(window_sizes.begin(), window_sizes.end(),
+                                      [&desktop_mode](const Size& size) {
+                                        return size.width > desktop_mode.w ||
+                                               size.height > desktop_mode.h;
+                                      }),
+                       window_sizes.end());
+  }
+
   if (std::find(window_sizes.begin(), window_sizes.end(),
                 g_config->window_size) == window_sizes.end())
   {
@@ -185,6 +211,11 @@ OptionsMenu::OptionsMenu(bool complete) :
     }
     else
     {
+      /* The display server hands back whatever it can drive, and X11 still
+         advertises the legacy VGA modes that Wayland has already dropped. */
+      if (mode.w < MIN_FULLSCREEN_WIDTH || mode.h < MIN_FULLSCREEN_HEIGHT)
+        continue;
+
       std::ostringstream out;
       out << mode.w << "x" << mode.h;
       if(mode.refresh_rate)
