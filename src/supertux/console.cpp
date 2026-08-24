@@ -30,15 +30,16 @@
 #include "supertux/globals.hpp"
 #include "video/drawing_context.hpp"
 
-/// speed (pixels/s) the console closes
-static const float FADE_SPEED = 1;
-
-ConsoleBuffer::ConsoleBuffer() :
+ConsoleBuffer::ConsoleBuffer()
+#ifdef ENABLE_CONSOLE
+  :
   m_lines(),
   m_console(nullptr)
+#endif
 {
 }
 
+#ifdef ENABLE_CONSOLE
 void
 ConsoleBuffer::set_console(Console* console)
 {
@@ -47,6 +48,7 @@ ConsoleBuffer::set_console(Console* console)
 
   m_console = console;
 }
+#endif
 
 void
 ConsoleBuffer::addLines(const std::string& s)
@@ -67,6 +69,7 @@ ConsoleBuffer::addLine(const std::string& s_)
   // output line to stderr
   std::cerr << s << std::endl;
 
+#ifdef ENABLE_CONSOLE
   // wrap long lines
   std::string overflow;
   int line_count = 0;
@@ -86,6 +89,7 @@ ConsoleBuffer::addLine(const std::string& s_)
   {
     m_console->on_buffer_change(line_count);
   }
+#endif
 }
 
 void
@@ -105,6 +109,11 @@ ConsoleBuffer::flush(ConsoleStreamBuffer& buffer)
     }
   }
 }
+
+#ifdef ENABLE_CONSOLE
+
+/// speed (pixels/s) the console closes
+static const float FADE_SPEED = 1;
 
 Console::Console(ConsoleBuffer& buffer) :
   m_buffer(buffer),
@@ -572,6 +581,8 @@ Console::draw(DrawingContext& context) const
   }
   context.pop_transform();
 }
+
+#endif // ENABLE_CONSOLE
 
 ConsoleStreamBuffer ConsoleBuffer::s_outputBuffer;
 std::ostream ConsoleBuffer::output(&ConsoleBuffer::s_outputBuffer);

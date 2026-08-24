@@ -48,6 +48,7 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
 {
   KeyboardConfig::KeyMap::iterator key_mapping = m_keyboard_config.keymap.find(event.keysym.sym);
 
+#ifdef ENABLE_CONSOLE
   // if console key was pressed: toggle console
   if (key_mapping != m_keyboard_config.keymap.end() &&
       key_mapping->second == Controller::CONSOLE)
@@ -71,7 +72,9 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
     // if console is open: send key there
     process_console_key_event(event);
   }
-  else if (MenuManager::instance().is_active())
+  else
+#endif
+  if (MenuManager::instance().is_active())
   {
     // if menu mode: send key there
     process_menu_key_event(event);
@@ -96,14 +99,17 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
 void
 KeyboardManager::process_text_input_event(const SDL_TextInputEvent& event)
 {
+#ifdef ENABLE_CONSOLE
   if (!m_lock_text_input && Console::current()->hasFocus()) {
     for(int i = 0; event.text[i] != '\0'; ++i)
     {
       Console::current()->input(event.text[i]);
     }
   }
+#endif
 }
 
+#ifdef ENABLE_CONSOLE
 void
 KeyboardManager::process_console_key_event(const SDL_KeyboardEvent& event)
 {
@@ -151,6 +157,7 @@ KeyboardManager::process_console_key_event(const SDL_KeyboardEvent& event)
       break;
   }
 }
+#endif
 
 void
 KeyboardManager::process_menu_key_event(const SDL_KeyboardEvent& event)

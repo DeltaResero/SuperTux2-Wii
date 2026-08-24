@@ -173,6 +173,12 @@ IF(ENABLE_OPENGL)
   ENDIF()
 ENDIF(ENABLE_OPENGL)
 
+## The interactive console is a debugging aid: it only opens in developer
+## mode, and only from a key, so a target without a keyboard cannot reach it
+## at all. Off by default, which saves some resources, though the buffer behind
+## it is built either way and this is what carries log and script output to stderr.
+OPTION(ENABLE_CONSOLE "Build the interactive console" OFF)
+
 ## Which sound backends to build in. Both can be built at once, and which
 ## one runs is then chosen with --audio-backend. The Wii has no usable
 ## OpenAL, so that one has to be switchable off.

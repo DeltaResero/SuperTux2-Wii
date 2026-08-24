@@ -328,7 +328,9 @@ Main::launch_game()
   sound_manager.enable_sound(g_config->sound_enabled);
   sound_manager.enable_music(g_config->music_enabled);
 
+#ifdef ENABLE_CONSOLE
   Console console(console_buffer);
+#endif
 
   timelog("scripting");
   scripting::Scripting scripting(g_config->enable_script_debugger);

@@ -38,6 +38,10 @@
    than drawing it on screen and copying the result back out. */
 #cmakedefine ENABLE_LIGHTMAP_FBO
 
+/* The interactive console, opened with a key. ConsoleBuffer is built whether
+   or not this is set, since log and script output are written through it. */
+#cmakedefine ENABLE_CONSOLE
+
 /* Which sound backends were built in. Either or both. When both are here,
    --audio-backend says which one runs. */
 #cmakedefine ENABLE_OPENAL
