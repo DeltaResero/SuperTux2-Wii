@@ -334,6 +334,8 @@ OptionsMenu::OptionsMenu(bool complete) :
 
   add_hl();
   add_back("Back");
+
+  place_on_screen();
 }
 
 OptionsMenu::~OptionsMenu()

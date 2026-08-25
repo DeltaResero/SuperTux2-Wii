@@ -20,6 +20,7 @@
 #include "gui/menu.hpp"
 #include <numbers>
 
+#include <algorithm>
 #include <math.h>
 #include <stdexcept>
 
@@ -43,6 +44,29 @@
 
 static const float MENU_REPEAT_INITIAL = 0.4f;
 static const float MENU_REPEAT_RATE    = 0.1f;
+
+/** How far the panel drawn behind a menu reaches past the items themselves.
+    Matches the rectangles MenuManager draws. */
+static const float MENU_PANEL_EDGE = 14.0f;
+
+/** Gap between the foot of that panel and the help box below it. */
+static const float HELP_GAP = 12.0f;
+
+/** Space between the help text and the edge of the box holding it. */
+static const float HELP_PAD_Y = 4.0f;
+static const float HELP_PAD_X = 8.0f;
+
+/** How far the lighter box is drawn inside the darker one behind it. */
+static const float HELP_BORDER = 4.0f;
+
+/** How much taller the pair of boxes is than the text they hold. */
+static const float HELP_BOX_PADDING = (HELP_PAD_Y + HELP_BORDER) * 2;
+
+/** Room along the foot of the screen the title screen writes its notice in. */
+static const float NOTICE_FOOT = 45.0f;
+
+/** Clear space kept between the help box and that notice. */
+static const float NOTICE_GAP = 4.0f;
 
 Menu::Menu() :
   pos(),
@@ -415,8 +439,42 @@ Menu::get_height() const
 void
 Menu::on_window_resize()
 {
+  place_on_screen();
+}
+
+void
+Menu::place_on_screen()
+{
   pos.x = SCREEN_WIDTH / 2;
-  pos.y = SCREEN_HEIGHT / 2;
+
+  if (!placed_with_help())
+  {
+    pos.y = SCREEN_HEIGHT / 2;
+    return;
+  }
+
+  /* The menu and the help box under it are one block, and the block goes in
+     the middle of what the notice along the foot leaves free. The height comes
+     from the tallest help in the menu rather than the row under the cursor, so
+     that running down the items does not shift the menu about. */
+  float tallest = 0.0f;
+  for (const auto& item : items)
+  {
+    if (!item->help.empty())
+    {
+      tallest = std::max(tallest, Resources::normal_font->get_text_height(item->help));
+    }
+  }
+
+  const float block = get_height() + MENU_PANEL_EDGE * 2 + HELP_GAP
+                      + tallest + HELP_BOX_PADDING;
+
+  /* Sat as low as the notice allows rather than centred in the room above it.
+     The bottom only has to keep off the notice, while everything the block
+     rises into at the top is picture, so the slack is better spent upwards. */
+  const float block_top = SCREEN_HEIGHT - NOTICE_FOOT - NOTICE_GAP - block;
+
+  pos.y = block_top + MENU_PANEL_EDGE + get_height()/2;
 }
 
 void
@@ -427,13 +485,21 @@ Menu::draw(DrawingContext& context)
     int text_width  = (int) Resources::normal_font->get_text_width(items[active_item]->help);
     int text_height = (int) Resources::normal_font->get_text_height(items[active_item]->help);
 
-    Rectf text_rect(pos.x - text_width/2 - 8,
-                   SCREEN_HEIGHT - 48 - text_height/2 - 4,
-                   pos.x + text_width/2 + 8,
-                   SCREEN_HEIGHT - 48 + text_height/2 + 4);
+    /* The box hangs below the menu it belongs to, rather than sitting at a
+       place on the screen chosen without reference to it. A menu is as tall as
+       the items it holds, so anywhere fixed is over the foot of some menu and
+       short of another. */
+    const float top = pos.y + get_height()/2 + MENU_PANEL_EDGE + HELP_GAP;
 
-    context.draw_filled_rect(Rectf(text_rect.p1 - Vector(4,4),
-                                   text_rect.p2 + Vector(4,4)),
+    const float inner_top = top + HELP_BORDER;
+
+    Rectf text_rect(pos.x - text_width/2 - HELP_PAD_X,
+                   inner_top,
+                   pos.x + text_width/2 + HELP_PAD_X,
+                   inner_top + text_height + HELP_PAD_Y * 2);
+
+    context.draw_filled_rect(Rectf(text_rect.p1 - Vector(HELP_BORDER, HELP_BORDER),
+                                   text_rect.p2 + Vector(HELP_BORDER, HELP_BORDER)),
                              Color(0.2f, 0.3f, 0.4f, 0.8f),
                              16.0f,
                              LAYER_GUI-10);
@@ -444,7 +510,7 @@ Menu::draw(DrawingContext& context)
                              LAYER_GUI-10);
 
     context.draw_text(Resources::normal_font, items[active_item]->help,
-                      Vector(pos.x, SCREEN_HEIGHT - 48 - text_height/2),
+                      Vector(pos.x, inner_top + HELP_PAD_Y),
                       ALIGN_CENTER, LAYER_GUI);
   }
 

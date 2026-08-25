@@ -34,6 +34,11 @@ class OptionsMenu : public Menu
     void menu_action(MenuItem* item) override;
     void on_window_resize() override;
 
+    /* The VSync row's help runs to three lines, deep enough to reach the
+       notice at the foot of the title screen, so this menu is placed together
+       with its help rather than on its own. */
+    bool placed_with_help() const override { return true; }
+
   private:
     /** Points the one resolution row at whichever of the two settings is the
         one in use, since only the mode the game is in can be changed. */

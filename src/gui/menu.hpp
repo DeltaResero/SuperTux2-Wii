@@ -92,6 +92,15 @@ public:
 
   virtual void on_window_resize();
 
+  /** Whether this menu is placed together with the help box below it, as one
+      block, clear of the notice along the foot of the screen. Menus that fit
+      where they are say no and are left alone. */
+  virtual bool placed_with_help() const { return false; }
+
+  /** Puts the menu where it belongs. Call once the items are in, since the
+      help below it is measured from them. */
+  void place_on_screen();
+
 protected:
   MenuItem* add_item(std::unique_ptr<MenuItem> menu_item);
   MenuItem* add_item(std::unique_ptr<MenuItem> menu_item, int pos_);
