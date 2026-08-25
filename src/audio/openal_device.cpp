@@ -205,8 +205,13 @@ OpenALDevice::resume_music(float fade_in)
     return;
 
   if(fade_in > 0.0f) {
-    if(m_music->get_fade_state() != StreamSoundSource::FadingResume)
+    if(m_music->get_fade_state() != StreamSoundSource::FadingResume) {
+      /* A fade to a pause leaves the source paused once it runs out, and
+         raising the gain of a paused source is still silence, so it has to be
+         playing again before the fade is given anything to do. */
+      m_music->resume();
       m_music->set_fading(StreamSoundSource::FadingResume, fade_in);
+    }
   } else if(m_music->paused()) {
     m_music->resume();
   } else if(!m_music->playing()) {
