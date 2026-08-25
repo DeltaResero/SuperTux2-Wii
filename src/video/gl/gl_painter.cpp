@@ -202,26 +202,19 @@ GLPainter::draw_gradient(const DrawingRequest& request)
   };
   glVertexPointer(2, GL_FLOAT, 0, vertices);
 
-if(direction == VERTICAL || direction == VERTICAL_SECTOR)
-{
+  /* The array has to outlive the branch that fills it, because glColorPointer
+     only records where it is and nothing reads it until glDrawArrays below. */
+  const bool vertical = (direction == VERTICAL || direction == VERTICAL_SECTOR);
+  const Color& second = vertical ? top : bottom;
+  const Color& fourth = vertical ? bottom : top;
+
   float colors[] = {
-    top.red, top.green, top.blue, top.alpha,
-    top.red, top.green, top.blue, top.alpha,
+    top.red,    top.green,    top.blue,    top.alpha,
+    second.red, second.green, second.blue, second.alpha,
     bottom.red, bottom.green, bottom.blue, bottom.alpha,
-    bottom.red, bottom.green, bottom.blue, bottom.alpha,
+    fourth.red, fourth.green, fourth.blue, fourth.alpha,
   };
   glColorPointer(4, GL_FLOAT, 0, colors);
-}
-else
-{
-  float colors[] = {
-    top.red, top.green, top.blue, top.alpha,
-    bottom.red, bottom.green, bottom.blue, bottom.alpha,
-    bottom.red, bottom.green, bottom.blue, bottom.alpha,
-    top.red, top.green, top.blue, top.alpha,
-  };
-  glColorPointer(4, GL_FLOAT, 0, colors);
-}
 
   glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
