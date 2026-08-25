@@ -238,8 +238,17 @@ SDLMixerDevice::resume_music(float fade_in)
   if(Mix_PausedMusic())
   {
     Mix_ResumeMusic();
+    return;
   }
-  else if(!Mix_PlayingMusic())
+
+  /* A fade out that is still running is already on its way to a stop, and
+     SDL_mixer offers no way to call one off, so the track has to be taken down
+     here and brought back below from where it had reached. Left alone the fade
+     carries on to silence and the resume does nothing at all. */
+  if(Mix_FadingMusic() == MIX_FADING_OUT)
+    Mix_HaltMusic();
+
+  if(!Mix_PlayingMusic())
   {
     if(fade_in > 0.0f)
       Mix_FadeInMusic(m_music, -1, static_cast<int>(fade_in * 1000.0f));
