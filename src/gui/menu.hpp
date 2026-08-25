@@ -86,7 +86,25 @@ public:
   float get_width() const;
   float get_height() const;
 
+
+  /** Width of the column the menu's settings show their values in, shared by
+      all of them so the arrows line up. */
+  float get_value_width() const;
+
   virtual void on_window_resize();
+
+  /** Whether this menu is placed together with the help box below it, as one
+      block, clear of the notice along the foot of the screen. Menus that fit
+      where they are say no and are left alone. */
+  virtual bool placed_with_help() const { return false; }
+
+  /** Puts the menu where it belongs. Call once the items are in, since the
+      help below it is measured from them. */
+  void place_on_screen();
+
+  /** How far below the middle a menu sits when it opens over the title
+      screen, where the logo takes the space above it. */
+  static constexpr float BELOW_LOGO = 35.0f;
 
 protected:
   MenuItem* add_item(std::unique_ptr<MenuItem> menu_item);
@@ -99,6 +117,10 @@ protected:
 private:
   void process_action(MenuAction menuaction);
   void check_controlfield_change_event(const SDL_Event& event);
+
+  /** Light whichever row the pointer is over, from a position in the view's
+      own units. */
+  void hover_at(const Vector& mouse_pos);
   void draw_item(DrawingContext& context, int index);
 
 private:

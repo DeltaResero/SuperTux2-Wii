@@ -23,6 +23,25 @@
 
 #cmakedefine HAVE_OPENGL
 
+/* Whether GLEW is there to load OpenGL extensions with. Without it the
+   build gets the plain headers and asks the driver for nothing. */
+#cmakedefine HAVE_GLEW
+
+/* Set when the hardware takes textures of any size, for builds that have no
+   extension loader to ask. */
+#cmakedefine HAVE_NPOT_TEXTURES
+
+/* Texture sides are rounded up to a multiple of this. 1 leaves them alone. */
+#define TEXTURE_ALIGNMENT ${TEXTURE_ALIGNMENT}
+
+/* Draw the lightmap into its own texture with a framebuffer object, rather
+   than drawing it on screen and copying the result back out. */
+#cmakedefine ENABLE_LIGHTMAP_FBO
+
+/* The interactive console, opened with a key. ConsoleBuffer is built whether
+   or not this is set, since log and script output are written through it. */
+#cmakedefine ENABLE_CONSOLE
+
 /* Which sound backends were built in. Either or both. When both are here,
    --audio-backend says which one runs. */
 #cmakedefine ENABLE_OPENAL

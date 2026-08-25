@@ -46,6 +46,9 @@ public:
   void apply_config() override;
   void resize(int w, int h) override;
 
+  void set_vsync(int mode) override;
+  int get_vsync() const override;
+
 private:
   GLVideoSystem(const GLVideoSystem&) = delete;
   GLVideoSystem& operator=(const GLVideoSystem&) = delete;

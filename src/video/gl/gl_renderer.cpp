@@ -21,6 +21,7 @@
 #include "util/file_system.hpp"
 #include "video/gl/gl_renderer.hpp"
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include "SDL.h"
@@ -42,33 +43,12 @@
 
 #define LIGHTMAP_DIV 5
 
-#ifdef GL_VERSION_ES_CM_1_0
-#  define glOrtho glOrthof
-#endif
-
 GLRenderer::GLRenderer() :
   m_window(),
   m_glcontext(),
   m_viewport(),
-  m_desktop_size(0, 0),
   m_fullscreen_active(false)
 {
-  SDL_DisplayMode mode;
-  SDL_GetCurrentDisplayMode(0, &mode);
-  m_desktop_size = Size(mode.w, mode.h);
-
-  if(g_config->try_vsync) {
-    /* we want vsync for smooth scrolling */
-    if (SDL_GL_SetSwapInterval(-1) != 0)
-    {
-      log_info << "no support for late swap tearing vsync: " << SDL_GetError() << std::endl;
-      if (SDL_GL_SetSwapInterval(1))
-      {
-        log_info << "no support for vsync: " << SDL_GetError() << std::endl;
-      }
-    }
-  }
-
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   5);
@@ -76,6 +56,21 @@ GLRenderer::GLRenderer() :
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  5);
 
   apply_video_mode();
+
+  /* The swap interval belongs to a context, so asking for it before one
+     exists is refused. This has to come after the window is up. */
+  if(SDL_GL_SetSwapInterval(g_config->vsync) != 0)
+  {
+    log_info << "no support for vsync mode " << g_config->vsync << ": "
+             << SDL_GetError() << std::endl;
+
+    /* A driver that will not let a late frame through can usually still
+       wait for every one, which is the nearest thing to what was asked. */
+    if(g_config->vsync == -1 && SDL_GL_SetSwapInterval(1) == 0)
+    {
+      g_config->vsync = 1;
+    }
+  }
 
 #ifdef USE_GLBINDING
 
@@ -123,8 +118,7 @@ GLRenderer::GLRenderer() :
   // Init the projection matrix, viewport and stuff
   apply_config();
 
-#ifndef GL_VERSION_ES_CM_1_0
-  #ifndef USE_GLBINDING
+#ifdef HAVE_GLEW
   GLenum err = glewInit();
   if (GLEW_OK != err)
   {
@@ -134,7 +128,8 @@ GLRenderer::GLRenderer() :
   }
   log_info << "Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
   log_info << "GLEW_ARB_texture_non_power_of_two: " << static_cast<int>(GLEW_ARB_texture_non_power_of_two) << std::endl;
-#  endif
+#elif !defined(USE_GLBINDING)
+  log_info << "Using OpenGL with no extension loader" << std::endl;
 #endif
 }
 
@@ -221,7 +216,12 @@ GLRenderer::flip()
 void
 GLRenderer::resize(int w, int h)
 {
-  g_config->window_size = Size(w, h);
+  /* While fullscreen the window is the size of the screen, and that is not
+     a size anybody chose, so it is not kept. */
+  if (!g_config->use_fullscreen)
+  {
+    g_config->window_size = Size(w, h);
+  }
 
   apply_config();
 }
@@ -231,29 +231,24 @@ GLRenderer::apply_config()
 {
   apply_video_mode();
 
-  Size target_size = g_config->use_fullscreen ?
-    ((g_config->fullscreen_size == Size(0, 0)) ? m_desktop_size : g_config->fullscreen_size) :
-    g_config->window_size;
+  /* Ask how big the window came out rather than working it back out from
+     the settings, since a window manager is free to hand back something
+     other than what was asked for. */
+  Size target_size;
+  SDL_GL_GetDrawableSize(m_window, &target_size.width, &target_size.height);
 
-  float pixel_aspect_ratio = 1.0f;
+  /* Zero means take the shape of the screen the game is on. */
+  float aspect_ratio = 0.0f;
   if (g_config->aspect_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      g_config->aspect_size);
+    aspect_ratio = static_cast<float>(g_config->aspect_size.width) /
+                   static_cast<float>(g_config->aspect_size.height);
   }
-  else if (g_config->use_fullscreen)
-  {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      target_size);
-  }
-
-  Size max_size(1280, 800);
-  Size min_size(640, 480);
 
   Vector scale;
   Size logical_size;
-  calculate_viewport(min_size, max_size, target_size,
-                     pixel_aspect_ratio,
+  calculate_viewport(target_size,
+                     aspect_ratio,
                      g_config->magnification,
                      scale,
                      logical_size,
@@ -292,6 +287,18 @@ GLRenderer::apply_video_mode()
     if (!g_config->use_fullscreen)
     {
       SDL_SetWindowFullscreen(m_window, 0);
+
+      /* Ask for the size the window is meant to be whenever it is not already
+         it. Dragging the window to a new size records that size, so this asks
+         for nothing in that case. */
+      Size current_size;
+      SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
+      if (current_size != g_config->window_size)
+      {
+        SDL_SetWindowSize(m_window,
+                          g_config->window_size.width,
+                          g_config->window_size.height);
+      }
     }
     else
     {
@@ -348,8 +355,11 @@ GLRenderer::apply_video_mode()
     {
       if (g_config->fullscreen_size == Size(0, 0))
       {
+        /* This mode covers the screen whatever size is asked for, so the
+           window is made at the size it should go back to when fullscreen is
+           turned off. That is the size SDL remembers for it. */
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        size = m_desktop_size;
+        size = g_config->window_size;
       }
       else
       {
@@ -376,6 +386,12 @@ GLRenderer::apply_video_mode()
     else
     {
       m_glcontext = SDL_GL_CreateContext(m_window);
+      if (!m_glcontext)
+      {
+        std::ostringstream msg;
+        msg << "Couldn't create OpenGL context: " << SDL_GetError();
+        throw std::runtime_error(msg.str());
+      }
 
       SCREEN_WIDTH = size.width;
       SCREEN_HEIGHT = size.height;
@@ -442,6 +458,16 @@ GLRenderer::to_logical(int physical_x, int physical_y) const
 {
   return Vector(static_cast<float>(physical_x - m_viewport.x) * SCREEN_WIDTH / m_viewport.w,
                 static_cast<float>(physical_y - m_viewport.y) * SCREEN_HEIGHT / m_viewport.h);
+}
+
+void
+GLRenderer::warp_pointer(const Vector& logical)
+{
+  /* Rounded, not truncated: truncation always loses the fraction in the same
+     direction, so a pointer put back over and over creeps one way. */
+  const int x = static_cast<int>(std::lround(logical.x * m_viewport.w / SCREEN_WIDTH)) + m_viewport.x;
+  const int y = static_cast<int>(std::lround(logical.y * m_viewport.h / SCREEN_HEIGHT)) + m_viewport.y;
+  SDL_WarpMouseInWindow(m_window, x, y);
 }
 
 void

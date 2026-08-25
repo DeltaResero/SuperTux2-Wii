@@ -34,6 +34,8 @@ public:
   WorldSetMenu();
 
   void menu_action(MenuItem* item) override;
+
+  void on_window_resize() override;
 };
 
 

@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GL_LIGHTMAP_HPP
 #define HEADER_SUPERTUX_VIDEO_GL_LIGHTMAP_HPP
 
+#include <config.h>
+
 #include "video/lightmap.hpp"
 
 struct DrawingRequest;
@@ -45,6 +47,12 @@ public:
   void draw_triangle(const DrawingRequest& request) override;
 
 private:
+  /** Point drawing at the lightmap, and back at the screen afterwards. Which
+      of the two ways this happens is settled at build time, since a target
+      missing either call cannot compile the path that uses it. */
+  void bind_lightmap();
+  void unbind_lightmap();
+
   static const int s_LIGHTMAP_DIV = 5;
 
   std::shared_ptr<GLTexture> m_lightmap;
@@ -53,6 +61,10 @@ private:
   float m_lightmap_uv_right;
   float m_lightmap_uv_bottom;
   GLfloat m_old_viewport[4]; //holds vieport before redefining in start_draw - returned from glGet
+#ifdef ENABLE_LIGHTMAP_FBO
+  /** Holds the lightmap texture as its colour attachment. */
+  GLuint m_framebuffer;
+#endif
 
 private:
   GLLightmap(const GLLightmap&);

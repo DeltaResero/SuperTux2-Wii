@@ -39,7 +39,7 @@ class MenuItem
     virtual void change_text (const std::string& text);
 
     /** Draws the menu item. */
-    virtual void draw(DrawingContext&, Vector pos, int menu_width, bool active);
+    virtual void draw(DrawingContext&, Vector pos, int menu_width, float value_width, bool active);
 
     /** Returns true when the menu item has no action and therefore can be skipped.
         Useful for labels and horizontal lines.*/
@@ -50,8 +50,25 @@ class MenuItem
     /** Returns the minimum width of the menu item. */
     virtual int get_width() const;
 
+    /** Width the item needs for the value it shows on the right. The menu
+        takes the largest of these and gives every item the same, so that the
+        values and the arrows around them line up down the menu. Items with
+        nothing on the right ask for none. */
+    virtual float get_value_width() const {
+      return 0.0f;
+    }
+
     /** Processes the menu action. */
     virtual void process_action(MenuAction action) { }
+
+    /** Which action a click at the given distance from the item's left edge
+        stands for. Items drawn with parts that mean different things, such as
+        an arrow at either end, answer for themselves, since only they know
+        where those parts were put. */
+    virtual MenuAction get_click_action(float x_offset, int menu_width,
+                                        float value_width) const {
+      return MENU_ACTION_HIT;
+    }
 
     /** Processes the given event. */
     virtual void event(const SDL_Event& ev) { }

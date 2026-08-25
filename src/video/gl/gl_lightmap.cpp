@@ -27,6 +27,7 @@
 #include <iostream>
 #include <math.h>
 #include <sstream>
+#include <stdexcept>
 
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
@@ -44,9 +45,9 @@
 #include "video/surface.hpp"
 #include "video/texture_manager.hpp"
 
-inline int next_po2(int val)
+inline unsigned int next_po2(unsigned int val)
 {
-  int result = 1;
+  unsigned int result = 1;
   while(result < val)
     result *= 2;
 
@@ -59,36 +60,112 @@ GLLightmap::GLLightmap() :
   m_lightmap_height(),
   m_lightmap_uv_right(),
   m_lightmap_uv_bottom()
+#ifdef ENABLE_LIGHTMAP_FBO
+  , m_framebuffer()
+#endif
 {
   m_lightmap_width = SCREEN_WIDTH / s_LIGHTMAP_DIV;
   m_lightmap_height = SCREEN_HEIGHT / s_LIGHTMAP_DIV;
-  unsigned int width = next_po2(m_lightmap_width);
-  unsigned int height = next_po2(m_lightmap_height);
+  unsigned int width = next_po2(static_cast<unsigned int>(m_lightmap_width));
+  unsigned int height = next_po2(static_cast<unsigned int>(m_lightmap_height));
 
   m_lightmap.reset(new GLTexture(width, height));
 
   m_lightmap_uv_right = static_cast<float>(m_lightmap_width) / static_cast<float>(width);
   m_lightmap_uv_bottom = static_cast<float>(m_lightmap_height) / static_cast<float>(height);
   TextureManager::current()->register_texture(m_lightmap.get());
+
+#ifdef ENABLE_LIGHTMAP_FBO
+  glGenFramebuffers(1, &m_framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                         GL_TEXTURE_2D, m_lightmap->get_handle(), 0);
+
+  /* Ask before drawing anything, since a framebuffer the driver will not
+     accept renders nothing at all and reports no error while doing it. */
+  const GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  if(status != GL_FRAMEBUFFER_COMPLETE)
+  {
+    glDeleteFramebuffers(1, &m_framebuffer);
+    std::ostringstream msg;
+    msg << "Couldn't hang the lightmap on a framebuffer: status " << status;
+    throw std::runtime_error(msg.str());
+  }
+#endif
 }
 
 GLLightmap::~GLLightmap()
 {
+#ifdef ENABLE_LIGHTMAP_FBO
+  glDeleteFramebuffers(1, &m_framebuffer);
+#endif
 }
+
+#ifdef ENABLE_LIGHTMAP_FBO
+
+void
+GLLightmap::bind_lightmap()
+{
+  glGetFloatv(GL_VIEWPORT, m_old_viewport); //save viewport
+  glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+  /* The texture is larger than the lightmap wherever its sides had to be
+     rounded up, so draw into the corner the texture coordinates read from. */
+  glViewport(0, 0, m_lightmap_width, m_lightmap_height);
+}
+
+void
+GLLightmap::unbind_lightmap()
+{
+  /* The lights were drawn into the texture as they happened, so there is
+     nothing to copy. Hand the screen back and restore the viewport. */
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glViewport(static_cast<GLint>(m_old_viewport[0]),
+             static_cast<GLint>(m_old_viewport[1]),
+             static_cast<GLsizei>(m_old_viewport[2]),
+             static_cast<GLsizei>(m_old_viewport[3]));
+}
+
+#else
+
+void
+GLLightmap::bind_lightmap()
+{
+  glGetFloatv(GL_VIEWPORT, m_old_viewport); //save viewport
+  glViewport(static_cast<GLint>(m_old_viewport[0]),
+             static_cast<GLint>(m_old_viewport[3] - static_cast<GLfloat>(m_lightmap_height) + m_old_viewport[1]),
+             m_lightmap_width, m_lightmap_height);
+}
+
+void
+GLLightmap::unbind_lightmap()
+{
+  /* The lights went to a corner of the screen, so lift that corner into the
+     texture before the scene is drawn over the top of it. */
+  glDisable(GL_BLEND);
+  glBindTexture(GL_TEXTURE_2D, m_lightmap->get_handle());
+  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
+                      static_cast<GLint>(m_old_viewport[0]),
+                      static_cast<GLint>(m_old_viewport[3] - static_cast<GLfloat>(m_lightmap_height) + m_old_viewport[1]),
+                      m_lightmap_width, m_lightmap_height);
+
+  glViewport(static_cast<GLint>(m_old_viewport[0]),
+             static_cast<GLint>(m_old_viewport[1]),
+             static_cast<GLsizei>(m_old_viewport[2]),
+             static_cast<GLsizei>(m_old_viewport[3]));
+  glEnable(GL_BLEND);
+}
+
+#endif
 
 void
 GLLightmap::start_draw(const Color &ambient_color)
 {
+  bind_lightmap();
 
-  glGetFloatv(GL_VIEWPORT, m_old_viewport); //save viewport
-  glViewport(m_old_viewport[0], m_old_viewport[3] - m_lightmap_height + m_old_viewport[1], m_lightmap_width, m_lightmap_height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-#ifdef GL_VERSION_ES_CM_1_0
-  glOrthof(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#else
   glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#endif
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -99,21 +176,13 @@ GLLightmap::start_draw(const Color &ambient_color)
 void
 GLLightmap::end_draw()
 {
-  glDisable(GL_BLEND);
-  glBindTexture(GL_TEXTURE_2D, m_lightmap->get_handle());
-  glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_old_viewport[0], m_old_viewport[3] - m_lightmap_height + m_old_viewport[1], m_lightmap_width, m_lightmap_height);
+  unbind_lightmap();
 
-  glViewport(m_old_viewport[0], m_old_viewport[1], m_old_viewport[2], m_old_viewport[3]);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-#ifdef GL_VERSION_ES_CM_1_0
-  glOrthof(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#else
   glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1.0, 1.0);
-#endif
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  glEnable(GL_BLEND);
 
   glClearColor(0, 0, 0, 1 );
   glClear(GL_COLOR_BUFFER_BIT);

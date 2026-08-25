@@ -17,6 +17,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <config.h>
+
 #include "supertux/gameconfig.hpp"
 #include "video/gl/gl_texture.hpp"
 
@@ -26,19 +28,19 @@
 
 namespace {
 
-#ifdef GL_VERSION_ES_CM_1_0
-inline bool is_power_of_2(int v)
+inline unsigned int next_power_of_two(unsigned int val)
 {
-  return (v & (v-1)) == 0;
-}
-#endif
-
-inline int next_power_of_two(int val)
-{
-  int result = 1;
+  unsigned int result = 1;
   while(result < val)
     result *= 2;
   return result;
+}
+
+/** Round up to a whole number of whatever the hardware stores textures in.
+    With an alignment of one this hands back the size it was given. */
+inline unsigned int align_up(unsigned int val, unsigned int alignment)
+{
+  return (val + alignment - 1) / alignment * alignment;
 }
 
 } // namespace
@@ -50,10 +52,6 @@ GLTexture::GLTexture(unsigned int width, unsigned int height) :
   m_image_width(),
   m_image_height()
 {
-#ifdef GL_VERSION_ES_CM_1_0
-  assert(is_power_of_2(width));
-  assert(is_power_of_2(height));
-#endif
   m_texture_width  = width;
   m_texture_height = height;
   m_image_width  = width;
@@ -65,8 +63,10 @@ GLTexture::GLTexture(unsigned int width, unsigned int height) :
   try {
     glBindTexture(GL_TEXTURE_2D, m_handle);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA), m_texture_width,
-				 m_texture_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
+                 static_cast<GLsizei>(m_texture_width),
+                 static_cast<GLsizei>(m_texture_height),
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     set_texture_params();
   } catch(...) {
@@ -82,41 +82,49 @@ GLTexture::GLTexture(SDL_Surface* image) :
   m_image_width(),
   m_image_height()
 {
-#ifdef GL_VERSION_ES_CM_1_0
-  m_texture_width = next_power_of_two(image->w);
-  m_texture_height = next_power_of_two(image->h);
-#else
-#  ifdef USE_GLBINDING
+  /* Whether the driver will take a texture whose sides are not powers of
+     two. It is an extension, so answering needs something to load it with.
+     A build with no loader either has been told the answer or falls back on
+     the older rule, which costs roughly twice the memory. */
+#ifdef USE_GLBINDING
   static auto extensions = glbinding::ContextInfo::extensions();
-  if (extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end())
-  {
-    m_texture_width  = image->w;
-    m_texture_height = image->h;
-  }
-#  else
-  if (GLEW_ARB_texture_non_power_of_two)
-  {
-    m_texture_width  = image->w;
-    m_texture_height = image->h;
-  }
-#  endif
-  else
-  {
-    m_texture_width = next_power_of_two(image->w);
-    m_texture_height = next_power_of_two(image->h);
-  }
+  const bool npot = extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end();
+#elif defined(HAVE_GLEW)
+  const bool npot = GLEW_ARB_texture_non_power_of_two != 0;
+#elif defined(HAVE_NPOT_TEXTURES)
+  const bool npot = true;
+#else
+  const bool npot = false;
 #endif
 
-  m_image_width  = image->w;
-  m_image_height = image->h;
+  /* SDL states a surface's size as a signed number, though a surface never
+     has a negative side. Cross over once here rather than at every use. */
+  const unsigned int image_width  = static_cast<unsigned int>(image->w);
+  const unsigned int image_height = static_cast<unsigned int>(image->h);
+
+  if (npot)
+  {
+    m_texture_width  = align_up(image_width, TEXTURE_ALIGNMENT);
+    m_texture_height = align_up(image_height, TEXTURE_ALIGNMENT);
+  }
+  else
+  {
+    m_texture_width  = next_power_of_two(image_width);
+    m_texture_height = next_power_of_two(image_height);
+  }
+
+  m_image_width  = image_width;
+  m_image_height = image_height;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
   SDL_Surface* convert = SDL_CreateRGBSurface(0,
-                                              m_texture_width, m_texture_height, 32,
+                                              static_cast<int>(m_texture_width),
+                                              static_cast<int>(m_texture_height), 32,
                                               0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
 #else
   SDL_Surface* convert = SDL_CreateRGBSurface(0,
-                                              m_texture_width, m_texture_height, 32,
+                                              static_cast<int>(m_texture_width),
+                                              static_cast<int>(m_texture_height), 32,
                                               0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 #endif
 
@@ -126,6 +134,37 @@ GLTexture::GLTexture(SDL_Surface* image) :
 
   SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
   SDL_BlitSurface(image, 0, convert, 0);
+
+  /* Whatever the image does not cover is left transparent, and GL_LINEAR
+     mixes those empty pixels in every time it samples the last row or
+     column, which shows up as a faded line down the edge of the sprite.
+     Repeating the edge one pixel into the padding gives the filter the
+     image's own colour to blend with instead of a hole. One pixel is
+     enough, because the texture coordinates stop at the image and the rest
+     of the padding is never sampled. */
+  const bool pad_right  = static_cast<unsigned int>(image->w) < m_texture_width;
+  const bool pad_bottom = static_cast<unsigned int>(image->h) < m_texture_height;
+
+  if(pad_right)
+  {
+    SDL_Rect src = { image->w - 1, 0, 1, image->h };
+    SDL_Rect dst = { image->w,     0, 1, image->h };
+    SDL_BlitSurface(image, &src, convert, &dst);
+  }
+
+  if(pad_bottom)
+  {
+    SDL_Rect src = { 0, image->h - 1, image->w, 1 };
+    SDL_Rect dst = { 0, image->h,     image->w, 1 };
+    SDL_BlitSurface(image, &src, convert, &dst);
+  }
+
+  if(pad_right && pad_bottom)
+  {
+    SDL_Rect src = { image->w - 1, image->h - 1, 1, 1 };
+    SDL_Rect dst = { image->w,     image->h,     1, 1 };
+    SDL_BlitSurface(image, &src, convert, &dst);
+  }
 
   assert_gl("before creating texture");
   glGenTextures(1, &m_handle);
@@ -157,14 +196,9 @@ GLTexture::GLTexture(SDL_Surface* image) :
     }
 
     glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
-                 m_texture_width, m_texture_height, 0, sdl_format,
-                 GL_UNSIGNED_BYTE, convert->pixels);
-
-    // no not use mipmaps
-    if(false)
-    {
-      glGenerateMipmap(GL_TEXTURE_2D);
-    }
+                 static_cast<GLsizei>(m_texture_width),
+                 static_cast<GLsizei>(m_texture_height),
+                 0, sdl_format, GL_UNSIGNED_BYTE, convert->pixels);
 
     if(SDL_MUSTLOCK(convert))
     {

@@ -42,6 +42,7 @@ JoystickMenu::JoystickMenu(InputManager& input_manager) :
   m_joysticks_available(false),
   m_auto_joystick_cfg(!m_input_manager.use_game_controller())
 {
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
   recreate_menu();
 }
 
@@ -249,6 +250,14 @@ JoystickMenu::refresh()
       refresh_menu_item(Controller::CHEAT_MENU);
     }
   }
+}
+
+void
+JoystickMenu::on_window_resize()
+{
+  /* Sat below the middle so that it clears the logo behind it, as the menu
+     it is opened from does. */
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
 }
 
 /* EOF */

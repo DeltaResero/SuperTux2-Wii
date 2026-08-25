@@ -57,6 +57,42 @@ SDL_BlendMode blend2sdl(const Blend& blend)
   }
 }
 
+/** Copy a texture, working around a scale set on the renderer.
+
+    Filled shapes honour a renderer scale, but a copy made into a render
+    target while one is set does not arrive, and SDL reports no error for it.
+    So the scale is taken off, applied to the destination by hand, and put
+    back for whatever draws next. With no scale set this is a plain copy. */
+void render_copy(SDL_Renderer* renderer, SDL_Texture* texture,
+                 const SDL_Rect* src_rect, const SDL_Rect& dst_rect,
+                 double angle, SDL_RendererFlip flip)
+{
+  float scale_x = 1.0f;
+  float scale_y = 1.0f;
+  SDL_RenderGetScale(renderer, &scale_x, &scale_y);
+
+  if(scale_x == 1.0f && scale_y == 1.0f)
+  {
+    SDL_RenderCopyEx(renderer, texture, src_rect, &dst_rect, angle, NULL, flip);
+    return;
+  }
+
+  /* Scale into a rectangle of fractions rather than whole pixels. Rounding
+     here would snap the copy to whole pixels of the smaller image, which is
+     several pixels once it is stretched back over the screen, and would move
+     a light in steps as it travelled. */
+  const SDL_FRect scaled = {
+    static_cast<float>(dst_rect.x) * scale_x,
+    static_cast<float>(dst_rect.y) * scale_y,
+    static_cast<float>(dst_rect.w) * scale_x,
+    static_cast<float>(dst_rect.h) * scale_y
+  };
+
+  SDL_RenderSetScale(renderer, 1.0f, 1.0f);
+  SDL_RenderCopyExF(renderer, texture, src_rect, &scaled, angle, NULL, flip);
+  SDL_RenderSetScale(renderer, scale_x, scale_y);
+}
+
 } // namespace
 
 void
@@ -90,7 +126,7 @@ SDLPainter::draw_surface(SDL_Renderer* renderer, const DrawingRequest& request)
     flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_VERTICAL);
   }
 
-  SDL_RenderCopyEx(renderer, sdltexture->get_texture(), NULL, &dst_rect, request.angle, NULL, flip);
+  render_copy(renderer, sdltexture->get_texture(), NULL, dst_rect, request.angle, flip);
 }
 
 void
@@ -133,7 +169,7 @@ SDLPainter::draw_surface_part(SDL_Renderer* renderer, const DrawingRequest& requ
     flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_VERTICAL);
   }
 
-  SDL_RenderCopyEx(renderer, sdltexture->get_texture(), &src_rect, &dst_rect, request.angle, NULL, flip);
+  render_copy(renderer, sdltexture->get_texture(), &src_rect, dst_rect, request.angle, flip);
 }
 
 void

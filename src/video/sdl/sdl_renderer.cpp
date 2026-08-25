@@ -27,6 +27,7 @@
 #include "video/sdl/sdl_texture.hpp"
 #include "video/sdl/sdl_painter.hpp"
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -39,19 +40,8 @@ SDLRenderer::SDLRenderer() :
   m_window(),
   m_renderer(),
   m_viewport(),
-  m_desktop_size(0, 0),
   m_scale(1.0f, 1.0f)
 {
-  SDL_DisplayMode mode;
-  if (SDL_GetDesktopDisplayMode(0, &mode) != 0)
-  {
-    log_warning << "Couldn't get desktop display mode: " << SDL_GetError() << std::endl;
-  }
-  else
-  {
-    m_desktop_size = Size(mode.w, mode.h);
-  }
-
   log_info << "creating SDLRenderer" << std::endl;
   int width  = g_config->window_size.width;
   int height = g_config->window_size.height;
@@ -83,12 +73,37 @@ SDLRenderer::SDLRenderer() :
 
   SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 
-  int ret = SDL_CreateWindowAndRenderer(width, height, flags,
-                                        &m_window, &m_renderer);
-
-  if(ret != 0) {
+  /* The window and the renderer are made separately because the call that
+     makes both at once takes flags for the window only, and the swap is
+     asked for through a renderer flag. */
+  m_window = SDL_CreateWindow("SuperTux",
+                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                              width, height, flags);
+  if(m_window == NULL) {
     std::stringstream msg;
     msg << "Couldn't set video mode (" << width << "x" << height
+        << "): " << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
+
+  /* This renderer waits or it does not, so the mode that lets a late frame
+     through is taken as a plain wait. */
+  Uint32 renderer_flags = 0;
+  if(g_config->vsync != 0) {
+    renderer_flags |= SDL_RENDERER_PRESENTVSYNC;
+  }
+
+  m_renderer = SDL_CreateRenderer(m_window, -1, renderer_flags);
+  if(m_renderer == NULL && renderer_flags != 0) {
+    /* Not every driver can wait for the vertical blank. Rather than run with
+       no renderer at all, ask again without it. */
+    log_info << "no support for vsync: " << SDL_GetError() << std::endl;
+    m_renderer = SDL_CreateRenderer(m_window, -1, 0);
+  }
+
+  if(m_renderer == NULL) {
+    std::stringstream msg;
+    msg << "Couldn't create renderer (" << width << "x" << height
         << "): " << SDL_GetError();
     throw std::runtime_error(msg.str());
   }
@@ -115,7 +130,6 @@ SDLRenderer::SDLRenderer() :
     log_info << "Max Texture Height: " << info.max_texture_height << std::endl;
   }
 
-  g_config->window_size = Size(width, height);
   apply_config();
 }
 
@@ -251,7 +265,12 @@ SDLRenderer::flip()
 void
 SDLRenderer::resize(int w , int h)
 {
-  g_config->window_size = Size(w, h);
+  /* While fullscreen the window is the size of the screen, and that is not
+     a size anybody chose, so it is not kept. */
+  if (!g_config->use_fullscreen)
+  {
+    g_config->window_size = Size(w, h);
+  }
 
   apply_config();
 }
@@ -262,6 +281,18 @@ SDLRenderer::apply_video_mode()
   if (!g_config->use_fullscreen)
   {
     SDL_SetWindowFullscreen(m_window, 0);
+
+    /* Ask for the size the window is meant to be whenever it is not already
+       it. Dragging the window to a new size records that size, so this asks
+       for nothing in that case. */
+    Size current_size;
+    SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
+    if (current_size != g_config->window_size)
+    {
+      SDL_SetWindowSize(m_window,
+                        g_config->window_size.width,
+                        g_config->window_size.height);
+    }
   }
   else
   {
@@ -314,30 +345,23 @@ SDLRenderer::apply_video_mode()
 void
 SDLRenderer::apply_viewport()
 {
-  Size target_size = (g_config->use_fullscreen && g_config->fullscreen_size != Size(0, 0)) ?
-    g_config->fullscreen_size :
-    g_config->window_size;
+  /* Ask how big the window came out rather than working it back out from
+     the settings, since a window manager is free to hand back something
+     other than what was asked for. */
+  Size target_size;
+  SDL_GetRendererOutputSize(m_renderer, &target_size.width, &target_size.height);
 
-  float pixel_aspect_ratio = 1.0f;
+  /* Zero means take the shape of the screen the game is on. */
+  float aspect_ratio = 0.0f;
   if (g_config->aspect_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      g_config->aspect_size);
+    aspect_ratio = static_cast<float>(g_config->aspect_size.width) /
+                   static_cast<float>(g_config->aspect_size.height);
   }
-  else if (g_config->use_fullscreen)
-  {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
-                                                      target_size);
-  }
-
-  // calculate the viewport
-  Size max_size(1280, 800);
-  Size min_size(640, 480);
 
   Size logical_size;
-  calculate_viewport(min_size, max_size,
-                     target_size,
-                     pixel_aspect_ratio,
+  calculate_viewport(target_size,
+                     aspect_ratio,
                      g_config->magnification,
                      m_scale, logical_size, m_viewport);
 
@@ -374,6 +398,16 @@ SDLRenderer::to_logical(int physical_x, int physical_y) const
 {
   return Vector(static_cast<float>(physical_x - m_viewport.x) * SCREEN_WIDTH / m_viewport.w,
                 static_cast<float>(physical_y - m_viewport.y) * SCREEN_HEIGHT / m_viewport.h);
+}
+
+void
+SDLRenderer::warp_pointer(const Vector& logical)
+{
+  /* Rounded, not truncated: truncation always loses the fraction in the same
+     direction, so a pointer put back over and over creeps one way. */
+  const int x = static_cast<int>(std::lround(logical.x * m_viewport.w / SCREEN_WIDTH)) + m_viewport.x;
+  const int y = static_cast<int>(std::lround(logical.y * m_viewport.h / SCREEN_HEIGHT)) + m_viewport.y;
+  SDL_WarpMouseInWindow(m_window, x, y);
 }
 
 void

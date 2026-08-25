@@ -19,6 +19,7 @@
 
 #include "video/gl/gl_video_system.hpp"
 
+#include "util/log.hpp"
 #include "video/gl/gl_lightmap.hpp"
 #include "video/gl/gl_renderer.hpp"
 #include "video/gl/gl_surface_data.hpp"
@@ -73,6 +74,22 @@ GLVideoSystem::resize(int w, int h)
 {
   m_renderer->resize(w, h);
   m_lightmap.reset(new GLLightmap);
+}
+
+void
+GLVideoSystem::set_vsync(int mode)
+{
+  if(SDL_GL_SetSwapInterval(mode) < 0)
+  {
+    log_warning << "Couldn't set vsync mode " << mode << ": "
+                << SDL_GetError() << std::endl;
+  }
+}
+
+int
+GLVideoSystem::get_vsync() const
+{
+  return SDL_GL_GetSwapInterval();
 }
 
 /* EOF */

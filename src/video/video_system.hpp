@@ -59,6 +59,12 @@ public:
   virtual void apply_config() = 0;
   virtual void resize(int w, int h) = 0;
 
+  /** Ask for a wait of the given length before each frame is shown, and
+      report back what is actually in force. Not every driver can do every
+      mode, so the two need not agree. */
+  virtual void set_vsync(int mode) = 0;
+  virtual int get_vsync() const = 0;
+
 private:
   VideoSystem(const VideoSystem&) = delete;
   VideoSystem& operator=(const VideoSystem&) = delete;

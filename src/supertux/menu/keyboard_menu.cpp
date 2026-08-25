@@ -28,6 +28,8 @@
 KeyboardMenu::KeyboardMenu(InputManager& input_manager) :
   m_input_manager(input_manager)
 {
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 20);
+
   add_label("Setup Keyboard");
   add_hl();
   add_controlfield(Controller::UP,         "Up");
@@ -149,6 +151,14 @@ KeyboardMenu::refresh()
     micf = dynamic_cast<ItemControlField*>(&get_item_by_id((int) Controller::CONSOLE));
     if (micf) micf->change_input(get_key_name(kbd_cfg.reversemap_key(Controller::CONSOLE)));
   }
+}
+
+void
+KeyboardMenu::on_window_resize()
+{
+  /* One row for every control, which is tall enough to reach the notice
+     along the foot of the title screen if left in the middle. */
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 - 20);
 }
 
 /* EOF */

@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_CONSOLE_HPP
 #define HEADER_SUPERTUX_SUPERTUX_CONSOLE_HPP
 
+#include <config.h>
+
 #include <list>
 #include <memory>
 #include <squirrel.h>
@@ -28,7 +30,6 @@
 
 #include "util/currenton.hpp"
 #include "video/font_ptr.hpp"
-#include "video/surface_ptr.hpp"
 
 class Console;
 class ConsoleStreamBuffer;
@@ -41,8 +42,10 @@ public:
   static ConsoleStreamBuffer s_outputBuffer; /**< stream buffer used by output stream */
 
 public:
+#ifdef ENABLE_CONSOLE
   std::list<std::string> m_lines; /**< backbuffer of lines sent to the console. New lines get added to front. */
   Console* m_console;
+#endif
 
 public:
   ConsoleBuffer();
@@ -52,12 +55,16 @@ public:
 
   void flush(ConsoleStreamBuffer& buffer); /**< act upon changes in a ConsoleStreamBuffer */
 
+#ifdef ENABLE_CONSOLE
   void set_console(Console* console);
+#endif
 
 private:
   ConsoleBuffer(const ConsoleBuffer&) = delete;
   ConsoleBuffer& operator=(const ConsoleBuffer&) = delete;
 };
+
+#ifdef ENABLE_CONSOLE
 
 class Console : public Currenton<Console>
 {
@@ -98,13 +105,10 @@ private:
   std::list<std::string> m_history; /**< command history. New lines get added to back. */
   std::list<std::string>::iterator m_history_position; /**< item of command history that is currently displayed */
 
-  SurfacePtr m_background; /**< console background image */
-  SurfacePtr m_background2; /**< second, moving console background image */
 
   HSQUIRRELVM m_vm; /**< squirrel thread for the console (with custom roottable) */
   HSQOBJECT m_vm_object;
 
-  int m_backgroundOffset; /**< current offset of scrolling background image */
   float m_height; /**< height of the console in px */
   float m_alpha;
   int m_offset; /**< decrease to scroll text up */
@@ -127,6 +131,8 @@ private:
   Console(const Console&);
   Console & operator=(const Console&);
 };
+
+#endif // ENABLE_CONSOLE
 
 class ConsoleStreamBuffer : public std::stringbuf
 {

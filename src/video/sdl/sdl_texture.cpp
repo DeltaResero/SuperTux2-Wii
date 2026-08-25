@@ -28,6 +28,8 @@
 #include "math/random_generator.hpp"
 
 #include <assert.h>
+#include <sstream>
+#include <stdexcept>
 
 #include <SDL.h>
 

@@ -35,13 +35,10 @@ using namespace gl;
 
 #else
 
-#ifndef GL_VERSION_ES_CM_1_0
+/* GLEW brings its own declarations of everything below it and refuses to be
+   included after them, so it is one or the other. */
+#ifdef HAVE_GLEW
 #  include <GL/glew.h>
-#endif
-
-#if defined(GL_VERSION_ES_CM_1_0)
-#  include <GLES/gl.h>
-#  include <GLES/glext.h>
 #else
 #  include <GL/gl.h>
 #  include <GL/glext.h>
@@ -97,12 +94,18 @@ static inline void assert_gl(const char* message)
 
 #else
 
+/* The engine names its blend modes after OpenGL's factors whichever renderer
+   is running, so a build without OpenGL still needs the names. Only the
+   comparisons in SDLPainter::blend2sdl read them, so the values just have to
+   differ from one another. */
 #define GLenum int
 #define GLint int
 #define GL_SRC_ALPHA 0
 #define GL_ONE_MINUS_SRC_ALPHA 1
 #define GL_RGBA 2
 #define GL_ONE 3
+#define GL_ZERO 4
+#define GL_DST_COLOR 5
 
 #endif
 

@@ -27,24 +27,24 @@ KeyboardConfig::KeyboardConfig() :
   jump_with_up_kbd(false)
 {
   // initialize default keyboard map
-  keymap[SDLK_LEFT]     = Controller::LEFT;
-  keymap[SDLK_RIGHT]    = Controller::RIGHT;
-  keymap[SDLK_UP]       = Controller::UP;
-  keymap[SDLK_DOWN]     = Controller::DOWN;
-  keymap[SDLK_SPACE]    = Controller::JUMP;
-  keymap[SDLK_LCTRL]    = Controller::ACTION;
-  keymap[SDLK_LALT]     = Controller::ACTION;
-  keymap[SDLK_ESCAPE]   = Controller::ESCAPE;
-  keymap[SDLK_p]        = Controller::START;
-  keymap[SDLK_PAUSE]    = Controller::START;
-  keymap[SDLK_RETURN]   = Controller::MENU_SELECT;
-  keymap[SDLK_KP_ENTER] = Controller::MENU_SELECT;
-  keymap[SDLK_CARET]    = Controller::CONSOLE;
-  keymap[SDLK_DELETE]   = Controller::PEEK_LEFT;
-  keymap[SDLK_PAGEDOWN] = Controller::PEEK_RIGHT;
-  keymap[SDLK_HOME]     = Controller::PEEK_UP;
-  keymap[SDLK_END]      = Controller::PEEK_DOWN;
-  keymap[SDLK_F1]       = Controller::CHEAT_MENU;
+  keymap[SDLK_LEFT]      = Controller::LEFT;
+  keymap[SDLK_RIGHT]     = Controller::RIGHT;
+  keymap[SDLK_UP]        = Controller::UP;
+  keymap[SDLK_DOWN]      = Controller::DOWN;
+  keymap[SDLK_SPACE]     = Controller::JUMP;
+  keymap[SDLK_LCTRL]     = Controller::ACTION;
+  keymap[SDLK_LALT]      = Controller::ACTION;
+  keymap[SDLK_ESCAPE]    = Controller::ESCAPE;
+  keymap[SDLK_p]         = Controller::START;
+  keymap[SDLK_PAUSE]     = Controller::START;
+  keymap[SDLK_RETURN]    = Controller::MENU_SELECT;
+  keymap[SDLK_KP_ENTER]  = Controller::MENU_SELECT;
+  keymap[SDLK_BACKQUOTE] = Controller::CONSOLE;
+  keymap[SDLK_DELETE]    = Controller::PEEK_LEFT;
+  keymap[SDLK_PAGEDOWN]  = Controller::PEEK_RIGHT;
+  keymap[SDLK_HOME]      = Controller::PEEK_UP;
+  keymap[SDLK_END]       = Controller::PEEK_DOWN;
+  keymap[SDLK_F1]        = Controller::CHEAT_MENU;
 }
 
 void

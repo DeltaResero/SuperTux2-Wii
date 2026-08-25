@@ -110,13 +110,42 @@ IF(WIN32)
   FIND_LIBRARY(SDL2MAIN_LIBRARIES NAMES SDL2main PATHS "${DEPENDENCY_FOLDER}/lib")
 ELSE(WIN32)
   INCLUDE(FindPkgConfig)
-  PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.1)
+  ## 2.0.10 for SDL_RenderCopyExF, which the software renderer's lighting
+  ## needs to place a copy on a fraction of a pixel, and 2.0.18 for
+  ## SDL_RenderSetVSync, which the vsync setting changes through.
+  PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.18)
   PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 ENDIF(WIN32)
 SET(HAVE_SDL TRUE)
 
 OPTION(BUILD_TESTS "Build test cases" OFF)
 OPTION(ENABLE_OPENGL "Enable OpenGL support" ON)
+## GLEW fetches the entry points a desktop driver keeps behind extensions.
+## Hardware with a fixed 1.x pipeline has none to fetch and no GLEW built for
+## it, so this has to come off without taking OpenGL with it.
+OPTION(ENABLE_GLEW "Use GLEW to load OpenGL extensions" ON)
+## Accepting a texture whose sides are not powers of two is an extension, so a
+## build with a loader asks the driver at runtime. A build with no loader
+## cannot ask and assumes the older rule, which rounds every texture up and
+## roughly doubles the memory they occupy. Hardware known to take any size can
+## say so here instead.
+OPTION(ENABLE_NPOT_TEXTURES "Assume the hardware accepts non-power-of-two textures" OFF)
+IF(ENABLE_NPOT_TEXTURES)
+  SET(HAVE_NPOT_TEXTURES TRUE)
+ENDIF()
+## Hardware that stores textures in fixed size tiles wants each side rounded up
+## to a multiple of the tile. 1 leaves the size alone.
+SET(TEXTURE_ALIGNMENT 1 CACHE STRING "Round texture sides up to a multiple of this many pixels")
+IF(NOT TEXTURE_ALIGNMENT MATCHES "^[1-9][0-9]*$")
+  MESSAGE(FATAL_ERROR "TEXTURE_ALIGNMENT must be a positive whole number, got '${TEXTURE_ALIGNMENT}'")
+ENDIF()
+## The lightmap is drawn small and then multiplied over the finished frame.
+## By default it is drawn in a corner of the screen and copied out afterwards,
+## which needs glCopyTexSubImage2D. Where that call is missing but framebuffer
+## objects are present, the lightmap can be drawn straight into its texture
+## instead. Only one of the two is compiled in, since a target that lacks one
+## call cannot compile the path that uses it.
+OPTION(ENABLE_LIGHTMAP_FBO "Draw the lightmap into its texture with a framebuffer object" OFF)
 OPTION(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 OPTION(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
 IF(ENABLE_OPENGL)
@@ -135,13 +164,20 @@ IF(ENABLE_OPENGL)
         ADD_DEFINITIONS(-DUSE_GLBINDING_DEBUG_OUTPUT)
       ENDIF()
     ENDIF()
-  ELSE()
+  ELSEIF(ENABLE_GLEW)
     FIND_PACKAGE(GLEW REQUIRED)
     IF(GLEW_FOUND)
       INCLUDE_DIRECTORIES(SYSTEM ${GLEW_INCLUDE_DIR})
+      SET(HAVE_GLEW TRUE)
     ENDIF(GLEW_FOUND)
   ENDIF()
 ENDIF(ENABLE_OPENGL)
+
+## The interactive console is a debugging aid: it only opens in developer
+## mode, and only from a key, so a target without a keyboard cannot reach it
+## at all. Off by default, which saves some resources, though the buffer behind
+## it is built either way and this is what carries log and script output to stderr.
+OPTION(ENABLE_CONSOLE "Build the interactive console" OFF)
 
 ## Which sound backends to build in. Both can be built at once, and which
 ## one runs is then chosen with --audio-backend. The Wii has no usable
@@ -461,7 +497,7 @@ IF(HAVE_OPENGL)
     TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENGL_LIBRARY})
     IF(GLBINDING_FOUND)
       TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${GLBINDING_LIBRARIES})
-    ELSE()
+    ELSEIF(HAVE_GLEW)
       TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${GLEW_LIBRARY})
     ENDIF()
 ENDIF(HAVE_OPENGL)

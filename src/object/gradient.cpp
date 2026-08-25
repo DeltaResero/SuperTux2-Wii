@@ -147,6 +147,13 @@ Gradient::draw(DrawingContext& context)
       auto sector_height = current_sector->get_height();
       gradient_region = Rectf(-camera_translation.x, -camera_translation.y, sector_width, sector_height);
   }
+  else
+  {
+      /* The view can be given a different size after the level is under way,
+         by the magnification setting among other things, so the area to fill
+         is asked for now rather than kept from when the gradient was made. */
+      gradient_region = Rectf(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+  }
 
   context.push_transform();
   context.set_translation(Vector(0, 0));

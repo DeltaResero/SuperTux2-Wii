@@ -37,6 +37,8 @@ public:
   std::string get_key_name(SDL_Keycode key) const;
   void menu_action(MenuItem* item) override;
 
+  void on_window_resize() override;
+
 private:
   KeyboardMenu(const KeyboardMenu&);
   KeyboardMenu& operator=(const KeyboardMenu&);
