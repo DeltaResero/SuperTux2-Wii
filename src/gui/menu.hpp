@@ -86,6 +86,7 @@ public:
   float get_width() const;
   float get_height() const;
 
+
   /** Width of the column the menu's settings show their values in, shared by
       all of them so the arrows line up. */
   float get_value_width() const;
@@ -116,6 +117,10 @@ protected:
 private:
   void process_action(MenuAction menuaction);
   void check_controlfield_change_event(const SDL_Event& event);
+
+  /** Light whichever row the pointer is over, from a position in the view's
+      own units. */
+  void hover_at(const Vector& mouse_pos);
   void draw_item(DrawingContext& context, int index);
 
 private:

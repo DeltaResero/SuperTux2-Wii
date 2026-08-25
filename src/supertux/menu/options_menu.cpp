@@ -34,6 +34,7 @@
 #include "video/video_system.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <sstream>
 #include <stdio.h>
 
@@ -343,6 +344,34 @@ OptionsMenu::~OptionsMenu()
 }
 
 void
+OptionsMenu::apply_video_change()
+{
+  Renderer& renderer = VideoSystem::current()->get_renderer();
+
+  /* Everything is about to be redrawn at a different scale under a pointer
+     that has not moved, so the arrow being clicked would slide out from under
+     it. A row never moves within its menu, only the menu moves, so where the
+     pointer sat relative to this menu is what gets put back. */
+  int px, py;
+  SDL_GetMouseState(&px, &py);
+  const Vector held = renderer.to_logical(px, py) - get_center_pos();
+
+  /* Only when the pointer is on the menu, which is to say the change came from
+     clicking one of its arrows. Anyone working the keyboard with the pointer
+     left elsewhere would not thank us for moving it. */
+  const bool clicking = std::fabs(held.x) < get_width()/2 &&
+                        std::fabs(held.y) < get_height()/2;
+
+  renderer.apply_config();
+  MenuManager::instance().on_window_resize();
+
+  if (clicking)
+  {
+    renderer.warp_pointer(get_center_pos() + held);
+  }
+}
+
+void
 OptionsMenu::on_window_resize()
 {
   Menu::on_window_resize();
@@ -393,14 +422,12 @@ OptionsMenu::menu_action(MenuItem* item)
         if (aspect_ratios[next_aspect_ratio] == "auto")
         {
           g_config->aspect_size = Size(0, 0); // Magic values
-          VideoSystem::current()->get_renderer().apply_config();
-          MenuManager::instance().on_window_resize();
+          apply_video_change();
         }
         else if (sscanf(aspect_ratios[next_aspect_ratio].c_str(), "%d:%d",
                         &g_config->aspect_size.width, &g_config->aspect_size.height) == 2)
         {
-          VideoSystem::current()->get_renderer().apply_config();
-          MenuManager::instance().on_window_resize();
+          apply_video_change();
         }
         else
         {
@@ -414,8 +441,7 @@ OptionsMenu::menu_action(MenuItem* item)
       {
         g_config->magnification /= 100.0f;
       }
-      VideoSystem::current()->get_renderer().apply_config();
-      MenuManager::instance().on_window_resize();
+      apply_video_change();
       break;
 
     case MNID_RESOLUTION:
@@ -452,14 +478,12 @@ OptionsMenu::menu_action(MenuItem* item)
           g_config->fullscreen_refresh_rate = 0;
         }
 
-        VideoSystem::current()->get_renderer().apply_config();
-        MenuManager::instance().on_window_resize();
+        apply_video_change();
       }
       break;
 
     case MNID_FULLSCREEN:
-      VideoSystem::current()->get_renderer().apply_config();
-      MenuManager::instance().on_window_resize();
+      apply_video_change();
       break;
 
     case MNID_SOUND:

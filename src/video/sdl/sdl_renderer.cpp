@@ -27,6 +27,7 @@
 #include "video/sdl/sdl_texture.hpp"
 #include "video/sdl/sdl_painter.hpp"
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -397,6 +398,16 @@ SDLRenderer::to_logical(int physical_x, int physical_y) const
 {
   return Vector(static_cast<float>(physical_x - m_viewport.x) * SCREEN_WIDTH / m_viewport.w,
                 static_cast<float>(physical_y - m_viewport.y) * SCREEN_HEIGHT / m_viewport.h);
+}
+
+void
+SDLRenderer::warp_pointer(const Vector& logical)
+{
+  /* Rounded, not truncated: truncation always loses the fraction in the same
+     direction, so a pointer put back over and over creeps one way. */
+  const int x = static_cast<int>(std::lround(logical.x * m_viewport.w / SCREEN_WIDTH)) + m_viewport.x;
+  const int y = static_cast<int>(std::lround(logical.y * m_viewport.h / SCREEN_HEIGHT)) + m_viewport.y;
+  SDL_WarpMouseInWindow(m_window, x, y);
 }
 
 void

@@ -40,6 +40,10 @@ class OptionsMenu : public Menu
     bool placed_with_help() const override { return true; }
 
   private:
+    /** Apply a change to the video mode, keeping the pointer on whatever row
+        of this menu it was already over. */
+    void apply_video_change();
+
     /** Points the one resolution row at whichever of the two settings is the
         one in use, since only the mode the game is in can be changed. */
     void update_resolution_item();

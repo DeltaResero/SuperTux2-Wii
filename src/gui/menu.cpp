@@ -437,9 +437,44 @@ Menu::get_height() const
 }
 
 void
+Menu::hover_at(const Vector& mouse_pos)
+{
+  const float x = mouse_pos.x;
+  const float y = mouse_pos.y;
+
+  if(x > pos.x - get_width()/2 &&
+     x < pos.x + get_width()/2 &&
+     y > pos.y - get_height()/2 &&
+     y < pos.y + get_height()/2)
+  {
+    int new_active_item
+      = static_cast<int> ((y - (pos.y - get_height()/2)) / 24);
+
+    /* only change the mouse focus to a selectable item */
+    if (!items[new_active_item]->skippable())
+      active_item = new_active_item;
+
+    if(MouseCursor::current())
+      MouseCursor::current()->set_state(MC_LINK);
+  }
+  else
+  {
+    if(MouseCursor::current())
+      MouseCursor::current()->set_state(MC_NORMAL);
+  }
+}
+
+void
 Menu::on_window_resize()
 {
   place_on_screen();
+
+  /* The pointer has not moved, so no event will arrive to say which row it is
+     over now, but the rows have moved under it. Work it out again from where
+     the pointer actually is. */
+  int x, y;
+  SDL_GetMouseState(&x, &y);
+  hover_at(VideoSystem::current()->get_renderer().to_logical(x, y));
 }
 
 void
@@ -586,32 +621,7 @@ Menu::event(const SDL_Event& ev)
     break;
 
     case SDL_MOUSEMOTION:
-    {
-      Vector mouse_pos = VideoSystem::current()->get_renderer().to_logical(ev.motion.x, ev.motion.y);
-      float x = mouse_pos.x;
-      float y = mouse_pos.y;
-
-      if(x > pos.x - get_width()/2 &&
-         x < pos.x + get_width()/2 &&
-         y > pos.y - get_height()/2 &&
-         y < pos.y + get_height()/2)
-      {
-        int new_active_item
-          = static_cast<int> ((y - (pos.y - get_height()/2)) / 24);
-
-        /* only change the mouse focus to a selectable item */
-        if (!items[new_active_item]->skippable())
-          active_item = new_active_item;
-
-        if(MouseCursor::current())
-          MouseCursor::current()->set_state(MC_LINK);
-      }
-      else
-      {
-        if(MouseCursor::current())
-          MouseCursor::current()->set_state(MC_NORMAL);
-      }
-    }
+      hover_at(VideoSystem::current()->get_renderer().to_logical(ev.motion.x, ev.motion.y));
     break;
 
     default:
