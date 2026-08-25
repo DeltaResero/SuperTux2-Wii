@@ -38,7 +38,7 @@
 
 MainMenu::MainMenu()
 {
-  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 35);
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
 
   add_entry(MNID_STARTGAME, "Start Game");
   add_submenu("Options", MenuStorage::OPTIONS_MENU);
@@ -49,7 +49,7 @@ MainMenu::MainMenu()
 void
 MainMenu::on_window_resize()
 {
-  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 35);
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
 }
 
 void

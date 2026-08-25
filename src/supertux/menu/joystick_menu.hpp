@@ -36,6 +36,8 @@ public:
   std::string get_button_name(int button) const;
   void menu_action(MenuItem* item) override;
 
+  void on_window_resize() override;
+
 private:
   void recreate_menu();
 

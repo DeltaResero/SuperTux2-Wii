@@ -37,6 +37,8 @@
 
 WorldSetMenu::WorldSetMenu()
 {
+   set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
+
    add_label("Start Game");
    add_hl();
    add_entry(WORLDSET_STORY, "Story Mode");
@@ -60,6 +62,14 @@ void WorldSetMenu::menu_action(MenuItem* item)
 	    MenuManager::instance().push_menu(MenuStorage::CONTRIB_MENU);    
 	    break;
   }
+}
+
+void
+WorldSetMenu::on_window_resize()
+{
+  /* Sat below the middle so that it clears the logo behind it, as the menu
+     it is opened from does. */
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
 }
 
 /* EOF */

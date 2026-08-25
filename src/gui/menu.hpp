@@ -101,6 +101,10 @@ public:
       help below it is measured from them. */
   void place_on_screen();
 
+  /** How far below the middle a menu sits when it opens over the title
+      screen, where the logo takes the space above it. */
+  static constexpr float BELOW_LOGO = 35.0f;
+
 protected:
   MenuItem* add_item(std::unique_ptr<MenuItem> menu_item);
   MenuItem* add_item(std::unique_ptr<MenuItem> menu_item, int pos_);
