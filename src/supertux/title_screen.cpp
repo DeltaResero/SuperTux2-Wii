@@ -44,8 +44,11 @@
 
 namespace {
 
-/** How far the notice sits in from the corner of the screen. */
-const float COPYRIGHT_MARGIN = 5.0f;
+/** How far the notice sits in from the corner of the screen. Kept narrow: the
+    last line of the warranty is within a few units of the width the game is
+    narrowest at, and a wider inset pushes its final word onto a line of its
+    own. */
+const float COPYRIGHT_MARGIN = 3.0f;
 
 /** Break every line of a text to a width, keeping the breaks already in it. */
 std::string wrap_to_screen(const FontPtr& font, const std::string& text, float width)
