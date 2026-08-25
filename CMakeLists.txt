@@ -608,8 +608,6 @@ INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
 IF(CMAKE_BUILD_TYPE MATCHES Release)
   INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
                     DESTINATION ${INSTALL_SUBDIR_SHARE}
-                    PATTERN "data/levels/test" EXCLUDE
-                    PATTERN "data/levels/test_old" EXCLUDE
                     PATTERN "data/levels/incubator" EXCLUDE
                     PATTERN "data/levels/misc/menu.stl.in" EXCLUDE)
 ELSE()
