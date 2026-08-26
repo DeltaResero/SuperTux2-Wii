@@ -39,8 +39,8 @@ class TileMap : public GameObject,
                 public ExposedObject<TileMap, scripting::TileMap>
 {
 public:
-  TileMap(const TileSet *tileset);
-  TileMap(const TileSet *tileset, const ReaderMapping& reader);
+  TileMap(std::shared_ptr<const TileSet> tileset);
+  TileMap(std::shared_ptr<const TileSet> tileset, const ReaderMapping& reader);
   virtual ~TileMap();
 
   std::string get_display_name() const {
@@ -180,10 +180,10 @@ public:
   std::string get_class() const {
     return "tilemap";
   }
-  void set_tileset(const TileSet* new_tileset);
+  void set_tileset(std::shared_ptr<const TileSet> new_tileset);
 
 private:
-  const TileSet *tileset;
+  std::shared_ptr<const TileSet> tileset;
 
   typedef std::vector<uint32_t> Tiles;
   Tiles tiles;

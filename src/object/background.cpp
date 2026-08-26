@@ -120,10 +120,15 @@ Background::Background(const ReaderMapping& reader) :
 
   layer = reader_get_layer (reader, /* default = */ LAYER_BACKGROUND0);
 
-  if (!reader.get("image", imagefile)) imagefile = "images/background/transparent_up.png";
   if (!reader.get("speed", speed)) speed = 0.5;
 
-  set_image(imagefile, speed);
+  /* A background that names no picture of its own draws nothing, which is
+     what draw() already does when it has none. */
+  if (reader.get("image", imagefile))
+  {
+    set_image(imagefile, speed);
+  }
+
   if (!reader.get("speed-y", speed_y))
   {
     speed_y = speed;

@@ -21,6 +21,7 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_WORLDMAP_HPP
 #define HEADER_SUPERTUX_WORLDMAP_WORLDMAP_HPP
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -84,7 +85,7 @@ private:
 
   Savegame& m_savegame;
 
-  TileSet* tileset;
+  std::shared_ptr<TileSet> tileset;
 
   static WorldMap* current_;
 

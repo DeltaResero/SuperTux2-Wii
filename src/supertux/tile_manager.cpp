@@ -20,6 +20,8 @@
 
 #include "supertux/tile_manager.hpp"
 
+#include <algorithm>
+
 #include <limits>
 
 #include "supertux/tile_set.hpp"
@@ -35,20 +37,37 @@ TileManager::~TileManager()
 {
 }
 
-TileSet*
+std::shared_ptr<TileSet>
 TileManager::get_tileset(const std::string &filename)
 {
   TileSets::const_iterator i = tilesets.find(filename);
   if(i != tilesets.end())
   {
-    return i->second.get();
+    if(auto tileset = i->second.lock())
+      return tileset;
   }
-  else
-  {
-    std::unique_ptr<TileSet> tileset(new TileSet(filename));
-    TileSet* result = tileset.get();
-    tilesets.insert(std::make_pair(filename, std::move(tileset)));
-    return result;
+
+  auto tileset = std::make_shared<TileSet>(filename);
+  tilesets[filename] = tileset;
+  held.push_back(tileset);
+  return tileset;
+}
+
+void
+TileManager::release_unused()
+{
+  /* Let go first, so that a tileset whose only remaining claim was this list
+     goes now and hands its pictures back. */
+  held.clear();
+
+  std::erase_if(tilesets, [](const TileSets::value_type& entry) {
+    return entry.second.expired();
+  });
+
+  /* Then take hold again of whatever is still being drawn from. */
+  for(const auto& entry : tilesets) {
+    if(auto tileset = entry.second.lock())
+      held.push_back(std::move(tileset));
   }
 }
 

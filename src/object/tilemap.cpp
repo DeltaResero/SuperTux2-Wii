@@ -32,9 +32,9 @@
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 
-TileMap::TileMap(const TileSet *new_tileset) :
+TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
   ExposedObject<TileMap, scripting::TileMap>(this),
-  tileset(new_tileset),
+  tileset(std::move(new_tileset)),
   tiles(),
   real_solid(false),
   effective_solid(false),
@@ -61,9 +61,9 @@ TileMap::TileMap(const TileSet *new_tileset) :
 {
 }
 
-TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
+TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& reader) :
   ExposedObject<TileMap, scripting::TileMap>(this),
-  tileset(tileset_),
+  tileset(std::move(tileset_)),
   tiles(),
   real_solid(false),
   effective_solid(false),
@@ -533,9 +533,9 @@ TileMap::update_effective_solid()
 }
 
 void
-TileMap::set_tileset(const TileSet* new_tileset)
+TileMap::set_tileset(std::shared_ptr<const TileSet> new_tileset)
 {
-  tileset = new_tileset;
+  tileset = std::move(new_tileset);
 }
 
 /* EOF */
