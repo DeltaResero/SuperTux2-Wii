@@ -41,6 +41,7 @@
 #include "supertux/screen.hpp"
 #include "supertux/screen_fade.hpp"
 #include "supertux/sector.hpp"
+#include "supertux/tile_manager.hpp"
 #include "supertux/timer.hpp"
 #include "video/drawing_context.hpp"
 #include "video/renderer.hpp"
@@ -363,6 +364,11 @@ ScreenManager::handle_screen_switch()
       if (screen_closed && SpriteManager::current() != nullptr)
       {
         SpriteManager::current()->release_unused();
+      }
+
+      if (screen_closed && TileManager::current() != nullptr)
+      {
+        TileManager::current()->release_unused();
       }
 
       if (!m_screen_stack.empty() && current_screen != m_screen_stack.back().get())
