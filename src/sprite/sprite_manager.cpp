@@ -19,6 +19,8 @@
 
 #include "sprite/sprite_manager.hpp"
 
+#include <algorithm>
+
 #include "sprite/sprite.hpp"
 #include "util/file_system.hpp"
 #include "util/reader_document.hpp"
@@ -41,23 +43,45 @@ SpritePtr
 SpriteManager::create(const std::string& name)
 {
   Sprites::iterator i = sprites.find(name);
-  SpriteData* data;
-  if(i == sprites.end()) {
+  std::shared_ptr<SpriteData> data;
+  if(i != sprites.end())
+    data = i->second.lock();
+
+  if(!data) {
     // try loading the spritefile
     data = load(name);
-    if(data == NULL) {
+    if(!data) {
       std::stringstream msg;
       msg << "Sprite '" << name << "' not found.";
       throw std::runtime_error(msg.str());
     }
-  } else {
-    data = i->second.get();
+    sprites[name] = data;
+    held.push_back(data);
   }
 
-  return SpritePtr(new Sprite(*data));
+  return SpritePtr(new Sprite(data));
 }
 
-SpriteData*
+void
+SpriteManager::release_unused()
+{
+  /* Let go first, so that anything whose only remaining claim was this list
+     goes now and hands its pictures back. */
+  held.clear();
+
+  std::erase_if(sprites, [](const Sprites::value_type& entry) {
+    return entry.second.expired();
+  });
+
+  /* Then take hold again of whatever is still in play, so the next scene
+     starts from the same footing this one did. */
+  for(const auto& entry : sprites) {
+    if(auto data = entry.second.lock())
+      held.push_back(std::move(data));
+  }
+}
+
+std::shared_ptr<SpriteData>
 SpriteManager::load(const std::string& filename)
 {
   ReaderDocument doc;
@@ -88,11 +112,8 @@ SpriteManager::load(const std::string& filename)
     msg << "'" << filename << "' is not a supertux-sprite file";
     throw std::runtime_error(msg.str());
   } else {
-    std::unique_ptr<SpriteData> data (
-      new SpriteData(root.get_mapping(), FileSystem::dirname(filename)) );
-    sprites[filename] = std::move(data);
-
-    return sprites[filename].get();
+    return std::make_shared<SpriteData>(root.get_mapping(),
+                                        FileSystem::dirname(filename));
   }
 }
 

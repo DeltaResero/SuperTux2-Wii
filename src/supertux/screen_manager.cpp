@@ -28,6 +28,7 @@
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "scripting/time_scheduler.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "supertux/console.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/gameconfig.hpp"
@@ -326,6 +327,11 @@ ScreenManager::handle_screen_switch()
       // move actions to a new vector since setup() might modify it
       auto actions = std::move(m_actions);
 
+      /* Whether a screen went away in this pass, and with it every object it
+         was holding. That is the moment, and the only moment, at which the
+         art those objects were using can be handed back. */
+      bool screen_closed = false;
+
       for(auto& action : actions)
       {
         switch (action.type)
@@ -338,6 +344,7 @@ ScreenManager::handle_screen_switch()
               current_screen = nullptr;
             }
             m_screen_stack.pop_back();
+            screen_closed = true;
             break;
 
           case Action::PUSH_ACTION:
@@ -348,8 +355,14 @@ ScreenManager::handle_screen_switch()
           case Action::QUIT_ACTION:
             m_screen_stack.clear();
             current_screen = nullptr;
+            screen_closed = true;
             break;
         }
+      }
+
+      if (screen_closed && SpriteManager::current() != nullptr)
+      {
+        SpriteManager::current()->release_unused();
       }
 
       if (!m_screen_stack.empty() && current_screen != m_screen_stack.back().get())

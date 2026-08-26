@@ -24,8 +24,8 @@
 
 #include "supertux/timer.hpp"
 
-Sprite::Sprite(SpriteData& newdata) :
-  data(newdata),
+Sprite::Sprite(std::shared_ptr<SpriteData> newdata) :
+  data(std::move(newdata)),
   frame(0),
   frameidx(0),
   animation_loops(-1),
@@ -33,10 +33,10 @@ Sprite::Sprite(SpriteData& newdata) :
   angle(0.0f),
   color(1.0f, 1.0f, 1.0f, 1.0f),
   blend(),
-  action(data.get_action("normal"))
+  action(data->get_action("normal"))
 {
   if(!action)
-    action = data.actions.begin()->second.get();
+    action = data->actions.begin()->second.get();
   last_ticks = game_time;
 }
 
@@ -69,7 +69,7 @@ Sprite::set_action(const std::string& name, int loops)
   if(action && action->name == name)
     return;
 
-  const SpriteData::Action* newaction = data.get_action(name);
+  const SpriteData::Action* newaction = data->get_action(name);
   if(!newaction) {
     log_debug << "Action '" << name << "' not found." << std::endl;
     return;
@@ -87,7 +87,7 @@ Sprite::set_action_continued(const std::string& name)
   if(action && action->name == name)
     return;
 
-  const SpriteData::Action* newaction = data.get_action(name);
+  const SpriteData::Action* newaction = data->get_action(name);
   if(!newaction) {
     log_debug << "Action '" << name << "' not found." << std::endl;
     return;
