@@ -21,6 +21,7 @@
 
 #include <algorithm>
 
+#include "object/camera.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -147,6 +148,13 @@ InfoBlock::draw(DrawingContext& context)
   float x1 = (bbox.p1.x + bbox.p2.x)/2 - width/2;
   float x2 = (bbox.p1.x + bbox.p2.x)/2 + width/2;
   float y1 = original_y - height;
+
+  /* The box is stacked upward from the block, so the more it has to say the
+     further off the top of the screen it reaches. Hold it inside the view. */
+  const float view_top = Sector::current()->camera->get_translation().y;
+  if(y1 - border < view_top) {
+    y1 = view_top + border;
+  }
 
   if(x1 < 0) {
     x1 = 0;
