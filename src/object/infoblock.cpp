@@ -25,6 +25,7 @@
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/info_box_line.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
@@ -156,13 +157,17 @@ InfoBlock::draw(DrawingContext& context)
     y1 = view_top + border;
   }
 
-  if(x1 < 0) {
-    x1 = 0;
-    x2 = width;
-  }
+  /* The same sideways. The board is centred on the sign, so a sign standing
+     near either end of a level hangs half of it off the edge of the view. */
+  const float view_left  = Sector::current()->camera->get_translation().x;
+  const float view_right = view_left + SCREEN_WIDTH;
 
-  if(x2 > Sector::current()->get_width()) {
-    x2 = Sector::current()->get_width();
+  if(x1 - border < view_left) {
+    x1 = view_left + border;
+    x2 = x1 + width;
+  }
+  else if(x2 + border > view_right) {
+    x2 = view_right - border;
     x1 = x2 - width;
   }
 
