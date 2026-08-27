@@ -174,6 +174,12 @@ InfoBoxLine::draw(DrawingContext& context, const Rectf& bbox, int layer)
 }
 
 float
+InfoBoxLine::get_image_width() const
+{
+  return image ? static_cast<float>(image->get_width()) : 0.0f;
+}
+
+float
 InfoBoxLine::get_height() const
 {
   switch (lineType) {

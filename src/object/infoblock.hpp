@@ -50,9 +50,12 @@ protected:
   Player* get_nearest_player() const;
 
 protected:
+  /** How many of the lines starting at the given one sit side by side on a
+      single row. Words always stand alone, so the answer is one for them;
+      pictures share a row until the next one will not fit. */
+  size_t row_length(size_t first) const;
+
   std::string message;
-  //AmbientSound* ringing;
-  //bool stopped;
   float shown_pct; /**< Value in the range of 0..1, depending on how much of the infobox is currently shown */
   float dest_pct; /**< With each call to update(), shown_pct will slowly transition to this value */
   std::vector<std::unique_ptr<InfoBoxLine> > lines; /**< lines of text (or images) to display */
