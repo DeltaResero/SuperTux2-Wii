@@ -43,10 +43,6 @@ InfoBlock::InfoBlock(const ReaderMapping& lisp) :
   if(!lisp.get("message", message)) {
     log_warning << "No message in InfoBlock" << std::endl;
   }
-  //stopped = false;
-  //ringing = new AmbientSound(get_pos(), 0.5, 300, 1, "sounds/phone.wav");
-  //Sector::current()->add_object(ringing);
-
   // Split text string lines into a vector
   lines = InfoBoxLine::split(message, 400);
   lines_height = 0;
@@ -61,11 +57,6 @@ void
 InfoBlock::hit(Player& player)
 {
   start_bounce(&player);
-
-  //if (!stopped) {
-  //  ringing->remove_me();
-  //  stopped = true;
-  //}
 
   if (dest_pct != 1) {
 
@@ -138,11 +129,8 @@ InfoBlock::draw(DrawingContext& context)
   if (shown_pct <= 0) return;
 
   context.push_transform();
-  //context.set_translation(Vector(0, 0));
   context.set_alpha(shown_pct);
 
-  //float x1 = SCREEN_WIDTH/2-200;
-  //float y1 = SCREEN_HEIGHT/2-200;
   float border = 8;
   float width = 400; // this is the text width only
   float height = lines_height; // this is the text height only
@@ -177,9 +165,6 @@ InfoBlock::draw(DrawingContext& context)
   float y = y1;
   for(size_t i = 0; i < lines.size(); ++i) {
     if(y >= y1 + height) {
-      //log_warning << "Too many lines of text in InfoBlock" << std::endl;
-      //dest_pct = 0;
-      //shown_pct = 0;
       break;
     }
 
