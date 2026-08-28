@@ -279,8 +279,17 @@ private:
   bool jump_early_apex;
   bool on_ice;
   bool ice_this_frame;
-  SpritePtr lightsprite;
-  void ensure_lightsprite();
+  /** Which pool of light the headlamp is throwing, and which way round.
+      Remembered rather than worked out when drawing, because Tux has actions
+      the headlamp has no shape for -- turning to stone, or dying -- and it
+      held its last one through those. */
+  int headlamp_shape;
+  bool headlamp_mirrored;
+  /** How far the headlamp is turned from where it normally lies, which
+      happens during a backflip and nowhere else. */
+  float light_angle;
+  void set_headlamp_action(const std::string& action);
+  void draw_headlamp(DrawingContext& context) const;
   void set_light_angle(float angle);
   SpritePtr powersprite;
 

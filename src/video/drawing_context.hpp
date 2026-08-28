@@ -121,6 +121,11 @@ public:
   void draw_light(const Vector& center, LightSize size, const Color& color,
                   int layer = 0,
                   const Blend& blend = Blend(GL_SRC_ALPHA, GL_ONE));
+  /// Draws a light of any shape, turned by angle degrees about its middle.
+  void draw_light(const Vector& center, const Sizef& size, float angle,
+                  LightCurve curve, const Color& color,
+                  int layer = 0,
+                  const Blend& blend = Blend(GL_SRC_ALPHA, GL_ONE));
   /// Draws a text.
   void draw_text(FontPtr font, const std::string& text,
                  const Vector& position, FontAlignment alignment, int layer, Color color = Color(1.0,1.0,1.0));

@@ -42,9 +42,20 @@ const int LIGHTMAP_DIV = 5;
 const int SIDE_MIN = 64;
 const int SIDE_MAX = 256;
 
-/** Both glows are the same shape: solid out to `plateau`, then a smooth fall
+/** Every glow is the same shape: solid out to `plateau`, then a smooth fall
     to nothing at `edge`, both given as a fraction of the radius. Measured off
     the pictures they replace, which agree with this to about one percent. */
+struct Curve
+{
+  float plateau;
+  float edge;
+};
+
+const Curve CURVES[LIGHT_CURVE_COUNT] = {
+  { 0.25f, 0.95f },  // LIGHT_SOFT
+  { 0.40f, 1.00f }   // LIGHT_WIDE
+};
+
 float ramp(float r, float plateau, float edge)
 {
   if(r >= edge) return 0.0f;
@@ -67,60 +78,80 @@ int size_cap()
 } // namespace
 
 LightTexture::LightTexture() :
-  m_round(),
-  m_wide(),
+  m_glows(),
   m_cap(0)
 {
 }
 
 SurfacePtr
-LightTexture::get(LightSize size)
+LightTexture::get(LightCurve curve, int width, int height)
 {
   const int cap = size_cap();
   if(cap != m_cap)
   {
     m_cap = cap;
-    m_round.clear();
-    m_wide.clear();
+    for(int i = 0; i < LIGHT_CURVE_COUNT; ++i)
+      m_glows[i].clear();
   }
 
   /* A light drawn smaller than its picture throws most of it away, so make
      the picture no bigger than the light. Going the other way costs nothing,
-     which is why the largest sizes share one. */
-  const int side = std::min(static_cast<int>(size), m_cap);
+     which is why the largest sizes share one.
 
-  const bool wide = (size == LIGHT_MEDIUM);
-  Glows& glows = wide ? m_wide : m_round;
+     A stretched light is different: its picture is sized by what the lightmap
+     actually shows -- a fifth of the drawn size -- and shaped as it is drawn.
+     Sized by the drawn size instead, the picture is resampled twice on its
+     way to the screen, and on the SDL renderer its own pixels showed through
+     the beam's edge as a faint grid. The round sizes stay as they are, since
+     they were settled on a screen and are not stretched. */
+  int wanted = std::max(width, height);
+  int w, h;
+  if(width == height)
+  {
+    w = h = std::min(std::max(wanted, SIDE_MIN), m_cap);
+  }
+  else
+  {
+    wanted /= LIGHTMAP_DIV;
+    const int longest = std::min(std::max(wanted, SIDE_MIN), m_cap);
+    w = longest;
+    h = longest;
+    if(width > height)
+      h = std::max(1, longest * height / width);
+    else
+      w = std::max(1, longest * width / height);
+  }
 
-  Glows::iterator it = glows.find(side);
+  Glows& glows = m_glows[curve];
+  Glows::iterator it = glows.find(std::make_pair(w, h));
   if(it != glows.end())
     return it->second;
 
-  SurfacePtr made = wide ? build(side, 0.40f, 1.00f)
-                         : build(side, 0.25f, 0.95f);
-  glows[side] = made;
+  SurfacePtr made = build(w, h, CURVES[curve].plateau, CURVES[curve].edge);
+  glows[std::make_pair(w, h)] = made;
   return made;
 }
 
 SurfacePtr
-LightTexture::build(int side, float plateau, float edge) const
+LightTexture::build(int width, int height, float plateau, float edge) const
 {
-  SDLSurfacePtr image(SDL_CreateRGBSurfaceWithFormat(0, side, side, 32,
+  SDLSurfacePtr image(SDL_CreateRGBSurfaceWithFormat(0, width, height, 32,
                                                      SDL_PIXELFORMAT_RGBA32));
   if(!image)
     throw std::runtime_error("Couldn't build a light: out of memory");
 
-  const float half = side / 2.0f;
+  const float half_w = width / 2.0f;
+  const float half_h = height / 2.0f;
   Uint8* pixels = static_cast<Uint8*>(image->pixels);
 
-  for(int y = 0; y < side; ++y)
+  for(int y = 0; y < height; ++y)
   {
     Uint8* row = pixels + y * image->pitch;
-    for(int x = 0; x < side; ++x)
+    for(int x = 0; x < width; ++x)
     {
-      const float dx = (static_cast<float>(x) + 0.5f) - half;
-      const float dy = (static_cast<float>(y) + 0.5f) - half;
-      const float r = std::sqrt(dx * dx + dy * dy) / half;
+      const float dx = ((static_cast<float>(x) + 0.5f) - half_w) / half_w;
+      const float dy = ((static_cast<float>(y) + 0.5f) - half_h) / half_h;
+      const float r = std::sqrt(dx * dx + dy * dy);
 
       /* White the whole way out, even where it is completely clear. The
          filter mixes in whatever colour the empty pixels carry whenever it

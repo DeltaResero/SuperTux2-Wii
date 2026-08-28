@@ -35,31 +35,39 @@ enum LightSize
   LIGHT_LARGE  = 1024
 };
 
-/** Makes the round white glow every light in the game is drawn from, so it
-    does not have to be kept as a picture. There are two shapes: the light
-    every badguy carries has a wider bright middle than the rest, and one
-    serves the other four. Each is made at the sizes actually asked for, which
-    on a normal screen is four pictures in all. */
+/** How a glow fades from its bright middle out to nothing, measured off the
+    pictures each one replaces. A size no longer decides this, because Tux's
+    headlamp picks a shape without being any of the sizes above. */
+enum LightCurve
+{
+  LIGHT_SOFT,  /**< a small bright middle, fading most of the way out */
+  LIGHT_WIDE,  /**< a wider middle fading just as gently: what a badguy carries */
+  LIGHT_CURVE_COUNT
+};
+
+/** Makes the white glow every light in the game is drawn from, so it does not
+    have to be kept as a picture. Each shape is made at the sizes actually
+    asked for, which on a normal screen is four pictures in all. */
 class LightTexture final
 {
 public:
   LightTexture();
 
-  /** The glow a light of this size is drawn from, made the first time it is
-      asked for. */
-  SurfacePtr get(LightSize size);
+  /** The glow a light this shape and size is drawn from, made the first time
+      it is asked for, at the shape it will be drawn at. The size given is how
+      big the light falls on the level; the picture is never made larger. */
+  SurfacePtr get(LightCurve curve, int width, int height);
 
 private:
-  SurfacePtr build(int side, float plateau, float edge) const;
+  SurfacePtr build(int width, int height, float plateau, float edge) const;
 
-  typedef std::map<int, SurfacePtr> Glows;
+  typedef std::map<std::pair<int, int>, SurfacePtr> Glows;
 
   /** Kept per size rather than made once and shrunk to fit. Squeezing a big
       picture into a small light samples a few of its pixels and picks
       different ones as the light drifts, which sparkles crawling across a
       dark room show up as a flicker. */
-  Glows m_round;
-  Glows m_wide;
+  Glows m_glows[LIGHT_CURVE_COUNT];
   /** The largest picture worth making, from how coarse the lightmap is.
       Zero until the first ask, and revisited when the window changes size. */
   int m_cap;

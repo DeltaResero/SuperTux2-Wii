@@ -157,17 +157,31 @@ void
 DrawingContext::draw_light(const Vector& center, LightSize size,
                            const Color& color, int layer, const Blend& blend)
 {
-  SurfacePtr light = light_texture.get(size);
   const float diameter = static_cast<float>(size);
+
+  draw_light(center, Sizef(diameter, diameter), 0.0f,
+             size == LIGHT_MEDIUM ? LIGHT_WIDE : LIGHT_SOFT,
+             color, layer, blend);
+}
+
+void
+DrawingContext::draw_light(const Vector& center, const Sizef& size,
+                           float angle, LightCurve curve,
+                           const Color& color, int layer, const Blend& blend)
+{
+  /* Both painters turn a drawing about the middle of where it lands, so a
+     light that is not upright needs nothing said about where it pivots. */
+  SurfacePtr light = light_texture.get(curve,
+                                       static_cast<int>(size.width),
+                                       static_cast<int>(size.height));
 
   push_target();
   set_target(LIGHTMAP);
 
   draw_surface(light,
-               Vector(center.x - diameter / 2.0f,
-                      center.y - diameter / 2.0f),
-               Sizef(diameter, diameter),
-               0.0f, color, blend, layer);
+               Vector(center.x - size.width / 2.0f,
+                      center.y - size.height / 2.0f),
+               size, angle, color, blend, layer);
 
   pop_target();
 }

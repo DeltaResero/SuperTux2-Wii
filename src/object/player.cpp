@@ -38,6 +38,7 @@
 #include "trigger/climbable.hpp"
 
 #include <math.h>
+#include <numbers>
 
 //#define SWIMMING
 
@@ -111,6 +112,42 @@ static const float SMALL_TUX_HEIGHT = 30.8f;
 static const float BIG_TUX_HEIGHT = 62.8f;
 static const float DUCKED_TUX_HEIGHT = 31.8f;
 
+/** Where the earth flower's headlamp throws its light. It is two glows added
+    together, which is how the pictures these numbers replace were drawn: a
+    long pool thrown out ahead, and a small round one around the lamp itself
+    so that Tux is lit rather than standing at the dim end of his own beam.
+
+    The pool lies along the ground ahead of him, stands on end when he ducks,
+    tips over when he backflips, and is wider and softer when he skids. Its
+    middle is given from Tux's top left corner, facing right; facing left is
+    the mirror of it. The round one always sits on Tux, so it needs neither an
+    angle nor a mirror. No pool at all means no light at all, which is what
+    the growing animation had. */
+struct Headlamp
+{
+  const char* action;
+  float x, y;
+  float width, height;
+  float angle;
+  LightCurve curve;
+  float lamp;
+  float lamp_alpha;
+};
+
+static const Headlamp HEADLAMPS[] = {
+  { "stand",    237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "walk",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "jump",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "kick",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "idle",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "buttjump", 237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "climbing", 231.0f,  -11.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "duck",      25.0f,  250.0f, 618.0f, 225.0f,  90.0f, LIGHT_WIDE,  86.0f, 0.43f },
+  { "skid",     236.0f,   -7.0f, 674.0f, 322.0f,   0.0f, LIGHT_SOFT, 138.0f, 0.47f },
+  { "backflip", 181.0f,  138.0f, 611.0f, 228.0f,  44.5f, LIGHT_WIDE, 126.0f, 0.32f },
+  { "grow",       0.0f,    0.0f,   0.0f,   0.0f,   0.0f, LIGHT_SOFT,   0.0f, 0.00f }
+};
+
 bool no_water = true;
 }
 
@@ -136,7 +173,9 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   jump_early_apex(false),
   on_ice(false),
   ice_this_frame(false),
-  lightsprite(),
+  headlamp_shape(-1),
+  headlamp_mirrored(false),
+  light_angle(0.0f),
   powersprite(SpriteManager::current()->create("images/creatures/tux/powerups.sprite")),
   dir(RIGHT),
   old_dir(dir),
@@ -200,23 +239,88 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
 }
 
 void
-Player::ensure_lightsprite()
+Player::set_headlamp_action(const std::string& action)
 {
-  /* Much the heaviest picture in the game, and only ever wanted while Tux is
-     wearing the hardhat, so it is not built until he puts one on. */
-  if(!lightsprite)
+  /* What Tux is doing names the shape, and which way he faces only mirrors
+     it. An action with no shape of its own -- turning to stone, or dying --
+     leaves the last one where it was, as the picture used to. */
+  std::string name = action;
+  bool mirrored = false;
+
+  if(name.size() > 5 && name.compare(name.size() - 5, 5, "-left") == 0)
   {
-    lightsprite = SpriteManager::current()->create("images/creatures/tux/light.sprite");
-    lightsprite->set_angle(0.0f);
-    lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+    mirrored = true;
+    name.erase(name.size() - 5);
   }
+  else if(name.size() > 6 && name.compare(name.size() - 6, 6, "-right") == 0)
+  {
+    name.erase(name.size() - 6);
+  }
+
+  if(name.compare(0, 6, "earth-") == 0)
+    name.erase(0, 6);
+
+  for(size_t i = 0; i < sizeof(HEADLAMPS) / sizeof(HEADLAMPS[0]); ++i)
+  {
+    if(name == HEADLAMPS[i].action)
+    {
+      headlamp_shape = static_cast<int>(i);
+      headlamp_mirrored = mirrored;
+      return;
+    }
+  }
+}
+
+void
+Player::draw_headlamp(DrawingContext& context) const
+{
+  if(headlamp_shape < 0)
+    return;
+
+  const Headlamp& lamp = HEADLAMPS[headlamp_shape];
+  if(lamp.width <= 0.0f)
+    return;
+
+  Vector offset(headlamp_mirrored ? TUX_WIDTH - lamp.x : lamp.x, lamp.y);
+  float angle = headlamp_mirrored ? -lamp.angle : lamp.angle;
+
+  /* A backflip swings the whole pool around Tux rather than spinning it where
+     it lies. The picture used to arrange that by sitting on a canvas padded
+     until Tux was at its middle. */
+  if(light_angle != 0.0f)
+  {
+    const Vector pivot = bbox.get_middle() - get_pos();
+    const float turn = light_angle * std::numbers::pi_v<float> / 180.0f;
+    const float ca = cosf(turn);
+    const float sa = sinf(turn);
+    const Vector arm = offset - pivot;
+
+    offset = pivot + Vector(arm.x * ca - arm.y * sa,
+                            arm.x * sa + arm.y * ca);
+    angle += light_angle;
+  }
+
+  context.draw_light(get_pos() + offset,
+                     Sizef(lamp.width, lamp.height), angle, lamp.curve,
+                     Color(1.0f, 1.0f, 1.0f));
+
+  /* The lamp itself, wide enough to reach back behind Tux and dim enough not
+     to wash him out. Without it he stands at the dim near end of his own beam
+     and cannot be seen, which is presumably why it was drawn in. It sits a
+     little below his middle, where the pictures put it, and follows him down
+     as he ducks. */
+  if(lamp.lamp <= 0.0f)
+    return;
+
+  context.draw_light(bbox.get_middle() + Vector(0.0f, 6.0f),
+                     Sizef(lamp.lamp, lamp.lamp), 0.0f, LIGHT_SOFT,
+                     Color(lamp.lamp_alpha, lamp.lamp_alpha, lamp.lamp_alpha));
 }
 
 void
 Player::set_light_angle(float angle)
 {
-  if(lightsprite)
-    lightsprite->set_angle(angle);
+  light_angle = angle;
 }
 
 Player::~Player()
@@ -1143,8 +1247,6 @@ Player::set_bonus(BonusType type, bool animate)
 
   player_status->bonus = type;
 
-  if(type == EARTH_BONUS)
-    ensure_lightsprite();
   return true;
 }
 
@@ -1280,11 +1382,8 @@ Player::draw(DrawingContext& context)
 
   /* Set Tux powerup sprite action */
   if (player_status->bonus == EARTH_BONUS) {
-    /* A level resumed from a saved game arrives wearing the hardhat without
-       ever passing through set_bonus. */
-    ensure_lightsprite();
     powersprite->set_action(sprite->get_action());
-    lightsprite->set_action(sprite->get_action());
+    set_headlamp_action(sprite->get_action());
   } else if (player_status->bonus == AIR_BONUS) {
     powersprite->set_action(sprite->get_action());
   } else if (player_status->bonus == FIRE_BONUS && g_config->christmas_mode) {
@@ -1311,10 +1410,7 @@ Player::draw(DrawingContext& context)
     // draw hardhat
     powersprite->draw(context, get_pos() + shake_delta, LAYER_OBJECTS + 1);
     // light
-    context.push_target();
-    context.set_target(DrawingContext::LIGHTMAP);
-    lightsprite->draw(context, get_pos(), 0);
-    context.pop_target();
+    draw_headlamp(context);
     // give an indicator that stone form cannot be used for a while
     if (cooldown_timer.started() && graphicsRandom.rand(0, 4) == 0) {
       float px = graphicsRandom.randf(bbox.p1.x, bbox.p2.x);
