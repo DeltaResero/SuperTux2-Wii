@@ -98,14 +98,15 @@ void render_copy(SDL_Renderer* renderer, SDL_Texture* texture,
 void
 SDLPainter::draw_surface(SDL_Renderer* renderer, const DrawingRequest& request)
 {
-  const auto surface = static_cast<const SurfaceRequest*>(request.request_data)->surface;
+  const auto surfacerequest = static_cast<const SurfaceRequest*>(request.request_data);
+  const auto surface = surfacerequest->surface;
   std::shared_ptr<SDLTexture> sdltexture = std::dynamic_pointer_cast<SDLTexture>(surface->get_texture());
 
   SDL_Rect dst_rect;
   dst_rect.x = request.pos.x;
   dst_rect.y = request.pos.y;
-  dst_rect.w = sdltexture->get_image_width();
-  dst_rect.h = sdltexture->get_image_height();
+  dst_rect.w = surfacerequest->dstsize.width;
+  dst_rect.h = surfacerequest->dstsize.height;
 
   Uint8 r = static_cast<Uint8>(request.color.red * 255);
   Uint8 g = static_cast<Uint8>(request.color.green * 255);

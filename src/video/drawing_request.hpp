@@ -50,10 +50,14 @@ struct DrawingRequestData
 struct SurfaceRequest : public DrawingRequestData
 {
   SurfaceRequest() :
-    surface()
+    surface(),
+    dstsize()
   {}
 
   const Surface* surface;
+  /** How big to draw it, which is the surface's own size unless the caller
+      asked for something else. */
+  Sizef dstsize;
 
 private:
   SurfaceRequest(const SurfaceRequest&) = delete;

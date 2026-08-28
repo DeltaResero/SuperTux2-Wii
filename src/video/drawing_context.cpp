@@ -77,6 +77,7 @@ DrawingContext::clear_drawing_requests(DrawingRequests& requests_)
 
 void
 DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
+                             const Sizef& dstsize,
                              float angle, const Color& color, const Blend& blend,
                              int layer)
 {
@@ -89,8 +90,8 @@ DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
   request->pos = transform.apply(position);
 
   if(request->pos.x >= SCREEN_WIDTH || request->pos.y >= SCREEN_HEIGHT
-     || request->pos.x + surface->get_width() < 0
-     || request->pos.y + surface->get_height() < 0)
+     || request->pos.x + dstsize.width < 0
+     || request->pos.y + dstsize.height < 0)
     return;
 
   request->layer = layer;
@@ -102,9 +103,21 @@ DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
 
   auto surfacerequest = new(obst) SurfaceRequest();
   surfacerequest->surface = surface.get();
+  surfacerequest->dstsize = dstsize;
   request->request_data = surfacerequest;
 
   requests->push_back(request);
+}
+
+void
+DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
+                             float angle, const Color& color, const Blend& blend,
+                             int layer)
+{
+  assert(surface != 0);
+
+  draw_surface(surface, position, Sizef(surface->get_size()),
+               angle, color, blend, layer);
 }
 
 void

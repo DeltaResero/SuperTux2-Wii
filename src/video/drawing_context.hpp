@@ -27,6 +27,7 @@
 #include <obstack.h>
 
 #include "math/rectf.hpp"
+#include "math/sizef.hpp"
 #include "math/vector.hpp"
 #include "video/color.hpp"
 #include "video/font.hpp"
@@ -100,6 +101,12 @@ public:
                     int layer);
   /// Adds a drawing request for a surface into the request list.
   void draw_surface(SurfacePtr surface, const Vector& position,
+                    float angle, const Color& color, const Blend& blend,
+                    int layer);
+  /// Adds a drawing request for a surface drawn at a size the caller picks
+  /// rather than the surface's own.
+  void draw_surface(SurfacePtr surface, const Vector& position,
+                    const Sizef& dstsize,
                     float angle, const Color& color, const Blend& blend,
                     int layer);
   /// Adds a drawing request for part of a surface.
