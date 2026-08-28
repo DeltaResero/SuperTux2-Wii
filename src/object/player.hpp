@@ -280,6 +280,8 @@ private:
   bool on_ice;
   bool ice_this_frame;
   SpritePtr lightsprite;
+  void ensure_lightsprite();
+  void set_light_angle(float angle);
   SpritePtr powersprite;
 
 public:

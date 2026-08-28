@@ -136,7 +136,7 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   jump_early_apex(false),
   on_ice(false),
   ice_this_frame(false),
-  lightsprite(SpriteManager::current()->create("images/creatures/tux/light.sprite")),
+  lightsprite(),
   powersprite(SpriteManager::current()->create("images/creatures/tux/powerups.sprite")),
   dir(RIGHT),
   old_dir(dir),
@@ -196,10 +196,27 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
 
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
-  lightsprite->set_angle(0.0f);
-  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
-
   physic.reset();
+}
+
+void
+Player::ensure_lightsprite()
+{
+  /* Much the heaviest picture in the game, and only ever wanted while Tux is
+     wearing the hardhat, so it is not built until he puts one on. */
+  if(!lightsprite)
+  {
+    lightsprite = SpriteManager::current()->create("images/creatures/tux/light.sprite");
+    lightsprite->set_angle(0.0f);
+    lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  }
+}
+
+void
+Player::set_light_angle(float angle)
+{
+  if(lightsprite)
+    lightsprite->set_angle(angle);
 }
 
 Player::~Player()
@@ -293,7 +310,7 @@ Player::trigger_sequence(Sequence seq)
   backflip_direction = 0;
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
-  lightsprite->set_angle(0.0f);
+  set_light_angle(0.0f);
   GameSession::current()->start_sequence(seq);
 }
 
@@ -349,7 +366,7 @@ Player::update(float elapsed_time)
         (player_status->bonus == FIRE_BONUS && g_config->christmas_mode)) {
       powersprite->set_angle(sprite->get_angle());
       if (player_status->bonus == EARTH_BONUS)
-        lightsprite->set_angle(sprite->get_angle());
+        set_light_angle(sprite->get_angle());
     }
   }
 
@@ -374,7 +391,7 @@ Player::update(float elapsed_time)
       if (!stone) {
         sprite->set_angle(0.0f);
         powersprite->set_angle(0.0f);
-        lightsprite->set_angle(0.0f);
+        set_light_angle(0.0f);
       }
 
       // if controls are currently deactivated, we take care of standing up ourselves
@@ -842,7 +859,7 @@ Player::handle_input()
     ability_timer.stop();
     sprite->set_angle(0.0f);
     powersprite->set_angle(0.0f);
-    lightsprite->set_angle(0.0f);
+    set_light_angle(0.0f);
     stone = false;
     for (int i = 0; i < 8; i++)
     {
@@ -902,7 +919,7 @@ Player::handle_input()
     backflip_direction = 0;
     sprite->set_angle(0.0f);
     powersprite->set_angle(0.0f);
-    lightsprite->set_angle(0.0f);
+    set_light_angle(0.0f);
   }
 }
 
@@ -1125,6 +1142,9 @@ Player::set_bonus(BonusType type, bool animate)
   if (type == EARTH_BONUS) player_status->max_earth_time++;
 
   player_status->bonus = type;
+
+  if(type == EARTH_BONUS)
+    ensure_lightsprite();
   return true;
 }
 
@@ -1260,6 +1280,9 @@ Player::draw(DrawingContext& context)
 
   /* Set Tux powerup sprite action */
   if (player_status->bonus == EARTH_BONUS) {
+    /* A level resumed from a saved game arrives wearing the hardhat without
+       ever passing through set_bonus. */
+    ensure_lightsprite();
     powersprite->set_action(sprite->get_action());
     lightsprite->set_action(sprite->get_action());
   } else if (player_status->bonus == AIR_BONUS) {
@@ -1457,7 +1480,7 @@ Player::kill(bool completely)
 
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
-  lightsprite->set_angle(0.0f);
+  set_light_angle(0.0f);
 
   if(!completely && is_big()) {
     SoundManager::current()->play("sounds/hurt.wav");
@@ -1474,7 +1497,7 @@ Player::kill(bool completely)
       backflipping = false;
       sprite->set_angle(0.0f);
       powersprite->set_angle(0.0f);
-      lightsprite->set_angle(0.0f);
+      set_light_angle(0.0f);
       set_bonus(NO_BONUS, true);
     }
   } else {
@@ -1526,7 +1549,7 @@ Player::move(const Vector& vector)
   backflipping = false;
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
-  lightsprite->set_angle(0.0f);
+  set_light_angle(0.0f);
   last_ground_y = vector.y;
   if (climbing) stop_climbing(*climbing);
 
@@ -1665,7 +1688,7 @@ Player::start_climbing(Climbable& climbable)
     backflip_direction = 0;
     sprite->set_angle(0.0f);
     powersprite->set_angle(0.0f);
-    lightsprite->set_angle(0.0f);
+    set_light_angle(0.0f);
     do_standup();
   }
 }
