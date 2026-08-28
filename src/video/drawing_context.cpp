@@ -154,6 +154,25 @@ DrawingContext::draw_surface_part(SurfacePtr surface,
 }
 
 void
+DrawingContext::draw_light(const Vector& center, LightSize size,
+                           const Color& color, int layer)
+{
+  SurfacePtr light = light_texture.get(size);
+  const float diameter = static_cast<float>(size);
+
+  push_target();
+  set_target(LIGHTMAP);
+
+  draw_surface(light,
+               Vector(center.x - diameter / 2.0f,
+                      center.y - diameter / 2.0f),
+               Sizef(diameter, diameter),
+               0.0f, color, Blend(GL_SRC_ALPHA, GL_ONE), layer);
+
+  pop_target();
+}
+
+void
 DrawingContext::draw_text(FontPtr font, const std::string& text,
                           const Vector& position, FontAlignment alignment, int layer, Color color)
 {

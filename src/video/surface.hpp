@@ -38,6 +38,9 @@ class Surface
 public:
   static SurfacePtr create(const std::string& file);
   static SurfacePtr create(const std::string& file, const Rect& rect);
+  /** For a picture that was built rather than loaded, and so has no filename
+      to be found under. */
+  static SurfacePtr create(TexturePtr texture);
 
 private:
   TexturePtr texture;
@@ -48,6 +51,7 @@ private:
 private:
   Surface(const std::string& file);
   Surface(const std::string& file, const Rect& rect);
+  Surface(TexturePtr texture);
   Surface(const Surface&);
 
 public:
