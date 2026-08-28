@@ -175,10 +175,10 @@ GLPainter::draw_surface_part(const DrawingRequest& request)
               uv_top,
               uv_right,
               uv_bottom,
-              0.0,
+              request.angle,
               request.alpha,
               request.color,
-              Blend(),
+              request.blend,
               request.drawing_effect);
 }
 

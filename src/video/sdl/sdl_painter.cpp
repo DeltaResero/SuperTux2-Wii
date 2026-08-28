@@ -133,7 +133,6 @@ SDLPainter::draw_surface(SDL_Renderer* renderer, const DrawingRequest& request)
 void
 SDLPainter::draw_surface_part(SDL_Renderer* renderer, const DrawingRequest& request)
 {
-  //FIXME: support parameters request.blend
   const auto surface = static_cast<const SurfacePartRequest*>(request.request_data);
   const auto surfacepartrequest = static_cast<SurfacePartRequest*>(request.request_data);
 
