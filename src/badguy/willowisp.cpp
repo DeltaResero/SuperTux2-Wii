@@ -26,7 +26,6 @@
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
@@ -40,7 +39,7 @@ static const std::string SOUNDFILE = "sounds/willowisp.wav";
 
 WillOWisp::WillOWisp(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/willowisp/willowisp.sprite", LAYER_FLOATINGOBJECTS,
-         "images/objects/lightmap_light/lightmap_light-small.sprite"),
+         LIGHT_SMALL),
   ExposedObject<WillOWisp, scripting::WillOWisp>(this),
   mystate(STATE_IDLE),
   target_sector(),
@@ -77,7 +76,7 @@ WillOWisp::WillOWisp(const ReaderMapping& reader) :
   SoundManager::current()->preload(SOUNDFILE);
   SoundManager::current()->preload("sounds/warp.wav");
 
-  lightsprite->set_color(Color(0.0f, 0.2f, 0.0f));
+  lightcolor = Color(0.0f, 0.2f, 0.0f);
   glowing = true;
 
   sprite->set_action("idle");

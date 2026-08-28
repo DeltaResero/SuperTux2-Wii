@@ -34,11 +34,11 @@ class BadGuy : public MovingSprite
 {
 public:
   BadGuy(const Vector& pos, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+         LightSize light_size = LIGHT_MEDIUM);
   BadGuy(const Vector& pos, Direction direction, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+         LightSize light_size = LIGHT_MEDIUM);
   BadGuy(const ReaderMapping& reader, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+         LightSize light_size = LIGHT_MEDIUM);
 
   /** Called when the badguy is drawn. The default implementation
       simply draws the badguy sprite on screen */
@@ -245,7 +245,10 @@ protected:
 
   float melting_time;
 
-  SpritePtr lightsprite;
+  /** How big the glow is, and what colour. A badguy set alight keeps the
+      white it starts with. */
+  LightSize light_size;
+  Color lightcolor;
   bool glowing;
 
 private:

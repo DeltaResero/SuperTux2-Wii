@@ -58,7 +58,7 @@ private:
   Timer lifetime;
   int direction;
   Color light;
-  SpritePtr lightsprite;
+  Color lightcolor;
 };
 
 #endif
