@@ -73,7 +73,7 @@ private:
   bool push;
   State state;
   Color light;
-  SpritePtr lightsprite;
+  Color lightcolor;
 
 };
 

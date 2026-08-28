@@ -25,7 +25,6 @@
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "object/sprite_particle.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
@@ -35,7 +34,7 @@ static const std::string FLAME_SOUND = "sounds/flame.wav";
 
 Flame::Flame(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/flame/flame.sprite", LAYER_FLOATINGOBJECTS,
-         "images/objects/lightmap_light/lightmap_light-small.sprite"),
+         LIGHT_SMALL),
   angle(0),
   radius(),
   speed(),
@@ -52,7 +51,7 @@ Flame::Flame(const ReaderMapping& reader) :
 
   set_colgroup_active(COLGROUP_TOUCHABLE);
 
-  lightsprite->set_color(Color(0.21f, 0.13f, 0.08f));
+  lightcolor = Color(0.21f, 0.13f, 0.08f);
   glowing = true;
 }
 

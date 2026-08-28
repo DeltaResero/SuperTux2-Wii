@@ -21,7 +21,6 @@
 
 #include "object/lantern.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -37,7 +36,7 @@ WalkingCandle::WalkingCandle(const ReaderMapping& reader)
     lightcolor = Color(vColor);
   }
   sprite->set_color(lightcolor);
-  lightsprite->set_color(lightcolor);
+  BadGuy::lightcolor = lightcolor;
 
   countMe = false;
   glowing = true;

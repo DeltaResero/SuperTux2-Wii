@@ -28,30 +28,29 @@ Flower::Flower(BonusType _type) :
   sprite(),
   drawing_effect(NO_EFFECT),
   light(1.0f,1.0f,1.0f),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
+  lightcolor(0.0f, 0.0f, 0.0f)
 {
   bbox.set_size(32, 32);
-  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 
   if(type == FIRE_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/fireflower/fireflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightsprite->set_color(Color(0.3f, 0.0f, 0.0f));
+    lightcolor = Color(0.3f, 0.0f, 0.0f);
   }
   else if(type == ICE_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/iceflower/iceflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightsprite->set_color(Color(0.0f, 0.1f, 0.2f));
+    lightcolor = Color(0.0f, 0.1f, 0.2f);
   }
   else if(type == AIR_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/airflower/airflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightsprite->set_color(Color(0.15f, 0.0f, 0.15f));
+    lightcolor = Color(0.15f, 0.0f, 0.15f);
   }
   else if(type == EARTH_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/earthflower/earthflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightsprite->set_color(Color(0.0f, 0.3f, 0.0f));
+    lightcolor = Color(0.0f, 0.3f, 0.0f);
   } else {
     assert(false);
   }
@@ -76,10 +75,7 @@ Flower::draw(DrawingContext& context)
   //Draw the light when dark
   context.get_light( bbox.get_middle(), &light );
   if (light.red + light.green + light.blue < 3.0){
-    context.push_target();
-    context.set_target(DrawingContext::LIGHTMAP);
-    lightsprite->draw(context, bbox.get_middle(), 0);
-    context.pop_target();
+    context.draw_light(bbox.get_middle(), LIGHT_SMALL, lightcolor);
   }
 }
 

@@ -47,8 +47,7 @@ BonusBlock::BonusBlock(const Vector& pos, int data) :
   contents(),
   object(),
   hit_counter(1),
-  script(),
-  lightsprite()
+  script()
 {
   bbox.set_pos(pos);
   sprite->set_action("normal");
@@ -60,8 +59,7 @@ BonusBlock::BonusBlock(const ReaderMapping& lisp) :
   contents(),
   object(0),
   hit_counter(1),
-  script(),
-  lightsprite()
+  script()
 {
   contents = CONTENT_COIN;
   auto iter = lisp.get_iter();
@@ -99,7 +97,6 @@ BonusBlock::BonusBlock(const ReaderMapping& lisp) :
     throw std::runtime_error("Need to specify content object for custom block");
   if(contents == CONTENT_LIGHT) {
     SoundManager::current()->preload("sounds/switch.ogg");
-    lightsprite = Surface::create("/images/objects/lightmap_light/bonusblock_light.png");
   }
 }
 
@@ -114,7 +111,6 @@ BonusBlock::get_content_by_data(int d)
     case 5: contents = CONTENT_ICEGROW; break;
     case 6: contents = CONTENT_LIGHT;
       SoundManager::current()->preload("sounds/switch.ogg");
-      lightsprite=Surface::create("/images/objects/lightmap_light/bonusblock_light.png");
       break;
     case 7: contents = CONTENT_TRAMPOLINE;
       //object = new Trampoline(get_pos(), false); //needed if this is to be moved to custom
@@ -458,11 +454,10 @@ BonusBlock::draw(DrawingContext& context){
   Block::draw(context);
   // then Draw the light if on.
   if(sprite->get_action() == "on") {
-    Vector pos = get_pos() + (bbox.get_size().as_vector() - lightsprite->get_size()) / 2;
-    context.push_target();
-    context.set_target(DrawingContext::LIGHTMAP);
-    context.draw_surface(lightsprite, pos, 10);
-    context.pop_target();
+    /* Alone among the lights, this one has always covered what is under it
+       rather than adding to it. Kept as it was. */
+    context.draw_light(bbox.get_middle(), LIGHT_NORMAL, Color(1.0f, 1.0f, 1.0f),
+                       10, Blend());
   }
 }
 

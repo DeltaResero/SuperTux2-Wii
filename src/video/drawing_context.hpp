@@ -27,10 +27,12 @@
 #include <obstack.h>
 
 #include "math/rectf.hpp"
+#include "math/sizef.hpp"
 #include "math/vector.hpp"
 #include "video/color.hpp"
 #include "video/font.hpp"
 #include "video/font_ptr.hpp"
+#include "video/light_texture.hpp"
 #include "video/texture.hpp"
 
 struct DrawingRequest;
@@ -102,10 +104,28 @@ public:
   void draw_surface(SurfacePtr surface, const Vector& position,
                     float angle, const Color& color, const Blend& blend,
                     int layer);
+  /// Adds a drawing request for a surface drawn at a size the caller picks
+  /// rather than the surface's own.
+  void draw_surface(SurfacePtr surface, const Vector& position,
+                    const Sizef& dstsize,
+                    float angle, const Color& color, const Blend& blend,
+                    int layer);
   /// Adds a drawing request for part of a surface.
   void draw_surface_part(SurfacePtr surface,
                          const Rectf& srcrect, const Rectf& dstrect,
                          int layer);
+  /// Puts a round glow on the lightmap, centred on the given point. Lights
+  /// add to one another rather than covering one another up, so two of them
+  /// overlapping is brighter than either alone. The bonus block is the one
+  /// caller that wants ordinary blending instead.
+  void draw_light(const Vector& center, LightSize size, const Color& color,
+                  int layer = 0,
+                  const Blend& blend = Blend(GL_SRC_ALPHA, GL_ONE));
+  /// Draws a light of any shape, turned by angle degrees about its middle.
+  void draw_light(const Vector& center, const Sizef& size, float angle,
+                  LightCurve curve, const Color& color,
+                  int layer = 0,
+                  const Blend& blend = Blend(GL_SRC_ALPHA, GL_ONE));
   /// Draws a text.
   void draw_text(FontPtr font, const std::string& text,
                  const Vector& position, FontAlignment alignment, int layer, Color color = Color(1.0,1.0,1.0));
@@ -199,6 +219,9 @@ private:
 
 private:
   VideoSystem& video_system;
+
+  /// the glows every light is drawn from, built on first use
+  LightTexture light_texture;
 
   /// the transform stack
   std::vector<Transform> transformstack;

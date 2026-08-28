@@ -46,7 +46,7 @@ static const float X_OFFSCREEN_DISTANCE = 1280;
 static const float Y_OFFSCREEN_DISTANCE = 800;
 
 BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
-               const std::string& light_sprite_name) :
+               LightSize light_size_) :
   MovingSprite(pos, sprite_name_, layer_, COLGROUP_DISABLED),
   physic(),
   countMe(true),
@@ -59,7 +59,8 @@ BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
   in_water(false),
   dead_script(),
   melting_time(0),
-  lightsprite(SpriteManager::current()->create(light_sprite_name)),
+  light_size(light_size_),
+  lightcolor(1.0f, 1.0f, 1.0f),
   glowing(false),
   state(STATE_INIT),
   is_active_flag(),
@@ -76,11 +77,10 @@ BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
   SoundManager::current()->preload("sounds/fire.ogg");
 
   dir = (start_dir == AUTO) ? LEFT : start_dir;
-  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 }
 
 BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite_name_, int layer_,
-               const std::string& light_sprite_name) :
+               LightSize light_size_) :
   MovingSprite(pos, sprite_name_, layer_, COLGROUP_DISABLED),
   physic(),
   countMe(true),
@@ -93,7 +93,8 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   in_water(false),
   dead_script(),
   melting_time(0),
-  lightsprite(SpriteManager::current()->create(light_sprite_name)),
+  light_size(light_size_),
+  lightcolor(1.0f, 1.0f, 1.0f),
   glowing(false),
   state(STATE_INIT),
   is_active_flag(),
@@ -110,11 +111,10 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   SoundManager::current()->preload("sounds/fire.ogg");
 
   dir = (start_dir == AUTO) ? LEFT : start_dir;
-  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 }
 
 BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int layer_,
-               const std::string& light_sprite_name) :
+               LightSize light_size_) :
   MovingSprite(reader, sprite_name_, layer_, COLGROUP_DISABLED),
   physic(),
   countMe(true),
@@ -127,7 +127,8 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   in_water(false),
   dead_script(),
   melting_time(0),
-  lightsprite(SpriteManager::current()->create(light_sprite_name)),
+  light_size(light_size_),
+  lightcolor(1.0f, 1.0f, 1.0f),
   glowing(false),
   state(STATE_INIT),
   is_active_flag(),
@@ -151,7 +152,6 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   SoundManager::current()->preload("sounds/fire.ogg");
 
   dir = (start_dir == AUTO) ? LEFT : start_dir;
-  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 }
 
 void
@@ -171,10 +171,7 @@ BadGuy::draw(DrawingContext& context)
   }
 
   if (glowing) {
-    context.push_target();
-    context.set_target(DrawingContext::LIGHTMAP);
-    lightsprite->draw(context, bbox.get_middle(), 0);
-    context.pop_target();
+    context.draw_light(bbox.get_middle(), light_size, lightcolor);
   }
 }
 
