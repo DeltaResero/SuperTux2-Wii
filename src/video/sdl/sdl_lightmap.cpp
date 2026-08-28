@@ -50,6 +50,13 @@ SDLLightmap::SDLLightmap() :
     msg << "Couldn't create lightmap texture: " << SDL_GetError();
     throw std::runtime_error(msg.str());
   }
+
+  /* Said outright rather than left to the scale-quality hint, which the
+     environment is allowed to override. This texture is a fifth of the screen
+     and is magnified five times every frame; filtered nearest, every light in
+     the game turns into a sheet of five-pixel squares. The GL renderer states
+     GL_LINEAR on its lightmap the same way. */
+  SDL_SetTextureScaleMode(m_texture, SDL_ScaleModeLinear);
 }
 
 SDLLightmap::~SDLLightmap()
