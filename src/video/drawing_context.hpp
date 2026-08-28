@@ -116,9 +116,11 @@ public:
                          int layer);
   /// Puts a round glow on the lightmap, centred on the given point. Lights
   /// add to one another rather than covering one another up, so two of them
-  /// overlapping is brighter than either alone.
+  /// overlapping is brighter than either alone. The bonus block is the one
+  /// caller that wants ordinary blending instead.
   void draw_light(const Vector& center, LightSize size, const Color& color,
-                  int layer = 0);
+                  int layer = 0,
+                  const Blend& blend = Blend(GL_SRC_ALPHA, GL_ONE));
   /// Draws a text.
   void draw_text(FontPtr font, const std::string& text,
                  const Vector& position, FontAlignment alignment, int layer, Color color = Color(1.0,1.0,1.0));

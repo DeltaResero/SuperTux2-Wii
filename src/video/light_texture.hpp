@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_VIDEO_LIGHT_TEXTURE_HPP
 #define HEADER_SUPERTUX_VIDEO_LIGHT_TEXTURE_HPP
 
+#include <map>
+
 #include "video/surface_ptr.hpp"
 
 /** The sizes a light comes in, named after the pictures they stand in for.
@@ -34,9 +36,10 @@ enum LightSize
 };
 
 /** Makes the round white glow every light in the game is drawn from, so it
-    does not have to be kept as a picture. Two are enough for all five sizes:
-    the light every badguy carries has a wider bright middle than the rest and
-    gets its own, and one serves the other four. */
+    does not have to be kept as a picture. There are two shapes: the light
+    every badguy carries has a wider bright middle than the rest, and one
+    serves the other four. Each is made at the sizes actually asked for, which
+    on a normal screen is four pictures in all. */
 class LightTexture final
 {
 public:
@@ -47,13 +50,19 @@ public:
   SurfacePtr get(LightSize size);
 
 private:
-  SurfacePtr build(float plateau, float edge) const;
+  SurfacePtr build(int side, float plateau, float edge) const;
 
-  SurfacePtr m_round;
-  SurfacePtr m_wide;
-  /** How many pixels across the two above were made. Zero until the first
-      ask, and revisited when the window changes size. */
-  int m_side;
+  typedef std::map<int, SurfacePtr> Glows;
+
+  /** Kept per size rather than made once and shrunk to fit. Squeezing a big
+      picture into a small light samples a few of its pixels and picks
+      different ones as the light drifts, which sparkles crawling across a
+      dark room show up as a flicker. */
+  Glows m_round;
+  Glows m_wide;
+  /** The largest picture worth making, from how coarse the lightmap is.
+      Zero until the first ask, and revisited when the window changes size. */
+  int m_cap;
 
 private:
   LightTexture(const LightTexture&) = delete;

@@ -61,7 +61,7 @@ public:
 
 private:
   Color lightcolor;
-  SpritePtr lightsprite;
+
   void updateColor();
 
 private:

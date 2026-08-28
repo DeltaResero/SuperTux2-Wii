@@ -53,7 +53,7 @@ private:
   int life_count;
   SpritePtr sprite;
   Color light;
-  SpritePtr lightsprite;
+  Color lightcolor;
   BonusType type;
 };
 

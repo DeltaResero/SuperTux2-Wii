@@ -43,7 +43,7 @@ private:
   Flower(const Flower&);
   Flower& operator=(const Flower&);
   Color light;
-  SpritePtr lightsprite;
+  Color lightcolor;
 
   friend class FlipLevelTransformer;
 };

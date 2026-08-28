@@ -155,7 +155,7 @@ DrawingContext::draw_surface_part(SurfacePtr surface,
 
 void
 DrawingContext::draw_light(const Vector& center, LightSize size,
-                           const Color& color, int layer)
+                           const Color& color, int layer, const Blend& blend)
 {
   SurfacePtr light = light_texture.get(size);
   const float diameter = static_cast<float>(size);
@@ -167,7 +167,7 @@ DrawingContext::draw_light(const Vector& center, LightSize size,
                Vector(center.x - diameter / 2.0f,
                       center.y - diameter / 2.0f),
                Sizef(diameter, diameter),
-               0.0f, color, Blend(GL_SRC_ALPHA, GL_ONE), layer);
+               0.0f, color, blend, layer);
 
   pop_target();
 }

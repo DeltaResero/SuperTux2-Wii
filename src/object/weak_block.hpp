@@ -67,7 +67,9 @@ private:
   virtual HitResponse collision_bullet(Bullet& bullet, const CollisionHit& hit);
 
   Color light;
-  SpritePtr lightsprite;
+  Color lightcolor;
+  Blend lightblend;
+  LightSize lightsize;
 
 };
 

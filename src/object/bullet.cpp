@@ -34,7 +34,7 @@ Bullet::Bullet(const Vector& pos, float xm, int dir, BonusType type_) :
   life_count(3),
   sprite(),
   light(0.0f,0.0f,0.0f),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite")),
+  lightcolor(0.3f, 0.1f, 0.0f),
   type(type_)
 {
   float speed = dir == RIGHT ? BULLET_XM : -BULLET_XM;
@@ -42,8 +42,6 @@ Bullet::Bullet(const Vector& pos, float xm, int dir, BonusType type_) :
 
   if(type == FIRE_BONUS) {
     sprite = SpriteManager::current()->create("images/objects/bullets/firebullet.sprite");
-    lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
-    lightsprite->set_color(Color(0.3f, 0.1f, 0.0f));
  } else if(type == ICE_BONUS) {
     life_count = 10;
     sprite = SpriteManager::current()->create("images/objects/bullets/icebullet.sprite");
@@ -66,9 +64,9 @@ Bullet::update(float elapsed_time)
 {
   // cause fireball color to flicker randomly
   if (gameRandom.rand(5) != 0) {
-    lightsprite->set_color(Color(0.3f + gameRandom.rand(10)/100.0f, 0.1f + gameRandom.rand(20)/100.0f, gameRandom.rand(10)/100.0f));
+    lightcolor = Color(0.3f + gameRandom.rand(10)/100.0f, 0.1f + gameRandom.rand(20)/100.0f, gameRandom.rand(10)/100.0f);
   } else
-    lightsprite->set_color(Color(0.3f, 0.1f, 0.0f));
+    lightcolor = Color(0.3f, 0.1f, 0.0f);
   // remove bullet when it's offscreen
   float scroll_x =
     Sector::current()->camera->get_translation().x;
@@ -95,11 +93,13 @@ Bullet::draw(DrawingContext& context)
   if(type == FIRE_BONUS){
     context.get_light( bbox.get_middle(), &light );
     if (light.red + light.green < 2.0){
+      /* The fireball shows through the dark as well as lighting it. */
       context.push_target();
       context.set_target(DrawingContext::LIGHTMAP);
       sprite->draw(context, get_pos(), LAYER_OBJECTS);
-      lightsprite->draw(context, bbox.get_middle(), 0);
       context.pop_target();
+
+      context.draw_light(bbox.get_middle(), LIGHT_SMALL, lightcolor);
     }
   }
 }

@@ -45,7 +45,7 @@ private:
   std::string script;
   bool no_physics;
   Color light;
-  SpritePtr lightsprite;
+  Color lightcolor;
 };
 
 #endif

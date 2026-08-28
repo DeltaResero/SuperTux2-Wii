@@ -19,6 +19,7 @@
 
 #include "video/light_texture.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 
@@ -36,8 +37,8 @@ namespace {
     glow coarser or finer than it needs to be, never wrong. */
 const int LIGHTMAP_DIV = 5;
 
-/** Below this a glow starts to show its own edges, above it the lightmap is
-    too coarse to tell the difference. */
+/** No glow is made smaller than this, or it shows its own edges, nor larger,
+    since past it the lightmap is too coarse to tell the difference. */
 const int SIDE_MIN = 64;
 const int SIDE_MAX = 256;
 
@@ -53,9 +54,9 @@ float ramp(float r, float plateau, float edge)
   return 1.0f - (t * t * (3.0f - 2.0f * t));
 }
 
-/** A glow drawn finer than the lightmap can show is wasted, so a small screen
-    should not carry a large one. */
-int wanted_side()
+/** The biggest glow worth making. Detail past what the lightmap can show is
+    wasted, so a small screen does not carry a large picture. */
+int size_cap()
 {
   int side = SIDE_MIN;
   while(side < SCREEN_WIDTH / LIGHTMAP_DIV && side < SIDE_MAX)
@@ -68,46 +69,54 @@ int wanted_side()
 LightTexture::LightTexture() :
   m_round(),
   m_wide(),
-  m_side(0)
+  m_cap(0)
 {
 }
 
 SurfacePtr
 LightTexture::get(LightSize size)
 {
-  const int side = wanted_side();
-  if(side != m_side)
+  const int cap = size_cap();
+  if(cap != m_cap)
   {
-    m_side = side;
-    m_round.reset();
-    m_wide.reset();
+    m_cap = cap;
+    m_round.clear();
+    m_wide.clear();
   }
 
-  if(size == LIGHT_MEDIUM)
-  {
-    if(!m_wide) m_wide = build(0.40f, 1.00f);
-    return m_wide;
-  }
+  /* A light drawn smaller than its picture throws most of it away, so make
+     the picture no bigger than the light. Going the other way costs nothing,
+     which is why the largest sizes share one. */
+  const int side = std::min(static_cast<int>(size), m_cap);
 
-  if(!m_round) m_round = build(0.25f, 0.95f);
-  return m_round;
+  const bool wide = (size == LIGHT_MEDIUM);
+  Glows& glows = wide ? m_wide : m_round;
+
+  Glows::iterator it = glows.find(side);
+  if(it != glows.end())
+    return it->second;
+
+  SurfacePtr made = wide ? build(side, 0.40f, 1.00f)
+                         : build(side, 0.25f, 0.95f);
+  glows[side] = made;
+  return made;
 }
 
 SurfacePtr
-LightTexture::build(float plateau, float edge) const
+LightTexture::build(int side, float plateau, float edge) const
 {
-  SDLSurfacePtr image(SDL_CreateRGBSurfaceWithFormat(0, m_side, m_side, 32,
+  SDLSurfacePtr image(SDL_CreateRGBSurfaceWithFormat(0, side, side, 32,
                                                      SDL_PIXELFORMAT_RGBA32));
   if(!image)
     throw std::runtime_error("Couldn't build a light: out of memory");
 
-  const float half = m_side / 2.0f;
+  const float half = side / 2.0f;
   Uint8* pixels = static_cast<Uint8*>(image->pixels);
 
-  for(int y = 0; y < m_side; ++y)
+  for(int y = 0; y < side; ++y)
   {
     Uint8* row = pixels + y * image->pitch;
-    for(int x = 0; x < m_side; ++x)
+    for(int x = 0; x < side; ++x)
     {
       const float dx = (static_cast<float>(x) + 0.5f) - half;
       const float dy = (static_cast<float>(y) + 0.5f) - half;
