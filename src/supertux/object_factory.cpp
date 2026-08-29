@@ -112,7 +112,6 @@
 #include "object/firefly.hpp"
 #include "object/fireworks.hpp"
 #include "object/floating_image.hpp"
-#include "object/floating_text.hpp"
 #include "object/flower.hpp"
 #include "object/ghost_particle_system.hpp"
 #include "object/gradient.hpp"
