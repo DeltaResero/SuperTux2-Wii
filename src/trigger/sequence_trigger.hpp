@@ -30,7 +30,6 @@ class SequenceTrigger : public TriggerBase
 {
 public:
   SequenceTrigger(const ReaderMapping& reader);
-  SequenceTrigger(const Vector& pos, const std::string& sequence_name);
   ~SequenceTrigger();
   std::string get_class() const {
     return "sequencetrigger";

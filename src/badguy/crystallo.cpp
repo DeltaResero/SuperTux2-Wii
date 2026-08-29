@@ -36,15 +36,6 @@ Crystallo::Crystallo(const ReaderMapping& reader) :
   }
 }
 
-Crystallo::Crystallo(const Vector& pos, Direction d) :
-  WalkingBadguy(pos, d, "images/creatures/crystallo/crystallo.sprite", "left", "right"),
-  radius()
-{
-  walk_speed = 80;
-  max_drop_height = 16;
-  radius = 100;
-}
-
 void
 Crystallo::active_update(float elapsed_time)
 {

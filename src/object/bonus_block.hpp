@@ -26,7 +26,6 @@
 class BonusBlock : public Block
 {
 public:
-  BonusBlock(const Vector& pos, int data);
   BonusBlock(const ReaderMapping& lisp);
   virtual ~BonusBlock();
   HitResponse collision(GameObject& other, const CollisionHit& hit);

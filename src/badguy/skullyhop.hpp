@@ -29,7 +29,6 @@ class SkullyHop : public BadGuy
 {
 public:
   SkullyHop(const ReaderMapping& reader);
-  SkullyHop(const Vector& pos, Direction d);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);

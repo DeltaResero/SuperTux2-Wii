@@ -42,18 +42,6 @@
 
 #include <stdexcept>
 
-BonusBlock::BonusBlock(const Vector& pos, int data) :
-  Block(SpriteManager::current()->create("images/objects/bonus_block/bonusblock.sprite")),
-  contents(),
-  object(),
-  hit_counter(1),
-  script()
-{
-  bbox.set_pos(pos);
-  sprite->set_action("normal");
-  get_content_by_data(data);
-}
-
 BonusBlock::BonusBlock(const ReaderMapping& lisp) :
   Block(lisp, "images/objects/bonus_block/bonusblock.sprite"),
   contents(),

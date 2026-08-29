@@ -21,8 +21,9 @@
 
 #include "audio/sound_manager.hpp"
 #include "object/bouncy_coin.hpp"
+#include "object/path.hpp"
+#include "object/path_walker.hpp"
 #include "object/player.hpp"
-#include "object/tilemap.hpp"
 #include "supertux/level.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
@@ -32,28 +33,9 @@ Coin::Coin(const Vector& pos)
   : MovingSprite(pos, "images/objects/coin/coin.sprite", LAYER_OBJECTS - 1, COLGROUP_TOUCHABLE),
     path(),
     walker(),
-    offset(),
-    from_tilemap(false),
     add_path(false),
     physic()
 {
-  SoundManager::current()->preload("sounds/coin.wav");
-}
-
-Coin::Coin(const Vector& pos, TileMap* tilemap)
-  : MovingSprite(pos, "images/objects/coin/coin.sprite", LAYER_OBJECTS - 1, COLGROUP_TOUCHABLE),
-    path(std::shared_ptr<Path>(tilemap->get_path())),
-    walker(std::shared_ptr<PathWalker>(tilemap->get_walker())),
-    offset(),
-    from_tilemap(true),
-    add_path(false),
-    physic()
-{
-  if(walker.get()) {
-    Vector v = path->get_base();
-    offset = pos - v;
-  }
-
   SoundManager::current()->preload("sounds/coin.wav");
 }
 
@@ -61,8 +43,6 @@ Coin::Coin(const ReaderMapping& reader)
   : MovingSprite(reader, "images/objects/coin/coin.sprite", LAYER_OBJECTS - 1, COLGROUP_TOUCHABLE),
     path(),
     walker(),
-    offset(),
-    from_tilemap(false),
     add_path(false),
     physic()
 {
@@ -83,7 +63,7 @@ Coin::update(float elapsed_time)
 {
   // if we have a path to follow, follow it
   if (walker.get()) {
-    Vector v = from_tilemap ? offset + walker->get_pos() : walker->advance(elapsed_time);
+    Vector v = walker->advance(elapsed_time);
     if (path->is_valid()) {
       movement = v - get_pos();
     }

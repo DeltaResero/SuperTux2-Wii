@@ -45,17 +45,6 @@ SequenceTrigger::SequenceTrigger(const ReaderMapping& reader) :
   triggerevent = EVENT_TOUCH;
 }
 
-SequenceTrigger::SequenceTrigger(const Vector& pos, const std::string& sequence_name) :
-  triggerevent(),
-  sequence(SEQ_ENDSEQUENCE),
-  new_size()
-{
-  bbox.set_pos(pos);
-  bbox.set_size(32, 32);
-  sequence = string_to_sequence(sequence_name);
-  triggerevent = EVENT_TOUCH;
-}
-
 SequenceTrigger::~SequenceTrigger()
 {
 }

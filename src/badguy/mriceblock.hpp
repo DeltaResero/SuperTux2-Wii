@@ -28,7 +28,6 @@ class MrIceBlock : public WalkingBadguy,
 {
 public:
   MrIceBlock(const ReaderMapping& reader);
-  MrIceBlock(const Vector& pos, Direction d);
 
   void initialize();
   HitResponse collision(GameObject& object, const CollisionHit& hit);

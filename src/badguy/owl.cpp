@@ -42,14 +42,6 @@ Owl::Owl(const ReaderMapping& reader) :
   set_action (dir == LEFT ? "left" : "right", /* loops = */ -1);
 }
 
-Owl::Owl(const Vector& pos, Direction d) :
-  BadGuy(pos, d, "images/creatures/owl/owl.sprite", LAYER_OBJECTS + 1),
-  carried_obj_name("skydive"),
-  carried_object(NULL)
-{
-  set_action (dir == LEFT ? "left" : "right", /* loops = */ -1);
-}
-
 void
 Owl::initialize()
 {
