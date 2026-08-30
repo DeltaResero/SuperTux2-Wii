@@ -29,8 +29,7 @@
 
 SequenceTrigger::SequenceTrigger(const ReaderMapping& reader) :
   triggerevent(),
-  sequence(SEQ_ENDSEQUENCE),
-  new_size()
+  sequence(SEQ_ENDSEQUENCE)
 {
   if (!reader.get("x", bbox.p1.x)) bbox.p1.x = 0;
   if (!reader.get("y", bbox.p1.y)) bbox.p1.y = 0;

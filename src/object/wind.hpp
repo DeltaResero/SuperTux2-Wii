@@ -69,7 +69,6 @@ private:
   bool blowing; /**< true if wind is currently switched on */
   Vector speed;
   float acceleration;
-  Vector new_size;
 
   float elapsed_time; /**< stores last elapsed_time gotten at update() */
 };

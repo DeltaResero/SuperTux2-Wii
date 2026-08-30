@@ -54,7 +54,6 @@ protected:
   std::string message;
 
 private:
-  Vector new_size;
 
   Climbable(const Climbable&);
   Climbable& operator=(const Climbable&);

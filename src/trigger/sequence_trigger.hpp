@@ -43,7 +43,6 @@ public:
 private:
   EventType triggerevent;
   Sequence sequence;
-  Vector new_size;
 };
 
 #endif

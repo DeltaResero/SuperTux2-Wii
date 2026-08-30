@@ -109,7 +109,6 @@ private:
 
   float * volume_ptr; /// this will be used by the volume adjustment effect.
 
-  Vector new_size;
 
 private:
   AmbientSound(const AmbientSound&);

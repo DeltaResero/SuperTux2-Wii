@@ -41,8 +41,7 @@ AmbientSound::AmbientSound(const ReaderMapping& lisp) :
   maximumvolume(),
   targetvolume(),
   currentvolume(),
-  volume_ptr(),
-  new_size()
+  volume_ptr()
 {
   group = COLGROUP_DISABLED;
 

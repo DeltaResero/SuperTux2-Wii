@@ -31,7 +31,6 @@
 ScriptTrigger::ScriptTrigger(const ReaderMapping& reader) :
   triggerevent(),
   script(),
-  new_size(),
   must_activate(false)
 {
   reader.get("x", bbox.p1.x);
