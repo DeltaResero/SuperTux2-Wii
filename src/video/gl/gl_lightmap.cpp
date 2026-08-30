@@ -43,7 +43,6 @@
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"
 #include "video/surface.hpp"
-#include "video/texture_manager.hpp"
 
 inline unsigned int next_po2(unsigned int val)
 {
@@ -73,7 +72,6 @@ GLLightmap::GLLightmap() :
 
   m_lightmap_uv_right = static_cast<float>(m_lightmap_width) / static_cast<float>(width);
   m_lightmap_uv_bottom = static_cast<float>(m_lightmap_height) / static_cast<float>(height);
-  TextureManager::current()->register_texture(m_lightmap.get());
 
 #ifdef ENABLE_LIGHTMAP_FBO
   glGenFramebuffers(1, &m_framebuffer);
