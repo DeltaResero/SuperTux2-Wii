@@ -24,7 +24,6 @@
 
 #include <SDL_image.h>
 #include <array>
-#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <stdio.h>
@@ -164,56 +163,10 @@ public:
     }
     else
     {
-		char* prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
+		char* prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
 		userdir = prefpath ? prefpath : std::string();
 		SDL_free(prefpath);
     }
-	//Kept for backwards-compatability only
-	const char* home = getenv("HOME");
-	if (home == nullptr) home = getenv("USERPROFILE"); // Windows has no HOME
-	std::string home_dir = home ? home : std::string();
-
-#ifdef _WIN32
-	std::string olduserdir = FileSystem::join(home_dir, PACKAGE_NAME);
-#else
-	std::string olduserdir = FileSystem::join(home_dir, "." PACKAGE_NAME);
-#endif
-	if (FileSystem::is_directory(olduserdir)) {
-	  std::filesystem::path olduserpath(olduserdir);
-	  std::filesystem::path userpath(userdir);
-	  
-	  std::filesystem::directory_iterator end_itr;
-
-	  bool success = true;
-
-	  // cycle through the directory
-	  for (std::filesystem::directory_iterator itr(olduserpath); itr != end_itr; ++itr) {
-		try
-		{
-		  std::filesystem::rename(itr->path().string().c_str(), userpath / itr->path().filename());
-		}
-		catch (const std::filesystem::filesystem_error& err)
-		{
-		  success = false;
-		  log_warning << "Failed to move contents of config directory: " << err.what();
-		}
-	  }
-	  if (success) {
-	    try
-		{
-		  std::filesystem::remove_all(olduserpath);
-		}
-		catch (const std::filesystem::filesystem_error& err)
-		{
-		  success = false;
-		  log_warning << "Failed to remove old config directory: " << err.what();
-		}
-	  }
-	  if (success) {
-	    log_info << "Moved old config dir " << olduserdir << " to " << userdir << std::endl;
-	  }
-	}
-
     if (!FileSystem::is_directory(userdir))
     {
 	  FileSystem::mkdir(userdir);
