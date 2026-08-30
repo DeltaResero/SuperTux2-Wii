@@ -224,7 +224,6 @@ private:
 
   int new_size_x;
   int new_size_y;
-  bool add_path;
 
 private:
   TileMap(const TileMap&);

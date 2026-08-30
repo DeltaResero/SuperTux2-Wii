@@ -56,8 +56,7 @@ TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
   walker(),
   draw_target(DrawingContext::NORMAL),
   new_size_x(0),
-  new_size_y(0),
-  add_path(false)
+  new_size_y(0)
 {
 }
 
@@ -85,8 +84,7 @@ TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& r
   walker(),
   draw_target(DrawingContext::NORMAL),
   new_size_x(0),
-  new_size_y(0),
-  add_path(false)
+  new_size_y(0)
 {
   assert(tileset);
 

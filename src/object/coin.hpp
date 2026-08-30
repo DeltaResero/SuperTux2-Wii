@@ -50,7 +50,6 @@ public:
 private:
   std::shared_ptr<Path> path;
   std::shared_ptr<PathWalker> walker;
-  bool add_path;
   Physic physic;
 };
 

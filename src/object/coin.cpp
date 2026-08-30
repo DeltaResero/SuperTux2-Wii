@@ -33,7 +33,6 @@ Coin::Coin(const Vector& pos)
   : MovingSprite(pos, "images/objects/coin/coin.sprite", LAYER_OBJECTS - 1, COLGROUP_TOUCHABLE),
     path(),
     walker(),
-    add_path(false),
     physic()
 {
   SoundManager::current()->preload("sounds/coin.wav");
@@ -43,7 +42,6 @@ Coin::Coin(const ReaderMapping& reader)
   : MovingSprite(reader, "images/objects/coin/coin.sprite", LAYER_OBJECTS - 1, COLGROUP_TOUCHABLE),
     path(),
     walker(),
-    add_path(false),
     physic()
 {
   ReaderMapping path_mapping;
