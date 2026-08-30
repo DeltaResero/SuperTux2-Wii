@@ -102,9 +102,8 @@ public:
   {
   }
 
-  /** This function saves the object.
-   *  Editor will use that.
-   */
+  /** The name this kind of object goes by in a level file, which is the
+      same name the factory builds it from. */
   virtual std::string get_class() const {
     return "moving-object";
   }
