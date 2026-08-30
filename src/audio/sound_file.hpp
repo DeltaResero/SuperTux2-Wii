@@ -58,11 +58,11 @@ private:
 struct MusicReference
 {
   /** Path to the audio, already made relative to the search path. */
-  std::string file;
+  std::string file{};
   /** Second to jump back to when the track reaches loop_at. */
-  float loop_begin;
+  float loop_begin = 0.0f;
   /** Second at which to jump back, or negative for the end of the track. */
-  float loop_at;
+  float loop_at = -1.0f;
 };
 
 /** Read a .music wrapper. Throws if the file is not one. */
