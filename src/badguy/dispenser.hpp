@@ -42,20 +42,6 @@ public:
   std::string get_display_name() const {
     return "Dispenser";
   }
-  std::string get_type_string() const {
-    switch(type) {
-    case DT_DROPPER:
-      return "dropper";
-    case DT_ROCKETLAUNCHER:
-      return "rocketlauncher";
-    case DT_CANNON:
-      return "cannon";
-    case DT_POINT:
-      return "point";
-    default:
-      return "unknown";
-    }
-  }
 
 protected:
   bool collision_squished(GameObject& object);
@@ -83,7 +69,6 @@ private:
   } DispenserType;
 
   DispenserType type;
-  std::string type_str;
 };
 
 #endif
