@@ -26,7 +26,6 @@
 #include "supertux/resources.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 #include "video/drawing_context.hpp"
 
 static const float MESSAGE_TIME=3.5;

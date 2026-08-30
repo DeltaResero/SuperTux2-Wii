@@ -28,7 +28,6 @@
 #include "gui/menu_manager.hpp"
 #include "supertux/gameconfig.hpp"
 #include "util/log.hpp"
-#include "util/writer.hpp"
 
 InputManager::InputManager(KeyboardConfig& keyboard_config,
                            JoystickConfig& joystick_config) :
