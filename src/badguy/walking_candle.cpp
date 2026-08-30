@@ -68,6 +68,10 @@ WalkingCandle::unfreeze() {
 
 HitResponse
 WalkingCandle::collision(GameObject& other, const CollisionHit& hit) {
+  /* A lantern coming down onto a candle adds the candle's colour to its own and
+     the candle dies with it. It has to be clear above the candle rather than
+     merely touching it, or the puzzle this exists for would be trivial. A
+     frozen candle does none of it. */
   auto l = dynamic_cast<Lantern*>(&other);
   if (l && !frozen) if (l->get_bbox().p2.y < bbox.p1.y) {
     l->add_color(lightcolor);

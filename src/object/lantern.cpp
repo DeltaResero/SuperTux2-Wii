@@ -126,6 +126,9 @@ Lantern::is_open() const
   return ((grabbed) && lightcolor.red == 0 && lightcolor.green == 0 && lightcolor.blue == 0);
 }
 
+/** Colours add and clamp rather than replace, which is what makes a red lantern
+    dropped on a green candle come out yellow, and a primary meeting the secondary
+    it is missing from come out white. */
 void
 Lantern::add_color(Color c) {
   lightcolor.red   = std::min(1.0f, lightcolor.red   + c.red);
