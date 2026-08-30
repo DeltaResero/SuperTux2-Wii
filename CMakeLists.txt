@@ -431,11 +431,11 @@ endif()
 ## On Windows, add an icon
 
 IF(WIN32)
-#  SET(SUPERTUX_SOURCES_C ${SUPERTUX_SOURCES_C} ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.rc)
+#  SET(SUPERTUX_SOURCES_C ${SUPERTUX_SOURCES_C} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc)
   IF(MINGW)
     ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o
-    COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons -i${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.rc -o ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o)
+    COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows -i${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc -o ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o)
     SET(SUPERTUX_SOURCES_C ${SUPERTUX_SOURCES_C} ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o)
   ENDIF(MINGW)
 ENDIF(WIN32)
@@ -466,7 +466,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 add_library(supertux2_c OBJECT ${SUPERTUX_SOURCES_C})
 add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
 IF(WIN32)
-    add_executable(supertux2 WIN32 src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.rc)
+    add_executable(supertux2 WIN32 src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc)
     TARGET_LINK_LIBRARIES(supertux2 ${SDL2MAIN_LIBRARIES})
 ELSE()
     add_executable(supertux2 src/main.cpp)
@@ -555,7 +555,7 @@ IF(WIN32 AND NOT UNIX)
 
   INSTALL(FILES ${DLLS} DESTINATION ${INSTALL_SUBDIR_BIN})
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.ico DESTINATION ".")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.ico DESTINATION ".")
 
   OPTION(PACKAGE_VCREDIST "Package the VCREDIST libraries with the program" OFF)
 
@@ -577,9 +577,9 @@ ELSE(WIN32 AND NOT UNIX)
   SET(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
   SET(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop DESTINATION "share/applications")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2.desktop DESTINATION "share/applications")
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux.xpm DESTINATION "share/pixmaps/")
 
 ENDIF(WIN32 AND NOT UNIX)
 
@@ -595,7 +595,7 @@ INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/credits.stxt DESTINATION ${INSTALL_SUBDIR_SHARE})
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.appdata.xml DESTINATION "share/appdata" )
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2.appdata.xml DESTINATION "share/appdata" )
 
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/fonts
@@ -668,7 +668,7 @@ IF(WIN32 AND NOT UNIX)
   SET(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
   SET(CPACK_WIX_PROGRAM_MENU_FOLDER "")
   SET(CPACK_WIX_UPGRADE_GUID "93E16F4E-0A68-422A-8ADC-47BE5B9433B2")
-  SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.ico")
+  SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.ico")
 
   SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/mk/wix/banner.png")
   SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/mk/wix/dialog.png")
