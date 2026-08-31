@@ -68,7 +68,8 @@ bool is_directory(const std::string& path);
 bool exists(const std::string& path);
 
 /**
- *  Create the given directory
+ *  Create the given directory and any parent it needs. Does nothing if it is
+ *  already there; throws with the reason if it cannot be made.
  */
 void mkdir(const std::string& directory);
 

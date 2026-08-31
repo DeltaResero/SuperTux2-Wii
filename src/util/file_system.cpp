@@ -137,9 +137,11 @@ bool is_directory(const std::string& path)
 void mkdir(const std::string& directory)
 {
   std::error_code ec;
-  if (!std::filesystem::create_directory(directory, ec))
+  std::filesystem::create_directories(directory, ec);
+  if (ec)
   {
-    throw std::runtime_error("failed to create directory: "  + directory);
+    throw std::runtime_error("failed to create directory '" + directory +
+                             "': " + ec.message());
   }
 }
 

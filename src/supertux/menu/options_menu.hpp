@@ -62,6 +62,10 @@ class OptionsMenu : public Menu
     std::vector<std::string> vsyncs;
 
     ItemStringSelect* resolution_item;
+
+  private:
+    OptionsMenu(const OptionsMenu&) = delete;
+    OptionsMenu& operator=(const OptionsMenu&) = delete;
 };
 
 #endif

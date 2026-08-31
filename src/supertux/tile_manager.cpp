@@ -29,7 +29,8 @@
 #include "util/reader_mapping.hpp"
 
 TileManager::TileManager() :
-  tilesets()
+  tilesets(),
+  held()
 {
 }
 

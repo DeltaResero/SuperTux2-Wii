@@ -40,8 +40,7 @@ Dispenser::Dispenser(const ReaderMapping& reader) :
   swivel(),
   broken(),
   random(),
-  type(),
-  type_str()
+  type()
 {
   set_colgroup_active(COLGROUP_MOVING_STATIC);
   SoundManager::current()->preload("sounds/squish.wav");
@@ -67,7 +66,6 @@ Dispenser::Dispenser(const ReaderMapping& reader) :
     }
     type = DT_DROPPER;
   }
-  type_str = get_type_string();
   next_badguy = 0;
   autotarget = false;
   swivel = false;

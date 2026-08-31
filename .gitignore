@@ -25,7 +25,6 @@ install_manifest.txt
 # Generated from .in templates
 config.h
 version.h
-version.cmake
 data/levels/misc/menu.stl
 
 # Source archives from makedist.sh

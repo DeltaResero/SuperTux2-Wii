@@ -26,7 +26,6 @@
 class InvisibleBlock : public Block
 {
 public:
-  InvisibleBlock(const Vector& pos);
   InvisibleBlock(const ReaderMapping& lisp);
   std::string get_class() const {
     return "invisible_block";

@@ -37,8 +37,7 @@ ScriptedObject::ScriptedObject(const ReaderMapping& lisp) :
   physic_enabled(),
   visible(),
   new_vel_set(false),
-  new_vel(),
-  new_size()
+  new_vel()
 {
   if (!lisp.get("name", name)) name = "";
   if(name.empty()) {
@@ -126,13 +125,13 @@ ScriptedObject::is_solid() const
 bool
 ScriptedObject::gravity_enabled() const
 {
-	return physic.gravity_enabled();
+  return physic.gravity_enabled();
 }
 
 void
 ScriptedObject::enable_gravity(bool f)
 {
-	physic.enable_gravity(f);
+  physic.enable_gravity(f);
 }
 
 void

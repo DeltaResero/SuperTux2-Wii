@@ -31,7 +31,8 @@
 
 
 SpriteManager::SpriteManager() :
-  sprites()
+  sprites(),
+  held()
 {
 }
 

@@ -29,7 +29,6 @@ class WalkingLeaf : public WalkingBadguy
 {
 public:
   WalkingLeaf(const ReaderMapping& reader);
-  WalkingLeaf(const Vector& pos, Direction d);
 
   bool is_freezable() const;
   std::string get_class() const {

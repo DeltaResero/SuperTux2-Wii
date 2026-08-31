@@ -24,7 +24,6 @@
 
 #include <SDL_image.h>
 #include <array>
-#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <stdio.h>
@@ -164,60 +163,14 @@ public:
     }
     else
     {
-		char* prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
-		userdir = prefpath ? prefpath : std::string();
-		SDL_free(prefpath);
+        char* prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
+        userdir = prefpath ? prefpath : std::string();
+        SDL_free(prefpath);
     }
-	//Kept for backwards-compatability only
-	const char* home = getenv("HOME");
-	if (home == nullptr) home = getenv("USERPROFILE"); // Windows has no HOME
-	std::string home_dir = home ? home : std::string();
-
-#ifdef _WIN32
-	std::string olduserdir = FileSystem::join(home_dir, PACKAGE_NAME);
-#else
-	std::string olduserdir = FileSystem::join(home_dir, "." PACKAGE_NAME);
-#endif
-	if (FileSystem::is_directory(olduserdir)) {
-	  std::filesystem::path olduserpath(olduserdir);
-	  std::filesystem::path userpath(userdir);
-	  
-	  std::filesystem::directory_iterator end_itr;
-
-	  bool success = true;
-
-	  // cycle through the directory
-	  for (std::filesystem::directory_iterator itr(olduserpath); itr != end_itr; ++itr) {
-		try
-		{
-		  std::filesystem::rename(itr->path().string().c_str(), userpath / itr->path().filename());
-		}
-		catch (const std::filesystem::filesystem_error& err)
-		{
-		  success = false;
-		  log_warning << "Failed to move contents of config directory: " << err.what();
-		}
-	  }
-	  if (success) {
-	    try
-		{
-		  std::filesystem::remove_all(olduserpath);
-		}
-		catch (const std::filesystem::filesystem_error& err)
-		{
-		  success = false;
-		  log_warning << "Failed to remove old config directory: " << err.what();
-		}
-	  }
-	  if (success) {
-	    log_info << "Moved old config dir " << olduserdir << " to " << userdir << std::endl;
-	  }
-	}
-
     if (!FileSystem::is_directory(userdir))
     {
-	  FileSystem::mkdir(userdir);
-	  log_info << "Created SuperTux userdir: " << userdir << std::endl;  
+        FileSystem::mkdir(userdir);
+        log_info << "Created SuperTux userdir: " << userdir << std::endl;
     }
 
     if (!FileSystem::is_directory(userdir))
@@ -251,6 +204,13 @@ class SDLSubsystem
 public:
   SDLSubsystem()
   {
+    /* Wayland has no way for a program to hand the compositor its own icon, so
+       the compositor looks this name up among the installed desktop entries and
+       takes the icon from there. Without it SDL falls back to the name of the
+       executable, which would find an upstream SuperTux entry on a machine that
+       has one. Set before SDL_Init, which is when it is read. */
+    SDL_SetHint("SDL_APP_ID", "supertux2-wii");
+
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
     {
       std::stringstream msg;
@@ -396,11 +356,11 @@ int
 Main::run(int argc, char** argv)
 {
 #ifdef WIN32
-	std::string prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
-	freopen((prefpath + "/console.out").c_str(), "a", stdout);
-	freopen((prefpath + "/console.err").c_str(), "a", stderr);
+  std::string prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
+  freopen((prefpath + "/console.out").c_str(), "a", stdout);
+  freopen((prefpath + "/console.err").c_str(), "a", stderr);
 #endif
- 
+
   int result = 0;
 
   try

@@ -25,13 +25,11 @@
 
 class Path;
 class PathWalker;
-class TileMap;
 
 class Coin : public MovingSprite
 {
 public:
   Coin(const Vector& pos);
-  Coin(const Vector& pos, TileMap* tilemap);
   Coin(const ReaderMapping& reader);
 
   HitResponse collision(GameObject& other, const CollisionHit& hit);
@@ -52,9 +50,6 @@ public:
 private:
   std::shared_ptr<Path> path;
   std::shared_ptr<PathWalker> walker;
-  Vector offset;
-  bool from_tilemap;
-  bool add_path;
   Physic physic;
 };
 

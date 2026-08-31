@@ -27,6 +27,7 @@
 struct DrawingRequest;
 
 class Texture;
+class GLTexture;
 
 class GLLightmap : public Lightmap
 {

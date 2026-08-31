@@ -226,48 +226,16 @@ INCLUDE(CheckSymbolExists)
 #INCLUDE_DIRECTORIES(SYSTEM ${ICONV_INCLUDE_DIR})
 #LINK_LIBRARIES(${ICONV_LIBRARY})
 
-IF(EXISTS "${CMAKE_SOURCE_DIR}/.git")
-	## Find revision of WC
-	MARK_AS_ADVANCED(GIT_EXECUTABLE)
-	FIND_PROGRAM(GIT_EXECUTABLE git)
-	IF(NOT GIT_EXECUTABLE EQUAL "GIT_EXECUTABLE-NOTFOUND")
-		INCLUDE(GetGitRevisionDescription)
-		git_describe(VERSION_STRING_GIT "--tags" "--match" "?[0-9]*.[0-9]*.[0-9]*")
-		STRING(REPLACE "v" "" VERSION_LIST ${VERSION_STRING_GIT})
-		STRING(REGEX REPLACE "(-|_|\\.)" ";" VERSION_LIST ";${VERSION_LIST}")
-        ENDIF()
-ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/.git")
-
-GET_FILENAME_COMPONENT(BASEDIR ${CMAKE_SOURCE_DIR} NAME)
-IF("${VERSION_LIST}" STREQUAL "")
-	IF(${BASEDIR} MATCHES "supertux2-[0-9\\.]*")
-		STRING(REGEX REPLACE "(\\.|_|-)" ";" VERSION_LIST ${BASEDIR})
-	ENDIF()
-ENDIF()
-
-FILE(GLOB ORIG_TGZ ../*.orig.tar.gz)
-IF("${VERSION_LIST}" STREQUAL "" AND (NOT "${ORIG_TGZ}" STREQUAL ""))
-	GET_FILENAME_COMPONENT(BASEDIR ${ORIG_TGZ} NAME)
-	STRING(REGEX REPLACE "(\\.|_|-)" ";" VERSION_LIST ${BASEDIR})
-ENDIF()
-
-LIST(LENGTH VERSION_LIST VERSION_LIST_SIZE)
-
-IF(${VERSION_LIST_SIZE} GREATER 0)
-	LIST(GET VERSION_LIST 1 MAJOR_VERSION_GIT)
-	LIST(GET VERSION_LIST 2 MINOR_VERSION_GIT)
-	LIST(GET VERSION_LIST 3 PATCH_VERSION_GIT)
-
-	IF("${VERSION_STRING_GIT}" STREQUAL "")
-		SET(VERSION_STRING_GIT "${MAJOR_VERSION_GIT}.${MINOR_VERSION_GIT}.${PATCH_VERSION_GIT}")
-	ENDIF()
-
-	CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/version.cmake.in" "${CMAKE_SOURCE_DIR}/version.cmake")
-ENDIF()
-IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/version.cmake")
-	 MESSAGE( SEND_ERROR "Cound not find GIT or valid version.cmake. Version information will be invalid." )
-ENDIF(NOT EXISTS "${CMAKE_SOURCE_DIR}/version.cmake")
-INCLUDE("${CMAKE_SOURCE_DIR}/version.cmake")
+## The version. The first three numbers are the upstream release this fork is
+## built from; the suffix is this fork's own revision, bumped by hand. The same
+## arrangement SuperTux-Wii uses, and it needs nothing from git, so a build from
+## a downloaded source archive reports the same version as a checkout.
+SET(SUPERTUX_VERSION_MAJOR 0)
+SET(SUPERTUX_VERSION_MINOR 5)
+SET(SUPERTUX_VERSION_PATCH 1)
+SET(SUPERTUX_VERSION_TWEAK )
+SET(SUPERTUX_WII_REVISION "d.01")
+SET(SUPERTUX_VERSION_STRING "${SUPERTUX_VERSION_MAJOR}.${SUPERTUX_VERSION_MINOR}.${SUPERTUX_VERSION_PATCH}-wii-${SUPERTUX_WII_REVISION}")
 
 
 SET(SUPERTUX_VERSION ${SUPERTUX_VERSION_STRING})
@@ -431,11 +399,11 @@ endif()
 ## On Windows, add an icon
 
 IF(WIN32)
-#  SET(SUPERTUX_SOURCES_C ${SUPERTUX_SOURCES_C} ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.rc)
+#  SET(SUPERTUX_SOURCES_C ${SUPERTUX_SOURCES_C} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc)
   IF(MINGW)
     ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o
-    COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons -i${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.rc -o ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o)
+    COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows -i${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc -o ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o)
     SET(SUPERTUX_SOURCES_C ${SUPERTUX_SOURCES_C} ${CMAKE_CURRENT_BINARY_DIR}/supertux_rc.o)
   ENDIF(MINGW)
 ENDIF(WIN32)
@@ -466,13 +434,13 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 add_library(supertux2_c OBJECT ${SUPERTUX_SOURCES_C})
 add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
 IF(WIN32)
-    add_executable(supertux2 WIN32 src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.rc)
+    add_executable(supertux2 WIN32 src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc)
     TARGET_LINK_LIBRARIES(supertux2 ${SDL2MAIN_LIBRARIES})
 ELSE()
     add_executable(supertux2 src/main.cpp)
 ENDIF(WIN32)
 target_link_libraries(supertux2 supertux2_lib)
-set_target_properties(supertux2 PROPERTIES OUTPUT_NAME supertux2)
+set_target_properties(supertux2 PROPERTIES OUTPUT_NAME supertux2-wii)
 set_target_properties(supertux2_lib PROPERTIES OUTPUT_NAME supertux2)
 set_target_properties(supertux2_lib PROPERTIES COMPILE_FLAGS "${SUPERTUX2_EXTRA_WARNING_FLAGS}")
 
@@ -555,7 +523,7 @@ IF(WIN32 AND NOT UNIX)
 
   INSTALL(FILES ${DLLS} DESTINATION ${INSTALL_SUBDIR_BIN})
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.ico DESTINATION ".")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux2-wii.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.ico DESTINATION ".")
 
   OPTION(PACKAGE_VCREDIST "Package the VCREDIST libraries with the program" OFF)
 
@@ -574,12 +542,12 @@ IF(WIN32 AND NOT UNIX)
 
 ELSE(WIN32 AND NOT UNIX)
   SET(INSTALL_SUBDIR_BIN "games" CACHE STRING "Installation subdir for binaries")
-  SET(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
-  SET(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
+  SET(INSTALL_SUBDIR_SHARE "share/games/supertux2-wii" CACHE STRING "Installation subdir for data")
+  SET(INSTALL_SUBDIR_DOC "share/doc/supertux2-wii" CACHE STRING "Installation subdir for docs")
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop DESTINATION "share/applications")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2-wii.desktop DESTINATION "share/applications")
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux2-wii.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2-wii.xpm DESTINATION "share/pixmaps/")
 
 ENDIF(WIN32 AND NOT UNIX)
 
@@ -595,7 +563,6 @@ INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/credits.stxt DESTINATION ${INSTALL_SUBDIR_SHARE})
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.appdata.xml DESTINATION "share/appdata" )
 
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/fonts
@@ -635,16 +602,16 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 
 INCLUDE(InstallRequiredSystemLibraries)
 
-SET(CPACK_PACKAGE_NAME "SuperTux")
+SET(CPACK_PACKAGE_NAME "SuperTux2-Wii")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Jump'n'Run Game featuring Tux")
 SET(CPACK_PACKAGE_VENDOR "SuperTux Devel Team")
 SET(CPACK_PACKAGE_CONTACT "SuperTux Devel Team <supertux-devel@lists.lethargik.org>")
 SET(CPACK_SOURCE_IGNORE_FILES "/\\\\.git/;${CMAKE_BINARY_DIR};/\\\\..*")
-SET(CPACK_DEBIAN_PACKAGE_NAME "supertux2")
+SET(CPACK_DEBIAN_PACKAGE_NAME "supertux2-wii")
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libgl1-mesa-glx | libgl1, libogg0 (>= 1.1.3), libopenal0a, libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libstdc++6 (>= 4.1.2), libvorbis0a (>= 1.1.2), libvorbisfile3 (>= 1.1.2)")
 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Classic 2D jump 'n run sidescroller with Tux\n SuperTux is a classic 2D jump 'n run sidescroller game in a similar\n style like the original SuperMario games. This release of SuperTux\n features 9 enemies, 26 playable levels, software and OpenGL rendering\n modes, configurable joystick and keyboard input, new music and\n completely redone graphics.\n .\n This is a development snapshot of SuperTux. It may suffer from\n critical bugs and has not been fully tested. \n .\n Homepage: http://supertux.lethargik.org/")
 SET(CPACK_DEBIAN_PACKAGE_SECTION "games")
-SET(CPACK_RPM_PACKAGE_NAME "supertux2")
+SET(CPACK_RPM_PACKAGE_NAME "supertux2-wii")
 SET(CPACK_RPM_PACKAGE_DESCRIPTION "Classic 2D jump 'n run sidescroller with Tux\n SuperTux is a classic 2D jump 'n run sidescroller game in a similar\n style like the original SuperMario games. This release of SuperTux\n features 9 enemies, 26 playable levels, software and OpenGL rendering\n modes, configurable joystick and keyboard input, new music and\n completely redone graphics.\n .\n This is a development snapshot of SuperTux. It may suffer from\n critical bugs and has not been fully tested. \n .\n Homepage: http://supertux.lethargik.org/")
 SET(CPACK_RPM_PACKAGE_LICENSE "GNU General Public License (GPL)")
 SET(CPACK_RPM_PACKAGE_GROUP "Amusements/Games/Action/Arcade")
@@ -661,14 +628,14 @@ ENDIF(SUPERTUX_VERSION_TWEAK)
 SET(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${SUPERTUX_VERSION_STRING}-${SUPERTUX_SYSTEM_NAME}")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${SUPERTUX_VERSION_STRING}-Source")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "SuperTux")
-SET(CPACK_PACKAGE_EXECUTABLES "supertux2" "SuperTux")
+SET(CPACK_PACKAGE_EXECUTABLES "supertux2-wii" "SuperTux 2 Wii")
 IF(WIN32 AND NOT UNIX)
-  SET(CPACK_NSIS_INSTALLED_ICON_NAME "supertux2")
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "supertux2-wii")
   SET(CPACK_NSIS_DISPLAY_NAME "SuperTux")
   SET(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
   SET(CPACK_WIX_PROGRAM_MENU_FOLDER "")
   SET(CPACK_WIX_UPGRADE_GUID "93E16F4E-0A68-422A-8ADC-47BE5B9433B2")
-  SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.ico")
+  SET(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.ico")
 
   SET(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/mk/wix/banner.png")
   SET(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/mk/wix/dialog.png")

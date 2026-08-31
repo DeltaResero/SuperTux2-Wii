@@ -41,20 +41,6 @@ Zeekling::Zeekling(const ReaderMapping& reader) :
   physic.enable_gravity(false);
 }
 
-Zeekling::Zeekling(const Vector& pos, Direction d) :
-  BadGuy(pos, d, "images/creatures/zeekling/zeekling.sprite"),
-  speed(),
-  diveRecoverTimer(),
-  state(),
-  last_player(0),
-  last_player_pos(),
-  last_self_pos()
-{
-  state = FLYING;
-  speed = gameRandom.rand(130, 171);
-  physic.enable_gravity(false);
-}
-
 void
 Zeekling::initialize()
 {

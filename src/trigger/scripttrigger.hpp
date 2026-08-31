@@ -28,7 +28,6 @@ class ScriptTrigger : public TriggerBase
 {
 public:
   ScriptTrigger(const ReaderMapping& reader);
-  ScriptTrigger(const Vector& pos, const std::string& script);
   ~ScriptTrigger();
   std::string get_class() const {
     return "scripttrigger";
@@ -41,7 +40,6 @@ public:
 private:
   EventType triggerevent;
   std::string script;
-  Vector new_size;
   bool must_activate;
 };
 

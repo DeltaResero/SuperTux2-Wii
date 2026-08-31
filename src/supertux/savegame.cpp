@@ -28,7 +28,6 @@
 #include "scripting/squirrel_util.hpp"
 #include "supertux/player_status.hpp"
 #include "util/file_system.hpp"
-#include <filesystem>
 
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
@@ -237,12 +236,12 @@ Savegame::save()
     if(FileSystem::find(dirname).empty())
     {
       const std::string path = FileSystem::write_path(dirname);
-      std::error_code ec;
-      if(path.empty() || !std::filesystem::create_directories(path, ec))
+      if(path.empty())
       {
-        throw std::runtime_error("Couldn't create directory for savegames '" +
+        throw std::runtime_error("Couldn't work out where to keep savegames '" +
                                  dirname + "'");
       }
+      FileSystem::mkdir(path);
     }
 
     if(!FileSystem::is_directory(FileSystem::find(dirname)))

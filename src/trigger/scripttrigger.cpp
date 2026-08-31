@@ -31,7 +31,6 @@
 ScriptTrigger::ScriptTrigger(const ReaderMapping& reader) :
   triggerevent(),
   script(),
-  new_size(),
   must_activate(false)
 {
   reader.get("x", bbox.p1.x);
@@ -50,18 +49,6 @@ ScriptTrigger::ScriptTrigger(const ReaderMapping& reader) :
     triggerevent = EVENT_ACTIVATE;
   else
     triggerevent = EVENT_TOUCH;
-}
-
-ScriptTrigger::ScriptTrigger(const Vector& pos, const std::string& script_) :
-  triggerevent(),
-  script(),
-  new_size(),
-  must_activate()
-{
-  bbox.set_pos(pos);
-  bbox.set_size(32, 32);
-  this->script = script_;
-  triggerevent = EVENT_TOUCH;
 }
 
 ScriptTrigger::~ScriptTrigger()

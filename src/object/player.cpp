@@ -244,25 +244,25 @@ Player::set_headlamp_action(const std::string& action)
   /* What Tux is doing names the shape, and which way he faces only mirrors
      it. An action with no shape of its own -- turning to stone, or dying --
      leaves the last one where it was, as the picture used to. */
-  std::string name = action;
+  std::string shape = action;
   bool mirrored = false;
 
-  if(name.size() > 5 && name.compare(name.size() - 5, 5, "-left") == 0)
+  if(shape.size() > 5 && shape.compare(shape.size() - 5, 5, "-left") == 0)
   {
     mirrored = true;
-    name.erase(name.size() - 5);
+    shape.erase(shape.size() - 5);
   }
-  else if(name.size() > 6 && name.compare(name.size() - 6, 6, "-right") == 0)
+  else if(shape.size() > 6 && shape.compare(shape.size() - 6, 6, "-right") == 0)
   {
-    name.erase(name.size() - 6);
+    shape.erase(shape.size() - 6);
   }
 
-  if(name.compare(0, 6, "earth-") == 0)
-    name.erase(0, 6);
+  if(shape.compare(0, 6, "earth-") == 0)
+    shape.erase(0, 6);
 
   for(size_t i = 0; i < sizeof(HEADLAMPS) / sizeof(HEADLAMPS[0]); ++i)
   {
-    if(name == HEADLAMPS[i].action)
+    if(shape == HEADLAMPS[i].action)
     {
       headlamp_shape = static_cast<int>(i);
       headlamp_mirrored = mirrored;

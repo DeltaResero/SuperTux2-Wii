@@ -42,7 +42,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_AMBIENT_SOUND_HPP
 #define HEADER_SUPERTUX_OBJECT_AMBIENT_SOUND_HPP
 
-#include "math/vector.hpp"
 #include "supertux/moving_object.hpp"
 #include "scripting/ambient_sound.hpp"
 #include "scripting/exposed_object.hpp"
@@ -57,7 +56,6 @@ class AmbientSound : public MovingObject,
 {
 public:
   AmbientSound(const ReaderMapping& lisp);
-  AmbientSound(const Vector& pos, float factor, float bias, float vol, const std::string& file);
   ~AmbientSound();
 
   HitResponse collision(GameObject& other, const CollisionHit& hit_);
@@ -111,7 +109,6 @@ private:
 
   float * volume_ptr; /// this will be used by the volume adjustment effect.
 
-  Vector new_size;
 
 private:
   AmbientSound(const AmbientSound&);

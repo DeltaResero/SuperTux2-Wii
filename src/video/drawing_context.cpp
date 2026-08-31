@@ -36,6 +36,7 @@
 
 DrawingContext::DrawingContext(VideoSystem& video_system_) :
   video_system(video_system_),
+  light_texture(),
   transformstack(),
   transform(),
   blend_stack(),

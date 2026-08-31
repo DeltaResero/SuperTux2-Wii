@@ -29,7 +29,6 @@ class Owl : public BadGuy
 {
 public:
   Owl(const ReaderMapping& reader);
-  Owl(const Vector& pos, Direction d);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);

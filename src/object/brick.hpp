@@ -25,7 +25,6 @@
 class Brick : public Block
 {
 public:
-  Brick(const Vector& pos, int data, const std::string& spriteName);
   Brick(const ReaderMapping& lisp);
 
   void try_break(Player* player);
