@@ -356,7 +356,7 @@ int
 Main::run(int argc, char** argv)
 {
 #ifdef WIN32
-	std::string prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
+	std::string prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
 	freopen((prefpath + "/console.out").c_str(), "a", stdout);
 	freopen((prefpath + "/console.err").c_str(), "a", stderr);
 #endif
