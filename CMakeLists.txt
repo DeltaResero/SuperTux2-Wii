@@ -555,7 +555,7 @@ IF(WIN32 AND NOT UNIX)
 
   INSTALL(FILES ${DLLS} DESTINATION ${INSTALL_SUBDIR_BIN})
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.ico DESTINATION ".")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux2-wii.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.ico DESTINATION ".")
 
   OPTION(PACKAGE_VCREDIST "Package the VCREDIST libraries with the program" OFF)
 
@@ -577,9 +577,9 @@ ELSE(WIN32 AND NOT UNIX)
   SET(INSTALL_SUBDIR_SHARE "share/games/supertux2-wii" CACHE STRING "Installation subdir for data")
   SET(INSTALL_SUBDIR_DOC "share/doc/supertux2-wii" CACHE STRING "Installation subdir for docs")
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2.desktop DESTINATION "share/applications")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2-wii.desktop DESTINATION "share/applications")
 
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux.xpm DESTINATION "share/pixmaps/")
+  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/supertux2-wii.png ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2-wii.xpm DESTINATION "share/pixmaps/")
 
 ENDIF(WIN32 AND NOT UNIX)
 
@@ -595,7 +595,6 @@ INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/credits.stxt DESTINATION ${INSTALL_SUBDIR_SHARE})
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/linux/supertux2.appdata.xml DESTINATION "share/appdata" )
 
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/fonts
