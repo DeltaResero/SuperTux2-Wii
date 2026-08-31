@@ -19,6 +19,9 @@
 
 #include "video/sdl/sdl_video_system.hpp"
 
+#include <algorithm>
+#include <limits>
+
 #include "supertux/gameconfig.hpp"
 #include "util/log.hpp"
 #include "video/lightmap.hpp"
@@ -33,8 +36,35 @@
 SDLVideoSystem::SDLVideoSystem() :
   m_renderer(new SDLRenderer),
   m_lightmap(new SDLLightmap),
-  m_texture_manager(new TextureManager)
+  m_texture_manager(new TextureManager),
+  m_max_texture_size(std::numeric_limits<unsigned int>::max())
 {
+  SDL_RendererInfo info;
+  if(SDL_GetRendererInfo(m_renderer->get_sdl_renderer(), &info) != 0)
+  {
+    log_warning << "Couldn't ask how large a texture may be: "
+                << SDL_GetError() << std::endl;
+  }
+  else
+  {
+    /* SDL gives the two sides separately and writes a zero for a renderer
+       with no ceiling on that side. One number is kept for both, so it is
+       the smaller of the two that a picture has to fit inside. */
+    const unsigned int width = (info.max_texture_width > 0)
+      ? static_cast<unsigned int>(info.max_texture_width) : m_max_texture_size;
+    const unsigned int height = (info.max_texture_height > 0)
+      ? static_cast<unsigned int>(info.max_texture_height) : m_max_texture_size;
+
+    m_max_texture_size = std::min(width, height);
+    if(m_max_texture_size == std::numeric_limits<unsigned int>::max())
+    {
+      log_info << "Max texture size: no limit" << std::endl;
+    }
+    else
+    {
+      log_info << "Max texture size: " << m_max_texture_size << std::endl;
+    }
+  }
 }
 
 Renderer&
@@ -53,6 +83,12 @@ TexturePtr
 SDLVideoSystem::new_texture(SDL_Surface* image)
 {
   return TexturePtr(new SDLTexture(image));
+}
+
+unsigned int
+SDLVideoSystem::get_max_texture_size() const
+{
+  return m_max_texture_size;
 }
 
 SurfaceData*
