@@ -22,6 +22,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 #include "math/vector.hpp"
 #include "math/rect.hpp"
@@ -36,6 +37,16 @@ class SurfaceData;
 class Surface
 {
 public:
+  /** One piece of a picture too large for this device to hold in a single
+      texture, and where in the picture that piece belongs. */
+  struct Cell
+  {
+    SurfacePtr surface;
+    int x;
+    int y;
+  };
+
+public:
   static SurfacePtr create(const std::string& file);
   static SurfacePtr create(const std::string& file, const Rect& rect);
   /** For a picture that was built rather than loaded, and so has no filename
@@ -44,6 +55,11 @@ public:
 
 private:
   TexturePtr texture;
+  /** Empty for a picture the device takes whole, which is nearly all of
+      them. Holding pieces instead of a texture is the only difference, and
+      it stops at the drawing context: everything else asks this class for a
+      picture of a given size and gets one. */
+  std::vector<Cell> cells;
   SurfaceData* surface_data;
   Rect rect;
   bool flipx;
@@ -65,6 +81,11 @@ public:
 
   TexturePtr get_texture() const;
   SurfaceData* get_surface_data() const;
+
+  /** Whether this picture is held as pieces rather than as one texture. */
+  bool is_split() const;
+  const std::vector<Cell>& get_cells() const;
+
   int get_x() const;
   int get_y() const;
   int get_width() const;

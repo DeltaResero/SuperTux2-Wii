@@ -25,6 +25,7 @@
 #include "math/sizef.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
+#include "util/log.hpp"
 #include "util/obstackpp.hpp"
 #include "video/drawing_request.hpp"
 #include "video/lightmap.hpp"
@@ -84,6 +85,12 @@ DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
 {
   assert(surface != 0);
 
+  if(surface->is_split())
+  {
+    draw_split_surface(surface, position, dstsize, angle, color, blend, layer);
+    return;
+  }
+
   auto request = new(obst) DrawingRequest();
 
   request->target = target;
@@ -111,6 +118,53 @@ DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
 }
 
 void
+DrawingContext::draw_split_surface(SurfacePtr surface, const Vector& position,
+                                   const Sizef& dstsize,
+                                   float angle, const Color& color, const Blend& blend,
+                                   int layer)
+{
+  if(angle != 0.0f)
+  {
+    /* A request turns about the middle of what it draws, so pieces given
+       the same angle would each spin where they stand and come apart. The
+       turn is dropped rather than drawn wrongly; no picture this large is
+       turned anywhere in the game, so this is here to be noticed if one
+       ever is. */
+    static bool warned = false;
+    if(!warned)
+    {
+      warned = true;
+      log_warning << "Can't turn a picture held in pieces; drawing it square on"
+                  << std::endl;
+    }
+  }
+
+  const float scale_x = dstsize.width  / static_cast<float>(surface->get_width());
+  const float scale_y = dstsize.height / static_cast<float>(surface->get_height());
+  const bool mirrored = (transform.drawing_effect & HORIZONTAL_FLIP) != 0;
+  const bool upended  = (transform.drawing_effect & VERTICAL_FLIP) != 0;
+
+  for(const auto& cell : surface->get_cells())
+  {
+    const int cell_width  = cell.surface->get_width();
+    const int cell_height = cell.surface->get_height();
+
+    /* Each piece is turned over where it stands by the effect it inherits,
+       so the pieces have to change places as well for the picture to come
+       out reversed rather than shuffled. */
+    const int x = mirrored ? surface->get_width()  - cell.x - cell_width  : cell.x;
+    const int y = upended  ? surface->get_height() - cell.y - cell_height : cell.y;
+
+    draw_surface(cell.surface,
+                 Vector(position.x + static_cast<float>(x) * scale_x,
+                        position.y + static_cast<float>(y) * scale_y),
+                 Sizef(static_cast<float>(cell_width)  * scale_x,
+                       static_cast<float>(cell_height) * scale_y),
+                 0.0f, color, blend, layer);
+  }
+}
+
+void
 DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
                              float angle, const Color& color, const Blend& blend,
                              int layer)
@@ -135,6 +189,12 @@ DrawingContext::draw_surface_part(SurfacePtr surface,
 {
   assert(surface != 0);
 
+  if(surface->is_split())
+  {
+    draw_split_surface_part(surface, srcrect, dstrect, layer);
+    return;
+  }
+
   auto request = new(obst) DrawingRequest();
 
   request->target = target;
@@ -152,6 +212,58 @@ DrawingContext::draw_surface_part(SurfacePtr surface,
   request->request_data = surfacepartrequest;
 
   requests->push_back(request);
+}
+
+void
+DrawingContext::draw_split_surface_part(SurfacePtr surface,
+                                        const Rectf& srcrect, const Rectf& dstrect,
+                                        int layer)
+{
+  const float src_width  = srcrect.get_width();
+  const float src_height = srcrect.get_height();
+  if(src_width <= 0.0f || src_height <= 0.0f)
+  {
+    return;
+  }
+
+  const float scale_x = dstrect.get_width()  / src_width;
+  const float scale_y = dstrect.get_height() / src_height;
+  const bool mirrored = (transform.drawing_effect & HORIZONTAL_FLIP) != 0;
+  const bool upended  = (transform.drawing_effect & VERTICAL_FLIP) != 0;
+
+  for(const auto& cell : surface->get_cells())
+  {
+    const float cell_left   = static_cast<float>(cell.x);
+    const float cell_top    = static_cast<float>(cell.y);
+    const float cell_right  = cell_left + static_cast<float>(cell.surface->get_width());
+    const float cell_bottom = cell_top  + static_cast<float>(cell.surface->get_height());
+
+    /* Only the part of this piece the caller actually asked for. A piece
+       the request misses entirely is skipped. */
+    const float left   = std::max(srcrect.p1.x, cell_left);
+    const float top    = std::max(srcrect.p1.y, cell_top);
+    const float right  = std::min(srcrect.p2.x, cell_right);
+    const float bottom = std::min(srcrect.p2.y, cell_bottom);
+    if(right <= left || bottom <= top)
+    {
+      continue;
+    }
+
+    const float dst_x = mirrored
+      ? dstrect.p1.x + (srcrect.p2.x - right) * scale_x
+      : dstrect.p1.x + (left - srcrect.p1.x) * scale_x;
+    const float dst_y = upended
+      ? dstrect.p1.y + (srcrect.p2.y - bottom) * scale_y
+      : dstrect.p1.y + (top - srcrect.p1.y) * scale_y;
+
+    draw_surface_part(cell.surface,
+                      Rectf(left - cell_left, top - cell_top,
+                            right - cell_left, bottom - cell_top),
+                      Rectf(dst_x, dst_y,
+                            dst_x + (right - left) * scale_x,
+                            dst_y + (bottom - top) * scale_y),
+                      layer);
+  }
 }
 
 void
