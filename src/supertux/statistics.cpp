@@ -247,9 +247,9 @@ Statistics::draw_endseq_panel(DrawingContext& context, Statistics* best_stats, S
   context.draw_text(Resources::normal_font, "Badguys", Vector(col2_x-16, row4_y), ALIGN_RIGHT, LAYER_HUD, Statistics::header_color);
   context.draw_text(Resources::normal_font, frags_to_string(badguys, total_badguys), Vector(col2_x, row4_y), ALIGN_LEFT, LAYER_HUD, Statistics::text_color);
   if (best_stats) {
-	int badguys_best = (best_stats->badguys > badguys) ? best_stats->badguys : badguys;
-	int total_badguys_best = (best_stats->total_badguys > total_badguys) ? best_stats->total_badguys : total_badguys;
-	context.draw_text(Resources::normal_font, frags_to_string(badguys_best, total_badguys_best), Vector(col3_x, row4_y), ALIGN_LEFT, LAYER_HUD, Statistics::text_color);
+      int badguys_best = (best_stats->badguys > badguys) ? best_stats->badguys : badguys;
+      int total_badguys_best = (best_stats->total_badguys > total_badguys) ? best_stats->total_badguys : total_badguys;
+      context.draw_text(Resources::normal_font, frags_to_string(badguys_best, total_badguys_best), Vector(col3_x, row4_y), ALIGN_LEFT, LAYER_HUD, Statistics::text_color);
   }
 
   context.draw_text(Resources::normal_font, "Secrets", Vector(col2_x-16, row5_y), ALIGN_RIGHT, LAYER_HUD, Statistics::header_color);

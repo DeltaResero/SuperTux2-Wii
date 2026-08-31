@@ -54,7 +54,7 @@ public:
   std::optional<int> fullscreen_refresh_rate;
   std::optional<Size> window_size;
   std::optional<Size> aspect_size;
-  
+
 
   // std::optional<float> magnification;
 
@@ -76,7 +76,7 @@ public:
   std::optional<Vector> tux_spawn_pos;
 
   std::optional<bool> developer_mode;
-  
+
   std::optional<bool> christmas_mode;
 
   // std::optional<std::string> locale;

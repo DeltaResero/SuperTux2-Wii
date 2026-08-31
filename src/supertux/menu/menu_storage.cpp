@@ -89,7 +89,7 @@ MenuStorage::create(MenuId menu_id)
 
     case WORLDSET_MENU:
       return std::unique_ptr<Menu>(new WorldSetMenu);
-      
+
     case CONTRIB_MENU:
       return std::unique_ptr<Menu>(new ContribMenu);
 

@@ -78,7 +78,7 @@ public:
   bool enable_script_debugger;
   std::string start_demo;
   std::string record_demo;
-  
+
   /** this variable is set if tux should spawn somewhere which isn't the "main" spawn point*/
   std::optional<Vector> tux_spawn_pos;
 

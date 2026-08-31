@@ -145,9 +145,9 @@ UnstableTile::update(float elapsed_time)
 
     case STATE_SLOWFALL:
       if (slowfall_timer >= elapsed_time)
-	slowfall_timer -= elapsed_time;
+          slowfall_timer -= elapsed_time;
       else /* Switch to normal falling procedure */
-	fall_down ();
+          fall_down ();
       movement = physic.get_movement (elapsed_time);
       break;
 

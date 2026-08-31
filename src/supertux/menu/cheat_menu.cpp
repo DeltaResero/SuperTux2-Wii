@@ -117,7 +117,7 @@ CheatMenu::menu_action(MenuItem* item)
           GameSession::current()->finish(true);
         }
         break;
-        
+
       case MNID_GHOST:
         if (GameSession::current())
         {

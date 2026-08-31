@@ -57,10 +57,10 @@ void WorldSetMenu::menu_action(MenuItem* item)
       GameManager::current()->start_worldmap(std::move(world));
       break;
     }
-    
+
     case WORLDSET_CONTRIB:
-	    MenuManager::instance().push_menu(MenuStorage::CONTRIB_MENU);    
-	    break;
+        MenuManager::instance().push_menu(MenuStorage::CONTRIB_MENU);
+        break;
   }
 }
 

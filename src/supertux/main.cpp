@@ -163,14 +163,14 @@ public:
     }
     else
     {
-		char* prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
-		userdir = prefpath ? prefpath : std::string();
-		SDL_free(prefpath);
+        char* prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
+        userdir = prefpath ? prefpath : std::string();
+        SDL_free(prefpath);
     }
     if (!FileSystem::is_directory(userdir))
     {
-	  FileSystem::mkdir(userdir);
-	  log_info << "Created SuperTux userdir: " << userdir << std::endl;  
+        FileSystem::mkdir(userdir);
+        log_info << "Created SuperTux userdir: " << userdir << std::endl;
     }
 
     if (!FileSystem::is_directory(userdir))
@@ -356,11 +356,11 @@ int
 Main::run(int argc, char** argv)
 {
 #ifdef WIN32
-	std::string prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
-	freopen((prefpath + "/console.out").c_str(), "a", stdout);
-	freopen((prefpath + "/console.err").c_str(), "a", stderr);
+  std::string prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
+  freopen((prefpath + "/console.out").c_str(), "a", stdout);
+  freopen((prefpath + "/console.err").c_str(), "a", stderr);
 #endif
- 
+
   int result = 0;
 
   try

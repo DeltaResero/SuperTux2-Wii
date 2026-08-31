@@ -330,13 +330,13 @@ CommandLineArguments::parse_args(int argc, char** argv)
         record_demo = argv[++i];
       }
     }
-    else if (arg == "--spawn-pos") 
+    else if (arg == "--spawn-pos")
     {
       Vector spawn_pos;
-      
+
       if (!start_level)
         throw std::runtime_error("--spawn-pos can only be used when a levelfile is specified.");
-      
+
       if (++i >= argc)
         throw std::runtime_error("Need to specify a spawn-pos X,Y");
       else
@@ -347,7 +347,7 @@ CommandLineArguments::parse_args(int argc, char** argv)
         spawn_pos.x = x;
         spawn_pos.y = y;
       }
-      
+
       tux_spawn_pos = spawn_pos;
     }
     else if (arg == "--debug-scripts" || arg == "-s")

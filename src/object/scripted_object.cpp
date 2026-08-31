@@ -125,13 +125,13 @@ ScriptedObject::is_solid() const
 bool
 ScriptedObject::gravity_enabled() const
 {
-	return physic.gravity_enabled();
+  return physic.gravity_enabled();
 }
 
 void
 ScriptedObject::enable_gravity(bool f)
 {
-	physic.enable_gravity(f);
+  physic.enable_gravity(f);
 }
 
 void
