@@ -204,6 +204,13 @@ class SDLSubsystem
 public:
   SDLSubsystem()
   {
+    /* Wayland has no way for a program to hand the compositor its own icon, so
+       the compositor looks this name up among the installed desktop entries and
+       takes the icon from there. Without it SDL falls back to the name of the
+       executable, which would find an upstream SuperTux entry on a machine that
+       has one. Set before SDL_Init, which is when it is read. */
+    SDL_SetHint("SDL_APP_ID", "supertux2-wii");
+
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
     {
       std::stringstream msg;
