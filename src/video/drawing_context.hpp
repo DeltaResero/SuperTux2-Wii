@@ -217,6 +217,21 @@ private:
 
   void clear_drawing_requests(DrawingRequests& requests);
 
+  /** Put a picture held in pieces back together, one request per piece
+      laid where that piece belongs. Everything above this asks for a
+      picture and knows nothing about how it is stored. */
+  void draw_split_surface(SurfacePtr surface, const Vector& position,
+                          const Sizef& dstsize,
+                          float angle, const Color& color, const Blend& blend,
+                          int layer);
+
+  /** The same for a part of a picture: what the caller asked for is cut
+      again along the joins, and each piece keeps its share of where the
+      whole was going. */
+  void draw_split_surface_part(SurfacePtr surface,
+                               const Rectf& srcrect, const Rectf& dstrect,
+                               int layer);
+
 private:
   VideoSystem& video_system;
 

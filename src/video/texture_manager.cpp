@@ -20,8 +20,10 @@
 #include "video/texture_manager.hpp"
 
 #include <SDL_image.h>
+#include <algorithm>
 #include <assert.h>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 
@@ -69,12 +71,97 @@ TextureManager::get(const std::string& _filename)
     texture = i->second.lock();
 
   if(!texture) {
+    /* Whether the device will take the picture whole has to be settled
+       before it is handed over, since hardware with a ceiling of its own
+       does not always refuse what is over it: the upload is accepted and
+       what comes back out is nothing. The decoded copy is left behind for
+       get_cells() and the cuts that follow it. */
+    try
+    {
+      SDL_Surface* image = load_image(filename);
+      const unsigned int limit = VideoSystem::current()->get_max_texture_size();
+      if(static_cast<unsigned int>(image->w) > limit ||
+         static_cast<unsigned int>(image->h) > limit)
+      {
+        return TexturePtr();
+      }
+    }
+    catch(const std::exception& err)
+    {
+      log_warning << "Couldn't load texture '" << filename << "' (now using dummy texture): "
+                  << err.what() << std::endl;
+      return create_dummy_texture();
+    }
+
     texture = create_image_texture(filename);
     texture->cache_filename = filename;
     m_image_textures[filename] = texture;
   }
 
   return texture;
+}
+
+std::vector<Rect>
+TextureManager::get_cells(const std::string& _filename)
+{
+  std::string filename = FileSystem::normalize(_filename);
+
+  std::vector<Rect> cells;
+  auto i = m_surfaces.find(filename);
+  if(i == m_surfaces.end())
+  {
+    return cells;
+  }
+
+  const int width = i->second->w;
+  const int height = i->second->h;
+  const int limit = static_cast<int>(std::min(VideoSystem::current()->get_max_texture_size(),
+                                              static_cast<unsigned int>(std::numeric_limits<int>::max())));
+
+  for(int top = 0; top < height; top += limit)
+  {
+    for(int left = 0; left < width; left += limit)
+    {
+      cells.push_back(Rect(left, top,
+                           std::min(left + limit, width),
+                           std::min(top + limit, height)));
+    }
+  }
+
+  return cells;
+}
+
+void
+TextureManager::release_image(const std::string& _filename)
+{
+  std::string filename = FileSystem::normalize(_filename);
+  auto i = m_surfaces.find(filename);
+  if(i != m_surfaces.end())
+  {
+    SDL_FreeSurface(i->second);
+    m_surfaces.erase(i);
+  }
+}
+
+SDL_Surface*
+TextureManager::load_image(const std::string& filename)
+{
+  auto i = m_surfaces.find(filename);
+  if(i != m_surfaces.end())
+  {
+    return i->second;
+  }
+
+  SDL_Surface* image = IMG_Load_RW(sdl_rwops_from_file(filename), 1);
+  if(!image)
+  {
+    std::ostringstream msg;
+    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
+
+  m_surfaces[filename] = image;
+  return image;
 }
 
 TexturePtr
@@ -127,25 +214,7 @@ TextureManager::create_image_texture(const std::string& filename, const Rect& re
 TexturePtr
 TextureManager::create_image_texture_raw(const std::string& filename, const Rect& rect)
 {
-  SDL_Surface *image = nullptr;
-
-  auto i = m_surfaces.find(filename);
-  if (i != m_surfaces.end())
-  {
-    image = i->second;
-  }
-  else
-  {
-    image = IMG_Load_RW(sdl_rwops_from_file(filename), 1);
-    if (!image)
-    {
-      std::ostringstream msg;
-      msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
-      throw std::runtime_error(msg.str());
-    }
-
-    m_surfaces[filename] = image;
-  }
+  SDL_Surface* image = load_image(filename);
 
   auto format = image->format;
   if(format->Rmask == 0 && format->Gmask == 0 && format->Bmask == 0 && format->Amask == 0) {
@@ -188,19 +257,13 @@ TextureManager::create_image_texture(const std::string& filename)
 TexturePtr
 TextureManager::create_image_texture_raw(const std::string& filename)
 {
-  SDLSurfacePtr image(IMG_Load_RW(sdl_rwops_from_file(filename), 1));
-  if (!image)
-  {
-    std::ostringstream msg;
-    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
-    throw std::runtime_error(msg.str());
-  }
-  else
-  {
-    TexturePtr texture = VideoSystem::current()->new_texture(image.get());
-    image.reset(NULL);
-    return texture;
-  }
+  TexturePtr texture = VideoSystem::current()->new_texture(load_image(filename));
+
+  /* A picture taken whole is wanted by nothing else once it is on the
+     device, so the decoded copy goes rather than sitting in the cache for
+     the rest of the run. Pieces are the other way about and share theirs. */
+  release_image(filename);
+  return texture;
 }
 
 TexturePtr

@@ -53,6 +53,13 @@ public:
   virtual Renderer& get_renderer() const = 0;
   virtual Lightmap& get_lightmap() const = 0;
   virtual TexturePtr new_texture(SDL_Surface *image) = 0;
+
+  /** The longest a texture's side may be here. Hardware with a fixed ceiling
+      reports it so that a picture too large to upload can be recognised
+      before it is handed over, and where there is no ceiling this is the
+      largest number there is, so a caller only ever has to compare. */
+  virtual unsigned int get_max_texture_size() const = 0;
+
   virtual SurfaceData* new_surface_data(const Surface &surface) = 0;
   virtual void free_surface_data(SurfaceData* surface_data) = 0;
 

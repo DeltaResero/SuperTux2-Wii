@@ -43,8 +43,20 @@ public:
   TextureManager();
   ~TextureManager();
 
+  /** The whole picture as one texture, or nothing at all when this device
+      will not take a texture that large. A caller handed nothing asks
+      get_cells() how the picture has to be broken up instead. */
   TexturePtr get(const std::string& filename);
   TexturePtr get(const std::string& filename, const Rect& rect);
+
+  /** The pieces a picture too large to take in one go has to be cut into,
+      in reading order. Only meaningful straight after get() has declined
+      the picture, since it answers from the copy that call left decoded. */
+  std::vector<Rect> get_cells(const std::string& filename);
+
+  /** Let go of the decoded copy of a picture. The pieces are cut from one
+      shared copy, so the last cut releases it. */
+  void release_image(const std::string& filename);
 
 private:
   friend class Texture;
@@ -66,6 +78,10 @@ private:
   /** throw an exception on error */
   TexturePtr create_image_texture_raw(const std::string& filename);
   TexturePtr create_image_texture_raw(const std::string& filename, const Rect& rect);
+
+  /** Decode a picture, or hand back the copy already decoded. Throws when
+      the file cannot be read. */
+  SDL_Surface* load_image(const std::string& filename);
 
   TexturePtr create_dummy_texture();
 

@@ -21,7 +21,11 @@
 
 #include "SDL.h"
 
+#include <cmath>
+
 #include "math/rectf.hpp"
+#include "math/sizef.hpp"
+#include "math/vector.hpp"
 #include "util/log.hpp"
 #include "video/drawing_request.hpp"
 #include "video/sdl/sdl_texture.hpp"
@@ -93,6 +97,31 @@ void render_copy(SDL_Renderer* renderer, SDL_Texture* texture,
   SDL_RenderSetScale(renderer, scale_x, scale_y);
 }
 
+/** Put a rectangle of fractions onto whole pixels.
+
+    Rounding a position and a size on their own lets two pictures meant to
+    meet fall out of step, because the size is rounded without regard to
+    where the picture starts. Rounding both edges and taking the size from
+    the difference means anything ending where the next thing begins still
+    does so afterwards.
+
+    Rounding down rather than towards zero matters for the same reason: a
+    background scrolled off the left of the screen has a negative left edge
+    and a positive right one, and truncation moves those two in opposite
+    directions. */
+SDL_Rect whole_pixels(const Vector& pos, const Sizef& size)
+{
+  const int left = static_cast<int>(std::floor(pos.x));
+  const int top  = static_cast<int>(std::floor(pos.y));
+
+  SDL_Rect rect;
+  rect.x = left;
+  rect.y = top;
+  rect.w = static_cast<int>(std::floor(pos.x + size.width))  - left;
+  rect.h = static_cast<int>(std::floor(pos.y + size.height)) - top;
+  return rect;
+}
+
 } // namespace
 
 void
@@ -101,12 +130,12 @@ SDLPainter::draw_surface(SDL_Renderer* renderer, const DrawingRequest& request)
   const auto surfacerequest = static_cast<const SurfaceRequest*>(request.request_data);
   const auto surface = surfacerequest->surface;
   std::shared_ptr<SDLTexture> sdltexture = std::dynamic_pointer_cast<SDLTexture>(surface->get_texture());
+  if(!sdltexture)
+  {
+    return;
+  }
 
-  SDL_Rect dst_rect;
-  dst_rect.x = request.pos.x;
-  dst_rect.y = request.pos.y;
-  dst_rect.w = surfacerequest->dstsize.width;
-  dst_rect.h = surfacerequest->dstsize.height;
+  const SDL_Rect dst_rect = whole_pixels(request.pos, surfacerequest->dstsize);
 
   Uint8 r = static_cast<Uint8>(request.color.red * 255);
   Uint8 g = static_cast<Uint8>(request.color.green * 255);
@@ -137,6 +166,10 @@ SDLPainter::draw_surface_part(SDL_Renderer* renderer, const DrawingRequest& requ
   const auto surfacepartrequest = static_cast<SurfacePartRequest*>(request.request_data);
 
   std::shared_ptr<SDLTexture> sdltexture = std::dynamic_pointer_cast<SDLTexture>(surface->surface->get_texture());
+  if(!sdltexture)
+  {
+    return;
+  }
 
   SDL_Rect src_rect;
   src_rect.x = surfacepartrequest->srcrect.p1.x;
@@ -144,11 +177,7 @@ SDLPainter::draw_surface_part(SDL_Renderer* renderer, const DrawingRequest& requ
   src_rect.w = surfacepartrequest->srcrect.get_width();
   src_rect.h = surfacepartrequest->srcrect.get_height();
 
-  SDL_Rect dst_rect;
-  dst_rect.x = request.pos.x;
-  dst_rect.y = request.pos.y;
-  dst_rect.w = surfacepartrequest->dstsize.width;
-  dst_rect.h = surfacepartrequest->dstsize.height;
+  const SDL_Rect dst_rect = whole_pixels(request.pos, surfacepartrequest->dstsize);
 
   Uint8 r = static_cast<Uint8>(request.color.red * 255);
   Uint8 g = static_cast<Uint8>(request.color.green * 255);

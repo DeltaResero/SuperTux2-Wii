@@ -19,18 +19,37 @@
 
 #include "video/gl/gl_video_system.hpp"
 
+#include <limits>
+
 #include "util/log.hpp"
 #include "video/gl/gl_lightmap.hpp"
 #include "video/gl/gl_renderer.hpp"
 #include "video/gl/gl_surface_data.hpp"
 #include "video/gl/gl_texture.hpp"
+#include "video/glutil.hpp"
 #include "video/texture_manager.hpp"
 
 GLVideoSystem::GLVideoSystem() :
   m_texture_manager(new TextureManager),
   m_renderer(new GLRenderer),
-  m_lightmap(new GLLightmap)
+  m_lightmap(new GLLightmap),
+  m_max_texture_size(std::numeric_limits<unsigned int>::max())
 {
+  /* The renderer is built before this runs, so there is a context to ask.
+     Every implementation answers this and the answer is never below 64, so
+     nothing back means the question failed rather than that the ceiling is
+     absent. */
+  GLint size = 0;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
+  if(size > 0)
+  {
+    m_max_texture_size = static_cast<unsigned int>(size);
+    log_info << "Max texture size: " << m_max_texture_size << std::endl;
+  }
+  else
+  {
+    log_warning << "Driver would not say how large a texture may be" << std::endl;
+  }
 }
 
 Renderer&
@@ -49,6 +68,12 @@ TexturePtr
 GLVideoSystem::new_texture(SDL_Surface* image)
 {
   return TexturePtr(new GLTexture(image));
+}
+
+unsigned int
+GLVideoSystem::get_max_texture_size() const
+{
+  return m_max_texture_size;
 }
 
 SurfaceData*

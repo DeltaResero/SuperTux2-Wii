@@ -126,8 +126,6 @@ SDLRenderer::SDLRenderer() :
     {
       log_info << "  " << SDL_GetPixelFormatName(info.texture_formats[i]) << std::endl;
     }
-    log_info << "Max Texture Width: " << info.max_texture_width << std::endl;
-    log_info << "Max Texture Height: " << info.max_texture_height << std::endl;
   }
 
   apply_config();
