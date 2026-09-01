@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_DIRECTION_HPP
 
 #include <iostream>
+#include <string>
 
 enum Direction { AUTO, LEFT, RIGHT, UP, DOWN };
 

@@ -23,6 +23,10 @@
 #include <list>
 #include <squirrel.h>
 #include <stdint.h>
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "supertux/direction.hpp"
 #include "supertux/game_object_ptr.hpp"

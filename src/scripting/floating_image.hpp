@@ -22,6 +22,7 @@
 
 #ifndef SCRIPTING_API
 #include <memory>
+#include <string>
 
 #define HEADER_SUPERTUX_SCRIPTING_FLOATING_IMAGE_HPP
 

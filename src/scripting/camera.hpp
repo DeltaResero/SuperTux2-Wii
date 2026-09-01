@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_CAMERA_HPP
 #define HEADER_SUPERTUX_SCRIPTING_CAMERA_HPP
 
+#include <string>
+
 #ifndef SCRIPTING_API
 class Camera;
 #endif

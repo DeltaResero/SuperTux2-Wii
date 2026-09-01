@@ -25,6 +25,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <string>
 
 #include "supertux/direction.hpp"
 #include "supertux/game_object_ptr.hpp"

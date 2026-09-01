@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_VIDEO_LIGHT_TEXTURE_HPP
 
 #include <map>
+#include <utility>
 
 #include "video/surface_ptr.hpp"
 

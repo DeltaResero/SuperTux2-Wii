@@ -21,6 +21,8 @@
 #define HEADER_SUPERTUX_SPRITE_SPRITE_HPP
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "sprite/sprite_data.hpp"
 #include "sprite/sprite_ptr.hpp"

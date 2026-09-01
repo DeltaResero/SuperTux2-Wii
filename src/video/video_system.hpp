@@ -22,6 +22,7 @@
 
 #include <SDL.h>
 #include <string>
+#include <memory>
 
 #include "util/currenton.hpp"
 #include "video/texture_ptr.hpp"

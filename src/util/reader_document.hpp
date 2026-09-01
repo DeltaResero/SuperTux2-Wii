@@ -22,6 +22,7 @@
 
 #include <istream>
 #include <sexp/value.hpp>
+#include <string>
 
 #include "util/reader_object.hpp"
 

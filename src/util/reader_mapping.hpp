@@ -21,6 +21,8 @@
 #define HEADER_SUPERTUX_UTIL_READER_MAPPING_HPP
 
 #include <cstdint>
+#include <string>
+#include <vector>
 
 #include "util/reader_iterator.hpp"
 

@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_TRIGGER_SECRETAREA_TRIGGER_HPP
 #define HEADER_SUPERTUX_TRIGGER_SECRETAREA_TRIGGER_HPP
 
+#include <string>
+
 #include "trigger/trigger_base.hpp"
 
 #include "supertux/timer.hpp"

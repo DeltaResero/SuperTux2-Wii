@@ -23,6 +23,8 @@
 #include <memory>
 #include <vector>
 #include <squirrel.h>
+#include <iosfwd>
+#include <string>
 
 #include "math/vector.hpp"
 #include "object/endsequence.hpp"

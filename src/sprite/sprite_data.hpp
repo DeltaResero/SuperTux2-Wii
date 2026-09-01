@@ -22,6 +22,8 @@
 
 #include <map>
 #include <vector>
+#include <memory>
+#include <string>
 
 #include "video/surface.hpp"
 

@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_OPTIONS_HPP
 
 #include <optional>
+#include <string>
 
 #include "math/size.hpp"
 #include "math/vector.hpp"
