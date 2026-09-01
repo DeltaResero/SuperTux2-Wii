@@ -19,6 +19,8 @@
 
 #include "object/water_drop.hpp"
 
+#include <memory>
+
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
 #include "object/sprite_particle.hpp"

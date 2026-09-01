@@ -24,6 +24,10 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 #include "SDL.h"
 
 #include "supertux/gameconfig.hpp"

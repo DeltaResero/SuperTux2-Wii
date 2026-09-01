@@ -21,6 +21,9 @@
 #include "supertux/savegame.hpp"
 
 #include <algorithm>
+#include <exception>
+#include <sstream>
+#include <stdexcept>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/scripting.hpp"

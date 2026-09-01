@@ -18,6 +18,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/oneup.hpp"
+
+#include <string>
 #include "object/player.hpp"
 #include "supertux/sector.hpp"
 

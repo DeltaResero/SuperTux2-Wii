@@ -19,6 +19,10 @@
 
 #include "trigger/secretarea_trigger.hpp"
 
+#include <memory>
+#include <sstream>
+#include <vector>
+
 #include "object/tilemap.hpp"
 #include "supertux/level.hpp"
 #include "supertux/globals.hpp"

@@ -20,6 +20,10 @@
 
 #include "control/keyboard_manager.hpp"
 
+#include <map>
+#include <memory>
+#include <utility>
+
 #include "control/controller.hpp"
 #include "control/joystick_manager.hpp"
 #include "control/keyboard_config.hpp"

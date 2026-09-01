@@ -20,6 +20,7 @@
 #include "gui/menu_manager.hpp"
 
 #include <assert.h>
+#include <utility>
 
 #include "control/input_manager.hpp"
 #include "gui/dialog.hpp"

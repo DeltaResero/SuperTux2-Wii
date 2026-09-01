@@ -19,6 +19,8 @@
 
 #include "object/spotlight.hpp"
 
+#include <vector>
+
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"

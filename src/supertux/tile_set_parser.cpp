@@ -25,6 +25,8 @@
 #include <sexp/value.hpp>
 #include <sexp/util.hpp>
 #include <sexp/io.hpp>
+#include <memory>
+#include <utility>
 
 #include "supertux/tile_set.hpp"
 #include "util/reader_document.hpp"

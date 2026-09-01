@@ -27,6 +27,7 @@
 #include "util/reader_mapping.hpp"
 
 #include <stdexcept>
+#include <vector>
 
 Gradient::Gradient() :
   ExposedObject<Gradient, scripting::Gradient>(this),

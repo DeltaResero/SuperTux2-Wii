@@ -21,6 +21,10 @@
 
 #include <float.h>
 #include <fstream>
+#include <exception>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"

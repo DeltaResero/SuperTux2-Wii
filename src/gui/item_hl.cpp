@@ -20,6 +20,7 @@
 #include "gui/item_hl.hpp"
 
 #include <stdio.h>
+#include <string>
 
 #include "math/vector.hpp"
 #include "supertux/resources.hpp"

@@ -19,6 +19,9 @@
 
 #include "supertux/menu/cheat_menu.hpp"
 
+#include <string>
+#include <vector>
+
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "object/player.hpp"

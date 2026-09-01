@@ -21,6 +21,8 @@
 
 #include <iostream>
 #include <algorithm>
+#include <map>
+#include <utility>
 
 #include "control/input_manager.hpp"
 #include "control/joystick_config.hpp"

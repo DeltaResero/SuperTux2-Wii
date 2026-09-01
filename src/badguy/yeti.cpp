@@ -32,6 +32,8 @@
 
 #include <float.h>
 #include <math.h>
+#include <memory>
+#include <vector>
 
 namespace {
 const float JUMP_DOWN_VX = 250; /**< horizontal speed while jumping off the dais */

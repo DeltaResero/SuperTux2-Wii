@@ -22,6 +22,8 @@
 #include <iostream>
 #include <sexp/value.hpp>
 #include <sexp/util.hpp>
+#include <string>
+#include <vector>
 
 #include "util/log.hpp"
 #include "util/writer.hpp"

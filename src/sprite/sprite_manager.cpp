@@ -28,6 +28,8 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <exception>
+#include <utility>
 
 
 SpriteManager::SpriteManager() :

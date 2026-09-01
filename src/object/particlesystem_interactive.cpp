@@ -19,6 +19,10 @@
 
 #include "object/particlesystem_interactive.hpp"
 
+#include <list>
+#include <memory>
+#include <vector>
+
 #include "math/aatriangle.hpp"
 #include "math/vector.hpp"
 #include "object/tilemap.hpp"

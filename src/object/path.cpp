@@ -23,6 +23,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <string>
 
 #include "supertux/game_object.hpp"
 #include "supertux/game_object_ptr.hpp"

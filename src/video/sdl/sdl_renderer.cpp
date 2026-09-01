@@ -32,6 +32,8 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <memory>
+#include <string>
 #include "SDL2/SDL_video.h"
 
 #include "video/util.hpp"

@@ -32,6 +32,8 @@
 #include "util/reader_mapping.hpp"
 
 #include <math.h>
+#include <memory>
+#include <vector>
 
 WeakBlock::WeakBlock(const ReaderMapping& lisp)
 : MovingSprite(lisp, "images/objects/weak_block/strawbox.sprite", LAYER_TILES, COLGROUP_STATIC), state(STATE_NORMAL),

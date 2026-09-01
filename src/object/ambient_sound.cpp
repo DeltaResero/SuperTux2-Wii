@@ -19,6 +19,9 @@
 
 #include <limits>
 #include <math.h>
+#include <cmath>
+#include <exception>
+#include <stdexcept>
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"

@@ -24,6 +24,7 @@
 #include <stdexcept>
 
 #include <SDL.h>
+#include <memory>
 
 #include "supertux/globals.hpp"
 #include "video/sdl_surface_ptr.hpp"

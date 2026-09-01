@@ -20,6 +20,8 @@
 #include "supertux/menu/contrib_levelset_menu.hpp"
 
 #include <sstream>
+#include <string>
+#include <utility>
 
 #include "audio/sound_manager.hpp"
 #include "gui/menu_item.hpp"

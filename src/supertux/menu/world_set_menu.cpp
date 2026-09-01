@@ -19,6 +19,10 @@
 
 #include "supertux/menu/world_set_menu.hpp"
 
+#include <memory>
+#include <string>
+#include <utility>
+
 #include "audio/sound_manager.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"

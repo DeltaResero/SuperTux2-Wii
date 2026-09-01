@@ -20,6 +20,10 @@
 #include "object/snow_particle_system.hpp"
 
 #include <math.h>
+#include <cmath>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "math/random_generator.hpp"
 #include "supertux/globals.hpp"

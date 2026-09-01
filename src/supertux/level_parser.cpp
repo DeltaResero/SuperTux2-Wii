@@ -21,6 +21,9 @@
 #include "supertux/level_parser.hpp"
 
 #include <sstream>
+#include <exception>
+#include <stdexcept>
+#include <utility>
 
 #include "io/ifile_stream.hpp"
 #include "supertux/level.hpp"

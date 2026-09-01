@@ -20,6 +20,7 @@
 #include "supertux/collision.hpp"
 
 #include <algorithm>
+#include <utility>
 
 #include "math/aatriangle.hpp"
 #include "math/rectf.hpp"

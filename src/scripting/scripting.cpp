@@ -26,6 +26,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <vector>
+#include <exception>
+#include <stdexcept>
+#include <string>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/squirrel_error.hpp"

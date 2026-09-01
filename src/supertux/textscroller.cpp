@@ -36,6 +36,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <exception>
 
 static const float DEFAULT_SPEED = 20;
 static const float LEFT_BORDER = 50;

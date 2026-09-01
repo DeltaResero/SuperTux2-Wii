@@ -20,6 +20,7 @@
 #include "object/pulsing_light.hpp"
 #include <numbers>
 #include <math.h>
+#include <cmath>
 
 #include "math/random_generator.hpp"
 

@@ -17,6 +17,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <string>
+
 #include "supertux/flip_level_transformer.hpp"
 #include "supertux/game_session.hpp"
 

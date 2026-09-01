@@ -20,6 +20,7 @@
 #include <config.h>
 
 #include <stddef.h>
+#include <vector>
 
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"

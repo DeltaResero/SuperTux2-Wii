@@ -20,6 +20,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include "math/vector.hpp"
 #include "util/reader_document.hpp"

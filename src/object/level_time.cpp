@@ -21,6 +21,8 @@
 
 #include <algorithm>
 #include <math.h>
+#include <cmath>
+#include <sstream>
 
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"

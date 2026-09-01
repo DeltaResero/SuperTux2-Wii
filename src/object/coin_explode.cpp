@@ -19,6 +19,8 @@
 
 #include "object/coin_explode.hpp"
 
+#include <memory>
+
 #include "math/random_generator.hpp"
 #include "object/coin.hpp"
 #include "supertux/sector.hpp"

@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <math.h>
 #include <sstream>
+#include <cstdlib>
 
 #include "audio/sound_manager.hpp"
 #include "util/writer.hpp"

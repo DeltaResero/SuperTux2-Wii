@@ -21,6 +21,7 @@
 
 #include <config.h>
 #include <stdexcept>
+#include <exception>
 
 #include "util/log.hpp"
 #include "video/sdl/sdl_video_system.hpp"

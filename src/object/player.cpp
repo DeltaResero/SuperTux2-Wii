@@ -39,6 +39,11 @@
 
 #include <math.h>
 #include <numbers>
+#include <algorithm>
+#include <cmath>
+#include <sstream>
+#include <stdexcept>
+#include <vector>
 
 //#define SWIMMING
 

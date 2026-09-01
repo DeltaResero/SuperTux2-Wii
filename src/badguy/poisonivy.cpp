@@ -25,6 +25,8 @@
 #include "supertux/sector.hpp"
 
 #include <math.h>
+#include <cmath>
+#include <memory>
 
 PoisonIvy::PoisonIvy(const ReaderMapping& reader)
   : WalkingBadguy(reader, "images/creatures/poison_ivy/poison_ivy.sprite", "left", "right")

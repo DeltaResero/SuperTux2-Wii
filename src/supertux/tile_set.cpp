@@ -19,6 +19,8 @@
 
 #include "supertux/tile_set.hpp"
 
+#include <utility>
+
 #include "supertux/resources.hpp"
 #include "supertux/tile_set_parser.hpp"
 #include "video/drawing_context.hpp"

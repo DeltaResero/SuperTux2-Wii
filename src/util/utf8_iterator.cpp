@@ -20,6 +20,7 @@
 #include "util/utf8_iterator.hpp"
 
 #include <stdexcept>
+#include <exception>
 
 #include "util/log.hpp"
 

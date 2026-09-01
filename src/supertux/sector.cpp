@@ -23,6 +23,10 @@
 #include <algorithm>
 #include <math.h>
 #include <vector>
+#include <exception>
+#include <limits>
+#include <sstream>
+#include <utility>
 
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_util.hpp"

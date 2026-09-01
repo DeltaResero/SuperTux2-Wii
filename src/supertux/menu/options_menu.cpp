@@ -37,6 +37,7 @@
 #include <cmath>
 #include <sstream>
 #include <stdio.h>
+#include <memory>
 
 namespace {
 

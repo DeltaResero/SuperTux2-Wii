@@ -19,6 +19,10 @@
 
 #include "supertux/sector_parser.hpp"
 
+#include <exception>
+#include <list>
+#include <vector>
+
 #include "supertux/sector.hpp"
 
 #include "audio/sound_manager.hpp"

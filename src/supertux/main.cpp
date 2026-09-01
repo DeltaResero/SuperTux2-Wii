@@ -27,6 +27,13 @@
 #include <iostream>
 #include <optional>
 #include <stdio.h>
+#include <exception>
+#include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"

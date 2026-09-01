@@ -21,6 +21,9 @@
 #include <numbers>
 
 #include <math.h>
+#include <cmath>
+#include <exception>
+#include <stdexcept>
 
 #include "object/path_walker.hpp"
 #include "object/player.hpp"

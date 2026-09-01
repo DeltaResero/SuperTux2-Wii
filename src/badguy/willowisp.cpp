@@ -19,6 +19,8 @@
 
 #include "badguy/willowisp.hpp"
 
+#include <sstream>
+
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "object/lantern.hpp"

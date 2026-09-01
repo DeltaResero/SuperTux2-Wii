@@ -27,6 +27,8 @@
 #include "supertux/sector.hpp"
 
 #include <math.h>
+#include <cmath>
+#include <memory>
 
 static const float MOLE_WAIT_TIME = 0.2f; /**< time to wait before and after throwing */
 static const float THROW_TIME = 4.6f; /**< time to spend throwing */

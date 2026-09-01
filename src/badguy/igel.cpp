@@ -18,6 +18,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/igel.hpp"
+
+#include <vector>
 #include "object/bullet.hpp"
 #include "supertux/sector.hpp"
 

@@ -20,6 +20,7 @@
 #include "trigger/door.hpp"
 
 #include <sstream>
+#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"

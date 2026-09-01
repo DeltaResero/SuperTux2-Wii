@@ -20,6 +20,7 @@
 #include "object/lantern.hpp"
 
 #include <algorithm>
+#include <vector>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/treewillowisp.hpp"

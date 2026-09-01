@@ -20,6 +20,8 @@
 #include "supertux/game_manager.hpp"
 
 #include <sstream>
+#include <exception>
+#include <utility>
 
 #include "gui/menu_manager.hpp"
 #include "supertux/game_session.hpp"

@@ -30,6 +30,7 @@
 #include "util/reader_mapping.hpp"
 
 #include <sstream>
+#include <memory>
 
 namespace {
 

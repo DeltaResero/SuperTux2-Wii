@@ -32,6 +32,7 @@
 
 #include <format>
 #include <sstream>
+#include <memory>
 
 LevelIntro::LevelIntro(const Level* level_, const Statistics* best_level_statistics_, const PlayerStatus* player_status_) :
   level(level_),
