@@ -19,6 +19,8 @@
 
 #include "object/thunderstorm.hpp"
 
+#include <memory>
+
 #include "audio/sound_manager.hpp"
 #include "object/electrifier.hpp"
 #include "scripting/squirrel_util.hpp"

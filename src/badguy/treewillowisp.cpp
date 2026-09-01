@@ -28,6 +28,8 @@
 #include "sprite/sprite.hpp"
 
 #include <math.h>
+#include <cmath>
+#include <string>
 
 static const std::string TREEWILLOSOUND = "sounds/willowisp.wav";
 

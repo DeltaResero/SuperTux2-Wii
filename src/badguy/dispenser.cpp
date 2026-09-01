@@ -28,6 +28,8 @@
 #include "util/reader_mapping.hpp"
 
 #include <stdexcept>
+#include <exception>
+#include <memory>
 
 Dispenser::Dispenser(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/dispenser/dispenser.sprite"),

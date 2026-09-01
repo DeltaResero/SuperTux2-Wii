@@ -21,6 +21,8 @@
 
 #include <format>
 #include <sstream>
+#include <memory>
+#include <string>
 
 #include "gui/menu_manager.hpp"
 #include "gui/menu_item.hpp"

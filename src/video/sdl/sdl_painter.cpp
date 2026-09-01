@@ -22,6 +22,9 @@
 #include "SDL.h"
 
 #include <cmath>
+#include <algorithm>
+#include <memory>
+#include <vector>
 
 #include "math/rectf.hpp"
 #include "math/sizef.hpp"

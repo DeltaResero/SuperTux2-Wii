@@ -20,6 +20,7 @@
 #include "supertux/gameconfig.hpp"
 
 #include <stdexcept>
+#include <exception>
 
 #include "control/input_manager.hpp"
 #include "util/reader_document.hpp"

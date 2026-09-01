@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <string>
 
 #include "math/rectf.hpp"
 #include "video/color.hpp"

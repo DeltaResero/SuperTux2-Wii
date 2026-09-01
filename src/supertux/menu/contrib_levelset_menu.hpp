@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_MENU_CONTRIB_WORLD_MENU_HPP
 #define HEADER_SUPERTUX_SUPERTUX_MENU_CONTRIB_WORLD_MENU_HPP
 
+#include <memory>
+
 #include "gui/menu.hpp"
 
 class Levelset;

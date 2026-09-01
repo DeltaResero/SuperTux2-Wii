@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <fstream>
 #include <sstream>
+#include <exception>
 
 #include "audio/sound_error.hpp"
 #include "audio/ogg_sound_file.hpp"

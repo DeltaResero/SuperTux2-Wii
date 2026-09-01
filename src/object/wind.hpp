@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_WIND_HPP
 #define HEADER_SUPERTUX_OBJECT_WIND_HPP
 
+#include <string>
+
 #include "scripting/exposed_object.hpp"
 #include "scripting/wind.hpp"
 #include "supertux/moving_object.hpp"

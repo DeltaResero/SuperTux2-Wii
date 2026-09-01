@@ -41,6 +41,7 @@
 #include "util/reader_mapping.hpp"
 
 #include <stdexcept>
+#include <sstream>
 
 BonusBlock::BonusBlock(const ReaderMapping& lisp) :
   Block(lisp, "images/objects/bonus_block/bonusblock.sprite"),

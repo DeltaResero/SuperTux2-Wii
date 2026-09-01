@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_MOVING_OBJECT_HPP
 
 #include <stdint.h>
+#include <string>
 
 #include "math/rectf.hpp"
 #include "supertux/collision_hit.hpp"

@@ -19,6 +19,8 @@
 
 #include "object/wind.hpp"
 
+#include <memory>
+
 #include "math/random_generator.hpp"
 #include "object/particles.hpp"
 #include "object/player.hpp"

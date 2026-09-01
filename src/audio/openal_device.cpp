@@ -22,6 +22,8 @@
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <exception>
+#include <utility>
 
 #include "audio/openal_sound_source.hpp"
 #include "audio/sound_file.hpp"

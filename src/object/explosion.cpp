@@ -31,6 +31,9 @@
 #include "supertux/sector.hpp"
 
 #include <math.h>
+#include <memory>
+#include <string>
+#include <vector>
 
 Explosion::Explosion(const Vector& pos) :
   MovingSprite(pos, "images/objects/explosion/explosion.sprite", LAYER_OBJECTS+40, COLGROUP_MOVING),

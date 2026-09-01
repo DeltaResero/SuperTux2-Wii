@@ -21,6 +21,8 @@
 #define HEADER_SUPERTUX_OBJECT_INFOBLOCK_HPP
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "object/block.hpp"
 #include "supertux/textscroller.hpp"

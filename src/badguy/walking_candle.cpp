@@ -19,6 +19,8 @@
 
 #include "badguy/walking_candle.hpp"
 
+#include <vector>
+
 #include "object/lantern.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/object_factory.hpp"

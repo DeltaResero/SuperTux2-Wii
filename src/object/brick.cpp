@@ -19,6 +19,8 @@
 
 #include "object/brick.hpp"
 
+#include <memory>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "object/bouncy_coin.hpp"

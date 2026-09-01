@@ -25,6 +25,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "supertux/gameconfig.hpp"
 #include "supertux/main.hpp"

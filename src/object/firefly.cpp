@@ -21,6 +21,8 @@
 #include <numbers>
 
 #include <math.h>
+#include <cmath>
+#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"

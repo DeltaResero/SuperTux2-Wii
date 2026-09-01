@@ -24,6 +24,8 @@
 #include <algorithm>
 #include <iomanip>
 #include <limits>
+#include <initializer_list>
+#include <sstream>
 
 #include "scripting/squirrel_util.hpp"
 #include "supertux/globals.hpp"

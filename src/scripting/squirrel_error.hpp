@@ -23,6 +23,7 @@
 #include <squirrel.h>
 #include <stdexcept>
 #include <string>
+#include <exception>
 
 namespace scripting {
 

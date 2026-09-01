@@ -19,6 +19,8 @@
 
 #include "object/falling_coin.hpp"
 
+#include <string>
+
 #include "sprite/sprite_manager.hpp"
 #include "supertux/globals.hpp"
 

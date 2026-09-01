@@ -20,6 +20,8 @@
 
 #include "badguy/owl.hpp"
 
+#include <memory>
+
 #include "audio/sound_manager.hpp"
 #include "object/anchor_point.hpp"
 #include "object/player.hpp"

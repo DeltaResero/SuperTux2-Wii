@@ -27,6 +27,8 @@
 #include <string.h>
 #include <stdexcept>
 #include <SDL_image.h>
+#include <memory>
+#include <utility>
 
 #include "io/sdl_file.hpp"
 #include "supertux/screen.hpp"

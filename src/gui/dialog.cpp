@@ -21,6 +21,7 @@
 #include <numbers>
 
 #include <algorithm>
+#include <memory>
 
 #include "control/controller.hpp"
 #include "gui/menu_manager.hpp"

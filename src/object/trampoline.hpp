@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_TRAMPOLINE_HPP
 #define HEADER_SUPERTUX_OBJECT_TRAMPOLINE_HPP
 
+#include <string>
+
 #include "object/rock.hpp"
 
 /**

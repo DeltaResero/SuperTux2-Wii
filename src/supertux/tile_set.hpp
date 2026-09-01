@@ -22,6 +22,8 @@
 
 #include <stdint.h>
 #include <string>
+#include <memory>
+#include <vector>
 
 #include "supertux/tile.hpp"
 #include "util/log.hpp"

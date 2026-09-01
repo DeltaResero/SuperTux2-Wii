@@ -23,6 +23,7 @@
 
 #include <math.h>
 #include <assert.h>
+#include <vector>
 
 PathWalker::PathWalker(const Path* path_, bool running_) :
   path(path_),

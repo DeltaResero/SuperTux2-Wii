@@ -21,6 +21,8 @@
 
 #include <sexp/parser.hpp>
 #include <sstream>
+#include <stdexcept>
+#include <utility>
 
 #include "io/ifile_stream.hpp"
 #include "util/log.hpp"

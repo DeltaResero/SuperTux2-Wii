@@ -19,6 +19,8 @@
 
 #include "badguy/livefire.hpp"
 
+#include <memory>
+
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"
 #include "object/sprite_particle.hpp"

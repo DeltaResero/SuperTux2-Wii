@@ -21,6 +21,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SPRITE_PARTICLE_HPP
 #define HEADER_SUPERTUX_OBJECT_SPRITE_PARTICLE_HPP
 
+#include <string>
+
 #include "object/anchor_point.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"

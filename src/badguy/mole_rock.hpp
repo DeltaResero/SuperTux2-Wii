@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_MOLE_ROCK_HPP
 #define HEADER_SUPERTUX_BADGUY_MOLE_ROCK_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 /**

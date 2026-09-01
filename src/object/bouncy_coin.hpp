@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_OBJECT_BOUNCY_COIN_HPP
 
 #include <memory>
+#include <string>
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"

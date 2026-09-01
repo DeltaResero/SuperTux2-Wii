@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SKULL_TILE_HPP
 #define HEADER_SUPERTUX_OBJECT_SKULL_TILE_HPP
 
+#include <string>
+
 #include "object/moving_sprite.hpp"
 
 /** A tile that starts falling down if tux stands to long on it */

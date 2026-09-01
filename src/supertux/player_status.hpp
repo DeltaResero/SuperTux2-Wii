@@ -22,6 +22,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_PLAYER_STATUS_HPP
 
 #include <memory>
+#include <string>
 
 #include "video/color.hpp"
 #include "video/surface_ptr.hpp"

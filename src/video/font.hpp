@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "math/rectf.hpp"
 #include "math/vector.hpp"

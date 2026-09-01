@@ -21,6 +21,9 @@
 #include <numbers>
 
 #include <algorithm>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "video/drawing_request.hpp"
 #include "video/gl/gl_surface_data.hpp"

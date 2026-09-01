@@ -5,6 +5,8 @@
  */
 
 #include <sstream>
+#include <exception>
+#include <string>
 
 #include "scripting/squirrel_error.hpp"
 #include "scripting/wrapper.interface.hpp"

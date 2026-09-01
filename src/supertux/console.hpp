@@ -27,6 +27,7 @@
 #include <squirrel.h>
 #include <sstream>
 #include <vector>
+#include <string>
 
 #include "util/currenton.hpp"
 #include "video/font_ptr.hpp"

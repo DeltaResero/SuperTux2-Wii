@@ -20,6 +20,8 @@
 
 #include "supertux/menu/keyboard_menu.hpp"
 
+#include <memory>
+
 #include "control/keyboard_manager.hpp"
 #include "gui/item_controlfield.hpp"
 #include "supertux/gameconfig.hpp"

@@ -19,6 +19,8 @@
 
 #include "badguy/snowman.hpp"
 
+#include <memory>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/snowball.hpp"
 #include "object/bullet.hpp"

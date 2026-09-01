@@ -23,6 +23,7 @@
 #include <algorithm>
 
 #include <limits>
+#include <utility>
 
 #include "supertux/tile_set.hpp"
 #include "util/reader_collection.hpp"

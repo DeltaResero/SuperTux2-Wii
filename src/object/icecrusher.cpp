@@ -22,6 +22,8 @@
 
 #include <algorithm>
 #include <math.h>
+#include <cmath>
+#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"

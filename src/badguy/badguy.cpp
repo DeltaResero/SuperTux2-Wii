@@ -37,6 +37,7 @@
 
 #include <math.h>
 #include <sstream>
+#include <memory>
 
 static const float SQUISH_TIME = 2;
 static const float GEAR_TIME = 2;

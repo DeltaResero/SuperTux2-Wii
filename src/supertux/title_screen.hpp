@@ -21,6 +21,9 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_TITLE_HPP
 #define HEADER_SUPERTUX_SUPERTUX_TITLE_HPP
 
+#include <memory>
+#include <string>
+
 #include "supertux/game_session.hpp"
 #include "supertux/savegame.hpp"
 

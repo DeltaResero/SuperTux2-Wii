@@ -18,6 +18,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <memory>
+
 #include "badguy/bomb.hpp"
 #include "badguy/short_fuse.hpp"
 #include "object/bullet.hpp"

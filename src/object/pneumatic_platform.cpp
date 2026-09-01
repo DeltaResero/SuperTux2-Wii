@@ -19,6 +19,8 @@
 
 #include "object/pneumatic_platform.hpp"
 
+#include <memory>
+
 #include "object/player.hpp"
 #include "object/portable.hpp"
 #include "supertux/object_factory.hpp"

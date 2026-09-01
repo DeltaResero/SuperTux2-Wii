@@ -19,6 +19,10 @@
 
 #include "object/comet_particle_system.hpp"
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include "math/random_generator.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"

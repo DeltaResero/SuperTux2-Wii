@@ -17,6 +17,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <memory>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/bomb.hpp"
 #include "badguy/mrbomb.hpp"

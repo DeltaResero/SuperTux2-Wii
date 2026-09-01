@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BOMBFISH_HPP
 #define HEADER_SUPERTUX_BADGUY_BOMBFISH_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 #include "object/portable.hpp"
 

@@ -20,6 +20,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_PLATFORM_HPP
 
+#include <memory>
+#include <string>
+
 #include "object/moving_sprite.hpp"
 #include "object/path_walker.hpp"
 #include "scripting/exposed_object.hpp"

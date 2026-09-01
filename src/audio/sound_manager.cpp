@@ -27,6 +27,8 @@
 #include <stdexcept>
 #include <sstream>
 #include <memory>
+#include <exception>
+#include <utility>
 
 #include "audio/dummy_sound_source.hpp"
 #ifdef ENABLE_OPENAL

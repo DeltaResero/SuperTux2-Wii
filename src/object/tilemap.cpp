@@ -20,6 +20,8 @@
 #include "object/tilemap.hpp"
 
 #include <math.h>
+#include <stdexcept>
+#include <utility>
 
 #include "scripting/squirrel_util.hpp"
 #include "supertux/globals.hpp"

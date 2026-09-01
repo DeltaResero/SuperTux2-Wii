@@ -23,6 +23,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_STATISTICS_HPP
 
 #include <squirrel.h>
+#include <string>
 
 #include "video/color.hpp"
 #include "video/surface_ptr.hpp"

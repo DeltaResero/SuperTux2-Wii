@@ -19,6 +19,10 @@
 
 #include "object/rain_particle_system.hpp"
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include "math/random_generator.hpp"
 #include "object/camera.hpp"
 #include "object/rainsplash.hpp"

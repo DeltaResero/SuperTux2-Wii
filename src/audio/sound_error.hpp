@@ -22,6 +22,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <exception>
 
 class SoundError : public std::exception
 {

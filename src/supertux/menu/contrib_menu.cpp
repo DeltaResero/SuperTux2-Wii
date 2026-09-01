@@ -20,6 +20,9 @@
 #include "supertux/menu/contrib_menu.hpp"
 
 #include <sstream>
+#include <exception>
+#include <string>
+#include <utility>
 
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"

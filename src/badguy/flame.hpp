@@ -20,6 +20,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_FLAME_HPP
 #define HEADER_SUPERTUX_BADGUY_FLAME_HPP
 
+#include <memory>
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 #include "audio/sound_source.hpp"

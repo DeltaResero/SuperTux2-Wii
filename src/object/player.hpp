@@ -20,6 +20,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PLAYER_HPP
 #define HEADER_SUPERTUX_OBJECT_PLAYER_HPP
 
+#include <memory>
+#include <string>
+
 #include "scripting/exposed_object.hpp"
 #include "scripting/player.hpp"
 #include "sprite/sprite_ptr.hpp"

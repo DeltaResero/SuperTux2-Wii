@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_VIDEO_GL_LIGHTMAP_HPP
 
 #include <config.h>
+#include <memory>
 
 #include "video/lightmap.hpp"
 

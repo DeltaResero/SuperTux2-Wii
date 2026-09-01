@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SPECIALRISER_HPP
 #define HEADER_SUPERTUX_OBJECT_SPECIALRISER_HPP
 
+#include <memory>
+
 #include "supertux/moving_object.hpp"
 
 /**

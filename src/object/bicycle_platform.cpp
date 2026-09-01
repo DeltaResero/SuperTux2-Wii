@@ -22,6 +22,8 @@
 
 #include <algorithm>
 #include <math.h>
+#include <memory>
+#include <utility>
 
 #include "object/player.hpp"
 #include "object/portable.hpp"

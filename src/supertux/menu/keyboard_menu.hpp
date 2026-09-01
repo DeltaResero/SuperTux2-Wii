@@ -21,6 +21,8 @@
 #ifndef HEADER_SUPERTUX_CONTROL_KEYBOARD_MENU_HPP
 #define HEADER_SUPERTUX_CONTROL_KEYBOARD_MENU_HPP
 
+#include <string>
+
 #include "control/input_manager.hpp"
 #include "gui/menu_item.hpp"
 

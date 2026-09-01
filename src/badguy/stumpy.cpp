@@ -28,6 +28,8 @@
 #include "supertux/sector.hpp"
 
 #include <math.h>
+#include <cmath>
+#include <memory>
 
 static const float STUMPY_SPEED = 120;
 static const float INVINCIBLE_TIME = 1;

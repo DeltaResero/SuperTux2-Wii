@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BRICK_HPP
 #define HEADER_SUPERTUX_OBJECT_BRICK_HPP
 
+#include <string>
+
 #include "object/block.hpp"
 
 class Brick : public Block

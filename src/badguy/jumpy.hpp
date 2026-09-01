@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_JUMPY_HPP
 #define HEADER_SUPERTUX_BADGUY_JUMPY_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 class Jumpy : public BadGuy

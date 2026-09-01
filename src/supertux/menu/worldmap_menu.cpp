@@ -19,6 +19,8 @@
 
 #include "supertux/menu/worldmap_menu.hpp"
 
+#include <string>
+
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/menu/menu_storage.hpp"

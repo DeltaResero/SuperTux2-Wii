@@ -20,6 +20,8 @@
 
 #include "supertux/resources.hpp"
 
+#include <string>
+
 #include "gui/mousecursor.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/player_status.hpp"

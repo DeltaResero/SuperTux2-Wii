@@ -20,6 +20,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_COIN_HPP
 #define HEADER_SUPERTUX_OBJECT_COIN_HPP
 
+#include <memory>
+#include <string>
+
 #include "object/moving_sprite.hpp"
 #include "supertux/physic.hpp"
 

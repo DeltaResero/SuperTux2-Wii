@@ -18,6 +18,9 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
+#include <exception>
+#include <sstream>
+#include <stdexcept>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/serialize.hpp"

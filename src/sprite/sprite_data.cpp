@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <sstream>
+#include <utility>
 
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"

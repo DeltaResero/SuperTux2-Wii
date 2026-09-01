@@ -26,6 +26,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
+#include <system_error>
+#include <utility>
 
 namespace FileSystem {
 

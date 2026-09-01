@@ -21,6 +21,8 @@
 #include <numbers>
 
 #include <math.h>
+#include <cmath>
+#include <utility>
 
 #include "math/random_generator.hpp"
 #include "object/camera.hpp"

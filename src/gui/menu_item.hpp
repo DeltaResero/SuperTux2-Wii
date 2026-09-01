@@ -24,6 +24,7 @@
 #include <list>
 #include <memory>
 #include <SDL.h>
+#include <string>
 
 #include "gui/menu.hpp"
 

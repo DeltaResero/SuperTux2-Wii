@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PARTICLESYSTEM_INTERACTIVE_HPP
 #define HEADER_SUPERTUX_OBJECT_PARTICLESYSTEM_INTERACTIVE_HPP
 
+#include <string>
+
 #include "object/particlesystem.hpp"
 
 class Vector;

@@ -22,6 +22,7 @@
 #include <assert.h>
 #include <sexp/value.hpp>
 #include <stdexcept>
+#include <vector>
 
 #include "util/reader_collection.hpp"
 #include "util/reader_error.hpp"

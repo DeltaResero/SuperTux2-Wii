@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_OBJECT_LEVEL_TIME_HPP
 
 #include <memory>
+#include <string>
 
 #include "scripting/exposed_object.hpp"
 #include "scripting/level_time.hpp"

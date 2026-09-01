@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <iosfwd>
 
 class Writer
 {

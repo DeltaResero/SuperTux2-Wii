@@ -19,6 +19,7 @@
 
 #include <math.h>
 #include <numbers>
+#include <string>
 
 #include "audio/sound_manager.hpp"
 #include "object/growup.hpp"

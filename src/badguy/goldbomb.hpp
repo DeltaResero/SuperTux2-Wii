@@ -22,6 +22,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_GOLDBOMB_HPP
 #define HEADER_SUPERTUX_BADGUY_GOLDBOMB_HPP
 
+#include <memory>
+#include <string>
+
 #include "audio/sound_source.hpp"
 #include "badguy/walking_badguy.hpp"
 #include "object/portable.hpp"

@@ -21,6 +21,8 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_TUX_HPP
 #define HEADER_SUPERTUX_WORLDMAP_TUX_HPP
 
+#include <string>
+
 #include "worldmap/worldmap.hpp"
 
 class Sprite;

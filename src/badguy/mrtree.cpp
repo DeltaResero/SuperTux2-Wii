@@ -30,6 +30,8 @@
 #include "supertux/sector.hpp"
 
 #include <math.h>
+#include <cmath>
+#include <memory>
 
 static const float TREE_SPEED = 100;
 

@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_OBJECT_PARTICLES_HPP
 
 #include <memory>
+#include <vector>
 
 #include "math/vector.hpp"
 #include "supertux/game_object.hpp"

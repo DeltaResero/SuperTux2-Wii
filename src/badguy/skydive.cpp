@@ -19,6 +19,8 @@
 
 #include "badguy/skydive.hpp"
 
+#include <memory>
+
 #include "supertux/constants.hpp"
 #include "supertux/sector.hpp"
 #include "object/anchor_point.hpp"

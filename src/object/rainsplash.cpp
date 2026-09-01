@@ -19,6 +19,8 @@
 
 #include "object/rainsplash.hpp"
 
+#include <string>
+
 RainSplash::RainSplash(const Vector& pos, bool vertical) :
   sprite(),
   position(pos),

@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_OBJECT_COMET_PARTICLE_SYSTEM_HPP
 
 #include <memory>
+#include <string>
 
 #include "object/particlesystem_interactive.hpp"
 #include "video/surface_ptr.hpp"
