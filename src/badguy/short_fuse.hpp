@@ -21,6 +21,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SHORT_FUSE_HPP
 #define HEADER_SUPERTUX_BADGUY_SHORT_FUSE_HPP
 
+#include <string>
+
 #include "badguy/walking_badguy.hpp"
 
 class ShortFuse : public WalkingBadguy

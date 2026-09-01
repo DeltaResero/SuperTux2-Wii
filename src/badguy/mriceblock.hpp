@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_MRICEBLOCK_HPP
 #define HEADER_SUPERTUX_BADGUY_MRICEBLOCK_HPP
 
+#include <string>
+
 #include "badguy/walking_badguy.hpp"
 #include "object/portable.hpp"
 

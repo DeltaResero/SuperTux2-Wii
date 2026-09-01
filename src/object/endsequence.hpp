@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_ENDSEQUENCE_HPP
 #define HEADER_SUPERTUX_OBJECT_ENDSEQUENCE_HPP
 
+#include <memory>
+
 #include "control/codecontroller.hpp"
 #include "supertux/game_object.hpp"
 

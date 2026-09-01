@@ -21,6 +21,8 @@
 #define HEADER_SUPERTUX_OBJECT_PARTICLESYSTEM_HPP
 
 #include <vector>
+#include <memory>
+#include <string>
 
 #include "math/vector.hpp"
 #include "scripting/exposed_object.hpp"

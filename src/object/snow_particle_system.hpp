@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SNOW_PARTICLE_SYSTEM_HPP
 #define HEADER_SUPERTUX_OBJECT_SNOW_PARTICLE_SYSTEM_HPP
 
+#include <string>
+
 #include "object/particlesystem.hpp"
 #include "supertux/timer.hpp"
 

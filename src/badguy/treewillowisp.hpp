@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_TREEWILLOWISP_HPP
 #define HEADER_SUPERTUX_BADGUY_TREEWILLOWISP_HPP
 
+#include <memory>
+
 #include "badguy/badguy.hpp"
 
 class GhostTree;

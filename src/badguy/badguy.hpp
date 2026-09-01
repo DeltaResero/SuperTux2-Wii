@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 
+#include <string>
+
 #include "gui/menu_action.hpp"
 #include "object/moving_sprite.hpp"
 #include "supertux/direction.hpp"

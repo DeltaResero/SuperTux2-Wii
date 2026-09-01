@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_DISPLAY_EFFECT_HPP
 #define HEADER_SUPERTUX_OBJECT_DISPLAY_EFFECT_HPP
 
+#include <string>
+
 #include "supertux/game_object.hpp"
 #include "scripting/display_effect.hpp"
 #include "scripting/exposed_object.hpp"

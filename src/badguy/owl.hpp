@@ -21,6 +21,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_OWL_HPP
 #define HEADER_SUPERTUX_BADGUY_OWL_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 class Portable;

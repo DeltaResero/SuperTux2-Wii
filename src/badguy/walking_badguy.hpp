@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_WALKING_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_WALKING_BADGUY_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 class Timer;

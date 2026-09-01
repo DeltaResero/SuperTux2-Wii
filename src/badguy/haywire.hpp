@@ -21,6 +21,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_HAYWIRE_HPP
 #define HEADER_SUPERTUX_BADGUY_HAYWIRE_HPP
 
+#include <memory>
+#include <string>
+
 #include "audio/sound_source.hpp"
 #include "badguy/walking_badguy.hpp"
 

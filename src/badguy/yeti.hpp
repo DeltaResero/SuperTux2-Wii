@@ -22,6 +22,7 @@
 #define HEADER_SUPERTUX_BADGUY_YETI_HPP
 
 #include <memory>
+#include <string>
 
 #include "badguy/badguy.hpp"
 

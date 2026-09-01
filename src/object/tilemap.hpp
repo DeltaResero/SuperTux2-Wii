@@ -21,6 +21,9 @@
 #define HEADER_SUPERTUX_OBJECT_TILEMAP_HPP
 
 #include <algorithm>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "object/path_walker.hpp"
 #include "scripting/exposed_object.hpp"

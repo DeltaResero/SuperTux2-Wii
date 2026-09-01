@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_OBJECT_TORCH_HPP
 
 #include <memory>
+#include <string>
 
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/moving_object.hpp"

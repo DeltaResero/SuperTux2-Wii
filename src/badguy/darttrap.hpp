@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_DARTTRAP_HPP
 #define HEADER_SUPERTUX_BADGUY_DARTTRAP_HPP
 
+#include <string>
+
 /**
  * Badguy "DartTrap" - Shoots a Dart at regular intervals
  */

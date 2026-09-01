@@ -20,6 +20,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PUSHBUTTON_HPP
 #define HEADER_SUPERTUX_OBJECT_PUSHBUTTON_HPP
 
+#include <string>
+
 #include "object/moving_sprite.hpp"
 
 /**
