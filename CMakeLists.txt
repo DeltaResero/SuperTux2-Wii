@@ -254,8 +254,6 @@ ENDIF()
 
 SET(SUPERTUX_VERSION ${SUPERTUX_VERSION_STRING})
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
-
 ## Check platform-dependent build options
 
 INCLUDE(ConfigureChecks)
@@ -580,21 +578,15 @@ INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
 IF(CMAKE_BUILD_TYPE MATCHES Release)
   INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
                     DESTINATION ${INSTALL_SUBDIR_SHARE}
-                    PATTERN "data/levels/incubator" EXCLUDE
-                    PATTERN "data/levels/misc/menu.stl.in" EXCLUDE)
+                    PATTERN "data/levels/incubator" EXCLUDE)
 ELSE()
   INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
-                    DESTINATION ${INSTALL_SUBDIR_SHARE}
-                    PATTERN "data/levels/misc/menu.stl.in" EXCLUDE)
+                    DESTINATION ${INSTALL_SUBDIR_SHARE})
 ENDIF()
-
-INSTALL(FILES "${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl" DESTINATION "${INSTALL_SUBDIR_SHARE}/levels/misc")
 
 ## Create config.h now that INSTALL_SUBDIR_* have been set.
 
 configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
-
-configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
 
 
 ## CPack/Installation-specific stuff
