@@ -7,7 +7,7 @@
     (name "main")
     (music "music/theme.music")
     (init-script "
-logo <- FloatingImage(\"images/objects/logo/@LOGO_FILE@\");
+logo <- FloatingImage(\"images/engine/menu/logo.sprite\");
 if(is_christmas()) {
   christmas_hat <- FloatingImage(\"images/objects/particles/santa-cap-big.sprite\");
   christmas_hat.set_anchor_point(ANCHOR_MIDDLE);
