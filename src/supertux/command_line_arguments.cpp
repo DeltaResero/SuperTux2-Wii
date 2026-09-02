@@ -19,6 +19,8 @@
 
 #include "supertux/command_line_arguments.hpp"
 
+#include <config.h>
+
 #include "util/file_system.hpp"
 
 #include <format>
@@ -29,7 +31,6 @@
 
 #include "supertux/gameconfig.hpp"
 #include "supertux/main.hpp"
-#include "version.h"
 #include "math/vector.hpp"
 
 CommandLineArguments::CommandLineArguments() :

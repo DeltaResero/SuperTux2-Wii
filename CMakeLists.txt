@@ -240,15 +240,6 @@ SET(SUPERTUX_VERSION_STRING "${SUPERTUX_VERSION_MAJOR}.${SUPERTUX_VERSION_MINOR}
 
 SET(SUPERTUX_VERSION ${SUPERTUX_VERSION_STRING})
 
-configure_file(version.h.in ${CMAKE_BINARY_DIR}/version.h )
-
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/version.h
-                            PROPERTIES GENERATED true)
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/main.cpp
-                            PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_screen.cpp
-                            PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
 
 ## Check platform-dependent build options
@@ -432,7 +423,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 ## Add target for supertux binary
 
 add_library(supertux2_c OBJECT ${SUPERTUX_SOURCES_C})
-add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
+add_library(supertux2_lib STATIC ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
 IF(WIN32)
     add_executable(supertux2 WIN32 src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc)
     TARGET_LINK_LIBRARIES(supertux2 ${SDL2MAIN_LIBRARIES})
@@ -587,7 +578,7 @@ INSTALL(FILES "${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl" DESTINATION "${INS
 
 ## Create config.h now that INSTALL_SUBDIR_* have been set.
 
-configure_file(config.h.cmake ${CMAKE_BINARY_DIR}/config.h )
+configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
 ## Configure main menu logo
 IF(CMAKE_BUILD_TYPE MATCHES Release)
