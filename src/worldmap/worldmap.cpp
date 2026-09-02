@@ -875,12 +875,20 @@ WorldMap::setup()
     throw SquirrelError(global_vm, "Couldn't set worldmap in roottable");
   sq_pop(global_vm, 1);
 
-  //Run default.nut just before init script
-  try {
-    IFileStream in(levels_path + "default.nut");
-    run_script(in, "WorldMap::default.nut");
-  } catch(std::exception& ) {
-    // doesn't exist or erroneous; do nothing
+  /* Run default.nut just before init script. Most worldmaps have none, so a
+     missing file is not a fault and is not worth saying anything about. One
+     that is there and will not run is a fault, and it used to be discarded
+     here together with the reason, leaving whatever the script was meant to
+     define missing for the rest of the map with nothing to say why. */
+  const std::string default_script = levels_path + "default.nut";
+  if(!FileSystem::find(default_script).empty()) {
+    try {
+      IFileStream in(default_script);
+      run_script(in, "WorldMap::default.nut");
+    } catch(const std::exception& e) {
+      log_warning << "Couldn't run " << default_script << ": "
+                  << e.what() << std::endl;
+    }
   }
 
   if(!init_script.empty()) {
