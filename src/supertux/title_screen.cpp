@@ -20,6 +20,7 @@
 
 #include "supertux/title_screen.hpp"
 
+
 #include <config.h>
 
 #include "audio/sound_manager.hpp"
@@ -76,6 +77,7 @@ std::string wrap_to_screen(const FontPtr& font, const std::string& text, float w
 } // namespace
 
 TitleScreen::TitleScreen(Savegame& savegame) :
+  m_savegame(savegame),
   frame(),
   controller(),
   titlesession(),
@@ -84,11 +86,7 @@ TitleScreen::TitleScreen(Savegame& savegame) :
   wrapped_width(0)
 {
   controller.reset(new CodeController());
-  titlesession.reset(new GameSession("levels/misc/menu.stl", savegame));
-
-  Player* player = titlesession->get_current_sector()->player;
-  player->set_controller(controller.get());
-  player->set_speedlimit(230); //MAX_WALK_XM
+  create_session();
 
   frame = Surface::create("images/engine/menu/frame.png");
   /* Each line here is a whole thought. Where one is too long for the screen it
@@ -133,8 +131,22 @@ TitleScreen::~TitleScreen()
 }
 
 void
+TitleScreen::create_session()
+{
+  titlesession.reset(new GameSession("levels/misc/menu.stl", m_savegame));
+
+  Player* player = titlesession->get_current_sector()->player;
+  player->set_controller(controller.get());
+  player->set_speedlimit(230); //MAX_WALK_XM
+}
+
+void
 TitleScreen::setup()
 {
+  if(!titlesession) {
+    create_session();
+  }
+
   Sector* sector = titlesession->get_current_sector();
   if(Sector::current() != sector) {
     sector->play_music(LEVEL_MUSIC);
@@ -160,6 +172,11 @@ TitleScreen::leave()
   Sector* sector = titlesession->get_current_sector();
   sector->deactivate();
   MenuManager::instance().clear_menu_stack();
+
+  /* The menu is played over a whole level, and this screen is never popped,
+     so holding it would keep that level's artwork for the rest of the run.
+     It is built again on the way back in. */
+  titlesession.reset();
 }
 
 void
