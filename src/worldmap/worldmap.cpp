@@ -29,6 +29,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include <sexp/lexer.hpp>
+
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
 #include "gui/menu.hpp"
@@ -363,14 +365,40 @@ WorldMap::load_level_information(LevelTile& level)
     std::string filename = levels_path + level.get_name();
     if(levels_path == "./")
       filename = level.get_name();
-    auto doc = ReaderDocument::parse(filename);
-    auto root = doc.get_root();
-    if(root.get_name() != "supertux-level") {
+
+    /* Both keys sit in the header, so read tokens until the sector starts
+       and leave the rest of the file unread. */
+    IFileStream in(filename);
+    sexp::Lexer lexer(in);
+
+    if(lexer.get_next_token() != sexp::Lexer::TOKEN_OPEN_PAREN ||
+       lexer.get_next_token() != sexp::Lexer::TOKEN_SYMBOL ||
+       lexer.get_string() != "supertux-level") {
       return;
-    } else {
-      auto level_lisp = root.get_mapping();
-      level_lisp.get("name", level.title);
-      level_lisp.get("target-time", level.target_time);
+    }
+
+    bool have_title = false, have_target_time = false;
+    while(!have_title || !have_target_time) {
+      auto token = lexer.get_next_token();
+      if(token == sexp::Lexer::TOKEN_EOF)
+        break;
+      if(token != sexp::Lexer::TOKEN_SYMBOL)
+        continue;
+
+      const std::string key = lexer.get_string();
+      if(key == "sector")
+        break;
+      if(key == "name" &&
+         lexer.get_next_token() == sexp::Lexer::TOKEN_STRING) {
+        level.title = lexer.get_string();
+        have_title = true;
+      } else if(key == "target-time") {
+        auto value = lexer.get_next_token();
+        if(value == sexp::Lexer::TOKEN_REAL || value == sexp::Lexer::TOKEN_INTEGER) {
+          level.target_time = std::stof(lexer.get_string());
+          have_target_time = true;
+        }
+      }
     }
   } catch(std::exception& e) {
     log_warning << "Problem when reading level information: " << e.what() << std::endl;
