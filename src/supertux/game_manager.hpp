@@ -34,6 +34,12 @@ private:
   std::unique_ptr<Savegame> m_savegame;
 
 public:
+  /** The savegame of the world last started, or null if none has been. */
+  Savegame* get_savegame() const { return m_savegame.get(); }
+
+private:
+
+public:
   GameManager();
   ~GameManager();
 

@@ -32,12 +32,15 @@
 #include "object/brick.hpp"
 #include "supertux/fadein.hpp"
 #include "supertux/fadeout.hpp"
+#include "supertux/game_manager.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/resources.hpp"
+#include "supertux/player_status.hpp"
 #include "supertux/screen_manager.hpp"
 #include "supertux/collision.hpp"
+#include "supertux/savegame.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/textscroller.hpp"
 #include "supertux/world.hpp"
@@ -248,7 +251,7 @@ TitleScreen::place_at_entry(Sector& sector, Player& tux, float drop)
     ground += 32.0f;
   }
 
-  tux.set_pos(Vector(x, std::max(0.0f, ground - 32.0f - drop)));
+  tux.set_pos(Vector(x, std::max(0.0f, ground - tux.get_bbox().get_height() - drop)));
   tux.get_physic().set_velocity_y(0.0f);
 }
 
@@ -336,6 +339,13 @@ TitleScreen::setup()
     if (!tux->is_big()) spawn.y -= 32;
     sector->activate(spawn);
   }
+
+  /* However the last world left him. Nothing played yet this run means no
+     savegame yet, which is small, so a fresh launch starts small. */
+  const GameManager* games = GameManager::current();
+  const Savegame* played = games != NULL ? games->get_savegame() : NULL;
+  sector->player->set_bonus(played != NULL ? played->get_player_status()->bonus
+                                           : NO_BONUS);
 
   /* Arriving, he falls in; later laps walk in. Outside the branch above: on
      the first visit the sector is already current, so none of it runs. */
