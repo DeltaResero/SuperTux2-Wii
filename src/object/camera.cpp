@@ -632,7 +632,7 @@ Camera::get_center() const {
 }
 
 void
-Camera::move(const int dx, const int dy) {
+Camera::move(const float dx, const float dy) {
   translation.x += dx;
   translation.y += dy;
 }

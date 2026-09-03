@@ -20,7 +20,6 @@
 #include "supertux/main.hpp"
 
 #include <config.h>
-#include <version.h>
 
 #include <SDL_image.h>
 #include <array>

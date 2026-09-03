@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #define PACKAGE_NAME "SuperTux 2 Wii"
+#define PACKAGE_VERSION "${SUPERTUX_VERSION}"
 
 #cmakedefine ENABLE_SQDBG
 

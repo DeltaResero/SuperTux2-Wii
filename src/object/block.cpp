@@ -131,6 +131,14 @@ Block::collision(GameObject& other, const CollisionHit& )
   return FORCE_MOVE;
 }
 
+bool
+Block::is_spent() const
+{
+  /* The same test the bonus block makes on itself: once it has been hit it
+     wears the empty picture, and there is nothing left in it to go for. */
+  return sprite->get_action() == "empty";
+}
+
 void
 Block::update(float elapsed_time)
 {

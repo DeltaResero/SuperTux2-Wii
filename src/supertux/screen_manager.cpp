@@ -361,17 +361,10 @@ ScreenManager::handle_screen_switch()
         }
       }
 
-      if (screen_closed && SpriteManager::current() != nullptr)
-      {
-        SpriteManager::current()->release_unused();
-      }
+      const bool screen_changed =
+        !m_screen_stack.empty() && current_screen != m_screen_stack.back().get();
 
-      if (screen_closed && TileManager::current() != nullptr)
-      {
-        TileManager::current()->release_unused();
-      }
-
-      if (!m_screen_stack.empty() && current_screen != m_screen_stack.back().get())
+      if (screen_changed)
       {
         if(current_screen != nullptr) {
           current_screen->leave();
@@ -382,6 +375,23 @@ ScreenManager::handle_screen_switch()
           m_screen_stack.back()->setup();
           m_speed = 1.0;
           m_waiting_threads.wakeup();
+        }
+      }
+
+      /* Let go of artwork nothing is using, once the screen going away has
+         said its goodbyes and the one arriving has taken hold of what it
+         wants. Anything the two have in common is claimed by then and stays,
+         so a shared tileset is not dropped and read again. */
+      if (screen_closed || screen_changed)
+      {
+        if (SpriteManager::current() != nullptr)
+        {
+          SpriteManager::current()->release_unused();
+        }
+
+        if (TileManager::current() != nullptr)
+        {
+          TileManager::current()->release_unused();
         }
       }
     }

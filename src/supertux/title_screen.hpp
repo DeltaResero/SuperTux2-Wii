@@ -24,11 +24,15 @@
 #include <memory>
 #include <string>
 
+#include "math/vector.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/savegame.hpp"
 
+class Block;
 class CodeController;
+class Player;
 class Savegame;
+class Sector;
 
 /**
  * Screen that displays the SuperTux logo, lets players start a new game, etc.
@@ -49,13 +53,40 @@ public:
 private:
   void make_tux_jump();
 
+  /** The next value out of the sequence his choices are spaced by. */
+  float next_spacing();
+
+  /** Where the top of his head would be t seconds into a jump taken now. */
+  static Vector arc_head(const Rectf& body, float crown, float gravity,
+                         float t);
+
+  /** The block a jump taken now would land his head on, if there is one. */
+  const Block* block_in_arc(const Sector& sector, const Player& tux) const;
+
+  /** Whether this one is worth leaving the ground for. */
+  bool worth_jumping_for(const Block& block);
+
+  /** Put Tux where a lap begins: off the left of the view, and the given
+      distance above the ground he will walk in along. */
+  static void place_at_entry(Sector& sector, Player& tux, float drop);
+
+  /** Build the level the menu is played over. */
+  void create_session();
+
 private:
+  Savegame& m_savegame;
   SurfacePtr frame;
   std::unique_ptr<CodeController> controller;
   std::unique_ptr<GameSession> titlesession;
   std::string copyright_text;
   std::string wrapped_copyright; /**< copyright_text broken to fit the screen */
   int wrapped_width; /**< the width wrapped_copyright was broken for */
+  bool jump_was_released; /**< whether the jump button was up last frame */
+  float eagerness; /**< how much of the bonus blocks he bothers with this time */
+  float crate_eagerness; /**< and how many of the crates */
+  float spacing; /**< walks the range of eagerness and of the decisions */
+  const Block* last_block; /**< the block the standing decision was made about */
+  bool taking_block; /**< and what that decision was */
 
 private:
   TitleScreen(const TitleScreen&);

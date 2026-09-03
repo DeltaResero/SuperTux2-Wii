@@ -49,6 +49,15 @@ SET(CMAKE_CXX_STANDARD 23)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_CXX_EXTENSIONS OFF)
 
+## Build type, the release one unless another is asked for. Generators that
+## choose per build rather than per tree set their own.
+
+IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  SET(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+ENDIF()
+SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+             Debug Release RelWithDebInfo MinSizeRel)
+
 ## Compiler cache, asked for rather than assumed.
 
 OPTION(ENABLE_CCACHE "Compile through ccache" OFF)
@@ -234,22 +243,16 @@ SET(SUPERTUX_VERSION_MAJOR 0)
 SET(SUPERTUX_VERSION_MINOR 5)
 SET(SUPERTUX_VERSION_PATCH 1)
 SET(SUPERTUX_VERSION_TWEAK )
-SET(SUPERTUX_WII_REVISION "d.01")
+SET(SUPERTUX_WII_REVISION "d.00")
 SET(SUPERTUX_VERSION_STRING "${SUPERTUX_VERSION_MAJOR}.${SUPERTUX_VERSION_MINOR}.${SUPERTUX_VERSION_PATCH}-wii-${SUPERTUX_WII_REVISION}")
+
+## A build that is not the release one says so in the version.
+IF(NOT CMAKE_BUILD_TYPE MATCHES Release)
+  SET(SUPERTUX_VERSION_STRING "${SUPERTUX_VERSION_STRING}-dev")
+ENDIF()
 
 
 SET(SUPERTUX_VERSION ${SUPERTUX_VERSION_STRING})
-
-configure_file(version.h.in ${CMAKE_BINARY_DIR}/version.h )
-
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_BINARY_DIR}/version.h
-                            PROPERTIES GENERATED true)
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/main.cpp
-                            PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_screen.cpp
-                            PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
 
 ## Check platform-dependent build options
 
@@ -432,7 +435,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 ## Add target for supertux binary
 
 add_library(supertux2_c OBJECT ${SUPERTUX_SOURCES_C})
-add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
+add_library(supertux2_lib STATIC ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
 IF(WIN32)
     add_executable(supertux2 WIN32 src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc)
     TARGET_LINK_LIBRARIES(supertux2 ${SDL2MAIN_LIBRARIES})
@@ -575,27 +578,15 @@ INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
 IF(CMAKE_BUILD_TYPE MATCHES Release)
   INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
                     DESTINATION ${INSTALL_SUBDIR_SHARE}
-                    PATTERN "data/levels/incubator" EXCLUDE
-                    PATTERN "data/levels/misc/menu.stl.in" EXCLUDE)
+                    PATTERN "data/levels/incubator" EXCLUDE)
 ELSE()
   INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
-                    DESTINATION ${INSTALL_SUBDIR_SHARE}
-                    PATTERN "data/levels/misc/menu.stl.in" EXCLUDE)
+                    DESTINATION ${INSTALL_SUBDIR_SHARE})
 ENDIF()
-
-INSTALL(FILES "${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl" DESTINATION "${INSTALL_SUBDIR_SHARE}/levels/misc")
 
 ## Create config.h now that INSTALL_SUBDIR_* have been set.
 
-configure_file(config.h.cmake ${CMAKE_BINARY_DIR}/config.h )
-
-## Configure main menu logo
-IF(CMAKE_BUILD_TYPE MATCHES Release)
-    SET(LOGO_FILE "logo_final.sprite")
-ELSE()
-    SET(LOGO_FILE "logo.sprite")
-ENDIF()
-configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
+configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
 
 ## CPack/Installation-specific stuff
