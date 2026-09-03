@@ -36,6 +36,9 @@ public:
   Block(const ReaderMapping& lisp, const std::string& sprite_file);
   ~Block();
 
+  /** Whether this block has already been hit for whatever it was holding. */
+  bool is_spent() const;
+
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual void update(float elapsed_time) override;
   virtual void draw(DrawingContext& context) override;

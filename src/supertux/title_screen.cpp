@@ -28,6 +28,8 @@
 #include "gui/menu_manager.hpp"
 #include "object/camera.hpp"
 #include "object/player.hpp"
+#include "object/bonus_block.hpp"
+#include "object/brick.hpp"
 #include "supertux/fadein.hpp"
 #include "supertux/fadeout.hpp"
 #include "supertux/gameconfig.hpp"
@@ -35,6 +37,7 @@
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/screen_manager.hpp"
+#include "supertux/collision.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/textscroller.hpp"
 #include "supertux/world.hpp"
@@ -42,6 +45,7 @@
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
 
+#include <ctime>
 #include <sstream>
 
 namespace {
@@ -51,6 +55,26 @@ namespace {
     narrowest at, and a wider inset pushes its final word onto a line of its
     own. */
 const float COPYRIGHT_MARGIN = 3.0f;
+
+/** The jump, measured off a running game rather than read off the constants:
+    Tux leaves the ground at 510 units against the level's gravity of 1000
+    while walking at 230, and tops out 128 up, which is four tiles exactly. */
+const float JUMP_SPEED = 510.6f;
+const float WALK_SPEED = 230.0f;
+const float ARC_STEP = 1.0f / 64.0f;
+
+/** How keen he is on the bonus blocks, drawn fresh for each run at the level.
+    At the bottom of the range he ignores them altogether, which is what the
+    title screen has always done; at the top he takes about a quarter of the
+    ones he could reach. */
+const float LEAST_EAGER = 0.0f;
+const float MOST_EAGER = 0.25f;
+
+/** Adding the golden ratio and wrapping at one spreads successive values as far
+    apart as they will go, so his keenness and his choices never fall into a
+    rhythm. Where in the sequence a run starts comes from the clock, stirred
+    first, because one second to the next moves the start too little to show. */
+const float SPACING_STEP = 0.6180339887f;
 
 /** Break every line of a text to a width, keeping the breaks already in it. */
 std::string wrap_to_screen(const FontPtr& font, const std::string& text, float width)
@@ -83,7 +107,14 @@ TitleScreen::TitleScreen(Savegame& savegame) :
   titlesession(),
   copyright_text(),
   wrapped_copyright(),
-  wrapped_width(0)
+  wrapped_width(0),
+  jump_was_released(true),
+  eagerness(0.0f),
+  crate_eagerness(0.0f),
+  spacing(static_cast<float>((static_cast<unsigned int>(std::time(nullptr))
+                              * 2654435761u) % 1000u) / 1000.0f),
+  last_block(NULL),
+  taking_block(false)
 {
   controller.reset(new CodeController());
   create_session();
@@ -98,21 +129,123 @@ TitleScreen::TitleScreen(Savegame& savegame) :
     "file for details.";
 }
 
+float
+TitleScreen::next_spacing()
+{
+  spacing += SPACING_STEP;
+  if (spacing >= 1.0f) spacing -= 1.0f;
+  return spacing;
+}
+
+bool
+TitleScreen::worth_jumping_for(const Block& block)
+{
+  /* Crates keep their own appetite, drawn separately, because a Tux who is
+     keen on the bonus blocks this lap needn't be keen on breaking things. A
+     Tux too small to break one never gets that far: block_in_arc has already
+     passed them over. */
+  const float keen = dynamic_cast<const Brick*>(&block) != NULL
+                     ? crate_eagerness : eagerness;
+
+  return next_spacing() < keen;
+}
+
+Vector
+TitleScreen::arc_head(const Rectf& body, float crown, float gravity, float t)
+{
+  /* Where the top of his head would be t seconds into a jump taken now, less
+     the tile he still has to walk: without it he leaves the ground a tile
+     short of the block every time. */
+  return Vector(crown + WALK_SPEED * t - 32.0f,
+                body.p1.y - JUMP_SPEED * t + 0.5f * gravity * t * t);
+}
+
+const Block*
+TitleScreen::block_in_arc(const Sector& sector, const Player& tux) const
+{
+  const Rectf& body = tux.get_bbox();
+  /* Taken from the sector rather than written down here, so that a map which
+     sets its own gravity is still aimed at correctly. */
+  const float gravity = sector.get_gravity() * 100.0f;
+  const float climb = JUMP_SPEED / gravity;
+
+  /* The top of his head, and only that: he is a tile wide, so asking whether
+     any part of him would touch a block answers yes a whole tile before he is
+     under it, which is a jump into its side rather than its underside. */
+  const float crown = (body.p1.x + body.p2.x) * 0.5f;
+
+  /* Everything the climb passes through, in one box. An object outside it
+     cannot be reached however long the arc is walked, and throwing those out
+     on four comparisons is what keeps the dynamic_cast below down to the
+     handful of objects actually near him. */
+  const Rectf sweep(crown - 32.0f,
+                    body.p1.y - JUMP_SPEED * JUMP_SPEED / (2.0f * gravity),
+                    crown + WALK_SPEED * climb - 32.0f,
+                    body.p1.y);
+
+  /* How far up the climb gets before the ground or the scenery ends it. Left
+     until something is actually worth aiming at, because on open ground there
+     is nothing for it to rule out and it is the dearest part of this. */
+  float stopped = climb + ARC_STEP;
+  bool ground_known = false;
+
+  const Block* target = NULL;
+
+  for (const auto& object : sector.moving_objects)
+  {
+    if (!object->is_valid()) continue;
+    if (object->get_group() != COLGROUP_STATIC) continue;
+    if (!collision::intersects(sweep, object->get_bbox())) continue;
+
+    /* Only now is it worth asking what the object is. Only blocks with
+       something left in them count: an empty one is scenery, and a crate is no
+       use to a Tux too small to break it. */
+    const Block* block = dynamic_cast<const Block*>(object);
+    if (block == NULL || block->is_spent()) continue;
+    if (dynamic_cast<const Brick*>(block) != NULL && !tux.is_big()) continue;
+
+    if (!ground_known)
+    {
+      ground_known = true;
+      for (float t = ARC_STEP; t <= climb; t += ARC_STEP)
+      {
+        const Vector head = arc_head(body, crown, gravity, t);
+        if (!sector.is_free_of_tiles(Rectf(head.x, head.y,
+                                           head.x + 1.0f, head.y + 1.0f)))
+        {
+          stopped = t;
+          break;
+        }
+      }
+    }
+
+    /* Whichever he would reach first is the one he is going for. */
+    for (float t = ARC_STEP; t < stopped; t += ARC_STEP)
+    {
+      if (block->get_bbox().contains(arc_head(body, crown, gravity, t)))
+      {
+        stopped = t;
+        target = block;
+        break;
+      }
+    }
+  }
+
+  return target;
+}
+
 void
 TitleScreen::make_tux_jump()
 {
-  static bool jumpWasReleased = true;
   Sector* sector  = titlesession->get_current_sector();
   Player* tux = sector->player;
 
   controller->update();
   controller->press(Controller::RIGHT);
 
-  /* Off the ground he is committed: the jump is held to its full height
-     whatever is in front of him, so what is in front of him is not worth
-     working out until his feet are back under him. Answering it anyway meant
-     walking every static object in the sector on every airborne frame and
-     throwing the answer away. */
+  /* Off the ground he's committed either way, since the jump is held to its
+     full height and there's no second one to spend, so neither of these is
+     worth working out until his feet are back under him. */
   bool pathBlocked = false;
 
   if (tux->on_ground())
@@ -121,19 +254,33 @@ TitleScreen::make_tux_jump()
     Rectf lookahead = tux->get_bbox();
     lookahead.p2.x += 96;
     pathBlocked = !sector->is_free_of_statics(lookahead);
+
+    /* Whether to go for a block is settled once, as it comes into reach, and
+       stands until a different one does. Asked every frame instead, the answer
+       would come up yes within a few of them however seldom he meant to. */
+    const Block* target = block_in_arc(*sector, *tux);
+    if (target != last_block) {
+      last_block = target;
+      taking_block = target != NULL && worth_jumping_for(*target);
+    }
   }
 
-  if ((pathBlocked && jumpWasReleased) || !tux->on_ground()) {
+  if (((pathBlocked || taking_block) && jump_was_released)
+      || !tux->on_ground()) {
     controller->press(Controller::JUMP);
-    jumpWasReleased = false;
+    jump_was_released = false;
   } else {
-    jumpWasReleased = true;
+    jump_was_released = true;
   }
 
   // Wrap around at the end of the level back to the beginning
   if(sector->get_width() - 320 < tux->get_pos().x) {
     sector->activate("main");
     sector->camera->reset(tux->get_pos());
+
+    /* A fresh lap, and a fresh appetite for the blocks along it. */
+    eagerness = LEAST_EAGER + next_spacing() * (MOST_EAGER - LEAST_EAGER);
+    crate_eagerness = LEAST_EAGER + next_spacing() * (MOST_EAGER - LEAST_EAGER);
   }
 }
 
@@ -172,6 +319,12 @@ TitleScreen::setup()
     if (!tux->is_big()) spawn.y -= 32;
     sector->activate(spawn);
   }
+
+  jump_was_released = true;
+  last_block = NULL;
+  taking_block = false;
+  eagerness = LEAST_EAGER + next_spacing() * (MOST_EAGER - LEAST_EAGER);
+  crate_eagerness = LEAST_EAGER + next_spacing() * (MOST_EAGER - LEAST_EAGER);
 
   MenuManager::instance().set_menu(MenuStorage::MAIN_MENU);
   ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>(new FadeIn(0.25)));
