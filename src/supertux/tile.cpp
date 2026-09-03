@@ -25,6 +25,7 @@
 #include "supertux/tile_set.hpp"
 #include "math/aatriangle.hpp"
 #include "video/drawing_context.hpp"
+#include "video/texture_manager.hpp"
 
 
 Tile::Tile() :
@@ -87,6 +88,12 @@ void
 Tile::release_images()
 {
   images.clear();
+
+  /* Tiles are cut from a shared sheet, so the decoded sheet is kept rather
+     than re-read per tile. Nothing hands it back once the cutting is done. */
+  for(const auto& spec : imagespecs) {
+    TextureManager::current()->release_image(spec.file);
+  }
 }
 
 SurfacePtr
