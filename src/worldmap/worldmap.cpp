@@ -447,17 +447,14 @@ WorldMap::finished_level(Level* gamelevel)
   }
 
   bool old_level_state = level->solved;
-  level->solved = true;
-  level->sprite->set_action("solved");
+  level->set_solved(true);
 
   // deal with statistics
   level->statistics.merge(gamelevel->stats);
   calculate_total_stats();
 
   if(level->statistics.completed(level->statistics, level->target_time)) {
-    level->perfect = true;
-    if(level->sprite->has_action("perfect"))
-      level->sprite->set_action("perfect");
+    level->set_perfect(true);
   }
 
   save_state();
