@@ -108,10 +108,21 @@ TitleScreen::make_tux_jump()
   controller->update();
   controller->press(Controller::RIGHT);
 
-  // Check if we should press the jump button
-  Rectf lookahead = tux->get_bbox();
-  lookahead.p2.x += 96;
-  bool pathBlocked = !sector->is_free_of_statics(lookahead);
+  /* Off the ground he is committed: the jump is held to its full height
+     whatever is in front of him, so what is in front of him is not worth
+     working out until his feet are back under him. Answering it anyway meant
+     walking every static object in the sector on every airborne frame and
+     throwing the answer away. */
+  bool pathBlocked = false;
+
+  if (tux->on_ground())
+  {
+    // Check if we should press the jump button
+    Rectf lookahead = tux->get_bbox();
+    lookahead.p2.x += 96;
+    pathBlocked = !sector->is_free_of_statics(lookahead);
+  }
+
   if ((pathBlocked && jumpWasReleased) || !tux->on_ground()) {
     controller->press(Controller::JUMP);
     jumpWasReleased = false;
