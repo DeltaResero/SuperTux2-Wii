@@ -66,6 +66,10 @@ private:
   /** Whether this one is worth leaving the ground for. */
   bool worth_jumping_for(const Block& block);
 
+  /** Put Tux where a lap begins: off the left of the view, and the given
+      distance above the ground he will walk in along. */
+  static void place_at_entry(Sector& sector, Player& tux, float drop);
+
   /** Build the level the menu is played over. */
   void create_session();
 
