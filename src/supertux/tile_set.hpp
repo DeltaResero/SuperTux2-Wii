@@ -53,6 +53,9 @@ public:
 
   const Tile* get(const uint32_t id) const;
 
+  /** Drop every tile's pictures. They come back on the next draw. */
+  void release_images();
+
   uint32_t get_max_tileid() const
   {
     return m_tiles.size();

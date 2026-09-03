@@ -109,6 +109,15 @@ TileSet::get(const uint32_t id) const
 }
 
 void
+TileSet::release_images()
+{
+  for(const auto& tile : m_tiles) {
+    if(tile)
+      tile->release_images();
+  }
+}
+
+void
 TileSet::draw_tile(DrawingContext& context, uint32_t id, const Vector& pos,
                    int z_pos, Color color) const
 {

@@ -210,6 +210,10 @@ WorldMap::release_artwork()
     if(artwork != NULL)
       artwork->release_artwork();
   }
+
+  /* No matching fetch: a tile reloads itself the next time it's drawn. */
+  if(tileset)
+    tileset->release_images();
 }
 
 void

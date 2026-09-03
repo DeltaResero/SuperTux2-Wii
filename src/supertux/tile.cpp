@@ -83,6 +83,12 @@ Tile::load_images()
 
 }
 
+void
+Tile::release_images()
+{
+  images.clear();
+}
+
 SurfacePtr
 Tile::get_current_image() const
 {
