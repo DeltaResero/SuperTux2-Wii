@@ -19,6 +19,7 @@
 
 #include "object/decal.hpp"
 
+#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "util/reader.hpp"
 #include "util/reader_mapping.hpp"
@@ -39,6 +40,21 @@ Decal::Decal(const ReaderMapping& reader) :
 
 Decal::~Decal()
 {
+}
+
+void
+Decal::release_artwork()
+{
+  sprite.reset();
+}
+
+void
+Decal::reacquire_artwork()
+{
+  sprite = SpriteManager::current()->create(sprite_name);
+  /* set_action also sizes the object, so mirror the constructor. */
+  if(!default_action.empty())
+    set_action(default_action, -1);
 }
 
 /* EOF */

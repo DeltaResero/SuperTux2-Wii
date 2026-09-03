@@ -106,6 +106,7 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   ambient_light( 1.0f, 1.0f, 1.0f, 1.0f ),
   force_spawnpoint(force_spawnpoint_),
   in_level(false),
+  artwork_released(false),
   pan_pos(),
   panning(false)
 {
@@ -198,6 +199,26 @@ WorldMap::try_unexpose(const GameObjectPtr& object)
       log_warning << "Couldn't unregister object: " << e.what() << std::endl;
     }
     sq_settop(vm, oldtop);
+  }
+}
+
+void
+WorldMap::release_artwork()
+{
+  for(const auto& object : game_objects) {
+    auto artwork = dynamic_cast<ArtworkInterface*>(object.get());
+    if(artwork != NULL)
+      artwork->release_artwork();
+  }
+}
+
+void
+WorldMap::reacquire_artwork()
+{
+  for(const auto& object : game_objects) {
+    auto artwork = dynamic_cast<ArtworkInterface*>(object.get());
+    if(artwork != NULL)
+      artwork->reacquire_artwork();
   }
 }
 
@@ -852,6 +873,13 @@ WorldMap::setup()
   ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>(new FadeIn(1)));
 
   current_ = this;
+
+  /* Before load_state, which asks each dot to show the right picture. */
+  if(artwork_released) {
+    reacquire_artwork();
+    artwork_released = false;
+  }
+
   load_state();
 
   // if force_spawnpoint was set, move Tux there, then clear force_spawnpoint
@@ -909,6 +937,10 @@ WorldMap::leave()
   if(SQ_FAILED(sq_deleteslot(global_vm, -2, SQFalse)))
     throw SquirrelError(global_vm, "Couldn't unset worldmap in roottable");
   sq_pop(global_vm, 1);
+
+  /* Only the artwork: a running level points into the dot it started from. */
+  release_artwork();
+  artwork_released = true;
 }
 
 void
