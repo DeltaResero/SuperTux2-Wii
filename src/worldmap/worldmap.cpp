@@ -136,10 +136,11 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   sq_addref(global_vm, &worldmap_table);
   sq_pop(global_vm, 1);
 
-  SoundManager::current()->preload("sounds/warp.wav");
-
   // load worldmap objects
   load(filename);
+
+  if(!teleporters.empty())
+    SoundManager::current()->preload("sounds/warp.wav");
 }
 
 WorldMap::~WorldMap()
