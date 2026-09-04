@@ -26,12 +26,14 @@
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 #include "util/reader_fwd.hpp"
 
 namespace worldmap {
 
-class SpecialTile : public GameObject
+class SpecialTile : public GameObject,
+                    public ArtworkInterface
 {
 public:
   SpecialTile(const ReaderMapping& lisp);
@@ -40,11 +42,17 @@ public:
   virtual void draw(DrawingContext& context);
   virtual void update(float elapsed_time);
 
+  virtual void release_artwork();
+  virtual void reacquire_artwork();
+
 public:
   Vector pos;
 
   /** Sprite to render instead of guessing what image to draw */
   SpritePtr sprite;
+
+  /** Kept so the sprite can be fetched again */
+  std::string sprite_name;
 
   /** Message to show in the Map */
   std::string map_message;

@@ -25,6 +25,7 @@
 #include "supertux/tile_set.hpp"
 #include "math/aatriangle.hpp"
 #include "video/drawing_context.hpp"
+#include "video/texture_manager.hpp"
 
 
 Tile::Tile() :
@@ -81,6 +82,21 @@ Tile::load_images()
     }
   }
 
+}
+
+void
+Tile::release_images()
+{
+  images.clear();
+
+  /* Nothing else hands back the sheet a tile was cut from. */
+  auto textures = TextureManager::current();
+  if(!textures)
+    return; /* torn down at exit, after the textures went */
+
+  for(const auto& spec : imagespecs) {
+    textures->release_image(spec.file);
+  }
 }
 
 SurfacePtr

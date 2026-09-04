@@ -40,6 +40,7 @@ LevelTile::LevelTile(const std::string& basedir_, const ReaderMapping& lisp) :
   perfect(false),
   auto_play(false),
   sprite(),
+  sprite_name(),
   statistics(),
   target_time(),
   extro_script(),
@@ -51,9 +52,9 @@ LevelTile::LevelTile(const std::string& basedir_, const ReaderMapping& lisp) :
   lisp.get("y", pos.y);
   lisp.get("auto-play", auto_play);
 
-  std::string spritefile = "images/worldmap/common/leveldot.sprite";
-  lisp.get("sprite", spritefile);
-  sprite = SpriteManager::current()->create(spritefile);
+  sprite_name = "images/worldmap/common/leveldot.sprite";
+  lisp.get("sprite", sprite_name);
+  sprite = SpriteManager::current()->create(sprite_name);
 
   lisp.get("extro-script", extro_script);
 
@@ -89,8 +90,25 @@ LevelTile::update(float )
 }
 
 void
+LevelTile::release_artwork()
+{
+  sprite.reset();
+}
+
+void
+LevelTile::reacquire_artwork()
+{
+  sprite = SpriteManager::current()->create(sprite_name);
+  update_sprite_action();
+}
+
+void
 LevelTile::update_sprite_action()
 {
+  /* Winning sets the flags while the artwork is down; reacquire picks it up. */
+  if(!sprite)
+    return;
+
   if(!solved)
     sprite->set_action("default");
   else

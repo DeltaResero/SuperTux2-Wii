@@ -62,6 +62,20 @@ Tux::~Tux()
 }
 
 void
+Tux::release_artwork()
+{
+  sprite.reset();
+}
+
+void
+Tux::reacquire_artwork()
+{
+  /* The savegame keeps which sprite he wears; draw() sets the action. */
+  sprite = SpriteManager::current()->create(
+    worldmap->get_savegame().get_player_status()->worldmap_sprite);
+}
+
+void
 Tux::draw(DrawingContext& context)
 {
   std::string action = get_action_prefix_for_bonus(worldmap->get_savegame().get_player_status()->bonus);

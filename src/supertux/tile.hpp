@@ -129,6 +129,9 @@ public:
   /** load Surfaces, if not already loaded */
   void load_images();
 
+  /** Drop the Surfaces; load_images() fetches them again when next drawn */
+  void release_images();
+
   SurfacePtr get_current_image() const;
 
   /** Draw a tile on the screen */

@@ -23,17 +23,22 @@
 #include <string>
 
 #include "object/moving_sprite.hpp"
+#include "supertux/artwork_interface.hpp"
 
 class ReaderMapping;
 
 /**
  * A decorative image, perhaps part of the terrain
  */
-class Decal : public MovingSprite
+class Decal : public MovingSprite,
+              public ArtworkInterface
 {
 public:
   Decal(const ReaderMapping& reader);
   virtual ~Decal();
+
+  virtual void release_artwork();
+  virtual void reacquire_artwork();
 
   virtual HitResponse collision(GameObject& , const CollisionHit& ) {
     return FORCE_MOVE;

@@ -123,6 +123,9 @@ private:
 
   bool in_level;
 
+  /** So the first setup() after the constructor doesn't refetch */
+  bool artwork_released;
+
   /* variables to track panning to a spawn point */
   Vector pan_pos;
   bool panning;
@@ -135,6 +138,11 @@ public:
 
   void try_expose(const GameObjectPtr& object);
   void try_unexpose(const GameObjectPtr& object);
+
+  /** Called either side of a level, so the map isn't holding artwork
+      while something else is on screen. */
+  void release_artwork();
+  void reacquire_artwork();
 
   static WorldMap* current()
   { return current_; }

@@ -29,6 +29,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include <sexp/lexer.hpp>
+
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
 #include "gui/menu.hpp"
@@ -106,6 +108,7 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   ambient_light( 1.0f, 1.0f, 1.0f, 1.0f ),
   force_spawnpoint(force_spawnpoint_),
   in_level(false),
+  artwork_released(false),
   pan_pos(),
   panning(false)
 {
@@ -133,10 +136,11 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   sq_addref(global_vm, &worldmap_table);
   sq_pop(global_vm, 1);
 
-  SoundManager::current()->preload("sounds/warp.wav");
-
   // load worldmap objects
   load(filename);
+
+  if(!teleporters.empty())
+    SoundManager::current()->preload("sounds/warp.wav");
 }
 
 WorldMap::~WorldMap()
@@ -198,6 +202,30 @@ WorldMap::try_unexpose(const GameObjectPtr& object)
       log_warning << "Couldn't unregister object: " << e.what() << std::endl;
     }
     sq_settop(vm, oldtop);
+  }
+}
+
+void
+WorldMap::release_artwork()
+{
+  for(const auto& object : game_objects) {
+    auto artwork = dynamic_cast<ArtworkInterface*>(object.get());
+    if(artwork != NULL)
+      artwork->release_artwork();
+  }
+
+  /* No matching fetch: a tile reloads itself the next time it's drawn. */
+  if(tileset)
+    tileset->release_images();
+}
+
+void
+WorldMap::reacquire_artwork()
+{
+  for(const auto& object : game_objects) {
+    auto artwork = dynamic_cast<ArtworkInterface*>(object.get());
+    if(artwork != NULL)
+      artwork->reacquire_artwork();
   }
 }
 
@@ -338,14 +366,40 @@ WorldMap::load_level_information(LevelTile& level)
     std::string filename = levels_path + level.get_name();
     if(levels_path == "./")
       filename = level.get_name();
-    auto doc = ReaderDocument::parse(filename);
-    auto root = doc.get_root();
-    if(root.get_name() != "supertux-level") {
+
+    /* Both keys sit in the header, so read tokens until the sector starts
+       and leave the rest of the file unread. */
+    IFileStream in(filename);
+    sexp::Lexer lexer(in);
+
+    if(lexer.get_next_token() != sexp::Lexer::TOKEN_OPEN_PAREN ||
+       lexer.get_next_token() != sexp::Lexer::TOKEN_SYMBOL ||
+       lexer.get_string() != "supertux-level") {
       return;
-    } else {
-      auto level_lisp = root.get_mapping();
-      level_lisp.get("name", level.title);
-      level_lisp.get("target-time", level.target_time);
+    }
+
+    bool have_title = false, have_target_time = false;
+    while(!have_title || !have_target_time) {
+      auto token = lexer.get_next_token();
+      if(token == sexp::Lexer::TOKEN_EOF)
+        break;
+      if(token != sexp::Lexer::TOKEN_SYMBOL)
+        continue;
+
+      const std::string key = lexer.get_string();
+      if(key == "sector")
+        break;
+      if(key == "name" &&
+         lexer.get_next_token() == sexp::Lexer::TOKEN_STRING) {
+        level.title = lexer.get_string();
+        have_title = true;
+      } else if(key == "target-time") {
+        auto value = lexer.get_next_token();
+        if(value == sexp::Lexer::TOKEN_REAL || value == sexp::Lexer::TOKEN_INTEGER) {
+          level.target_time = std::stof(lexer.get_string());
+          have_target_time = true;
+        }
+      }
     }
   } catch(std::exception& e) {
     log_warning << "Problem when reading level information: " << e.what() << std::endl;
@@ -447,17 +501,14 @@ WorldMap::finished_level(Level* gamelevel)
   }
 
   bool old_level_state = level->solved;
-  level->solved = true;
-  level->sprite->set_action("solved");
+  level->set_solved(true);
 
   // deal with statistics
   level->statistics.merge(gamelevel->stats);
   calculate_total_stats();
 
   if(level->statistics.completed(level->statistics, level->target_time)) {
-    level->perfect = true;
-    if(level->sprite->has_action("perfect"))
-      level->sprite->set_action("perfect");
+    level->set_perfect(true);
   }
 
   save_state();
@@ -661,8 +712,6 @@ WorldMap::update(float delta)
                                     level_->pos.y*32 +  8 - camera_offset.y);
           std::string levelfile = levels_path + level_->get_name();
 
-          // update state and savegame
-          save_state();
           ScreenManager::current()->push_screen(std::unique_ptr<Screen>(new GameSession(levelfile, m_savegame, &level_->statistics)),
                                                 std::unique_ptr<ScreenFade>(new ShrinkFade(shrinkpos, 1.0f)));
           in_level = true;
@@ -855,6 +904,13 @@ WorldMap::setup()
   ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>(new FadeIn(1)));
 
   current_ = this;
+
+  /* Before load_state, which asks each dot to show the right picture. */
+  if(artwork_released) {
+    reacquire_artwork();
+    artwork_released = false;
+  }
+
   load_state();
 
   // if force_spawnpoint was set, move Tux there, then clear force_spawnpoint
@@ -912,6 +968,10 @@ WorldMap::leave()
   if(SQ_FAILED(sq_deleteslot(global_vm, -2, SQFalse)))
     throw SquirrelError(global_vm, "Couldn't unset worldmap in roottable");
   sq_pop(global_vm, 1);
+
+  /* Only the artwork: a running level points into the dot it started from. */
+  release_artwork();
+  artwork_released = true;
 }
 
 void

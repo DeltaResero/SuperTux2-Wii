@@ -73,6 +73,8 @@ TileSet::TileSet(const std::string& filename) :
 
 TileSet::~TileSet()
 {
+  /* A level's tileset would otherwise leave its sheets decoded for the run. */
+  release_images();
 }
 
 void
@@ -105,6 +107,15 @@ TileSet::get(const uint32_t id) const
 //      log_warning << "Invalid tile: " << id << std::endl;
       return m_tiles[0].get();
     }
+  }
+}
+
+void
+TileSet::release_images()
+{
+  for(const auto& tile : m_tiles) {
+    if(tile)
+      tile->release_images();
   }
 }
 

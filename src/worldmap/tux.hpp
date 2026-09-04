@@ -33,7 +33,8 @@ class SpecialTile;
 class SpriteChange;
 class WorldMap;
 
-class Tux : public GameObject
+class Tux : public GameObject,
+            public ArtworkInterface
 {
 public:
   Direction back_direction;
@@ -69,6 +70,9 @@ public:
   void setup(); /**< called prior to first update */
   void draw(DrawingContext& context);
   void update(float elapsed_time);
+
+  virtual void release_artwork();
+  virtual void reacquire_artwork();
 
   void set_direction(Direction dir);
 

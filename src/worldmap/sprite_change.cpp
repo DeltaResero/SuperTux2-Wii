@@ -69,6 +69,19 @@ SpriteChange::update(float )
 {
 }
 
+void
+SpriteChange::release_artwork()
+{
+  sprite.reset();
+}
+
+void
+SpriteChange::reacquire_artwork()
+{
+  /* draw() sets the action each frame, so only the sprite needs putting back. */
+  sprite = SpriteManager::current()->create(sprite_name);
+}
+
 bool
 SpriteChange::show_stay_action() const
 {

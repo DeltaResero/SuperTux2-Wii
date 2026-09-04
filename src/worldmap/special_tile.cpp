@@ -30,6 +30,7 @@ namespace worldmap {
 SpecialTile::SpecialTile(const ReaderMapping& lisp) :
   pos(),
   sprite(),
+  sprite_name(),
   map_message(),
   passive_message(false),
   script(),
@@ -50,11 +51,10 @@ SpecialTile::SpecialTile(const ReaderMapping& lisp) :
   }
 
   if(!invisible) {
-    std::string spritefile = "";
-    if(!lisp.get("sprite", spritefile)) {
+    if(!lisp.get("sprite", sprite_name)) {
       log_warning << "No sprite specified for visible special tile." << std::endl;
     }
-    sprite = SpriteManager::current()->create(spritefile);
+    sprite = SpriteManager::current()->create(sprite_name);
   }
 
   if(!lisp.get("map-message", map_message)) {
@@ -103,6 +103,19 @@ SpecialTile::draw(DrawingContext& context)
 void
 SpecialTile::update(float )
 {
+}
+
+void
+SpecialTile::release_artwork()
+{
+  sprite.reset();
+}
+
+void
+SpecialTile::reacquire_artwork()
+{
+  if(!invisible)
+    sprite = SpriteManager::current()->create(sprite_name);
 }
 
 }
