@@ -711,8 +711,6 @@ WorldMap::update(float delta)
                                     level_->pos.y*32 +  8 - camera_offset.y);
           std::string levelfile = levels_path + level_->get_name();
 
-          // update state and savegame
-          save_state();
           ScreenManager::current()->push_screen(std::unique_ptr<Screen>(new GameSession(levelfile, m_savegame, &level_->statistics)),
                                                 std::unique_ptr<ScreenFade>(new ShrinkFade(shrinkpos, 1.0f)));
           in_level = true;
