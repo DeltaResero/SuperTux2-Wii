@@ -73,6 +73,8 @@ TileSet::TileSet(const std::string& filename) :
 
 TileSet::~TileSet()
 {
+  /* A level's tileset would otherwise leave its sheets decoded for the run. */
+  release_images();
 }
 
 void

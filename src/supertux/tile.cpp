@@ -89,10 +89,13 @@ Tile::release_images()
 {
   images.clear();
 
-  /* Tiles are cut from a shared sheet, so the decoded sheet is kept rather
-     than re-read per tile. Nothing hands it back once the cutting is done. */
+  /* Nothing else hands back the sheet a tile was cut from. */
+  auto textures = TextureManager::current();
+  if(!textures)
+    return; /* torn down at exit, after the textures went */
+
   for(const auto& spec : imagespecs) {
-    TextureManager::current()->release_image(spec.file);
+    textures->release_image(spec.file);
   }
 }
 
