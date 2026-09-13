@@ -251,6 +251,13 @@ static SQInteger base_suspend(HSQUIRRELVM v)
     return sq_suspendvm(v);
 }
 
+//sqvector sizes its allocation with count * sizeof(T) in SQUnsignedInteger, so a
+//longer array wraps the product and allocates less than the fill then writes
+static bool array_len_fits(SQInteger n)
+{
+    return (SQUnsignedInteger)n <= (~(SQUnsignedInteger)0) / sizeof(SQObjectPtr);
+}
+
 static SQInteger base_array(HSQUIRRELVM v)
 {
     SQArray *a;
@@ -258,6 +265,8 @@ static SQInteger base_array(HSQUIRRELVM v)
     SQInteger nsize = tointeger(size);
     if(nsize < 0)
         return sq_throwerror(v, _SC("cannot create an array with negative length"));
+    if(!array_len_fits(nsize))
+        return sq_throwerror(v, _SC("array length too large"));
     if(sq_gettop(v) > 2) {
         a = SQArray::Create(_ss(v),0);
         a->Resize(nsize,stack_get(v,3));
@@ -642,6 +651,8 @@ static SQInteger array_resize(HSQUIRRELVM v)
         SQInteger sz = tointeger(nsize);
         if (sz<0)
           return sq_throwerror(v, _SC("resizing to negative length"));
+        if(!array_len_fits(sz))
+          return sq_throwerror(v, _SC("array length too large"));
 
         if(sq_gettop(v) > 2)
             fill = stack_get(v, 3);
