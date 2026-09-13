@@ -98,20 +98,20 @@ public:
   ~DrawingContext();
 
   /// Adds a drawing request for a surface into the request list.
-  void draw_surface(SurfacePtr surface, const Vector& position,
+  void draw_surface(const SurfacePtr& surface, const Vector& position,
                     int layer);
   /// Adds a drawing request for a surface into the request list.
-  void draw_surface(SurfacePtr surface, const Vector& position,
+  void draw_surface(const SurfacePtr& surface, const Vector& position,
                     float angle, const Color& color, const Blend& blend,
                     int layer);
   /// Adds a drawing request for a surface drawn at a size the caller picks
   /// rather than the surface's own.
-  void draw_surface(SurfacePtr surface, const Vector& position,
+  void draw_surface(const SurfacePtr& surface, const Vector& position,
                     const Sizef& dstsize,
                     float angle, const Color& color, const Blend& blend,
                     int layer);
   /// Adds a drawing request for part of a surface.
-  void draw_surface_part(SurfacePtr surface,
+  void draw_surface_part(const SurfacePtr& surface,
                          const Rectf& srcrect, const Rectf& dstrect,
                          int layer);
   /// Puts a round glow on the lightmap, centred on the given point. Lights
@@ -215,7 +215,7 @@ private:
   /** Put a picture held in pieces back together, one request per piece
       laid where that piece belongs. Everything above this asks for a
       picture and knows nothing about how it is stored. */
-  void draw_split_surface(SurfacePtr surface, const Vector& position,
+  void draw_split_surface(const SurfacePtr& surface, const Vector& position,
                           const Sizef& dstsize,
                           float angle, const Color& color, const Blend& blend,
                           int layer);
@@ -223,7 +223,7 @@ private:
   /** The same for a part of a picture: what the caller asked for is cut
       again along the joins, and each piece keeps its share of where the
       whole was going. */
-  void draw_split_surface_part(SurfacePtr surface,
+  void draw_split_surface_part(const SurfacePtr& surface,
                                const Rectf& srcrect, const Rectf& dstrect,
                                int layer);
 
