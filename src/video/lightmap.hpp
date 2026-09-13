@@ -22,7 +22,6 @@
 
 #include <SDL_video.h>
 #include <memory>
-#include <obstack.h>
 #include <stdint.h>
 #include <string>
 #include <vector>
