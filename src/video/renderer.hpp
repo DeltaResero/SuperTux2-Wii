@@ -27,7 +27,6 @@
 #include <SDL_video.h>
 #include <assert.h>
 #include <stdint.h>
-#include <obstack.h>
 
 #include "math/rectf.hpp"
 #include "math/vector.hpp"

@@ -31,7 +31,6 @@
 
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
-#include "util/obstackpp.hpp"
 #include "video/drawing_context.hpp"
 #include "video/drawing_request.hpp"
 #include "video/font.hpp"

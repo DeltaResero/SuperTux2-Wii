@@ -285,7 +285,6 @@ ENDIF()
 
 include_directories(${CMAKE_BINARY_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/obstack/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/sexp-cpp/include/)
 
 IF(WIN32)
@@ -294,8 +293,6 @@ IF(WIN32)
 ENDIF(WIN32)
 
 ## Build list of sources for supertux binary
-
-FILE(GLOB SUPERTUX_SOURCES_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/obstack/*.c)
 
 ## This glob reaches src/lib/*.cpp as well, so nothing vendored may sit at that
 ## depth or it lands in our build under our warning flags.
@@ -323,7 +320,6 @@ IF(HAVE_OPENGL)
 ENDIF(HAVE_OPENGL)
 
 ## Sort source lists to have deterministic linking order
-LIST(SORT SUPERTUX_SOURCES_C)
 LIST(SORT SUPERTUX_SOURCES_CXX)
 LIST(SORT SUPERTUX_RESOURCES)
 
@@ -410,8 +406,7 @@ SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 ## Add target for supertux binary
 
-add_library(supertux2_c OBJECT ${SUPERTUX_SOURCES_C})
-add_library(supertux2_lib STATIC ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
+add_library(supertux2_lib STATIC ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} ${SUPERTUX_SOURCES_C})
 IF(WIN32)
     add_executable(supertux2 WIN32 src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/packaging/windows/supertux.rc)
     TARGET_LINK_LIBRARIES(supertux2 ${SDL2MAIN_LIBRARIES})
@@ -488,6 +483,7 @@ if(BUILD_TESTS)
   ENDFUNCTION()
 
   MAKE_UNIT_TEST(aatriangle_test tests/aatriangle_test.cpp)
+  MAKE_UNIT_TEST(arena_test tests/arena_test.cpp)
   MAKE_UNIT_TEST(reader_test tests/reader_test.cpp)
   MAKE_UNIT_TEST(size_test tests/size_test.cpp)
   MAKE_UNIT_TEST(sizef_test tests/sizef_test.cpp)
