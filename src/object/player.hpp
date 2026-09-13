@@ -28,6 +28,7 @@
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/direction.hpp"
 #include "supertux/moving_object.hpp"
+#include "supertux/object_remove_listener.hpp"
 #include "supertux/physic.hpp"
 #include "supertux/player_status.hpp"
 #include "supertux/script_interface.hpp"
@@ -327,6 +328,28 @@ public:
 
   Portable* grabbed_object;
 
+  /** Hears about the grabbed object going away, so the pointer above never
+      outlives what it points at. */
+  class GrabListener : public ObjectRemoveListener
+  {
+  public:
+    GrabListener(Player& player_) : player(player_)
+    {}
+
+    virtual void object_removed(GameObject* object) {
+      player.ungrab_object(object);
+    }
+
+  private:
+    Player& player;
+
+  private:
+    GrabListener(const GrabListener&);
+    GrabListener& operator=(const GrabListener&);
+  };
+
+  std::unique_ptr<ObjectRemoveListener> grabbed_object_remove_listener;
+
   SpritePtr sprite; /**< The main sprite representing Tux */
 
   SurfacePtr airarrow; /**< arrow indicating Tux' position when he's above the camera */
@@ -334,6 +357,10 @@ public:
   Vector floor_normal;
   void position_grabbed_object();
   void try_grab();
+
+  /** Lets go of whatever is held, if anything. Pass the object only from an
+      ObjectRemoveListener, where letting go of it again would be too late. */
+  void ungrab_object(GameObject* gameobject = NULL);
 
   bool ghost_mode; /**< indicates if Tux should float around and through solid objects */
 
