@@ -71,7 +71,6 @@ public:
   // std::optional<int> random_seed;
 
   std::optional<std::string> start_level;
-  std::optional<bool> enable_script_debugger;
   std::optional<std::string> start_demo;
   std::optional<std::string> record_demo;
   std::optional<Vector> tux_spawn_pos;

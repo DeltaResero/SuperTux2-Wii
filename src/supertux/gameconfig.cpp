@@ -46,7 +46,6 @@ Config::Config() :
   music_enabled(true),
   random_seed(0), // set by time(), by default (unless in config)
   start_level(),
-  enable_script_debugger(false),
   start_demo(),
   record_demo(),
   tux_spawn_pos(),

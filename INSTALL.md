@@ -72,10 +72,8 @@ following steps:
    archive, i.e. to the directory containing `src` and `data`.
  
 2. If you cloned this Supertux repo using git run `git submodule
-   update --init --recursive` to fetch/update squirrel, physfs, and
-   some other modules.
-   (If you got this version of Supertux from a tarball (.tar), squirrel
-   is already in the tarball.)
+   update --init --recursive` to fetch/update sexp-cpp, which is the
+   only submodule left. Everything else is in the tree already.
  
 3. Create and change to a new, empty build directory by running `mkdir
    build`, `cd build`.

@@ -50,7 +50,6 @@ CommandLineArguments::CommandLineArguments() :
   sound_enabled(),
   music_enabled(),
   start_level(),
-  enable_script_debugger(),
   start_demo(),
   record_demo(),
   tux_spawn_pos(),
@@ -100,7 +99,6 @@ CommandLineArguments::print_help(const char* arg0) const
             << "  --show-pos                   Display player's current position" << "\n"
             << "  --no-show-pos                Do not display player's position" << "\n"
             << "  --developer                  Switch on developer feature" << "\n"
-            << "  -s, --debug-scripts          Enable script debugger." << "\n"
             << "  --spawn-pos X,Y              Where in the level to spawn Tux. Only used if level is specified." << "\n" << "\n"
             << "Demo Recording Options:" << "\n"
             << "  --record-demo FILE LEVEL     Record a demo to FILE" << "\n"
@@ -352,10 +350,6 @@ CommandLineArguments::parse_args(int argc, char** argv)
 
       tux_spawn_pos = spawn_pos;
     }
-    else if (arg == "--debug-scripts" || arg == "-s")
-    {
-      enable_script_debugger = true;
-    }
     else if (arg[0] != '-')
     {
       start_level = arg;
@@ -384,7 +378,6 @@ CommandLineArguments::merge_into(Config& config)
   merge_option(sound_enabled);
   merge_option(music_enabled);
   merge_option(start_level);
-  merge_option(enable_script_debugger);
   merge_option(start_demo);
   merge_option(record_demo);
   merge_option(tux_spawn_pos);

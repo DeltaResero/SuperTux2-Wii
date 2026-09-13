@@ -299,7 +299,7 @@ Main::launch_game()
 #endif
 
   timelog("scripting");
-  scripting::Scripting scripting(g_config->enable_script_debugger);
+  scripting::Scripting scripting;
 
   timelog("resources");
   TileManager tile_manager;

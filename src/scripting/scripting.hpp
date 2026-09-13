@@ -32,10 +32,8 @@ class Scripting : public Currenton<Scripting>
 {
 private:
 public:
-  Scripting(bool enable_debugger);
+  Scripting();
   ~Scripting();
-
-  void update_debugger();
 
 private:
   Scripting(const Scripting&) = delete;

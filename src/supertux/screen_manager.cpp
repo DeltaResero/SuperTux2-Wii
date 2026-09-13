@@ -210,7 +210,6 @@ ScreenManager::draw(DrawingContext& context)
 void
 ScreenManager::update_gamelogic(float elapsed_time)
 {
-  scripting::Scripting::current()->update_debugger();
   scripting::TimeScheduler::instance->update(game_time);
 
   if (!m_screen_stack.empty())

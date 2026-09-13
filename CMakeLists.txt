@@ -73,8 +73,6 @@ IF(ENABLE_CCACHE)
 ENDIF()
 
 SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk/cmake)
-INCLUDE(ConfigureFiles)
-INCLUDE(ExternalProject)
 
 SET(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 SET(BUILD_CONFIG_DATA_DIR "${CMAKE_BINARY_DIR}/data")
@@ -133,15 +131,16 @@ IF(WIN32)
   FIND_LIBRARY(SDL2MAIN_LIBRARIES NAMES SDL2main PATHS "${DEPENDENCY_FOLDER}/lib")
 ELSE(WIN32)
   INCLUDE(FindPkgConfig)
-  ## 2.0.10 for SDL_RenderCopyExF, which the software renderer's lighting
+  ## 2.0.10 for SDL_RenderCopyExF that the software renderer's lighting
   ## needs to place a copy on a fraction of a pixel, and 2.0.18 for
-  ## SDL_RenderSetVSync, which the vsync setting changes through.
+  ## SDL_RenderSetVSync that the vsync setting changes through.
   PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2>=2.0.18)
   PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 ENDIF(WIN32)
 SET(HAVE_SDL TRUE)
 
 OPTION(BUILD_TESTS "Build test cases" OFF)
+OPTION(BUILD_TESTS_M32 "Also run the squirrel samples at 32-bit integer width" OFF)
 OPTION(ENABLE_OPENGL "Enable OpenGL support" ON)
 ## GLEW fetches the entry points a desktop driver keeps behind extensions.
 ## Hardware with a fixed 1.x pipeline has none to fetch and no GLEW built for
@@ -229,12 +228,6 @@ ENDIF(ENABLE_SDL_MIXER)
 FIND_PACKAGE(OggVorbis REQUIRED)
 INCLUDE_DIRECTORIES(SYSTEM ${VORBIS_INCLUDE_DIR})
 
-INCLUDE(CheckSymbolExists)
-
-#FIND_PACKAGE(ICONV REQUIRED)
-#INCLUDE_DIRECTORIES(SYSTEM ${ICONV_INCLUDE_DIR})
-#LINK_LIBRARIES(${ICONV_LIBRARY})
-
 ## The version. The first three numbers are the upstream release this fork is
 ## built from; the suffix is this fork's own revision, bumped by hand. The same
 ## arrangement SuperTux-Wii uses, and it needs nothing from git, so a build from
@@ -254,26 +247,34 @@ ENDIF()
 
 SET(SUPERTUX_VERSION ${SUPERTUX_VERSION_STRING})
 
-## Check platform-dependent build options
+## Also build simplesquirrel and the squirrel it binds
 
-INCLUDE(ConfigureChecks)
+## Built here rather than through their own CMake, which exists to install a
+## shared library and a pkg-config file we do not ship. An ADD_SUBDIRECTORY at
+## this point in the file also misses the CMAKE_CXX_FLAGS set further down.
+SET(SQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/squirrel)
+SET(SIMPLESQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/simplesquirrel)
 
+FILE(GLOB SQUIRREL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/squirrel/*.cpp)
+FILE(GLOB SQSTDLIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/sqstdlib/*.cpp)
+FILE(GLOB SIMPLESQUIRREL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SIMPLESQUIRREL_DIR}/source/*.cpp)
 
-## Also build external/simplesquirrel, which carries squirrel under it
-
-# simplesquirrel installs its own libraries by default; we link it, we don't ship it
-SET(SSQ_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
-ADD_SUBDIRECTORY(external/simplesquirrel EXCLUDE_FROM_ALL)
+ADD_LIBRARY(squirrel STATIC ${SQUIRREL_SOURCES})
+ADD_LIBRARY(sqstdlib STATIC ${SQSTDLIB_SOURCES})
+ADD_LIBRARY(simplesquirrel STATIC ${SIMPLESQUIRREL_SOURCES})
 
 ## These headers compile inside our own translation units, so they have to be
 ## system headers or our warning flags are held against their code.
-FOREACH(TGT simplesquirrel_static squirrel_static sqstdlib_static)
-  GET_TARGET_PROPERTY(TGT_INCLUDE_DIRS ${TGT} INTERFACE_INCLUDE_DIRECTORIES)
-  IF(TGT_INCLUDE_DIRS)
-    SET_TARGET_PROPERTIES(${TGT} PROPERTIES
-      INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${TGT_INCLUDE_DIRS}")
-  ENDIF()
-ENDFOREACH()
+TARGET_INCLUDE_DIRECTORIES(squirrel SYSTEM PUBLIC ${SQUIRREL_DIR}/include)
+TARGET_INCLUDE_DIRECTORIES(simplesquirrel SYSTEM PUBLIC ${SIMPLESQUIRREL_DIR}/include)
+TARGET_LINK_LIBRARIES(sqstdlib PUBLIC squirrel)
+TARGET_LINK_LIBRARIES(simplesquirrel PUBLIC squirrel sqstdlib)
+
+## _SQ64 widens SQInteger, so it has to reach every translation unit that sees
+## squirrel.h and not just the library's own.
+IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  TARGET_COMPILE_DEFINITIONS(squirrel PUBLIC _SQ64)
+ENDIF()
 
 IF(WIN32)
 	#For debug run purposes
@@ -296,6 +297,8 @@ ENDIF(WIN32)
 
 FILE(GLOB SUPERTUX_SOURCES_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/obstack/*.c)
 
+## This glob reaches src/lib/*.cpp as well, so nothing vendored may sit at that
+## depth or it lands in our build under our warning flags.
 FILE(GLOB SUPERTUX_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*/*.cpp src/supertux/menu/*.cpp src/video/sdl/*.cpp)
 IF(NOT ENABLE_SDL_MIXER)
   LIST(REMOVE_ITEM SUPERTUX_SOURCES_CXX src/audio/sdl_mixer_device.cpp src/audio/sdl_sound_source.cpp)
@@ -381,6 +384,11 @@ endif()
 ## Some additional compiler switches
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
+
+  ## A section per function and per object lets the linker drop what nothing reaches.
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
 endif()
 
 ## On Windows, add an icon
@@ -416,6 +424,16 @@ set_target_properties(supertux2_lib PROPERTIES OUTPUT_NAME supertux2)
 target_compile_options(supertux2_lib PRIVATE ${SUPERTUX2_WARNING_FLAGS})
 target_compile_options(supertux2 PRIVATE ${SUPERTUX2_WARNING_FLAGS})
 
+## These trees take our flags, less the exceptions below. -Weffc++ wants members
+## named in constructor initializer lists where squirrel sets them in the body,
+## but that's all the flag can see. -Wsign-conversion lands on SQInteger going to
+## an unsigned type. Squirrel returns -1 as a sentinel, so a plain cast would
+## hide a real value.
+TARGET_COMPILE_OPTIONS(squirrel PRIVATE ${SUPERTUX2_WARNING_FLAGS}
+  -Wno-effc++ -Wno-sign-conversion)
+TARGET_COMPILE_OPTIONS(sqstdlib PRIVATE ${SUPERTUX2_WARNING_FLAGS})
+TARGET_COMPILE_OPTIONS(simplesquirrel PRIVATE ${SUPERTUX2_WARNING_FLAGS})
+
 IF(WIN32)
   ## Copy dlls on windows
   ADD_CUSTOM_COMMAND(TARGET supertux2_lib POST_BUILD
@@ -435,7 +453,7 @@ TARGET_INCLUDE_DIRECTORIES(supertux2_lib SYSTEM PUBLIC ${SDL2IMAGE_INCLUDE_DIRS}
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${SDL2_LIBRARIES})
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${SDL2IMAGE_LIBRARIES})
 
-TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC simplesquirrel_static)
+TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC simplesquirrel)
 TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC sexp)
 IF(ENABLE_OPENAL)
   TARGET_LINK_LIBRARIES(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
@@ -474,9 +492,87 @@ if(BUILD_TESTS)
   MAKE_UNIT_TEST(size_test tests/size_test.cpp)
   MAKE_UNIT_TEST(sizef_test tests/sizef_test.cpp)
   MAKE_UNIT_TEST(string_util_test tests/string_util_test.cpp)
+
+  ## sq reaches squirrel and sqstdlib but none of simplesquirrel's own code.
+  ADD_EXECUTABLE(simplesquirrel_test tests/simplesquirrel_test.cpp)
+  TARGET_COMPILE_OPTIONS(simplesquirrel_test PRIVATE ${SUPERTUX2_WARNING_FLAGS})
+  TARGET_INCLUDE_DIRECTORIES(simplesquirrel_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+  TARGET_LINK_LIBRARIES(simplesquirrel_test simplesquirrel)
+  ADD_TEST(NAME simplesquirrel_test COMMAND simplesquirrel_test)
+
+  ## Squirrel's own interpreter, built to run squirrel's own samples against
+  ## output recorded from a tree we have not edited. This is what says the VM
+  ## still behaves after we touch it, since nothing else we have exercises the
+  ## compiler and the VM directly.
+  ADD_EXECUTABLE(sq tests/squirrel/sq.c)
+  TARGET_LINK_LIBRARIES(sq squirrel sqstdlib)
+  SET_TARGET_PROPERTIES(sq PROPERTIES C_STANDARD 99)
+
+  ## Six of the samples are Computer Language Shootout benchmarks that take
+  ## their problem size on the command line and fall back to 1, which computes
+  ## nothing worth recording. These sizes run in well under a second each.
+  SET(SQ_ARGS_ackermann 7)
+  SET(SQ_ARGS_array 2000)
+  SET(SQ_ARGS_fibonacci 25)
+  SET(SQ_ARGS_list 3)
+  SET(SQ_ARGS_matrix 40)
+  SET(SQ_ARGS_methcall 200000)
+
+  ## _SQ64 is set only on 64-bit, so a 32-bit build gets int where this one gets
+  ## long long, and every sample recording was made at the wider of the two.
+  IF(BUILD_TESTS_M32)
+    INCLUDE(CheckCXXSourceCompiles)
+    SET(CMAKE_REQUIRED_FLAGS "-m32")
+    CHECK_CXX_SOURCE_COMPILES("int main(){return 0;}" HAVE_M32)
+    UNSET(CMAKE_REQUIRED_FLAGS)
+    IF(NOT HAVE_M32)
+      MESSAGE(FATAL_ERROR "BUILD_TESTS_M32 needs a compiler that can target -m32")
+    ENDIF()
+
+    ## Built from sources rather than the squirrel targets, which carry _SQ64
+    ## and are the wrong width to link against.
+    ADD_EXECUTABLE(sq32 tests/squirrel/sq.c ${SQUIRREL_SOURCES} ${SQSTDLIB_SOURCES})
+    TARGET_INCLUDE_DIRECTORIES(sq32 SYSTEM PRIVATE ${SQUIRREL_DIR}/include)
+    TARGET_INCLUDE_DIRECTORIES(sq32 PRIVATE ${SQUIRREL_DIR}/squirrel ${SQUIRREL_DIR}/sqstdlib)
+    ## No warning flags, as with sq: this target exists to run the samples, and
+    ## sq.c compiles as C where most of our list is C++ only.
+    TARGET_COMPILE_OPTIONS(sq32 PRIVATE -m32)
+    TARGET_LINK_OPTIONS(sq32 PRIVATE -m32)
+    SET_TARGET_PROPERTIES(sq32 PROPERTIES C_STANDARD 99)
+  ENDIF()
+
+  FILE(GLOB SQUIRREL_SAMPLES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples
+       ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples/*.nut)
+  FOREACH(SAMPLE ${SQUIRREL_SAMPLES})
+    GET_FILENAME_COMPONENT(SAMPLE_NAME ${SAMPLE} NAME_WE)
+    SET(SQ_TARGETS sq)
+    IF(BUILD_TESTS_M32)
+      LIST(APPEND SQ_TARGETS sq32)
+    ENDIF()
+    FOREACH(SQ_TARGET ${SQ_TARGETS})
+      IF(SQ_TARGET STREQUAL sq)
+        SET(CASE squirrel_${SAMPLE_NAME})
+      ELSE()
+        SET(CASE squirrel_m32_${SAMPLE_NAME})
+      ENDIF()
+      ADD_TEST(NAME ${CASE}
+        COMMAND ${CMAKE_COMMAND}
+          -DSQ=$<TARGET_FILE:${SQ_TARGET}>
+          -DSCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples/${SAMPLE}
+          -DEXPECTED=${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/expected/${SAMPLE_NAME}.txt
+          -DARGS=${SQ_ARGS_${SAMPLE_NAME}}
+          -DTEST_NAME=${CASE}
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/run_sample.cmake)
+      ## These finish in well under a second, so the cap only fires on a stuck VM.
+      SET_TESTS_PROPERTIES(${CASE} PROPERTIES TIMEOUT 30)
+    ENDFOREACH()
+  ENDFOREACH()
 endif()
 
 ## Install stuff
+
+## Sets CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS that the VCREDIST branch and CPack both read.
+INCLUDE(InstallRequiredSystemLibraries)
 
 IF(WIN32 AND NOT UNIX)
 
@@ -491,7 +587,6 @@ IF(WIN32 AND NOT UNIX)
   OPTION(PACKAGE_VCREDIST "Package the VCREDIST libraries with the program" OFF)
 
   IF(PACKAGE_VCREDIST)
-    include(InstallRequiredSystemLibraries)
     INSTALL(FILES ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${INSTALL_SUBDIR_BIN})
     include(FindWindowsSDK)
     IF(${CMAKE_VS_PLATFORM_NAME} STREQUAL "Win32")
@@ -544,8 +639,6 @@ configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
 
 ## CPack/Installation-specific stuff
-
-INCLUDE(InstallRequiredSystemLibraries)
 
 SET(CPACK_PACKAGE_NAME "SuperTux2-Wii")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Jump'n'Run Game featuring Tux")

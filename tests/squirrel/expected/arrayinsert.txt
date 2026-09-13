@@ -1,0 +1,14 @@
+-- positions --
+into empty -> x,
+at head -> 1,2,3,
+in middle -> 1,2,3,
+at len -> 1,2,3,
+-- rejections --
+idx -1 -> error: index out of range
+idx len+1 -> error: index out of range
+-- identity --
+shared 222 len 300
+-- order across reallocs --
+head reversed and tail in order true
+-- mixed with the other paths --
+len 99 sum 5440
