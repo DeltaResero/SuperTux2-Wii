@@ -113,6 +113,15 @@ Rock::collision(GameObject& other, const CollisionHit& hit)
   if(grabbed) {
     return ABORT_MOVE;
   }
+
+  // two FORCE_MOVEs cancel and leave the overlap standing, so ask to be pushed
+  // out instead of settling into the rock underneath
+  auto rock = dynamic_cast<Rock*> (&other);
+  if (rock && rock->on_ground && hit.bottom) {
+    physic.set_velocity_y(0);
+    return CONTINUE;
+  }
+
   if(!on_ground) {
     if(hit.bottom && physic.get_velocity_y() > 200) {
       auto moving_object = dynamic_cast<MovingObject*> (&other);
