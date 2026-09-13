@@ -27,6 +27,12 @@
 #include "video/drawing_context.hpp"
 #include "video/texture_manager.hpp"
 
+namespace {
+
+/** Lets the getter return a reference even when there's no image. */
+const SurfacePtr no_image;
+
+} // namespace
 
 Tile::Tile() :
   imagespecs(),
@@ -99,7 +105,7 @@ Tile::release_images()
   }
 }
 
-SurfacePtr
+const SurfacePtr&
 Tile::get_current_image() const
 {
   if (images.size() > 1) {
@@ -108,14 +114,14 @@ Tile::get_current_image() const
   } else if (images.size() == 1) {
     return images[0];
   } else {
-    return nullptr;
+    return no_image;
   }
 }
 
 void
 Tile::draw(DrawingContext& context, const Vector& pos, int z_pos, Color color) const
 {
-  SurfacePtr surface = get_current_image();
+  const SurfacePtr& surface = get_current_image();
   if (surface) {
     context.draw_surface(surface, pos, 0, color, Blend(), z_pos);
   }

@@ -132,7 +132,7 @@ public:
   /** Drop the Surfaces; load_images() fetches them again when next drawn */
   void release_images();
 
-  SurfacePtr get_current_image() const;
+  const SurfacePtr& get_current_image() const;
 
   /** Draw a tile on the screen */
   void draw(DrawingContext& context, const Vector& pos, int z_pos, Color color = Color(1, 1, 1)) const;
