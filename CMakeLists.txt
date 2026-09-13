@@ -488,6 +488,7 @@ if(BUILD_TESTS)
   ENDFUNCTION()
 
   MAKE_UNIT_TEST(aatriangle_test tests/aatriangle_test.cpp)
+  MAKE_UNIT_TEST(arena_test tests/arena_test.cpp)
   MAKE_UNIT_TEST(reader_test tests/reader_test.cpp)
   MAKE_UNIT_TEST(size_test tests/size_test.cpp)
   MAKE_UNIT_TEST(sizef_test tests/sizef_test.cpp)

@@ -26,7 +26,6 @@
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "util/log.hpp"
-#include "util/obstackpp.hpp"
 #include "video/drawing_request.hpp"
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"
@@ -48,18 +47,15 @@ DrawingContext::DrawingContext(VideoSystem& video_system_) :
   ambient_color(1.0f, 1.0f, 1.0f, 1.0f),
   target(NORMAL),
   target_stack(),
-  obst()
+  arena()
 {
   requests = &drawing_requests;
-  obstack_init(&obst);
 }
 
 DrawingContext::~DrawingContext()
 {
   clear_drawing_requests(lightmap_requests);
   clear_drawing_requests(drawing_requests);
-
-  obstack_free(&obst, NULL);
 }
 
 void
@@ -90,7 +86,7 @@ DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
     return;
   }
 
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type = SURFACE;
@@ -108,7 +104,7 @@ DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
   request->color = color;
   request->blend = blend;
 
-  auto surfacerequest = new(obst) SurfaceRequest();
+  auto surfacerequest = new(arena) SurfaceRequest();
   surfacerequest->surface = surface.get();
   surfacerequest->dstsize = dstsize;
   request->request_data = surfacerequest;
@@ -194,7 +190,7 @@ DrawingContext::draw_surface_part(const SurfacePtr& surface,
     return;
   }
 
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type = SURFACE_PART;
@@ -203,7 +199,7 @@ DrawingContext::draw_surface_part(const SurfacePtr& surface,
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto surfacepartrequest = new(obst) SurfacePartRequest();
+  auto surfacepartrequest = new(arena) SurfacePartRequest();
   surfacepartrequest->srcrect = srcrect;
   surfacepartrequest->dstsize = dstrect.get_size();
   surfacepartrequest->surface = surface.get();
@@ -302,7 +298,7 @@ void
 DrawingContext::draw_text(FontPtr font, const std::string& text,
                           const Vector& position, FontAlignment alignment, int layer, Color color)
 {
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type = TEXT;
@@ -312,7 +308,7 @@ DrawingContext::draw_text(FontPtr font, const std::string& text,
   request->alpha = transform.alpha;
   request->color = color;
 
-  auto textrequest = new(obst) TextRequest();
+  auto textrequest = new(arena) TextRequest();
   textrequest->font = font.get();
   textrequest->text = text;
   textrequest->alignment = alignment;
@@ -333,7 +329,7 @@ void
 DrawingContext::draw_gradient(const Color& top, const Color& bottom, int layer,
                               const GradientDirection& direction, const Rectf& region)
 {
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type = GRADIENT;
@@ -343,7 +339,7 @@ DrawingContext::draw_gradient(const Color& top, const Color& bottom, int layer,
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto gradientrequest = new(obst) GradientRequest();
+  auto gradientrequest = new(arena) GradientRequest();
   gradientrequest->top = top;
   gradientrequest->bottom = bottom;
   gradientrequest->direction = direction;
@@ -357,7 +353,7 @@ void
 DrawingContext::draw_filled_rect(const Vector& topleft, const Vector& size,
                                  const Color& color, int layer)
 {
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type = FILLRECT;
@@ -367,7 +363,7 @@ DrawingContext::draw_filled_rect(const Vector& topleft, const Vector& size,
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto fillrectrequest = new(obst) FillRectRequest();
+  auto fillrectrequest = new(arena) FillRectRequest();
   fillrectrequest->size = size;
   fillrectrequest->color = color;
   fillrectrequest->color.alpha = color.alpha * transform.alpha;
@@ -387,7 +383,7 @@ DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color,
 void
 DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color, float radius, int layer)
 {
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type   = FILLRECT;
@@ -397,7 +393,7 @@ DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color, float ra
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto fillrectrequest = new(obst) FillRectRequest;
+  auto fillrectrequest = new(arena) FillRectRequest;
   fillrectrequest->size = Vector(rect.get_width(), rect.get_height());
   fillrectrequest->color = color;
   fillrectrequest->color.alpha = color.alpha * transform.alpha;
@@ -410,7 +406,7 @@ DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color, float ra
 void
 DrawingContext::draw_inverse_ellipse(const Vector& pos, const Vector& size, const Color& color, int layer)
 {
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type   = INVERSEELLIPSE;
@@ -420,7 +416,7 @@ DrawingContext::draw_inverse_ellipse(const Vector& pos, const Vector& size, cons
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto ellipse = new(obst)InverseEllipseRequest;
+  auto ellipse = new(arena)InverseEllipseRequest;
 
   ellipse->color        = color;
   ellipse->color.alpha  = color.alpha * transform.alpha;
@@ -433,7 +429,7 @@ DrawingContext::draw_inverse_ellipse(const Vector& pos, const Vector& size, cons
 void
 DrawingContext::draw_line(const Vector& pos1, const Vector& pos2, const Color& color, int layer)
 {
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type   = LINE;
@@ -443,7 +439,7 @@ DrawingContext::draw_line(const Vector& pos1, const Vector& pos2, const Color& c
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto line = new(obst) LineRequest;
+  auto line = new(arena) LineRequest;
 
   line->color        = color;
   line->color.alpha  = color.alpha * transform.alpha;
@@ -456,7 +452,7 @@ DrawingContext::draw_line(const Vector& pos1, const Vector& pos2, const Color& c
 void
 DrawingContext::draw_triangle(const Vector& pos1, const Vector& pos2, const Vector& pos3, const Color& color, int layer)
 {
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
 
   request->target = target;
   request->type   = TRIANGLE;
@@ -466,7 +462,7 @@ DrawingContext::draw_triangle(const Vector& pos1, const Vector& pos2, const Vect
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto triangle = new(obst) TriangleRequest;
+  auto triangle = new(arena) TriangleRequest;
 
   triangle->color        = color;
   triangle->color.alpha  = color.alpha * transform.alpha;
@@ -494,7 +490,7 @@ DrawingContext::get_light(const Vector& position, Color* color)
     return;
   }
 
-  auto request = new(obst) DrawingRequest();
+  auto request = new(arena) DrawingRequest();
   request->target = target;
   request->type = GETLIGHT;
   request->pos = transform.apply(position);
@@ -507,7 +503,7 @@ DrawingContext::get_light(const Vector& position, Color* color)
   }
 
   request->layer = LAYER_GUI; //make sure all get_light requests are handled last.
-  auto getlightrequest = new(obst) GetLightRequest();
+  auto getlightrequest = new(arena) GetLightRequest();
   getlightrequest->color_ptr = color;
   request->request_data = getlightrequest;
   lightmap_requests.push_back(request);
@@ -534,7 +530,7 @@ DrawingContext::do_drawing()
     handle_drawing_requests(lightmap_requests);
     lightmap.end_draw();
 
-    auto request = new(obst) DrawingRequest();
+    auto request = new(arena) DrawingRequest();
     request->target = NORMAL;
     request->type = DRAW_LIGHTMAP;
     request->layer = LAYER_HUD - 1;
@@ -549,8 +545,7 @@ DrawingContext::do_drawing()
   clear_drawing_requests(lightmap_requests);
   clear_drawing_requests(drawing_requests);
 
-  obstack_free(&obst, NULL);
-  obstack_init(&obst);
+  arena.reset();
 
   renderer.flip();
 }

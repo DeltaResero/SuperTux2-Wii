@@ -24,11 +24,11 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
-#include <obstack.h>
 
 #include "math/rectf.hpp"
 #include "math/sizef.hpp"
 #include "math/vector.hpp"
+#include "util/arena.hpp"
 #include "video/color.hpp"
 #include "video/font.hpp"
 #include "video/font_ptr.hpp"
@@ -250,8 +250,8 @@ private:
   Target target;
   std::vector<Target> target_stack;
 
-  /* obstack holding the memory of the drawing requests */
-  struct obstack obst;
+  /* holds the memory of the drawing requests */
+  Arena arena;
 
 private:
   DrawingContext(const DrawingContext&);
