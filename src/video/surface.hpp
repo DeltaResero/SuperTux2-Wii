@@ -79,7 +79,7 @@ public:
   void hflip();
   bool get_flipx() const;
 
-  TexturePtr get_texture() const;
+  const TexturePtr& get_texture() const;
   SurfaceData* get_surface_data() const;
 
   /** Whether this picture is held as pieces rather than as one texture. */
