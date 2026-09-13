@@ -89,11 +89,14 @@ public:
     }
     void insert(SQUnsignedInteger idx, const T& val)
     {
-        resize(_size + 1);
-        for(SQUnsignedInteger i = _size - 1; i > idx; i--) {
-            _vals[i] = _vals[i - 1];
+        if(_allocated <= _size)
+            _realloc(_size * 2);
+        //the moved elements keep their references, so the hole at idx owns nothing
+        if(idx < _size) {
+            memmove((void*)&_vals[idx+1], &_vals[idx], sizeof(T) * (_size - idx));
         }
-        _vals[idx] = val;
+        _size++;
+        new ((void *)&_vals[idx]) T(val);
     }
     void remove(SQUnsignedInteger idx)
     {
