@@ -77,7 +77,7 @@ DrawingContext::clear_drawing_requests(DrawingRequests& requests_)
 }
 
 void
-DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
+DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
                              const Sizef& dstsize,
                              float angle, const Color& color, const Blend& blend,
                              int layer)
@@ -117,7 +117,7 @@ DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
 }
 
 void
-DrawingContext::draw_split_surface(SurfacePtr surface, const Vector& position,
+DrawingContext::draw_split_surface(const SurfacePtr& surface, const Vector& position,
                                    const Sizef& dstsize,
                                    float angle, const Color& color, const Blend& blend,
                                    int layer)
@@ -164,7 +164,7 @@ DrawingContext::draw_split_surface(SurfacePtr surface, const Vector& position,
 }
 
 void
-DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
+DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
                              float angle, const Color& color, const Blend& blend,
                              int layer)
 {
@@ -175,14 +175,14 @@ DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
 }
 
 void
-DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
+DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
                              int layer)
 {
   draw_surface(surface, position, 0.0f, Color(1.0f, 1.0f, 1.0f), Blend(), layer);
 }
 
 void
-DrawingContext::draw_surface_part(SurfacePtr surface,
+DrawingContext::draw_surface_part(const SurfacePtr& surface,
                                   const Rectf& srcrect, const Rectf& dstrect,
                                   int layer)
 {
@@ -214,7 +214,7 @@ DrawingContext::draw_surface_part(SurfacePtr surface,
 }
 
 void
-DrawingContext::draw_split_surface_part(SurfacePtr surface,
+DrawingContext::draw_split_surface_part(const SurfacePtr& surface,
                                         const Rectf& srcrect, const Rectf& dstrect,
                                         int layer)
 {

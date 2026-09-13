@@ -146,7 +146,7 @@ bool Surface::get_flipx() const
   return flipx;
 }
 
-TexturePtr
+const TexturePtr&
 Surface::get_texture() const
 {
   return texture;

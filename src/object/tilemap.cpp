@@ -322,7 +322,7 @@ TileMap::draw(DrawingContext& context)
         const Tile* tile = tileset->get(tiles[static_cast<size_t>(index)]);
         if (!tile) continue;
 
-        SurfacePtr image = tile->get_current_image();
+        const SurfacePtr& image = tile->get_current_image();
         if (image) {
           int h = image->get_height();
           if (h <= 32) continue;
@@ -343,7 +343,7 @@ TileMap::draw(DrawingContext& context)
         const Tile* tile = tileset->get(tiles[static_cast<size_t>(index)]);
         if (!tile) continue;
 
-        SurfacePtr image = tile->get_current_image();
+        const SurfacePtr& image = tile->get_current_image();
         if (image) {
           int w = image->get_width();
           int h = image->get_height();
