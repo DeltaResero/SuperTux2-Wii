@@ -54,6 +54,9 @@ public:
     FULLBOX   = 0x0020, //Marked for removal, DO NOT USE!
     /** Tile is a coin */
     COIN      = 0x0040, //Marked for removal, DO NOT USE!
+    /** turn every other tile of a repeated run around, so a picture whose
+     * edges do not match itself still joins up. Drawing only. */
+    ALTERNATE = 0x0080,
 
     /* interesting flags (the following are passed to gameobjects) */
     FIRST_INTERESTING_FLAG = 0x0100,

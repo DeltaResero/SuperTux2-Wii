@@ -221,13 +221,22 @@ TileMap::update(float elapsed_time)
 DrawingEffect
 TileMap::straight_turned(int x, int y) const
 {
-  if(!alternate_straights) return NO_EFFECT;
-
   const uint32_t id = get_tile_id(x, y);
   if(id == 0) return NO_EFFECT;
 
   const Tile* tile = tileset->get(id);
   if(tile == NULL) return NO_EFFECT;
+
+  /* Count from the left end of the run rather than from the tilemap origin,
+     so a ledge turns the same way wherever the level author put it. */
+  if(tile->getAttributes() & Tile::ALTERNATE)
+  {
+    int start = x;
+    while(start > 0 && get_tile_id(start - 1, y) == id) --start;
+    return ((x - start) & 1) ? HORIZONTAL_FLIP : NO_EFFECT;
+  }
+
+  if(!alternate_straights) return NO_EFFECT;
 
   /* A straight is the only piece a path lays end to end, so it is the only
      one whose picture repeats. A turn, or the end of a bridge, is drawn the
