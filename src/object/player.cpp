@@ -110,13 +110,6 @@ static const float JUMP_EARLY_APEX_FACTOR = 3.0;
 
 static const float JUMP_GRACE_TIME = 0.25f; /**< time before hitting the ground that the jump button may be pressed (and still trigger a jump) */
 
-/* Tux's collision rectangle */
-static const float TUX_WIDTH = 31.8f;
-static const float RUNNING_TUX_WIDTH = 34;
-static const float SMALL_TUX_HEIGHT = 30.8f;
-static const float BIG_TUX_HEIGHT = 62.8f;
-static const float DUCKED_TUX_HEIGHT = 31.8f;
-
 /** Where the earth flower's headlamp throws its light. It is two glows added
     together, which is how the pictures these numbers replace were drawn: a
     long pool thrown out ahead, and a small round one around the lamp itself

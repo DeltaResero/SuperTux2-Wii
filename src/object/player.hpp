@@ -49,6 +49,13 @@ static const float GROWING_TIME = 0.35f;
 static const int GROWING_FRAMES = 7;
 static const float TUX_BACKFLIP_TIME = 2.1f; // minimum air time that backflip results in a loss of control
 
+/* Sizes: */
+static const float TUX_WIDTH = 31.8f;
+static const float RUNNING_TUX_WIDTH = 34;
+static const float SMALL_TUX_HEIGHT = 30.8f;
+static const float BIG_TUX_HEIGHT = 62.8f;
+static const float DUCKED_TUX_HEIGHT = 31.8f;
+
 class Player : public MovingObject,
                public ExposedObject<Player, scripting::Player>
 {
