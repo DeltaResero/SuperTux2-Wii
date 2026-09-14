@@ -39,6 +39,10 @@ public:
   void on_window_resize() override;
   void menu_action(MenuItem* item) override;
 
+  /** Nothing stands behind this menu to go back to, so the key that means
+      "back" has nothing to do here. */
+  bool on_back_action() override { return false; }
+
 private:
   MainMenu(const MainMenu&);
   MainMenu& operator=(const MainMenu&);
