@@ -108,7 +108,7 @@
     (spawnpoint
       (name "main")
       (x 96)
-      (y 1152)
+      (y 1120)
     )
     (spawnpoint
       (name "exit")

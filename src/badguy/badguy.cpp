@@ -594,6 +594,16 @@ BadGuy::set_state(State state_)
 bool
 BadGuy::is_offscreen() const
 {
+  // The camera stops at the top of the level, so a badguy on screen can be an
+  // unbounded distance below Tux once he rises past it.
+  auto camera_ = Sector::current()->camera;
+  if (camera_) {
+    Vector cam_dist = camera_->get_center() - bbox.get_middle();
+    if ((fabsf(cam_dist.x) <= X_OFFSCREEN_DISTANCE) && (fabsf(cam_dist.y) <= Y_OFFSCREEN_DISTANCE)) {
+      return false;
+    }
+  }
+
   auto player = get_nearest_player();
   if (!player)
     return false;

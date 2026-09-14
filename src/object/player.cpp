@@ -205,6 +205,7 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   physic(),
   visible(true),
   grabbed_object(NULL),
+  grabbed_object_remove_listener(new GrabListener(*this)),
   sprite(),
   airarrow(),
   floor_normal(),
@@ -331,6 +332,8 @@ Player::set_light_angle(float angle)
 Player::~Player()
 {
   if (climbing) stop_climbing(*climbing);
+  // the listener dies with us, so whatever is held has to forget it first
+  ungrab_object();
 }
 
 float
@@ -518,9 +521,8 @@ Player::update(float elapsed_time)
     position_grabbed_object();
   }
 
-  if(grabbed_object != NULL && dying){
-    grabbed_object->ungrab(*this, dir);
-    grabbed_object = NULL;
+  if(dying){
+    ungrab_object();
   }
 
   if(!ice_this_frame && on_ground())
@@ -1015,6 +1017,7 @@ Player::handle_input()
         } else {
           grabbed_object->ungrab(*this, dir);
         }
+        moving_object->del_remove_listener(grabbed_object_remove_listener.get());
         grabbed_object = NULL;
       }
     } else {
@@ -1081,6 +1084,7 @@ Player::try_grab()
       if(moving_object->get_bbox().contains(pos)) {
         if (climbing) stop_climbing(*climbing);
         grabbed_object = portable;
+        moving_object->add_remove_listener(grabbed_object_remove_listener.get());
         position_grabbed_object();
         break;
       }
@@ -1757,10 +1761,7 @@ Player::set_ghost_mode(bool enable)
 
   if (climbing) stop_climbing(*climbing);
 
-  if (grabbed_object) {
-    grabbed_object->ungrab(*this, dir);
-    grabbed_object = NULL;
-  }
+  ungrab_object();
 
   if (enable) {
     ghost_mode = true;
@@ -1801,10 +1802,7 @@ Player::stop_climbing(Climbable& /*climbable*/)
 
   climbing = 0;
 
-  if (grabbed_object) {
-    grabbed_object->ungrab(*this, dir);
-    grabbed_object = NULL;
-  }
+  ungrab_object();
 
   physic.enable_gravity(true);
   physic.set_velocity(0, 0);
@@ -1855,6 +1853,26 @@ Player::handle_input_climbing()
   }
   physic.set_velocity(vx, vy);
   physic.set_acceleration(0, 0);
+}
+
+void
+Player::ungrab_object(GameObject* gameobject)
+{
+  if (!grabbed_object)
+    return;
+
+  // A non-null argument means ~GameObject is calling us, so the object is going
+  // away and is already emptying the listener list itself. Unhooking from here
+  // would delete the entry the destructor is about to delete.
+  if (!gameobject) {
+    grabbed_object->ungrab(*this, dir);
+
+    auto go = dynamic_cast<GameObject*>(grabbed_object);
+    if (go && grabbed_object_remove_listener)
+      go->del_remove_listener(grabbed_object_remove_listener.get());
+  }
+
+  grabbed_object = NULL;
 }
 
 /* EOF */

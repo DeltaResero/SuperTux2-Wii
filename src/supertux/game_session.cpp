@@ -495,8 +495,10 @@ GameSession::update(float elapsed_time)
     newspawnpoint = "";
   }
 
-  // Update the world state and all objects in the world
-  if(!game_pause) {
+  /* The unpause above clears game_pause, but the speed it restores only reaches
+     the timestep next frame, so this frame still carries the paused zero. Running
+     the world on it moves nothing and reports nobody standing on anything. */
+  if(!game_pause && elapsed_time > 0) {
     // Update the world
     if (!end_sequence) {
       play_time += elapsed_time; //TODO: make sure we don't count cutscene time

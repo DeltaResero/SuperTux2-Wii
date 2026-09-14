@@ -233,7 +233,7 @@ drei.start_moving()")
     (spawnpoint
       (name "main")
       (x 192)
-      (y 512)
+      (y 480)
     )
     (tilemap
       (solid #f)

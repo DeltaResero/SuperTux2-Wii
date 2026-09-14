@@ -368,7 +368,7 @@ dropdoor3.goto_node(1);
     (spawnpoint
       (name "main")
       (x 96)
-      (y 1664)
+      (y 1632)
     )
     (tilemap
       (solid #f)
