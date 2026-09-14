@@ -164,7 +164,7 @@
     (spawnpoint
       (name "main")
       (x 160)
-      (y 768)
+      (y 736)
     )
     (spawnpoint
       (name "secret")
