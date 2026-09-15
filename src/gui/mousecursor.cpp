@@ -66,14 +66,16 @@ void MouseCursor::draw(DrawingContext& context)
 {
   if (m_state != MC_HIDE)
   {
-    int x;
-    int y;
-    Uint8 ispressed = SDL_GetMouseState(&x, &y);
+    int physical_x;
+    int physical_y;
+    Uint8 ispressed = SDL_GetMouseState(&physical_x, &physical_y);
 
-    Vector mouse_pos = VideoSystem::current()->get_renderer().to_logical(x, y);
-
-    x = int(mouse_pos.x);
-    y = int(mouse_pos.y);
+    /* Kept as fractions. Rounding to a whole game pixel here puts the cursor
+       up to a whole screen pixel per unit of scale away from the pointer. */
+    const Vector pos = VideoSystem::current()->get_renderer()
+                         .to_logical(physical_x, physical_y);
+    const float x = pos.x;
+    const float y = pos.y;
 
     int tmp_state = m_state;
     if (ispressed & SDL_BUTTON(1) || ispressed & SDL_BUTTON(2))
