@@ -26,7 +26,7 @@
 
 #include "gui/menu.hpp"
 
-class ItemStringSelect;
+class MenuItem;
 
 class OptionsMenu : public Menu
 {
@@ -36,6 +36,7 @@ class OptionsMenu : public Menu
 
     void menu_action(MenuItem* item) override;
     void on_window_resize() override;
+    void refresh() override;
 
     /* The VSync row's help runs to three lines, deep enough to reach the
        notice at the foot of the title screen, so this menu is placed together
@@ -47,24 +48,16 @@ class OptionsMenu : public Menu
         of this menu it was already over. */
     void apply_video_change();
 
-    /** Points the one resolution row at whichever of the two settings is the
-        one in use, since only the mode the game is in can be changed. */
-    void update_resolution_item();
-
   private:
     int next_magnification;
     int next_aspect_ratio;
-    int next_window_resolution;
-    int next_fullscreen_resolution;
     int next_vsync;
 
     std::vector<std::string> magnifications;
     std::vector<std::string> aspect_ratios;
-    std::vector<std::string> window_resolutions;
-    std::vector<std::string> fullscreen_resolutions;
     std::vector<std::string> vsyncs;
 
-    ItemStringSelect* resolution_item;
+    MenuItem* resolution_item;
 
   private:
     OptionsMenu(const OptionsMenu&) = delete;

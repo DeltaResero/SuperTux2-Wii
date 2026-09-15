@@ -27,6 +27,8 @@
 #include "supertux/menu/keyboard_menu.hpp"
 #include "supertux/menu/main_menu.hpp"
 #include "supertux/menu/options_menu.hpp"
+#include "supertux/menu/refresh_rate_menu.hpp"
+#include "supertux/menu/resolution_menu.hpp"
 #include "supertux/menu/profile_menu.hpp"
 #include "supertux/menu/worldmap_menu.hpp"
 #include "supertux/menu/worldmap_cheat_menu.hpp"
@@ -62,6 +64,12 @@ MenuStorage::create(MenuId menu_id)
 
     case OPTIONS_MENU:
       return std::unique_ptr<Menu>(new OptionsMenu(true));
+
+    case RESOLUTION_MENU:
+      return std::unique_ptr<Menu>(new ResolutionMenu);
+
+    case REFRESH_RATE_MENU:
+      return std::unique_ptr<Menu>(new RefreshRateMenu);
 
     case INGAME_OPTIONS_MENU:
       return std::unique_ptr<Menu>(new OptionsMenu(false));
