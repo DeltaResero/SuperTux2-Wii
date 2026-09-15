@@ -20,13 +20,12 @@
 #include "supertux/menu/resolution_menu.hpp"
 
 #include "supertux/menu/menu_storage.hpp"
+#include "supertux/menu/video_mode_dialog.hpp"
 
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
-#include "video/renderer.hpp"
-#include "video/video_system.hpp"
 
 #include <SDL.h>
 
@@ -342,29 +341,37 @@ ResolutionMenu::menu_action(MenuItem* item)
     return;
   }
 
+  const VideoSetting previous = VideoSetting::current();
+  VideoSetting wanted = previous;
+
   if (m_fullscreen)
   {
     /* A rate belongs to the size it was picked under. */
-    g_config->fullscreen_size = m_sizes[index];
-    g_config->fullscreen_refresh_rate = 0;
+    wanted.fullscreen_size = m_sizes[index];
+    wanted.refresh_rate = 0;
   }
   else if (m_sizes[index] == Size(0, 0))
   {
-    g_config->window_maximised = true;
+    wanted.maximised = true;
   }
   else
   {
-    g_config->window_maximised = false;
-    g_config->window_size = m_sizes[index];
+    wanted.maximised = false;
+    wanted.window_size = m_sizes[index];
   }
 
-  VideoSystem::current()->get_renderer().apply_config();
-  MenuManager::instance().on_window_resize();
+  if (wanted == previous)
+  {
+    return;
+  }
 
-  /* The row that leads here names the size in use, so the menu behind this
-     one is told to read it again before it comes back into view. */
-  /* The rows naming both are read back from the settings. */
-  MenuManager::instance().refresh();
+  wanted.apply();
+
+  /* Only a screen can be left showing nothing; a window cannot. */
+  if (m_fullscreen)
+  {
+    VideoModeDialog::ask(previous);
+  }
 }
 
 void
