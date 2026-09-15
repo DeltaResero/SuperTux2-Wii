@@ -313,11 +313,10 @@ SDLRenderer::apply_viewport()
     SDL_RenderClear(m_renderer);
   }
 
-  // SetViewport() works in scaled screen coordinates, so we have to
-  // reset it to 1.0, 1.0 to get meaningful results
-  SDL_RenderSetScale(m_renderer, 1.0f, 1.0f);
-  SDL_RenderSetViewport(m_renderer, &m_viewport);
+  /* NULL is the whole output in real pixels. A rectangle is held in scaled
+     units and moves again every time the painter changes the scale. */
   SDL_RenderSetScale(m_renderer, m_scale.x, m_scale.y);
+  SDL_RenderSetViewport(m_renderer, NULL);
 }
 
 void
