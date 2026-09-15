@@ -146,6 +146,11 @@ SDLRenderer::start_draw()
 void
 SDLRenderer::end_draw()
 {
+  /* SDL rewrites the coordinates of a mouse event by whatever scale the
+     renderer carries at the time, so the scale is only worn while drawing.
+     Events then arrive in window pixels, the same as the GL renderer, and
+     one conversion puts them in the game's own units. */
+  SDL_RenderSetScale(m_renderer, 1.0f, 1.0f);
 }
 
 void
