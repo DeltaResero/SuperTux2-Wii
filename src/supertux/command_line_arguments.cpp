@@ -41,6 +41,8 @@ CommandLineArguments::CommandLineArguments() :
   fullscreen_size(),
   fullscreen_refresh_rate(),
   window_size(),
+  geometry(),
+  window_maximised(),
   aspect_size(),
   use_fullscreen(),
   video(),
@@ -183,6 +185,7 @@ CommandLineArguments::parse_args(int argc, char** argv)
       use_fullscreen = false;
 
       window_size = Size(1280, 800);
+      window_maximised = false;
       fullscreen_size = Size(1280, 800);
       fullscreen_refresh_rate = 0;
       aspect_size = Size(0, 0);  // auto detect
@@ -207,9 +210,7 @@ CommandLineArguments::parse_args(int argc, char** argv)
         }
         else
         {
-          window_size     = Size(width, height);
-          fullscreen_size = Size(width, height);
-          fullscreen_refresh_rate = 0;
+          geometry = Size(width, height);
         }
       }
     }
@@ -369,6 +370,7 @@ CommandLineArguments::merge_into(Config& config)
   merge_option(fullscreen_size);
   merge_option(fullscreen_refresh_rate);
   merge_option(window_size);
+  merge_option(window_maximised);
   merge_option(aspect_size);
   merge_option(use_fullscreen);
   merge_option(video);
@@ -385,6 +387,23 @@ CommandLineArguments::merge_into(Config& config)
   merge_option(christmas_mode);
 
 #undef merge_option
+
+  /* A size given on the command line belongs to the mode being launched
+     into, rather than to both of them. */
+  if (geometry)
+  {
+    if (config.use_fullscreen)
+    {
+      config.fullscreen_size = *geometry;
+      config.fullscreen_refresh_rate = 0;
+    }
+    else
+    {
+      /* A size asked for by name is not a maximised window. */
+      config.window_size = *geometry;
+      config.window_maximised = false;
+    }
+  }
 }
 
 /* EOF */
