@@ -22,6 +22,7 @@
 
 #include <string>
 
+#include "math/sizef.hpp"
 #include "object/moving_sprite.hpp"
 #include "supertux/artwork_interface.hpp"
 
@@ -40,6 +41,8 @@ public:
   virtual void release_artwork();
   virtual void reacquire_artwork();
 
+  virtual void draw(DrawingContext& context) override;
+
   virtual HitResponse collision(GameObject& , const CollisionHit& ) {
     return FORCE_MOVE;
   }
@@ -53,6 +56,9 @@ public:
 private:
   std::string default_action;
   bool solid;
+
+  /** Drawn at this size rather than the picture's own, when given. */
+  Sizef size;
 };
 
 #endif /*SUPERTUX_DECAL_H*/
