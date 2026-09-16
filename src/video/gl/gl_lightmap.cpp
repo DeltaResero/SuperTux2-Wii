@@ -89,6 +89,13 @@ GLLightmap::GLLightmap() :
     msg << "Couldn't hang the lightmap on a framebuffer: status " << status;
     throw std::runtime_error(msg.str());
   }
+
+  /* A texture made with no data starts undefined, and the rounded-up edges
+     outside the lightmap are never drawn over. */
+  glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #endif
 }
 
