@@ -53,6 +53,10 @@ std::string get_data_dir();
     names a directory that need not exist yet. */
 std::string get_user_dir();
 
+/** Tell SDL which way up the remote is held. SDL reads this once while it
+    starts, so it has to be called before SDL_Init. */
+void set_remote_orientation();
+
 } // namespace Wii
 
 #endif
