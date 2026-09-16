@@ -51,6 +51,9 @@ public:
   /** the width/height of the window managers window */
   Size window_size;
 
+  /** As large as the window manager makes it. No size is kept. */
+  bool window_maximised;
+
   /** the aspect ratio */
   Size aspect_size;
 

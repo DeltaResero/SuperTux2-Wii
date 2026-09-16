@@ -35,6 +35,7 @@
 Background::Background() :
   ExposedObject<Background, scripting::Background>(this),
   alignment(NO_ALIGNMENT),
+  fill_screen(false),
   layer(LAYER_BACKGROUND0),
   imagefile_top(),
   imagefile(),
@@ -55,6 +56,7 @@ Background::Background() :
 Background::Background(const ReaderMapping& reader) :
   ExposedObject<Background, scripting::Background>(this),
   alignment(NO_ALIGNMENT),
+  fill_screen(false),
   layer(LAYER_BACKGROUND0),
   imagefile_top(),
   imagefile(),
@@ -111,6 +113,8 @@ Background::Background(const ReaderMapping& reader) :
       alignment = NO_ALIGNMENT;
     }
   }
+
+  reader.get("fill-screen", fill_screen);
 
   if (!reader.get("scroll-offset-x", scroll_offset.x)) scroll_offset.x = 0;
   if (!reader.get("scroll-offset-y", scroll_offset.y)) scroll_offset.y = 0;
@@ -199,6 +203,17 @@ Background::draw_image(DrawingContext& context, const Vector& pos_)
   Sizef screen(SCREEN_WIDTH, SCREEN_HEIGHT);
   Sizef parallax_image_size = (1.0f - speed) * screen + level * speed;
   Rectf cliprect = context.get_cliprect();
+
+  if (fill_screen)
+  {
+    /* A pixel over the edge on each side, so no rounding can leave a gap. */
+    context.draw_surface(image,
+                         context.get_translation() - Vector(1.0f, 1.0f),
+                         Sizef(static_cast<float>(SCREEN_WIDTH)  + 2.0f,
+                               static_cast<float>(SCREEN_HEIGHT) + 2.0f),
+                         0.0f, Color(1.0f, 1.0f, 1.0f), Blend(), layer);
+    return;
+  }
 
   int start_x = static_cast<int>(floorf((cliprect.get_left()  - (pos_.x - image->get_width() /2.0f)) / image->get_width()));
   int end_x   = static_cast<int>(ceilf((cliprect.get_right()  - (pos_.x + image->get_width() /2.0f)) / image->get_width()))+1;

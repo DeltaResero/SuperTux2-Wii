@@ -76,6 +76,9 @@ private:
       only repeated in one direction and attached to the level edge */
   Alignment alignment;
 
+  /** Drawn once across the view instead of repeated at its own size. */
+  bool fill_screen;
+
   int layer;
   std::string imagefile_top;
   std::string imagefile;

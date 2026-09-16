@@ -17,6 +17,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -147,14 +148,20 @@ SDLLightmap::get_light(const DrawingRequest& request) const
   const auto getlightrequest
     = static_cast<GetLightRequest*>(request.request_data);
 
+  /* A position at the very top or the far right divides to one past the last
+     row or column, and a read from outside the texture returns nothing at
+     all, leaving whatever the last one left behind to be read as light. */
+  const int last_x = m_width / m_LIGHTMAP_DIV - 1;
+  const int last_y = m_height / m_LIGHTMAP_DIV - 1;
+
   SDL_Rect rect;
-  rect.x = static_cast<int>(request.pos.x / m_LIGHTMAP_DIV);
-  rect.y = static_cast<int>((m_height - request.pos.y) / m_LIGHTMAP_DIV);
+  rect.x = std::min(static_cast<int>(request.pos.x / m_LIGHTMAP_DIV), last_x);
+  rect.y = std::min(static_cast<int>((m_height - request.pos.y) / m_LIGHTMAP_DIV), last_y);
   rect.w = 1;
   rect.h = 1;
 
   SDL_SetRenderTarget(m_renderer, m_texture);
-  Uint8 pixel[4];
+  Uint8 pixel[4] = { 0, 0, 0, 0 };
   int ret = SDL_RenderReadPixels(m_renderer, &rect,
                                  SDL_PIXELFORMAT_RGB888,
                                  pixel,

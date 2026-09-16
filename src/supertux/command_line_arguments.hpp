@@ -54,6 +54,12 @@ public:
   std::optional<Size> fullscreen_size;
   std::optional<int> fullscreen_refresh_rate;
   std::optional<Size> window_size;
+
+  /** One size for whichever mode is being launched into.
+   *  Only settles once every option has been merged. */
+  std::optional<Size> geometry;
+
+  std::optional<bool> window_maximised;
   std::optional<Size> aspect_size;
 
 

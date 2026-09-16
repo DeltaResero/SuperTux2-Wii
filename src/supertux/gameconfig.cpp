@@ -34,6 +34,7 @@ Config::Config() :
   fullscreen_size(0, 0),
   fullscreen_refresh_rate(0),
   window_size(1280, 800),
+  window_maximised(false),
   aspect_size(0, 0), // auto detect
   magnification(0.0f),
   use_fullscreen(false),
@@ -113,6 +114,7 @@ Config::load()
 
     config_video_lisp.get("window_width",  window_size.width);
     config_video_lisp.get("window_height", window_size.height);
+    config_video_lisp.get("window_maximised", window_maximised);
 
     config_video_lisp.get("aspect_width",  aspect_size.width);
     config_video_lisp.get("aspect_height", aspect_size.height);
@@ -170,6 +172,7 @@ Config::save()
 
   writer.write("window_width",  window_size.width);
   writer.write("window_height", window_size.height);
+  writer.write("window_maximised", window_maximised);
 
   writer.write("aspect_width",  aspect_size.width);
   writer.write("aspect_height", aspect_size.height);

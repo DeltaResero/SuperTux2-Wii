@@ -19,6 +19,7 @@
 
 #include "object/decal.hpp"
 
+#include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "util/reader.hpp"
@@ -27,8 +28,17 @@
 Decal::Decal(const ReaderMapping& reader) :
   MovingSprite(reader, "images/decal/explanations/billboard-fireflower.png", LAYER_OBJECTS, COLGROUP_DISABLED),
   default_action(),
-  solid()
+  solid(),
+  size()
 {
+  float width = 0.0f;
+  float height = 0.0f;
+  if (reader.get("width", width) && reader.get("height", height))
+  {
+    size = Sizef(width, height);
+    set_size(width, height);
+  }
+
   layer = reader_get_layer (reader, /* default = */ LAYER_OBJECTS);
 
   if (!reader.get("solid", solid)) solid = false;
@@ -40,6 +50,20 @@ Decal::Decal(const ReaderMapping& reader) :
 
 Decal::~Decal()
 {
+}
+
+void
+Decal::draw(DrawingContext& context)
+{
+  if (size.width <= 0.0f || size.height <= 0.0f)
+  {
+    MovingSprite::draw(context);
+    return;
+  }
+
+  const unsigned int frame = sprite->get_frame();
+  context.draw_surface(sprite->get_frame(frame), get_pos(), size,
+                       0.0f, Color(1.0f, 1.0f, 1.0f), Blend(), layer);
 }
 
 void

@@ -21,6 +21,7 @@
     )
     (background
       (speed 0)
+      (fill-screen #t)
       (image "images/background/halloween/vignette.png")
       (layer 1000)
     )

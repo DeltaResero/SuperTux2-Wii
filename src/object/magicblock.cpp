@@ -110,10 +110,13 @@ MagicBlock::update(float elapsed_time)
                    && light.blue >= trigger_blue);
   }
 
-  // overrule lighting_ok if switch_delay has not yet passed
+  /* Only going dark waits. Turning solid a moment early costs nothing, while
+     turning passable a moment early drops whoever is standing on it, and
+     somebody falling onto a block that lights on the way down has no time to
+     spare for it. */
   if (lighting_ok == is_solid) {
     switch_delay = SWITCH_DELAY;
-  } else {
+  } else if (is_solid) {
     if (switch_delay > 0) {
       lighting_ok = is_solid;
       switch_delay -= elapsed_time;

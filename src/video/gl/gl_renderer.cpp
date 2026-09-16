@@ -151,9 +151,9 @@ GLRenderer::flip()
 void
 GLRenderer::resize(int w, int h)
 {
-  /* While fullscreen the window is the size of the screen, and that is not
-     a size anybody chose, so it is not kept. */
-  if (!g_config->use_fullscreen)
+  /* Neither fullscreen nor maximised is a size anybody chose, so neither is
+     kept. */
+  if (!g_config->use_fullscreen && !g_config->window_maximised)
   {
     g_config->window_size = Size(w, h);
   }
@@ -223,16 +223,36 @@ GLRenderer::apply_video_mode()
     {
       SDL_SetWindowFullscreen(m_window, 0);
 
-      /* Ask for the size the window is meant to be whenever it is not already
-         it. Dragging the window to a new size records that size, so this asks
-         for nothing in that case. */
-      Size current_size;
-      SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
-      if (current_size != g_config->window_size)
+      /* Maximising a window that already is waits a full second and times out,
+         and asking for a size it already has is wasted too. */
+      const bool already_maximised =
+        (SDL_GetWindowFlags(m_window) & SDL_WINDOW_MAXIMIZED) != 0;
+
+      if (g_config->window_maximised)
       {
-        SDL_SetWindowSize(m_window,
-                          g_config->window_size.width,
-                          g_config->window_size.height);
+        if (!already_maximised)
+        {
+          SDL_MaximizeWindow(m_window);
+        }
+      }
+      else
+      {
+        if (already_maximised)
+        {
+          SDL_RestoreWindow(m_window);
+        }
+
+        /* Ask for the size the window is meant to be whenever it is not already
+           it. Dragging the window to a new size records that size, so this asks
+           for nothing in that case. */
+        Size current_size;
+        SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
+        if (current_size != g_config->window_size)
+        {
+          SDL_SetWindowSize(m_window,
+                            g_config->window_size.width,
+                            g_config->window_size.height);
+        }
       }
     }
     else
@@ -286,6 +306,8 @@ GLRenderer::apply_video_mode()
   {
     Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     Size size;
+
+
     if (g_config->use_fullscreen)
     {
       if (g_config->fullscreen_size == Size(0, 0))

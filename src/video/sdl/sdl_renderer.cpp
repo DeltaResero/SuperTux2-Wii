@@ -47,6 +47,7 @@ SDLRenderer::SDLRenderer() :
   int height = g_config->window_size.height;
 
   Uint32 flags = SDL_WINDOW_RESIZABLE;
+
   if(g_config->use_fullscreen)
   {
     if (g_config->fullscreen_size == Size(0, 0))
@@ -146,6 +147,11 @@ SDLRenderer::start_draw()
 void
 SDLRenderer::end_draw()
 {
+  /* SDL rewrites the coordinates of a mouse event by whatever scale the
+     renderer carries at the time, so the scale is only worn while drawing.
+     Events then arrive in window pixels, the same as the GL renderer, and
+     one conversion puts them in the game's own units. */
+  SDL_RenderSetScale(m_renderer, 1.0f, 1.0f);
 }
 
 void
@@ -199,9 +205,9 @@ SDLRenderer::flip()
 void
 SDLRenderer::resize(int w , int h)
 {
-  /* While fullscreen the window is the size of the screen, and that is not
-     a size anybody chose, so it is not kept. */
-  if (!g_config->use_fullscreen)
+  /* Neither fullscreen nor maximised is a size anybody chose, so neither is
+     kept. */
+  if (!g_config->use_fullscreen && !g_config->window_maximised)
   {
     g_config->window_size = Size(w, h);
   }
@@ -216,16 +222,36 @@ SDLRenderer::apply_video_mode()
   {
     SDL_SetWindowFullscreen(m_window, 0);
 
-    /* Ask for the size the window is meant to be whenever it is not already
-       it. Dragging the window to a new size records that size, so this asks
-       for nothing in that case. */
-    Size current_size;
-    SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
-    if (current_size != g_config->window_size)
+    /* Maximising a window that already is waits a full second and times out,
+       and asking for a size it already has is wasted too. */
+    const bool already_maximised =
+      (SDL_GetWindowFlags(m_window) & SDL_WINDOW_MAXIMIZED) != 0;
+
+    if (g_config->window_maximised)
     {
-      SDL_SetWindowSize(m_window,
-                        g_config->window_size.width,
-                        g_config->window_size.height);
+      if (!already_maximised)
+      {
+        SDL_MaximizeWindow(m_window);
+      }
+    }
+    else
+    {
+      if (already_maximised)
+      {
+        SDL_RestoreWindow(m_window);
+      }
+
+      /* Ask for the size the window is meant to be whenever it is not already
+         it. Dragging the window to a new size records that size, so this asks
+         for nothing in that case. */
+      Size current_size;
+      SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
+      if (current_size != g_config->window_size)
+      {
+        SDL_SetWindowSize(m_window,
+                          g_config->window_size.width,
+                          g_config->window_size.height);
+      }
     }
   }
   else
@@ -313,11 +339,10 @@ SDLRenderer::apply_viewport()
     SDL_RenderClear(m_renderer);
   }
 
-  // SetViewport() works in scaled screen coordinates, so we have to
-  // reset it to 1.0, 1.0 to get meaningful results
-  SDL_RenderSetScale(m_renderer, 1.0f, 1.0f);
-  SDL_RenderSetViewport(m_renderer, &m_viewport);
+  /* NULL is the whole output in real pixels. A rectangle is held in scaled
+     units and moves again every time the painter changes the scale. */
   SDL_RenderSetScale(m_renderer, m_scale.x, m_scale.y);
+  SDL_RenderSetViewport(m_renderer, NULL);
 }
 
 void

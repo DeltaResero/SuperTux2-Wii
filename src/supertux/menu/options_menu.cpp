@@ -28,6 +28,7 @@
 #include "supertux/menu/keyboard_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/profile_menu.hpp"
+#include "supertux/menu/resolution_menu.hpp"
 #include "util/log.hpp"
 #include "util/string_util.hpp"
 #include "video/renderer.hpp"
@@ -38,16 +39,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <memory>
-
-namespace {
-
-/* The smallest fullscreen mode worth offering. The view is a fixed 600 units
-   tall whatever the mode, so a screen with fewer lines than this squeezes
-   every glyph down with it until the text cannot be read. */
-const int MIN_FULLSCREEN_WIDTH = 640;
-const int MIN_FULLSCREEN_HEIGHT = 480;
-
-} // namespace
+#include <vector>
 
 enum OptionsMenuIDs {
   MNID_FULLSCREEN,
@@ -65,13 +57,9 @@ enum OptionsMenuIDs {
 OptionsMenu::OptionsMenu(bool complete) :
   next_magnification(0),
   next_aspect_ratio(0),
-  next_window_resolution(0),
-  next_fullscreen_resolution(0),
   next_vsync(0),
   magnifications(),
   aspect_ratios(),
-  window_resolutions(),
-  fullscreen_resolutions(),
   vsyncs(),
   resolution_item(nullptr)
 {
@@ -146,119 +134,6 @@ OptionsMenu::OptionsMenu(bool complete) :
     }
   }
 
-  /* Sizes a window is worth being offered at. Whatever size the window is
-     already at is added if it is not one of them, so that a size asked for on
-     the command line, or reached by dragging the window, is still shown as
-     the one in use. It goes in by area rather than at the front, so that
-     stepping through the list only ever gets bigger. */
-  std::vector<Size> window_sizes;
-  window_sizes.push_back(Size(640, 480));
-  window_sizes.push_back(Size(854, 480));
-  window_sizes.push_back(Size(800, 600));
-  window_sizes.push_back(Size(1280, 720));
-  window_sizes.push_back(Size(1280, 800));
-  window_sizes.push_back(Size(1440, 900));
-  window_sizes.push_back(Size(1920, 1080));
-  window_sizes.push_back(Size(1920, 1200));
-  window_sizes.push_back(Size(2560, 1440));
-
-  /* A window cannot be larger than the desktop it sits on, so a size beyond
-     that is offered only to be cut back down by the window manager. The
-     desktop is asked rather than assumed, so that a screen the driver pans
-     around a larger virtual desktop still offers the sizes it can reach. */
-  SDL_DisplayMode desktop_mode;
-  if (SDL_GetDesktopDisplayMode(0, &desktop_mode) == 0)
-  {
-    window_sizes.erase(std::remove_if(window_sizes.begin(), window_sizes.end(),
-                                      [&desktop_mode](const Size& size) {
-                                        return size.width > desktop_mode.w ||
-                                               size.height > desktop_mode.h;
-                                      }),
-                       window_sizes.end());
-  }
-
-  if (std::find(window_sizes.begin(), window_sizes.end(),
-                g_config->window_size) == window_sizes.end())
-  {
-    window_sizes.push_back(g_config->window_size);
-    std::sort(window_sizes.begin(), window_sizes.end(),
-              [](const Size& lhs, const Size& rhs) {
-                return lhs.width * lhs.height < rhs.width * rhs.height;
-              });
-  }
-
-  window_resolutions.clear();
-  next_window_resolution = 0;
-  for (const auto& size : window_sizes)
-  {
-    if (size == g_config->window_size)
-    {
-      next_window_resolution = static_cast<int>(window_resolutions.size());
-    }
-    std::ostringstream out;
-    out << size.width << "x" << size.height;
-    window_resolutions.push_back(out.str());
-  }
-
-  fullscreen_resolutions.clear();
-  int display_mode_count = SDL_GetNumDisplayModes(0);
-  std::string last_display_mode;
-  for(int i = 0; i < display_mode_count; ++i)
-  {
-    SDL_DisplayMode mode;
-    int ret = SDL_GetDisplayMode(0, i, &mode);
-    if (ret != 0)
-    {
-      log_warning << "failed to get display mode: " << SDL_GetError() << std::endl;
-    }
-    else
-    {
-      /* The display server hands back whatever it can drive, and X11 still
-         advertises the legacy VGA modes that Wayland has already dropped. */
-      if (mode.w < MIN_FULLSCREEN_WIDTH || mode.h < MIN_FULLSCREEN_HEIGHT)
-        continue;
-
-      std::ostringstream out;
-      out << mode.w << "x" << mode.h;
-      if(mode.refresh_rate)
-        out << "@" << mode.refresh_rate;
-      if(last_display_mode == out.str())
-        continue;
-      last_display_mode = out.str();
-      fullscreen_resolutions.insert(fullscreen_resolutions.begin(), out.str());
-    }
-  }
-  fullscreen_resolutions.push_back("Desktop");
-
-  std::string fullscreen_size_str = "Desktop";
-  {
-    std::ostringstream out;
-    if (g_config->fullscreen_size != Size(0, 0))
-    {
-      out << g_config->fullscreen_size.width << "x" << g_config->fullscreen_size.height;
-      if (g_config->fullscreen_refresh_rate)
-         out << "@" << g_config->fullscreen_refresh_rate;
-      fullscreen_size_str = out.str();
-    }
-  }
-
-  int cnt = 0;
-  for (const auto& res : fullscreen_resolutions)
-  {
-    if (res == fullscreen_size_str)
-    {
-      fullscreen_size_str.clear();
-      next_fullscreen_resolution = cnt;
-      break;
-    }
-    ++cnt;
-  }
-  if (!fullscreen_size_str.empty())
-  {
-    next_fullscreen_resolution = fullscreen_resolutions.size();
-    fullscreen_resolutions.push_back(fullscreen_size_str);
-  }
-
   vsyncs.clear();
   vsyncs.push_back("on");
   vsyncs.push_back("off");
@@ -289,12 +164,11 @@ OptionsMenu::OptionsMenu(bool complete) :
   add_toggle(MNID_FULLSCREEN,"Fullscreen", &g_config->use_fullscreen)
     ->set_help("Fill the entire screen");
 
-  /* One row for both, since only one of them is ever the resolution the game
-     is running at. Which one it stands for follows the toggle above it. */
-  resolution_item = static_cast<ItemStringSelect*>(
-    add_string_select(MNID_RESOLUTION, "Resolution",
-                      &next_window_resolution, window_resolutions));
-  update_resolution_item();
+  resolution_item = add_submenu("Resolution: " + current_resolution_text(),
+                                MenuStorage::RESOLUTION_MENU, MNID_RESOLUTION);
+  resolution_item->set_help(g_config->use_fullscreen
+                            ? "The resolution the screen is switched to"
+                            : "The size of the window the game is drawn in");
 
   auto magnification = add_string_select(MNID_MAGNIFICATION, "Magnification", &next_magnification, magnifications);
   magnification->set_help("Change the magnification of the game area");
@@ -380,23 +254,19 @@ OptionsMenu::on_window_resize()
   /* Fullscreen can also be turned on and off with F11, which never reaches
      this menu's own handler, so the row is brought up to date here instead:
      every path that changes the mode ends up here. */
-  update_resolution_item();
+  refresh();
 }
 
 void
-OptionsMenu::update_resolution_item()
+OptionsMenu::refresh()
 {
-  if (g_config->use_fullscreen)
-  {
-    resolution_item->set_list(fullscreen_resolutions,
-                              &next_fullscreen_resolution);
-    resolution_item->set_help("The resolution the screen is switched to");
-  }
-  else
-  {
-    resolution_item->set_list(window_resolutions, &next_window_resolution);
-    resolution_item->set_help("The size of the window the game is drawn in");
-  }
+  /* The size can be changed from the menu this row leads to, and turning
+     fullscreen on or off swaps which setting the row stands for, so the text
+     is read back from the settings rather than kept in step by hand. */
+  resolution_item->text = "Resolution: " + current_resolution_text();
+  resolution_item->set_help(g_config->use_fullscreen
+                            ? "The resolution the screen is switched to"
+                            : "The size of the window the game is drawn in");
 }
 
 void
@@ -443,44 +313,6 @@ OptionsMenu::menu_action(MenuItem* item)
         g_config->magnification /= 100.0f;
       }
       apply_video_change();
-      break;
-
-    case MNID_RESOLUTION:
-      {
-        int width;
-        int height;
-        int refresh_rate;
-        if (!g_config->use_fullscreen)
-        {
-          if(sscanf(window_resolutions[static_cast<size_t>(next_window_resolution)].c_str(), "%dx%d",
-                    &width, &height) == 2)
-          {
-            g_config->window_size = Size(width, height);
-          }
-        }
-        else if (fullscreen_resolutions[static_cast<size_t>(next_fullscreen_resolution)] == "Desktop")
-        {
-          g_config->fullscreen_size.width = 0;
-          g_config->fullscreen_size.height = 0;
-          g_config->fullscreen_refresh_rate = 0;
-        }
-        else if(sscanf(fullscreen_resolutions[static_cast<size_t>(next_fullscreen_resolution)].c_str(),
-                       "%dx%d@%d", &width, &height, &refresh_rate) == 3)
-        {
-          g_config->fullscreen_size.width = width;
-          g_config->fullscreen_size.height = height;
-          g_config->fullscreen_refresh_rate = refresh_rate;
-        }
-        else if(sscanf(fullscreen_resolutions[static_cast<size_t>(next_fullscreen_resolution)].c_str(),
-                       "%dx%d", &width, &height) == 2)
-        {
-          g_config->fullscreen_size.width = width;
-          g_config->fullscreen_size.height = height;
-          g_config->fullscreen_refresh_rate = 0;
-        }
-
-        apply_video_change();
-      }
       break;
 
     case MNID_FULLSCREEN:

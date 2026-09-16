@@ -255,6 +255,22 @@ ScreenManager::process_events()
             m_menu_manager->on_window_resize();
             break;
 
+          /* A window can be maximised and restored from outside the game, so
+             the setting follows the window rather than the other way about. */
+          case SDL_WINDOWEVENT_MAXIMIZED:
+            if (!g_config->use_fullscreen)
+            {
+              g_config->window_maximised = true;
+            }
+            break;
+
+          case SDL_WINDOWEVENT_RESTORED:
+            if (!g_config->use_fullscreen)
+            {
+              g_config->window_maximised = false;
+            }
+            break;
+
           case SDL_WINDOWEVENT_FOCUS_LOST:
             if(GameSession::current() != NULL &&
                GameSession::current()->is_active())
