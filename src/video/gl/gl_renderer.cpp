@@ -192,9 +192,17 @@ GLRenderer::apply_config()
   SCREEN_WIDTH = logical_size.width;
   SCREEN_HEIGHT = logical_size.height;
 
-  if (m_viewport.x != 0 || m_viewport.y != 0)
+  bool clear_buffers = (m_viewport.x != 0 || m_viewport.y != 0);
+#ifdef __wii__
+  /* OpenGX hands back whatever was in video memory, not a blank buffer. */
+  clear_buffers = true;
+#endif
+
+  if (clear_buffers)
   {
     // Clear both buffers so that we get a clean black border without junk
+    /* The lightmap leaves the clear colour set to its ambient one. */
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     SDL_GL_SwapWindow(m_window);
     glClear(GL_COLOR_BUFFER_BIT);
