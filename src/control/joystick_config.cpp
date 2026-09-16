@@ -28,7 +28,13 @@
 JoystickConfig::JoystickConfig() :
   dead_zone(8000),
   jump_with_up_joy(false),
+#ifdef __wii__
+  /* The pads arrive as plain joysticks with no game controller mapping, and
+     every SDL_JOY event is dropped while this is set. */
+  use_game_controller(false),
+#else
   use_game_controller(true),
+#endif
   joy_button_map(),
   joy_axis_map(),
   joy_hat_map()
@@ -46,6 +52,15 @@ JoystickConfig::JoystickConfig() :
   bind_joyaxis(0, 1, Controller::RIGHT);
   bind_joyaxis(0, -2, Controller::UP);
   bind_joyaxis(0, 2, Controller::DOWN);
+
+#ifdef __wii__
+  /* Written straight in because bind_joyhat drops a control's other mappings,
+     which would leave the nunchuk's stick doing nothing. */
+  joy_hat_map[std::make_pair(0, SDL_HAT_UP)]    = Controller::UP;
+  joy_hat_map[std::make_pair(0, SDL_HAT_DOWN)]  = Controller::DOWN;
+  joy_hat_map[std::make_pair(0, SDL_HAT_LEFT)]  = Controller::LEFT;
+  joy_hat_map[std::make_pair(0, SDL_HAT_RIGHT)] = Controller::RIGHT;
+#endif
 }
 
 int
