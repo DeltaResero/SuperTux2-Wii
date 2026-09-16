@@ -419,6 +419,18 @@ set_target_properties(supertux2_lib PROPERTIES OUTPUT_NAME supertux2)
 target_compile_options(supertux2_lib PRIVATE ${SUPERTUX2_WARNING_FLAGS})
 target_compile_options(supertux2 PRIVATE ${SUPERTUX2_WARNING_FLAGS})
 
+## The Homebrew Channel loads a boot.dol, whatever the executable is called.
+IF(NINTENDO_WII)
+  IF(NOT ELF2DOL_EXE)
+    MESSAGE(FATAL_ERROR "Could not find elf2dol: try installing gamecube-tools")
+  ENDIF()
+  ADD_CUSTOM_COMMAND(TARGET supertux2 POST_BUILD
+    COMMAND ${ELF2DOL_EXE} $<TARGET_FILE:supertux2> ${CMAKE_BINARY_DIR}/boot.dol
+    COMMENT "Converting the executable to boot.dol"
+    VERBATIM
+  )
+ENDIF()
+
 ## These trees take our flags, less the exceptions below. -Weffc++ wants members
 ## named in constructor initializer lists where squirrel sets them in the body,
 ## but that's all the flag can see. -Wsign-conversion lands on SQInteger going to
