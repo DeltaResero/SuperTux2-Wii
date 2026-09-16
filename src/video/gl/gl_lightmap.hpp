@@ -62,7 +62,9 @@ private:
   int m_lightmap_height;
   float m_lightmap_uv_right;
   float m_lightmap_uv_bottom;
-  GLfloat m_old_viewport[4]; //holds vieport before redefining in start_draw - returned from glGet
+  /** The viewport in use before the lightmap redefined it. Read through
+      glGetIntegerv, as OpenGX answers GL_VIEWPORT from nothing else. */
+  GLint m_old_viewport[4];
 #ifdef ENABLE_LIGHTMAP_FBO
   /** Holds the lightmap texture as its colour attachment. */
   GLuint m_framebuffer;

@@ -57,7 +57,8 @@ GLLightmap::GLLightmap() :
   m_lightmap_width(),
   m_lightmap_height(),
   m_lightmap_uv_right(),
-  m_lightmap_uv_bottom()
+  m_lightmap_uv_bottom(),
+  m_old_viewport()
 #ifdef ENABLE_LIGHTMAP_FBO
   , m_framebuffer()
 #endif
@@ -111,7 +112,7 @@ GLLightmap::~GLLightmap()
 void
 GLLightmap::bind_lightmap()
 {
-  glGetFloatv(GL_VIEWPORT, m_old_viewport); //save viewport
+  glGetIntegerv(GL_VIEWPORT, m_old_viewport); //save viewport
   glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
   /* The texture is larger than the lightmap wherever its sides had to be
      rounded up, so draw into the corner the texture coordinates read from. */
@@ -124,10 +125,8 @@ GLLightmap::unbind_lightmap()
   /* The lights were drawn into the texture as they happened, so there is
      nothing to copy. Hand the screen back and restore the viewport. */
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glViewport(static_cast<GLint>(m_old_viewport[0]),
-             static_cast<GLint>(m_old_viewport[1]),
-             static_cast<GLsizei>(m_old_viewport[2]),
-             static_cast<GLsizei>(m_old_viewport[3]));
+  glViewport(m_old_viewport[0], m_old_viewport[1],
+             m_old_viewport[2], m_old_viewport[3]);
 }
 
 #else
@@ -135,9 +134,9 @@ GLLightmap::unbind_lightmap()
 void
 GLLightmap::bind_lightmap()
 {
-  glGetFloatv(GL_VIEWPORT, m_old_viewport); //save viewport
-  glViewport(static_cast<GLint>(m_old_viewport[0]),
-             static_cast<GLint>(m_old_viewport[3] - static_cast<GLfloat>(m_lightmap_height) + m_old_viewport[1]),
+  glGetIntegerv(GL_VIEWPORT, m_old_viewport); //save viewport
+  glViewport(m_old_viewport[0],
+             m_old_viewport[3] - m_lightmap_height + m_old_viewport[1],
              m_lightmap_width, m_lightmap_height);
 }
 
@@ -149,14 +148,12 @@ GLLightmap::unbind_lightmap()
   glDisable(GL_BLEND);
   glBindTexture(GL_TEXTURE_2D, m_lightmap->get_handle());
   glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                      static_cast<GLint>(m_old_viewport[0]),
-                      static_cast<GLint>(m_old_viewport[3] - static_cast<GLfloat>(m_lightmap_height) + m_old_viewport[1]),
+                      m_old_viewport[0],
+                      m_old_viewport[3] - m_lightmap_height + m_old_viewport[1],
                       m_lightmap_width, m_lightmap_height);
 
-  glViewport(static_cast<GLint>(m_old_viewport[0]),
-             static_cast<GLint>(m_old_viewport[1]),
-             static_cast<GLsizei>(m_old_viewport[2]),
-             static_cast<GLsizei>(m_old_viewport[3]));
+  glViewport(m_old_viewport[0], m_old_viewport[1],
+             m_old_viewport[2], m_old_viewport[3]);
   glEnable(GL_BLEND);
 }
 
