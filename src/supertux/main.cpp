@@ -128,7 +128,6 @@ public:
 #ifdef __wii__
     else
     {
-      /* Storage is mounted here, so this is the first point that can fail. */
       datadir = Wii::get_data_dir();
     }
 #else
@@ -179,8 +178,7 @@ public:
     else
     {
 #ifdef __wii__
-        /* SDL names a path with no device on it, which only resolves against a
-           default drive that mounting by hand does not set. */
+        /* Saves go inside the installation, not the folder SDL would name. */
         userdir = Wii::get_user_dir();
 #else
         char* prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");

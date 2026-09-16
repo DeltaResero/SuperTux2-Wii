@@ -26,9 +26,8 @@
 
 namespace Wii {
 
-/* Storage is mounted on demand rather than at startup, so a console with no
-   card in it only pays for the drive it actually has. Each mount is idempotent
-   and reports whether the device is usable afterwards. */
+/* Both devices are already mounted by the time this runs. These remount them
+   with a larger cache than libfat's default, and each one is idempotent. */
 
 /** Mount the SD card. */
 bool mount_sd();
