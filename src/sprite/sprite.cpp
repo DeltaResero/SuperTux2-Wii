@@ -19,6 +19,8 @@
 
 #include "sprite/sprite.hpp"
 
+#include "math/sizef.hpp"
+
 #include <assert.h>
 #include <math.h>
 #include <utility>
@@ -142,12 +144,21 @@ Sprite::draw(DrawingContext& context, const Vector& pos, int layer,
 
   context.push_transform();
   context.set_drawing_effect(context.get_drawing_effect() ^ effect);
-  context.draw_surface(action->surfaces[frameidx],
-                       pos - Vector(action->x_offset, action->y_offset),
-                       angle,
-                       color,
-                       blend,
-                       layer + action->z_order);
+
+  const Vector at = pos - Vector(action->x_offset, action->y_offset);
+
+  if (action->draw_w > 0.0f && action->draw_h > 0.0f)
+  {
+    context.draw_surface(action->surfaces[frameidx], at,
+                         Sizef(action->draw_w, action->draw_h),
+                         angle, color, blend, layer + action->z_order);
+  }
+  else
+  {
+    context.draw_surface(action->surfaces[frameidx], at,
+                         angle, color, blend, layer + action->z_order);
+  }
+
   context.pop_transform();
 }
 
