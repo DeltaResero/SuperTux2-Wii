@@ -237,6 +237,20 @@ JoystickManager::set_joy_controls(Controller::Control id, bool value)
     parent->get_controller()->set_control(Controller::JUMP, value);
   }
 
+#ifdef __wii__
+  /* The remote has too few buttons to spare any for the menus, so jump and
+     action carry a menu control too. Menu::process_input reads back after
+     hit, so action cancels rather than confirming. */
+  if (id == Controller::JUMP)
+  {
+    parent->get_controller()->set_control(Controller::MENU_SELECT, value);
+  }
+  else if (id == Controller::ACTION)
+  {
+    parent->get_controller()->set_control(Controller::MENU_BACK, value);
+  }
+#endif
+
   parent->get_controller()->set_control(id, value);
 }
 

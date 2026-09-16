@@ -54,6 +54,14 @@ JoystickConfig::JoystickConfig() :
   bind_joyaxis(0, 2, Controller::DOWN);
 
 #ifdef __wii__
+  /* Held sideways the thumb reaches 1 and 2 rather than A and B, so each
+     action answers to both. A comes off MENU_SELECT and set_joy_controls
+     raises that from JUMP instead. */
+  joy_button_map[std::make_pair(0, 0)] = Controller::JUMP;
+  joy_button_map[std::make_pair(0, 3)] = Controller::JUMP;
+  joy_button_map[std::make_pair(0, 1)] = Controller::ACTION;
+  joy_button_map[std::make_pair(0, 2)] = Controller::ACTION;
+
   /* Written straight in because bind_joyhat drops a control's other mappings,
      which would leave the nunchuk's stick doing nothing. */
   joy_hat_map[std::make_pair(0, SDL_HAT_UP)]    = Controller::UP;
@@ -204,13 +212,15 @@ JoystickConfig::read(const ReaderMapping& joystick_lisp)
       }
       else
       {
+        /* Assigned rather than bound, as the bind helpers drop a control's
+           other mappings and the file already lists every one it wants. */
         if (map.get("button", button))
         {
-          bind_joybutton(0, button, Controller::Control(i));
+          joy_button_map[std::make_pair(0, button)] = Controller::Control(i);
         }
         else if (map.get("axis",   axis))
         {
-          bind_joyaxis(0, axis, Controller::Control(i));
+          joy_axis_map[std::make_pair(0, axis)] = Controller::Control(i);
         }
         else if (map.get("hat",   hat))
         {
@@ -222,7 +232,7 @@ JoystickConfig::read(const ReaderMapping& joystick_lisp)
           }
           else
           {
-            bind_joyhat(0, hat, Controller::Control(i));
+            joy_hat_map[std::make_pair(0, hat)] = Controller::Control(i);
           }
         }
       }
