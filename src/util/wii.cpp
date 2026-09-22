@@ -157,16 +157,13 @@ std::string get_user_dir()
   return get_base_dir() + "userdata/";
 }
 
-void set_remote_orientation()
+bool has_expansion()
 {
-  /* A nunchuk is held in the other hand, which puts the remote upright. On its
-     own it lies sideways and SDL turns the D-pad a quarter turn to match. */
+  /* WPAD_Probe answers from the same flag the handshake sets, so this stays
+     false until libogc has finished talking to the expansion. */
   u32 expansion = WPAD_EXP_NONE;
-  WPAD_ScanPads();
-  const bool upright = WPAD_Probe(WPAD_CHAN_0, &expansion) == WPAD_ERR_NONE
-                       && expansion == WPAD_EXP_NUNCHUK;
-
-  setenv("SDL_WII_JOYSTICK_SIDEWAYS", upright ? "0" : "1", 1);
+  return WPAD_Probe(WPAD_CHAN_0, &expansion) == WPAD_ERR_NONE
+         && expansion != WPAD_EXP_NONE;
 }
 
 std::string get_data_dir()
