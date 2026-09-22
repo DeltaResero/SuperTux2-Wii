@@ -22,6 +22,7 @@
 
 #include <config.h>
 #include <memory>
+#include <vector>
 
 #include "video/lightmap.hpp"
 
@@ -55,6 +56,9 @@ private:
   void bind_lightmap();
   void unbind_lightmap();
 
+  /** Fetch the finished lightmap for the queries to be answered from. */
+  void read_back() const;
+
   static const int s_LIGHTMAP_DIV = 5;
 
   std::shared_ptr<GLTexture> m_lightmap;
@@ -65,6 +69,10 @@ private:
   /** The viewport in use before the lightmap redefined it. Read through
       glGetIntegerv, as OpenGX answers GL_VIEWPORT from nothing else. */
   GLint m_old_viewport[4];
+  /** The finished lightmap, four bytes to a pixel, rows running bottom up.
+      Filled at most once a frame, and only if something asks about it. */
+  mutable std::vector<GLubyte> m_readback;
+  mutable bool m_readback_filled;
 #ifdef ENABLE_LIGHTMAP_FBO
   /** Holds the lightmap texture as its colour attachment. */
   GLuint m_framebuffer;

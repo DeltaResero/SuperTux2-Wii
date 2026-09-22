@@ -58,7 +58,9 @@ GLLightmap::GLLightmap() :
   m_lightmap_height(),
   m_lightmap_uv_right(),
   m_lightmap_uv_bottom(),
-  m_old_viewport()
+  m_old_viewport(),
+  m_readback(),
+  m_readback_filled(false)
 #ifdef ENABLE_LIGHTMAP_FBO
   , m_framebuffer()
 #endif
@@ -72,6 +74,8 @@ GLLightmap::GLLightmap() :
 
   m_lightmap_uv_right = static_cast<float>(m_lightmap_width) / static_cast<float>(width);
   m_lightmap_uv_bottom = static_cast<float>(m_lightmap_height) / static_cast<float>(height);
+
+  m_readback.resize(static_cast<size_t>(m_lightmap_width * m_lightmap_height * 4));
 
 #ifdef ENABLE_LIGHTMAP_FBO
   glGenFramebuffers(1, &m_framebuffer);
@@ -162,6 +166,8 @@ GLLightmap::unbind_lightmap()
 void
 GLLightmap::start_draw(const Color &ambient_color)
 {
+  m_readback_filled = false;
+
   bind_lightmap();
 
   glMatrixMode(GL_PROJECTION);
@@ -261,19 +267,48 @@ GLLightmap::draw_triangle(const DrawingRequest& request)
 }
 
 void
+GLLightmap::read_back() const
+{
+  /* A framebuffer of its own holds the lightmap at the origin, the screen
+     holds it in the top left corner of the viewport. */
+#ifdef ENABLE_LIGHTMAP_FBO
+  const GLint origin_x = 0;
+  const GLint origin_y = 0;
+#else
+  const GLint origin_x = m_old_viewport[0];
+  const GLint origin_y = m_old_viewport[1] + m_old_viewport[3] - m_lightmap_height;
+#endif
+
+  /* Four bytes a pixel so a row never needs its alignment stated. */
+  glReadPixels(origin_x, origin_y, m_lightmap_width, m_lightmap_height,
+               GL_RGBA, GL_UNSIGNED_BYTE, m_readback.data());
+
+  m_readback_filled = true;
+}
+
+void
 GLLightmap::get_light(const DrawingRequest& request) const
 {
   const GetLightRequest* getlightrequest
     = static_cast<GetLightRequest*>(request.request_data);
 
-  float pixels[3];
-  for( int i = 0; i<3; i++)
-    pixels[i] = 0.0f; //set to black
+  /* These requests carry the last layer, so every light is already drawn. */
+  if(!m_readback_filled)
+    read_back();
 
-  float posX = request.pos.x * m_lightmap_width / SCREEN_WIDTH + m_old_viewport[0];
-  float posY = m_old_viewport[3] + m_old_viewport[1] - request.pos.y * m_lightmap_height / SCREEN_HEIGHT;
-  glReadPixels((GLint) posX, (GLint) posY , 1, 1, GL_RGB, GL_FLOAT, pixels);
-  *(getlightrequest->color_ptr) = Color( pixels[0], pixels[1], pixels[2]);
+  /* A position at the very top or the far right divides to one past the last
+     row or column. */
+  const int x = std::min(static_cast<int>(request.pos.x * m_lightmap_width / SCREEN_WIDTH),
+                         m_lightmap_width - 1);
+  const int y = std::min(static_cast<int>((SCREEN_HEIGHT - request.pos.y) * m_lightmap_height / SCREEN_HEIGHT),
+                         m_lightmap_height - 1);
+
+  const GLubyte* pixel
+    = &m_readback[static_cast<size_t>((y * m_lightmap_width + x) * 4)];
+
+  *(getlightrequest->color_ptr) = Color(pixel[0] / 255.0f,
+                                        pixel[1] / 255.0f,
+                                        pixel[2] / 255.0f);
 }
 
 /* EOF */
