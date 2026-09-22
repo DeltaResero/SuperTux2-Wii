@@ -29,8 +29,8 @@ JoystickConfig::JoystickConfig() :
   dead_zone(8000),
   jump_with_up_joy(false),
 #ifdef __wii__
-  /* The pads arrive as plain joysticks with no game controller mapping, and
-     every SDL_JOY event is dropped while this is set. */
+  /* SDL has a game controller mapping for these pads, but the setup menu
+     edits joystick bindings and SDL_JOY events stop while that is taken. */
   use_game_controller(false),
 #else
   use_game_controller(true),
