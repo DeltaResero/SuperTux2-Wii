@@ -54,13 +54,27 @@ JoystickConfig::JoystickConfig() :
   bind_joyaxis(0, 2, Controller::DOWN);
 
 #ifdef __wii__
-  /* Held sideways the thumb reaches 1 and 2 rather than A and B, so each
-     action answers to both. A comes off MENU_SELECT and set_joy_controls
-     raises that from JUMP instead. */
-  joy_button_map[std::make_pair(0, 0)] = Controller::JUMP;
-  joy_button_map[std::make_pair(0, 3)] = Controller::JUMP;
-  joy_button_map[std::make_pair(0, 1)] = Controller::ACTION;
-  joy_button_map[std::make_pair(0, 2)] = Controller::ACTION;
+  /* SDL numbers every pad it exposes here into one list, so a slot has to
+     suit each device holding it. A comes off MENU_SELECT and
+     set_joy_controls raises that from JUMP instead. */
+  joy_button_map[std::make_pair(0,  0)] = Controller::JUMP;       // A, GC A, classic A
+  joy_button_map[std::make_pair(0,  1)] = Controller::ACTION;     // B, GC B, classic B
+  joy_button_map[std::make_pair(0,  2)] = Controller::ACTION;     // 1, GC X
+  joy_button_map[std::make_pair(0,  3)] = Controller::JUMP;       // 2, GC Y
+  joy_button_map[std::make_pair(0,  4)] = Controller::PEEK_LEFT;  // minus, GC L
+  joy_button_map[std::make_pair(0,  5)] = Controller::PEEK_RIGHT; // plus, GC R
+  joy_button_map[std::make_pair(0,  6)] = Controller::START;      // HOME, GC Z
+  joy_button_map[std::make_pair(0,  7)] = Controller::START;      // nunchuk Z, GC START
+  joy_button_map[std::make_pair(0,  8)] = Controller::ACTION;     // nunchuk C
+  joy_button_map[std::make_pair(0,  9)] = Controller::ACTION;     // classic X
+  joy_button_map[std::make_pair(0, 10)] = Controller::JUMP;       // classic Y
+  joy_button_map[std::make_pair(0, 11)] = Controller::PEEK_LEFT;  // classic L
+  joy_button_map[std::make_pair(0, 12)] = Controller::PEEK_RIGHT; // classic R
+
+  /* The second stick peeks sideways only. A GameCube pad's C-stick and a
+     classic controller's right stick both report on this axis. */
+  joy_axis_map[std::make_pair(0, -3)] = Controller::PEEK_LEFT;
+  joy_axis_map[std::make_pair(0,  3)] = Controller::PEEK_RIGHT;
 
   /* Written straight in because bind_joyhat drops a control's other mappings,
      which would leave the nunchuk's stick doing nothing. */

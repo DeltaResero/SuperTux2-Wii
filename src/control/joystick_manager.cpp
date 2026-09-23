@@ -54,6 +54,16 @@ Uint8 turn_hat_sideways(Uint8 value)
   return turned;
 }
 
+/* SDL calls a GameCube pad "Gamecube N" and everything on a remote
+   "Wiimote N". Anything it cannot name is taken for a remote. */
+bool is_gamecube_pad(SDL_JoystickID which)
+{
+  SDL_Joystick* joystick = SDL_JoystickFromInstanceID(which);
+  const char* name = joystick ? SDL_JoystickName(joystick) : nullptr;
+
+  return name && SDL_strncmp(name, "Gamecube", 8) == 0;
+}
+
 #endif
 
 } // namespace
@@ -134,8 +144,9 @@ JoystickManager::process_hat_event(const SDL_JoyHatEvent& jhat)
   Uint8 value = jhat.value;
 #ifdef __wii__
   /* The remote lies sideways on its own and upright once anything is in its
-     expansion port, so the D-pad turns with it. */
-  if (!Wii::has_expansion())
+     expansion port, so the D-pad turns with it. A GameCube pad never turns,
+     and has_expansion only speaks for the remote. */
+  if (!is_gamecube_pad(jhat.which) && !Wii::has_expansion())
     value = turn_hat_sideways(value);
 #endif
 
