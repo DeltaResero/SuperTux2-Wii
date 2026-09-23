@@ -52,6 +52,9 @@ static const float BUTTJUMP_MIN_VELOCITY_Y = 400.0f;
 static const float SHOOTING_TIME = .150f;
 static const float GLIDE_TIME_PER_FLOWER = 0.5f;
 static const float STONE_TIME_PER_FLOWER = 2.0f;
+/** how long up or down is held, standing still, before the camera looks
+ * that way on its own */
+static const float PEEK_HOLD_TIME = 2.0f;
 
 /** number of idle stages, including standing */
 static const unsigned int IDLE_STAGE_COUNT = 5;
@@ -163,6 +166,8 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   backflip_direction(0),
   peekingX(AUTO),
   peekingY(AUTO),
+  peek_hold_timer(),
+  peek_held(false),
   ability_time(),
   stone(false),
   swimming(false),
@@ -916,6 +921,26 @@ Player::handle_input()
     } else if( controller->pressed( Controller::PEEK_DOWN ) ) {
       peekingY = DOWN;
     }
+  }
+
+  /* Holding a direction while stood still looks that way after a moment, so
+     a pad with no button left for it can still peek up and down. */
+  bool looking_still = !backflipping && !jumping && on_ground() &&
+                       physic.get_velocity_x() == 0 &&
+                       (controller->hold(Controller::UP) ||
+                        controller->hold(Controller::DOWN));
+
+  if(!looking_still) {
+    peek_hold_timer.stop();
+    if(peek_held) {
+      peekingY = AUTO;
+      peek_held = false;
+    }
+  } else if(peek_hold_timer.get_period() == 0) {
+    peek_hold_timer.start(PEEK_HOLD_TIME);
+  } else if(!peek_hold_timer.started()) {
+    peekingY = controller->hold(Controller::UP) ? UP : DOWN;
+    peek_held = true;
   }
 
   /* Handle horizontal movement: */

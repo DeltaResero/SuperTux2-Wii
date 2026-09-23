@@ -282,6 +282,9 @@ private:
   int  backflip_direction;
   Direction peekingX;
   Direction peekingY;
+  /** Runs while up or down is held standing still, for the peek off no button. */
+  Timer peek_hold_timer;
+  bool peek_held;
   float ability_time;
   bool stone;
   bool swimming;
