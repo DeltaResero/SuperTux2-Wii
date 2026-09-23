@@ -66,7 +66,7 @@ JoystickManager::JoystickManager(InputManager* parent_,
   max_joybuttons(),
   max_joyaxis(),
   max_joyhats(),
-  hat_state(0),
+  hat_state(),
   wait_for_joystick(-1),
   joysticks()
 {
@@ -124,6 +124,8 @@ JoystickManager::on_joystick_removed(int instance_id)
 
   joysticks.erase(std::remove(joysticks.begin(), joysticks.end(), nullptr),
                   joysticks.end());
+
+  hat_state.erase(instance_id);
 }
 
 void
@@ -137,7 +139,8 @@ JoystickManager::process_hat_event(const SDL_JoyHatEvent& jhat)
     value = turn_hat_sideways(value);
 #endif
 
-  Uint8 changed = hat_state ^ value;
+  Uint8& state = hat_state[jhat.which];
+  Uint8 changed = state ^ value;
 
   if (wait_for_joystick >= 0)
   {
@@ -187,7 +190,7 @@ JoystickManager::process_hat_event(const SDL_JoyHatEvent& jhat)
     }
   }
 
-  hat_state = value;
+  state = value;
 }
 
 void

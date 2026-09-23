@@ -46,7 +46,8 @@ private:
   int max_joyaxis;
   int max_joyhats;
 
-  Uint8 hat_state;
+  /** Last hat position of each pad, as they are told apart by nothing else. */
+  std::map<SDL_JoystickID, Uint8> hat_state;
 
   int wait_for_joystick;
 
