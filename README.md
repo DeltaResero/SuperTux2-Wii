@@ -283,7 +283,7 @@ License as published by the Free Software Foundation, either version 3 of the Li
 (at your option) any later version.
 
 Most of the `data` subdirectory is licensed under CC-by-SA instead. Credits for everyone who
-contributed to SuperTux are in `data/credits.stxt`, and can be read from the game menu as well.
+contributed to SuperTux are in `data/credits.txt`, and can be read from the game menu as well.
 
 Please see the [LICENSE](LICENSE) file for the full text.
 
