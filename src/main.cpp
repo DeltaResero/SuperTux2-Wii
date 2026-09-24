@@ -20,10 +20,24 @@
 #include "SDL.h"
 
 #include "supertux/main.hpp"
+#ifdef __wii__
+#include "util/wii.hpp"
+#endif
 
 int main(int argc, char** argv)
 {
-  return Main().run(argc, argv);
+#ifdef __wii__
+  Wii::take_power_buttons();
+#endif
+
+  int result = Main().run(argc, argv);
+
+#ifdef __wii__
+  // Main has saved the config by now.
+  Wii::power_off_if_requested();
+#endif
+
+  return result;
 }
 
 /* EOF */

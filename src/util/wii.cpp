@@ -25,9 +25,13 @@
 #include <stdexcept>
 
 #include <fat.h>
+#include <ogc/system.h>
 #include <ogc/usbstorage.h>
 #include <sdcard/wiisd_io.h>
 #include <wiiuse/wpad.h>
+
+/* SDL's event pump sends SDL_QUIT while this is set. */
+extern "C" bool OGC_ResetRequested;
 
 namespace Wii {
 
@@ -38,6 +42,9 @@ const int CACHE_PAGES = 32;
 const int SECTORS_PER_PAGE = 64;
 
 const char* const APP_SUBDIR = "apps/supertux2-wii";
+
+/* Set from an interrupt. */
+volatile bool power_off_requested = false;
 
 bool sd_mounted = false;
 bool usb_mounted = false;
@@ -58,6 +65,17 @@ bool dir_exists(const std::string& directory)
 
   closedir(dir);
   return true;
+}
+
+void on_power_button()
+{
+  power_off_requested = true;
+  OGC_ResetRequested = true;
+}
+
+void on_remote_power_button(s32)
+{
+  on_power_button();
 }
 
 } // namespace
@@ -174,6 +192,25 @@ std::string get_data_dir()
     throw std::runtime_error("No data directory at " + path);
 
   return path;
+}
+
+void take_power_buttons()
+{
+  SYS_SetPowerCallback(on_power_button);
+  WPAD_SetPowerButtonCallback(on_remote_power_button);
+}
+
+void power_off_if_requested()
+{
+  if (!power_off_requested)
+    return;
+
+  SYS_ResetSystem(SYS_POWEROFF, 0, 0);
+
+  /* libogc returns if IOS hasn't cut the power yet, with IOS already gone. */
+  while (power_off_requested)
+  {
+  }
 }
 
 } // namespace Wii

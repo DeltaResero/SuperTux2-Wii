@@ -57,6 +57,13 @@ std::string get_user_dir();
     the remote is being held upright rather than sideways. */
 bool has_expansion();
 
+/** Take both power buttons from SDL, which powers off mid-frame. A press
+    quits the game instead, as the reset button does. */
+void take_power_buttons();
+
+/** Power off if a power button was pressed. Doesn't return if so. */
+void power_off_if_requested();
+
 } // namespace Wii
 
 #endif
