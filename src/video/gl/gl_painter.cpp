@@ -21,6 +21,7 @@
 #include <numbers>
 
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -32,6 +33,20 @@
 GLuint GLPainter::s_last_texture = static_cast<GLuint>(-1);
 
 namespace {
+
+/** As SDLPainter's whole_pixels(). A fractional edge loses the picture's
+    last row or column to the pixel centre it falls short of. */
+void whole_pixels(float& left, float& top, float& right, float& bottom,
+                  const Vector& scale)
+{
+  if (scale.x <= 0.0f || scale.y <= 0.0f)
+    return;
+
+  left   = std::floor(left   * scale.x) / scale.x;
+  top    = std::floor(top    * scale.y) / scale.y;
+  right  = std::floor(right  * scale.x) / scale.x;
+  bottom = std::floor(bottom * scale.y) / scale.y;
+}
 
 inline void intern_draw(float left, float top, float right, float bottom,
                         float uv_left, float uv_top,
@@ -110,7 +125,7 @@ inline void intern_draw(float left, float top, float right, float bottom,
 } // namespace
 
 void
-GLPainter::draw_surface(const DrawingRequest& request)
+GLPainter::draw_surface(const DrawingRequest& request, const Vector& scale)
 {
   const SurfaceRequest* surfacerequest
     = static_cast<const SurfaceRequest*>(request.request_data);
@@ -135,9 +150,14 @@ GLPainter::draw_surface(const DrawingRequest& request)
     s_last_texture = th;
     glBindTexture(GL_TEXTURE_2D, th);
   }
-  intern_draw(request.pos.x, request.pos.y,
-              request.pos.x + surfacerequest->dstsize.width,
-              request.pos.y + surfacerequest->dstsize.height,
+
+  float left   = request.pos.x;
+  float top    = request.pos.y;
+  float right  = request.pos.x + surfacerequest->dstsize.width;
+  float bottom = request.pos.y + surfacerequest->dstsize.height;
+  whole_pixels(left, top, right, bottom, scale);
+
+  intern_draw(left, top, right, bottom,
               surface_data->get_uv_left(),
               surface_data->get_uv_top(),
               surface_data->get_uv_right(),
@@ -150,7 +170,7 @@ GLPainter::draw_surface(const DrawingRequest& request)
 }
 
 void
-GLPainter::draw_surface_part(const DrawingRequest& request)
+GLPainter::draw_surface_part(const DrawingRequest& request, const Vector& scale)
 {
   const SurfacePartRequest* surfacepartrequest
     = static_cast<SurfacePartRequest*>(request.request_data);
@@ -171,9 +191,14 @@ GLPainter::draw_surface_part(const DrawingRequest& request)
     s_last_texture = th;
     glBindTexture(GL_TEXTURE_2D, th);
   }
-  intern_draw(request.pos.x, request.pos.y,
-              request.pos.x + surfacepartrequest->dstsize.width,
-              request.pos.y + surfacepartrequest->dstsize.height,
+
+  float left   = request.pos.x;
+  float top    = request.pos.y;
+  float right  = request.pos.x + surfacepartrequest->dstsize.width;
+  float bottom = request.pos.y + surfacepartrequest->dstsize.height;
+  whole_pixels(left, top, right, bottom, scale);
+
+  intern_draw(left, top, right, bottom,
               uv_left,
               uv_top,
               uv_right,

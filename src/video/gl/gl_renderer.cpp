@@ -49,6 +49,7 @@ GLRenderer::GLRenderer() :
   m_window(),
   m_glcontext(),
   m_viewport(),
+  m_scale(),
   m_fullscreen_active(false)
 {
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -180,12 +181,11 @@ GLRenderer::apply_config()
                    static_cast<float>(g_config->aspect_size.height);
   }
 
-  Vector scale;
   Size logical_size;
   calculate_viewport(target_size,
                      aspect_ratio,
                      g_config->magnification,
-                     scale,
+                     m_scale,
                      logical_size,
                      m_viewport);
 
@@ -379,13 +379,13 @@ GLRenderer::end_draw()
 void
 GLRenderer::draw_surface(const DrawingRequest& request)
 {
-  GLPainter::draw_surface(request);
+  GLPainter::draw_surface(request, m_scale);
 }
 
 void
 GLRenderer::draw_surface_part(const DrawingRequest& request)
 {
-  GLPainter::draw_surface_part(request);
+  GLPainter::draw_surface_part(request, m_scale);
 }
 
 void

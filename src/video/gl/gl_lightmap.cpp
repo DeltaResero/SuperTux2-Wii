@@ -227,13 +227,14 @@ GLLightmap::do_draw()
 void
 GLLightmap::draw_surface(const DrawingRequest& request)
 {
-  GLPainter::draw_surface(request);
+  /* Fractions kept, as SDLPainter does: a whole pixel here is five on screen. */
+  GLPainter::draw_surface(request, Vector());
 }
 
 void
 GLLightmap::draw_surface_part(const DrawingRequest& request)
 {
-  GLPainter::draw_surface_part(request);
+  GLPainter::draw_surface_part(request, Vector());
 }
 
 void
