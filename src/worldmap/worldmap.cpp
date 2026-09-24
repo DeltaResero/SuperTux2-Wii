@@ -587,6 +587,15 @@ WorldMap::clamp_camera_position(Vector& c) const
 void
 WorldMap::update(float delta)
 {
+  // The menu ignores the pause key, so it closes the worldmap menu here.
+  if (!in_level && MenuManager::instance().is_active() &&
+      !MenuManager::instance().has_dialog() &&
+      InputManager::current()->get_controller()->pressed(Controller::START))
+  {
+    MenuManager::instance().clear_menu_stack();
+    return;
+  }
+
   if (!in_level && !MenuManager::instance().is_active())
   {
     // update GameObjects
