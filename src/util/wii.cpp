@@ -227,6 +227,16 @@ void power_off_if_requested()
 
 void fit_overscan()
 {
+  /* SDL lists the 240-line mode, which the menu never offers, so it carries
+     the full height as a second choice. */
+  GXRModeObj* preferred = VIDEO_GetPreferredMode(nullptr);
+  if (preferred == &TVNtsc480IntDf || preferred == &TVNtsc480Prog)
+    TVNtsc240Ds = *preferred;
+  else if (preferred == &TVEurgb60Hz480IntDf || preferred == &TVEurgb60Hz480Prog)
+    TVEurgb60Hz240Ds = *preferred;
+  else if (preferred == &TVMpal480IntDf || preferred == &TVMpal480Prog)
+    TVMpal240Ds = *preferred;
+
   /* SDL offers these by pointer, so the change reaches its mode list. */
   fit_safe_height(TVNtsc480IntDf);
   fit_safe_height(TVNtsc480Prog);
