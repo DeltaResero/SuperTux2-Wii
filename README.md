@@ -282,8 +282,9 @@ This program is distributed under the terms of the GNU General Public License ve
 License as published by the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-Most of the `data` subdirectory is licensed under CC-by-SA instead. Credits for everyone who
-contributed to SuperTux are in `data/credits.txt`, and can be read from the game menu as well.
+Most of the `data` subdirectory is licensed under CC-by-SA instead. Everyone who contributed to
+SuperTux is credited in [AUTHORS.md](AUTHORS.md), along with the asset licenses, and the credits
+can be read from the game menu as well.
 
 Please see the [LICENSE](LICENSE) file for the full text.
 
