@@ -47,6 +47,10 @@ const char* const APP_SUBDIR = "apps/supertux2-wii";
 /* Wii Linux's NTSC height, clear of the overscan most TVs crop. */
 const u16 SAFE_HEIGHT = 448;
 
+/* The same share of PAL's 576 lines. GX's copy stretch lands on exactly
+   this, and the even origin keeps the fields in order. */
+const u16 PAL_SAFE_LINES = 540;
+
 /* Set from an interrupt. */
 volatile bool power_off_requested = false;
 
@@ -71,12 +75,12 @@ bool dir_exists(const std::string& directory)
   return true;
 }
 
-void fit_safe_height(GXRModeObj& mode)
+void fit_safe_height(GXRModeObj& mode, u16 lines, u16 max_lines)
 {
   mode.efbHeight = SAFE_HEIGHT;
-  mode.xfbHeight = SAFE_HEIGHT;
-  mode.viHeight = SAFE_HEIGHT;
-  mode.viYOrigin = (VI_MAX_HEIGHT_NTSC - SAFE_HEIGHT) / 2;
+  mode.xfbHeight = lines;
+  mode.viHeight = lines;
+  mode.viYOrigin = (max_lines - lines) / 2;
 }
 
 void on_power_button()
@@ -236,14 +240,19 @@ void fit_overscan()
     TVEurgb60Hz240Ds = *preferred;
   else if (preferred == &TVMpal480IntDf || preferred == &TVMpal480Prog)
     TVMpal240Ds = *preferred;
+  else if (preferred == &TVPal576IntDfScale || preferred == &TVPal576ProgScale)
+    TVPal264Ds = *preferred;
 
   /* SDL offers these by pointer, so the change reaches its mode list. */
-  fit_safe_height(TVNtsc480IntDf);
-  fit_safe_height(TVNtsc480Prog);
-  fit_safe_height(TVEurgb60Hz480IntDf);
-  fit_safe_height(TVEurgb60Hz480Prog);
-  fit_safe_height(TVMpal480IntDf);
-  fit_safe_height(TVMpal480Prog);
+  fit_safe_height(TVNtsc480IntDf, SAFE_HEIGHT, VI_MAX_HEIGHT_NTSC);
+  fit_safe_height(TVNtsc480Prog, SAFE_HEIGHT, VI_MAX_HEIGHT_NTSC);
+  fit_safe_height(TVEurgb60Hz480IntDf, SAFE_HEIGHT, VI_MAX_HEIGHT_EURGB60);
+  fit_safe_height(TVEurgb60Hz480Prog, SAFE_HEIGHT, VI_MAX_HEIGHT_EURGB60);
+  fit_safe_height(TVMpal480IntDf, SAFE_HEIGHT, VI_MAX_HEIGHT_MPAL);
+  fit_safe_height(TVMpal480Prog, SAFE_HEIGHT, VI_MAX_HEIGHT_MPAL);
+  /* PAL stretches the same picture to fill the taller screen. */
+  fit_safe_height(TVPal576IntDfScale, PAL_SAFE_LINES, VI_MAX_HEIGHT_PAL);
+  fit_safe_height(TVPal576ProgScale, PAL_SAFE_LINES, VI_MAX_HEIGHT_PAL);
 }
 
 } // namespace Wii
