@@ -57,6 +57,7 @@
 #include "supertux/title_screen.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
+#include "util/wii.hpp"
 #include "video/drawing_context.hpp"
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"
@@ -124,6 +125,12 @@ public:
     {
       datadir = env_datadir;
     }
+#ifdef __wii__
+    else
+    {
+      datadir = Wii::get_data_dir();
+    }
+#else
     else
     {
       // check if we run from source dir
@@ -131,7 +138,7 @@ public:
       std::string basepath = basepath_c ? basepath_c : "./";
       SDL_free(basepath_c);
 
-      if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.stxt")))
+      if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.txt")))
       {
         datadir = BUILD_DATA_DIR;
         // Add config dir for supplemental files
@@ -145,6 +152,7 @@ public:
         datadir = FileSystem::join(datadir, INSTALL_SUBDIR_SHARE);
       }
     }
+#endif
 
     if (!FileSystem::is_directory(datadir))
     {
@@ -169,9 +177,14 @@ public:
     }
     else
     {
+#ifdef __wii__
+        /* Saves go inside the installation, not the folder SDL would name. */
+        userdir = Wii::get_user_dir();
+#else
         char* prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
         userdir = prefpath ? prefpath : std::string();
         SDL_free(prefpath);
+#endif
     }
     if (!FileSystem::is_directory(userdir))
     {
@@ -238,6 +251,8 @@ Main::init_video()
 {
   SDL_SetWindowTitle(VideoSystem::current()->get_renderer().get_window(), PACKAGE_NAME " " PACKAGE_VERSION);
 
+#ifndef __wii__
+  /* Decoding a 256x256 image for use as a window icon. */
   const char* icon_fname = "images/engine/icons/supertux-256x256.png";
   SDL_Surface* icon = IMG_Load_RW(sdl_rwops_from_file(icon_fname), true);
   if (!icon)
@@ -249,6 +264,7 @@ Main::init_video()
     SDL_SetWindowIcon(VideoSystem::current()->get_renderer().get_window(), icon);
     SDL_FreeSurface(icon);
   }
+#endif
   SDL_ShowCursor(0);
 
   log_info << (g_config->use_fullscreen?"fullscreen ":"window ")

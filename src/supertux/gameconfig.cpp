@@ -31,13 +31,22 @@
 
 Config::Config() :
   profile(1),
+#ifdef __wii__
+  fullscreen_size(640, 448),
+#else
   fullscreen_size(0, 0),
+#endif
   fullscreen_refresh_rate(0),
   window_size(1280, 800),
   window_maximised(false),
   aspect_size(0, 0), // auto detect
   magnification(0.0f),
+#ifdef __wii__
+  /* Wii Homebrew has no window mode to fall back to. */
+  use_fullscreen(true),
+#else
   use_fullscreen(false),
+#endif
   video(VideoSystem::AUTO_VIDEO),
   audio_backend(AudioBackend::Automatic),
   vsync(1),

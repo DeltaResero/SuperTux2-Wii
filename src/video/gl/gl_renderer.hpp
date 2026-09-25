@@ -21,6 +21,7 @@
 #define HEADER_SUPERTUX_VIDEO_GL_RENDERER_HPP
 
 #include "math/size.hpp"
+#include "math/vector.hpp"
 #include "video/drawing_request.hpp"
 #include "video/renderer.hpp"
 
@@ -33,6 +34,8 @@ private:
   SDL_Window* m_window;
   SDL_GLContext m_glcontext;
   SDL_Rect m_viewport;
+  /** Screen pixels per logical unit. */
+  Vector m_scale;
   bool m_fullscreen_active;
 
 public:

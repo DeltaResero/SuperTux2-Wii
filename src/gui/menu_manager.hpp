@@ -71,6 +71,11 @@ public:
     return !m_menu_stack.empty();
   }
 
+  bool has_dialog() const
+  {
+    return m_dialog != nullptr;
+  }
+
   Menu* current_menu() const;
 
 private:

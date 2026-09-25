@@ -20,6 +20,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GL_GL_PAINTER_HPP
 #define HEADER_SUPERTUX_VIDEO_GL_GL_PAINTER_HPP
 
+#include "math/vector.hpp"
 #include "video/glutil.hpp"
 
 struct DrawingRequest;
@@ -32,8 +33,10 @@ private:
 public:
   GLPainter();
 
-  static void draw_surface(const DrawingRequest& request);
-  static void draw_surface_part(const DrawingRequest& request);
+  /** @param scale the target's pixels per logical unit, to land the picture
+      on whole pixels, or zero to leave it where it falls */
+  static void draw_surface(const DrawingRequest& request, const Vector& scale);
+  static void draw_surface_part(const DrawingRequest& request, const Vector& scale);
   static void draw_gradient(const DrawingRequest& request);
   static void draw_filled_rect(const DrawingRequest& request);
   static void draw_inverse_ellipse(const DrawingRequest& request);

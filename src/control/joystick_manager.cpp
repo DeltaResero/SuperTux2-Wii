@@ -29,6 +29,44 @@
 #include "gui/menu_manager.hpp"
 #include "supertux/menu/joystick_menu.hpp"
 #include "util/log.hpp"
+#include "util/wii.hpp"
+
+namespace {
+
+/* Every mapping sits under one id. The config format records no joystick,
+   and SDL hands out a fresh id each time a pad is added back. */
+const JoystickConfig::JoyId JOY_ID = 0;
+
+#ifdef __wii__
+
+/* A quarter turn anticlockwise, matching what SDL does for a remote held
+   sideways. Applied here as SDL settles that once, before libogc has had a
+   chance to report the nunchuk the choice depends on. */
+Uint8 turn_hat_sideways(Uint8 value)
+{
+  Uint8 turned = SDL_HAT_CENTERED;
+
+  if (value & SDL_HAT_UP)    turned |= SDL_HAT_LEFT;
+  if (value & SDL_HAT_DOWN)  turned |= SDL_HAT_RIGHT;
+  if (value & SDL_HAT_LEFT)  turned |= SDL_HAT_DOWN;
+  if (value & SDL_HAT_RIGHT) turned |= SDL_HAT_UP;
+
+  return turned;
+}
+
+/* SDL calls a GameCube pad "Gamecube N" and everything on a remote
+   "Wiimote N". Anything it cannot name is taken for a remote. */
+bool is_gamecube_pad(SDL_JoystickID which)
+{
+  SDL_Joystick* joystick = SDL_JoystickFromInstanceID(which);
+  const char* name = joystick ? SDL_JoystickName(joystick) : nullptr;
+
+  return name && SDL_strncmp(name, "Gamecube", 8) == 0;
+}
+
+#endif
+
+} // namespace
 
 JoystickManager::JoystickManager(InputManager* parent_,
                                  JoystickConfig& joystick_config) :
@@ -38,7 +76,7 @@ JoystickManager::JoystickManager(InputManager* parent_,
   max_joybuttons(),
   max_joyaxis(),
   max_joyhats(),
-  hat_state(0),
+  hat_state(),
   wait_for_joystick(-1),
   joysticks()
 {
@@ -96,26 +134,38 @@ JoystickManager::on_joystick_removed(int instance_id)
 
   joysticks.erase(std::remove(joysticks.begin(), joysticks.end(), nullptr),
                   joysticks.end());
+
+  hat_state.erase(instance_id);
 }
 
 void
 JoystickManager::process_hat_event(const SDL_JoyHatEvent& jhat)
 {
-  Uint8 changed = hat_state ^ jhat.value;
+  Uint8 value = jhat.value;
+#ifdef __wii__
+  /* The remote lies sideways on its own and upright once anything is in its
+     expansion port, so the D-pad turns with it. A GameCube pad never turns,
+     and has_expansion only speaks for the remote. */
+  if (!is_gamecube_pad(jhat.which) && !Wii::has_expansion())
+    value = turn_hat_sideways(value);
+#endif
+
+  Uint8& state = hat_state[jhat.which];
+  Uint8 changed = state ^ value;
 
   if (wait_for_joystick >= 0)
   {
-    if (changed & SDL_HAT_UP && jhat.value & SDL_HAT_UP)
-      m_joystick_config.bind_joyhat(jhat.which, SDL_HAT_UP, Controller::Control(wait_for_joystick));
+    if (changed & SDL_HAT_UP && value & SDL_HAT_UP)
+      m_joystick_config.bind_joyhat(JOY_ID, SDL_HAT_UP, Controller::Control(wait_for_joystick));
 
-    if (changed & SDL_HAT_DOWN && jhat.value & SDL_HAT_DOWN)
-      m_joystick_config.bind_joyhat(jhat.which, SDL_HAT_DOWN, Controller::Control(wait_for_joystick));
+    if (changed & SDL_HAT_DOWN && value & SDL_HAT_DOWN)
+      m_joystick_config.bind_joyhat(JOY_ID, SDL_HAT_DOWN, Controller::Control(wait_for_joystick));
 
-    if (changed & SDL_HAT_LEFT && jhat.value & SDL_HAT_LEFT)
-      m_joystick_config.bind_joyhat(jhat.which, SDL_HAT_LEFT, Controller::Control(wait_for_joystick));
+    if (changed & SDL_HAT_LEFT && value & SDL_HAT_LEFT)
+      m_joystick_config.bind_joyhat(JOY_ID, SDL_HAT_LEFT, Controller::Control(wait_for_joystick));
 
-    if (changed & SDL_HAT_RIGHT && jhat.value & SDL_HAT_RIGHT)
-      m_joystick_config.bind_joyhat(jhat.which, SDL_HAT_RIGHT, Controller::Control(wait_for_joystick));
+    if (changed & SDL_HAT_RIGHT && value & SDL_HAT_RIGHT)
+      m_joystick_config.bind_joyhat(JOY_ID, SDL_HAT_RIGHT, Controller::Control(wait_for_joystick));
 
     MenuManager::instance().refresh();
     wait_for_joystick = -1;
@@ -124,34 +174,34 @@ JoystickManager::process_hat_event(const SDL_JoyHatEvent& jhat)
   {
     if (changed & SDL_HAT_UP)
     {
-      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(jhat.which, SDL_HAT_UP));
+      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(JOY_ID, SDL_HAT_UP));
       if (it != m_joystick_config.joy_hat_map.end())
-        set_joy_controls(it->second, jhat.value & SDL_HAT_UP);
+        set_joy_controls(it->second, value & SDL_HAT_UP);
     }
 
     if (changed & SDL_HAT_DOWN)
     {
-      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(jhat.which, SDL_HAT_DOWN));
+      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(JOY_ID, SDL_HAT_DOWN));
       if (it != m_joystick_config.joy_hat_map.end())
-        set_joy_controls(it->second, jhat.value & SDL_HAT_DOWN);
+        set_joy_controls(it->second, value & SDL_HAT_DOWN);
     }
 
     if (changed & SDL_HAT_LEFT)
     {
-      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(jhat.which, SDL_HAT_LEFT));
+      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(JOY_ID, SDL_HAT_LEFT));
       if (it != m_joystick_config.joy_hat_map.end())
-        set_joy_controls(it->second, jhat.value & SDL_HAT_LEFT);
+        set_joy_controls(it->second, value & SDL_HAT_LEFT);
     }
 
     if (changed & SDL_HAT_RIGHT)
     {
-      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(jhat.which, SDL_HAT_RIGHT));
+      JoystickConfig::HatMap::iterator it = m_joystick_config.joy_hat_map.find(std::make_pair(JOY_ID, SDL_HAT_RIGHT));
       if (it != m_joystick_config.joy_hat_map.end())
-        set_joy_controls(it->second, jhat.value & SDL_HAT_RIGHT);
+        set_joy_controls(it->second, value & SDL_HAT_RIGHT);
     }
   }
 
-  hat_state = jhat.value;
+  state = value;
 }
 
 void
@@ -161,9 +211,9 @@ JoystickManager::process_axis_event(const SDL_JoyAxisEvent& jaxis)
   {
     if (abs(jaxis.value) > m_joystick_config.dead_zone) {
       if (jaxis.value < 0)
-        m_joystick_config.bind_joyaxis(jaxis.which, -(jaxis.axis + 1), Controller::Control(wait_for_joystick));
+        m_joystick_config.bind_joyaxis(JOY_ID, -(jaxis.axis + 1), Controller::Control(wait_for_joystick));
       else
-        m_joystick_config.bind_joyaxis(jaxis.which, jaxis.axis + 1, Controller::Control(wait_for_joystick));
+        m_joystick_config.bind_joyaxis(JOY_ID, jaxis.axis + 1, Controller::Control(wait_for_joystick));
 
       MenuManager::instance().refresh();
       wait_for_joystick = -1;
@@ -175,8 +225,8 @@ JoystickManager::process_axis_event(const SDL_JoyAxisEvent& jaxis)
     // mapped separately (needed for jump/down vs up/down)
     int axis = jaxis.axis + 1;
 
-    auto left = m_joystick_config.joy_axis_map.find(std::make_pair(jaxis.which, -axis));
-    auto right = m_joystick_config.joy_axis_map.find(std::make_pair(jaxis.which, axis));
+    auto left = m_joystick_config.joy_axis_map.find(std::make_pair(JOY_ID, -axis));
+    auto right = m_joystick_config.joy_axis_map.find(std::make_pair(JOY_ID, axis));
 
     if(left == m_joystick_config.joy_axis_map.end()) {
       // std::cout << "Unmapped joyaxis " << (int)jaxis.axis << " moved" << std::endl;
@@ -205,7 +255,7 @@ JoystickManager::process_button_event(const SDL_JoyButtonEvent& jbutton)
   {
     if(jbutton.state == SDL_PRESSED)
     {
-      m_joystick_config.bind_joybutton(jbutton.which, jbutton.button, (Controller::Control)wait_for_joystick);
+      m_joystick_config.bind_joybutton(JOY_ID, jbutton.button, (Controller::Control)wait_for_joystick);
       MenuManager::instance().refresh();
       parent->reset();
       wait_for_joystick = -1;
@@ -213,7 +263,7 @@ JoystickManager::process_button_event(const SDL_JoyButtonEvent& jbutton)
   }
   else
   {
-    auto i = m_joystick_config.joy_button_map.find(std::make_pair(jbutton.which, jbutton.button));
+    auto i = m_joystick_config.joy_button_map.find(std::make_pair(JOY_ID, jbutton.button));
     if(i == m_joystick_config.joy_button_map.end()) {
       log_debug << "Unmapped joybutton " << (int)jbutton.button << " pressed" << std::endl;
     } else {
@@ -236,6 +286,20 @@ JoystickManager::set_joy_controls(Controller::Control id, bool value)
   {
     parent->get_controller()->set_control(Controller::JUMP, value);
   }
+
+#ifdef __wii__
+  /* The remote has too few buttons to spare any for the menus, so jump and
+     action carry a menu control too. Menu::process_input reads back after
+     hit, so action cancels rather than confirming. */
+  if (id == Controller::JUMP)
+  {
+    parent->get_controller()->set_control(Controller::MENU_SELECT, value);
+  }
+  else if (id == Controller::ACTION)
+  {
+    parent->get_controller()->set_control(Controller::MENU_BACK, value);
+  }
+#endif
 
   parent->get_controller()->set_control(id, value);
 }

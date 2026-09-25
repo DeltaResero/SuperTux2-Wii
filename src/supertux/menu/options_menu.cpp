@@ -161,8 +161,13 @@ OptionsMenu::OptionsMenu(bool complete) :
       ->set_help("Select a profile to play with");
   }
 
+#ifdef __wii__
+  /* Wii Homebrew has no window mode. */
+  add_inactive("Fullscreen (no window mode)");
+#else
   add_toggle(MNID_FULLSCREEN,"Fullscreen", &g_config->use_fullscreen)
     ->set_help("Fill the entire screen");
+#endif
 
   resolution_item = add_submenu("Resolution: " + current_resolution_text(),
                                 MenuStorage::RESOLUTION_MENU, MNID_RESOLUTION);

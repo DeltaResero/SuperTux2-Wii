@@ -28,7 +28,13 @@
 JoystickConfig::JoystickConfig() :
   dead_zone(8000),
   jump_with_up_joy(false),
+#ifdef __wii__
+  /* SDL has a game controller mapping for these pads, but the setup menu
+     edits joystick bindings and SDL_JOY events stop while that is taken. */
+  use_game_controller(false),
+#else
   use_game_controller(true),
+#endif
   joy_button_map(),
   joy_axis_map(),
   joy_hat_map()
@@ -46,6 +52,37 @@ JoystickConfig::JoystickConfig() :
   bind_joyaxis(0, 1, Controller::RIGHT);
   bind_joyaxis(0, -2, Controller::UP);
   bind_joyaxis(0, 2, Controller::DOWN);
+
+#ifdef __wii__
+  /* SDL numbers every pad it exposes here into one list, so a slot has to
+     suit each device holding it. A comes off MENU_SELECT and
+     set_joy_controls raises that from JUMP instead. */
+  joy_button_map[std::make_pair(0,  0)] = Controller::JUMP;       // A, GC A, classic A
+  joy_button_map[std::make_pair(0,  1)] = Controller::ACTION;     // B, GC B, classic B
+  joy_button_map[std::make_pair(0,  2)] = Controller::ACTION;     // 1, GC X
+  joy_button_map[std::make_pair(0,  3)] = Controller::JUMP;       // 2, GC Y
+  joy_button_map[std::make_pair(0,  4)] = Controller::PEEK_LEFT;  // minus, GC L
+  joy_button_map[std::make_pair(0,  5)] = Controller::PEEK_RIGHT; // plus, GC R
+  joy_button_map[std::make_pair(0,  6)] = Controller::START;      // HOME, GC Z
+  joy_button_map[std::make_pair(0,  7)] = Controller::START;      // nunchuk Z, GC START
+  joy_button_map[std::make_pair(0,  8)] = Controller::ACTION;     // nunchuk C
+  joy_button_map[std::make_pair(0,  9)] = Controller::ACTION;     // classic X
+  joy_button_map[std::make_pair(0, 10)] = Controller::JUMP;       // classic Y
+  joy_button_map[std::make_pair(0, 11)] = Controller::PEEK_LEFT;  // classic L
+  joy_button_map[std::make_pair(0, 12)] = Controller::PEEK_RIGHT; // classic R
+
+  /* The second stick peeks sideways only. A GameCube pad's C-stick and a
+     classic controller's right stick both report on this axis. */
+  joy_axis_map[std::make_pair(0, -3)] = Controller::PEEK_LEFT;
+  joy_axis_map[std::make_pair(0,  3)] = Controller::PEEK_RIGHT;
+
+  /* Written straight in because bind_joyhat drops a control's other mappings,
+     which would leave the nunchuk's stick doing nothing. */
+  joy_hat_map[std::make_pair(0, SDL_HAT_UP)]    = Controller::UP;
+  joy_hat_map[std::make_pair(0, SDL_HAT_DOWN)]  = Controller::DOWN;
+  joy_hat_map[std::make_pair(0, SDL_HAT_LEFT)]  = Controller::LEFT;
+  joy_hat_map[std::make_pair(0, SDL_HAT_RIGHT)] = Controller::RIGHT;
+#endif
 }
 
 int
@@ -189,13 +226,15 @@ JoystickConfig::read(const ReaderMapping& joystick_lisp)
       }
       else
       {
+        /* Assigned rather than bound, as the bind helpers drop a control's
+           other mappings and the file already lists every one it wants. */
         if (map.get("button", button))
         {
-          bind_joybutton(0, button, Controller::Control(i));
+          joy_button_map[std::make_pair(0, button)] = Controller::Control(i);
         }
         else if (map.get("axis",   axis))
         {
-          bind_joyaxis(0, axis, Controller::Control(i));
+          joy_axis_map[std::make_pair(0, axis)] = Controller::Control(i);
         }
         else if (map.get("hat",   hat))
         {
@@ -207,7 +246,7 @@ JoystickConfig::read(const ReaderMapping& joystick_lisp)
           }
           else
           {
-            bind_joyhat(0, hat, Controller::Control(i));
+            joy_hat_map[std::make_pair(0, hat)] = Controller::Control(i);
           }
         }
       }

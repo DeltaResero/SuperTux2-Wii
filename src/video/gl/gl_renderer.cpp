@@ -49,6 +49,7 @@ GLRenderer::GLRenderer() :
   m_window(),
   m_glcontext(),
   m_viewport(),
+  m_scale(),
   m_fullscreen_active(false)
 {
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -180,21 +181,28 @@ GLRenderer::apply_config()
                    static_cast<float>(g_config->aspect_size.height);
   }
 
-  Vector scale;
   Size logical_size;
   calculate_viewport(target_size,
                      aspect_ratio,
                      g_config->magnification,
-                     scale,
+                     m_scale,
                      logical_size,
                      m_viewport);
 
   SCREEN_WIDTH = logical_size.width;
   SCREEN_HEIGHT = logical_size.height;
 
-  if (m_viewport.x != 0 || m_viewport.y != 0)
+  bool clear_buffers = (m_viewport.x != 0 || m_viewport.y != 0);
+#ifdef __wii__
+  /* OpenGX hands back whatever was in video memory, not a blank buffer. */
+  clear_buffers = true;
+#endif
+
+  if (clear_buffers)
   {
     // Clear both buffers so that we get a clean black border without junk
+    /* The lightmap leaves the clear colour set to its ambient one. */
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     SDL_GL_SwapWindow(m_window);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -361,6 +369,11 @@ GLRenderer::apply_video_mode()
 void
 GLRenderer::start_draw()
 {
+#ifdef __wii__
+  /* SDL turns the depth test back on after every frame without telling
+     OpenGX, and this makes OpenGX send its own setting again. */
+  glDisable(GL_DEPTH_TEST);
+#endif
 }
 
 void
@@ -371,13 +384,13 @@ GLRenderer::end_draw()
 void
 GLRenderer::draw_surface(const DrawingRequest& request)
 {
-  GLPainter::draw_surface(request);
+  GLPainter::draw_surface(request, m_scale);
 }
 
 void
 GLRenderer::draw_surface_part(const DrawingRequest& request)
 {
-  GLPainter::draw_surface_part(request);
+  GLPainter::draw_surface_part(request, m_scale);
 }
 
 void

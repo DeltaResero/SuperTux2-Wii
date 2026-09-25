@@ -449,8 +449,14 @@ GameSession::update(float elapsed_time)
     active = true;
   }
   // handle controller
-  if(InputManager::current()->get_controller()->pressed(Controller::ESCAPE) ||
-     InputManager::current()->get_controller()->pressed(Controller::START))
+  // The menu ignores the pause key, so it closes the pause menu here.
+  if(game_pause && InputManager::current()->get_controller()->pressed(Controller::START) &&
+     MenuManager::instance().is_active() && !MenuManager::instance().has_dialog())
+  {
+    MenuManager::instance().clear_menu_stack();
+  }
+  else if(InputManager::current()->get_controller()->pressed(Controller::ESCAPE) ||
+          InputManager::current()->get_controller()->pressed(Controller::START))
   {
     on_escape_press();
   }

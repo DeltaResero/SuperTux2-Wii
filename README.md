@@ -1,110 +1,300 @@
-# SuperTux
+<p align="center">
+  <img src="data/images/engine/menu/logo.png" alt="SuperTux2-Wii">
+</p>
 
-[![Github All Releases](https://img.shields.io/github/downloads/supertux/supertux/total.svg?maxAge=2592000)](https://github.com/SuperTux/supertux)
-[![#supertux on freenode](https://img.shields.io/badge/freenode-%23supertux-brightgreen.svg)](https://webchat.freenode.net/?channels=supertux)
+<br><br>
 
-## Description
+## Wii port of the free open source game SuperTux (Milestone 2)
 
-SuperTux is a jump'n'run game with strong inspiration from the
-Super Mario Bros. games for the various Nintendo platforms.
+```text
+Ported by: DeltaResero
+Type: Platform game
+Version: 0.5.1-wii-d.00
+Software license: GPLv3+
+```
 
-Run and jump through multiple worlds, fighting off enemies by jumping
-on them, bumping them from below or tossing objects at them, grabbing
-power-ups and other stuff on the way.
+[![Latest Release][release-img]][release-url]
+[![View All Releases][downloads-img]][downloads-url]
+[![License](https://img.shields.io/badge/license-GPLv3+-blue.svg)](LICENSE)
 
+<!-- Link Definitions -->
+[release-img]: https://img.shields.io/github/v/release/DeltaResero/SuperTux2-Wii?label=Latest%20Release
+[release-url]: https://github.com/DeltaResero/SuperTux2-Wii/releases/latest
+[downloads-img]: https://img.shields.io/badge/Downloads-View_All_Releases-blue
+[downloads-url]: https://github.com/DeltaResero/SuperTux2-Wii/releases
 
-## Story: Penny gets captured!
+<br>
 
-Tux and Penny were out having a nice picnic on the ice fields of
-Antarctica. Suddenly, a creature jumped from behind an ice bush, there
-was a flash, and Tux fell asleep!
+## About Repository
 
-When Tux wakes up, he finds that Penny is missing. Where she lay
-before now lies a letter. "Tux, my arch enemy!" says the letter. "I
-have captured your beautiful Penny and have taken her to my fortress.
-The path to my fortress is littered with my minions. Give up on the
-thought of trying to reclaim her, you haven't got a chance! -Nolok"
+This is a Wii port of SuperTux Milestone 2, forked from the 0.5.1 release of
+[upstream SuperTux](https://github.com/SuperTux/supertux). It's designed for use through the
+[Homebrew Channel](http://wiibrew.org/wiki/Homebrew_Channel) with
+[OpenGL (via OpenGX)](https://github.com/devkitPro/opengx) support, but it will alternatively
+still run on other platforms such as Linux, though Mac support has been dropped from this fork.
 
-Tux looks and sees Nolok's fortress in the distance. Determined to
-save his beloved Penny, he begins his journey.
+The port isn't just a patch set on top of upstream. Rendering, audio, and the scripting engine have
+all been reworked to run on machines with limited memory and no shaders. Backgrounds larger than
+the hardware accepts (1024 pixels on the Wii) are cut into pieces that fit. Squirrel and
+simplesquirrel are vendored into the tree rather than fetched, localization has been removed,
+and the video path draws through [SDL2 for Wii](https://github.com/devkitPro/SDL) on either the OpenGL or the SDL renderer.
 
+A Wii port of SuperTux Classic (Milestone 1) is maintained separately at
+[SuperTux-Wii](https://github.com/DeltaResero/SuperTux-Wii). For more information about
+SuperTux itself, please visit the official website at
+[supertux.org](https://www.supertux.org).
 
-## Documentation
+<br>
 
-Important documentation for SuperTux is contained in multiple files.
-Please see them:
+## About SuperTux
 
-* `INSTALL.md` - Requirements, compiling and installing.
-* `README.md` - This file
-* `LICENSE` - The GNU General Public License, under whose terms SuperTux is
-licensed. (Most of the data subdirectory is also licensed under
-CC-by-SA)
-* `data/credits.stxt` - Credits for people that contributed to the creation of
-SuperTux. (You can view these in the game menu as well.)
+SuperTux is a jump'n'run game with strong inspiration from the Super Mario Bros. games for
+various Nintendo platforms.
 
+Run and jump through multiple worlds, fighting off enemies by jumping on them, bumping them
+from below, or tossing objects at them, while grabbing power-ups and other collectibles along
+the way.
 
-## Running the game
+This release brings over 150 levels across 7 worlds.
 
-SuperTux makes use of proc to see where it is. In other words, it does
-not have any need to be installed and can be run from anywhere. This
-makes it possible to click in the executable in your filemanager (i.e.
-Konqueror or Nautilus) as opposed to many other Linux games.
+<br>
 
-Options can be reached from the menu, so you don't need to specify
-arguments, but if you want, type `supertux2 --help` to check the ones
-that are available. Also, notice that SuperTux saves the options, so
-it's often enough to specify them once. For example, fullscreen mode
-causes problems on some setups, so just run `supertux2 --window` and
-you should be set.
+## Playing the Game
 
-The game uses OpenGL to render the graphics. You will either need a
-CPU with about 1 GHz or an accelerated video card with recent
-graphics drivers.
+The Wii Remote (alone or with a Nunchuk), Classic Controller, GameCube Controller, and a USB
+keyboard are all supported. Bindings can be viewed/changed from **Options > Setup Joystick**, or
+**Setup Keyboard**.
 
+The only controls needed in-game are move, jump, duck, and action. "Action" picks up objects
+and uses whatever powerup Tux is carrying. The fire flower shoots fireballs and the ice
+flower fires ice pellets. On the worldmap, move to travel between levels and use the jump key to
+select the one Tux is standing on. During gameplay, use the pause key to access the pause menu.
 
-## Playing the game
+| Action            | Wii Remote (sideways) | Wii Remote + Nunchuk | Classic Controller         | GameCube Controller    | Keyboard               |
+|-------------------|-----------------------|----------------------|----------------------------|------------------------|------------------------|
+| Move / Duck       | `D-pad`               | `Stick` or `D-pad`   | `Left Stick` or `D-pad`    | `Stick` or `D-pad`     | `Arrow Keys`           |
+| Jump              | `2` or `A`            | `A` or `2`           | `A` or `Y`                 | `A` or `Y`             | `Space`                |
+| Action            | `1` or `B`            | `B`, `C` or `1`      | `B` or `X`                 | `B` or `X`             | `Ctrl` or `Alt`        |
+| Look Left / Right | `-` / `+`             | `-` / `+`            | `L` / `R` or `Right Stick` | `L` / `R` or `C-Stick` | `Delete` / `Page Down` |
+| Look Up / Down    | Hold up / down        | Hold up / down       | Hold up / down             | Hold up / down         | `Home` / `End`         |
+| Pause             | `HOME`                | `HOME` or `Z`        | `HOME`                     | `START` or `Z`         | `Esc` or `P`           |
 
-Both keyboards and joysticks/gamepads are supported. You can change
-the controls via the Options menu. Basically, the only keys you will
-need to use in-game are to do the following actions: jump, duck,
-right, left, action and 'P' to pause/unpause the game. There isn't much
-to tell about the first few, but the "action" key allows you to pick
-up objects and use any powerup you got. For instance, with the fire
-flower, you can shoot fireballs, or with the ice flower fire ice pellets.
+To look up or down on a pad, stand still and hold up or down for 2 seconds. The Classic
+Controller's `-` and `+` look left and right as well.
 
-Other useful keys include the Esc key, which is used to go to the menu
-or to go up a level in the menu. The menu can be navigated using the
-arrow keys or the mouse.
+<br>
 
-In the worldmap, the arrow keys are used to navigate and Enter to
-enter the current level.
+## Setup Guide for devkitPro PowerPC Build System
 
+To set up the devkitPro devkitPPC PowerPC build system, follow the instructions on the official
+devkitPro wiki:
 
-## Development status
+- [Getting Started with devkitPro](https://devkitpro.org/wiki/Getting_Started)
+- [devkitPro Pacman](https://devkitpro.org/wiki/devkitPro_pacman)
 
-With the release of SuperTux 0.4.0 (December 2015), we wanted to provide a
-fairly stable release. The release of SuperTux 0.5.0 should have fixed some
-stability issues from 0.4.0. Development of
-the game will continue (of course), now working towards more releases.
-Most notably, development focus will be shifted on providing a better gameplay
-experience.
+After setting up devkitPPC including environment variables, use (dkp-)pacman to install the
+following dependencies:
 
-The Forest World (you can check it out: Start Game > Contrib Levels > Forest
-World) is relatively unstable, which is why it resides only in the contrib
-levels menu. We (SuperTux Team) intend to continue with the development of the
-Forest World, but decided that in order to allow more access to the most recent
-version (in repositories etc.) we would have to release Milestone 2 without the
-Forest World included in the Story Mode. Constructive feedback with regards to
-the Forest World is welcome.
+**Build Tools (Required):**
+```
+devkitPPC (C++23 compatible compiler)
+gamecube-tools (provides elf2dol)
+wii-cmake
+wii-pkg-config
+```
 
-Don't forget that you can get involved with the development at
-<https://github.com/supertux/supertux>,
-or get notified about the recent changes on Twitter
-[@supertux_team](https://twitter.com/supertux_team)
+**Core Libraries (Required):**
+```
+libogc
+libfat-ogc
+wii-sdl2
+wii-sdl2_image
+```
 
+**Audio (Required):**
+```
+wii-sdl2_mixer
+ppc-libvorbis
+ppc-libogg
+```
 
-## The End
+**Graphics & Compression:**
+```
+ppc-libpng
+ppc-libjpeg-turbo
+ppc-zlib
+```
 
-Thanks for playing SuperTux.
+**OpenGL/OpenGX Backend (Optional but Recommended):**
+```
+wii-opengx
+```
 
-The SuperTux Team
+<br>
+
+## Build Configuration
+
+You can configure the build by passing flags to `cmake`. For example, to build without OpenGL
+support, append the following flag to your `cmake` command: `-DENABLE_OPENGL=OFF`
+
+| Option                  | Description                                            | Default PC | Default Wii    |
+|-------------------------|--------------------------------------------------------|------------|----------------|
+| `CMAKE_BUILD_TYPE`      | Build type (Debug or Release)                          | `Release`  | `Release`      |
+| `ENABLE_OPENGL`         | Build the OpenGL renderer alongside the SDL one        | `ON`       | `ON` (OpenGX)  |
+| `ENABLE_GLEW`           | Load OpenGL extensions through GLEW                    | `ON`       | `OFF`          |
+| `ENABLE_NPOT_TEXTURES`  | Assume the hardware accepts any texture size           | `OFF`      | `ON`           |
+| `TEXTURE_ALIGNMENT`     | Round texture sides up to a multiple of this many px   | `1`        | `4`            |
+| `ENABLE_LIGHTMAP_FBO`   | Draw the lightmap into its texture with a framebuffer  | `OFF`      | `ON`           |
+| `ENABLE_OPENAL`         | Build the OpenAL sound backend                         | `ON`       | `OFF`          |
+| `ENABLE_SDL_MIXER`      | Build the SDL_mixer sound backend                      | `OFF`      | `ON`           |
+| `ENABLE_CONSOLE`        | Build the interactive console                          | `OFF`      | `OFF`          |
+| `ENABLE_CCACHE`         | Compile through ccache                                 | `OFF`      | `OFF`          |
+| `BUILD_TESTS`           | Build test cases                                       | `OFF`      | `OFF`          |
+| `BUILD_TESTS_M32`       | Also run the squirrel samples at 32-bit integer width  | `OFF`      | `OFF`          |
+| `WARNINGS`              | Enable a long list of compiler warnings                | `OFF`      | `OFF`          |
+| `WERROR`                | Stop on the first compiler warning                     | `OFF`      | `OFF`          |
+
+To override, use `-D` followed by any command option and then `=` and then the value.
+
+<br>
+
+## How to Build: Wii Homebrew Build
+
+1. Fetch the one remaining submodule, sexp-cpp:
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+2. Create a build directory:
+   ```bash
+   mkdir build
+   cd build
+   ```
+
+3. Configure using CMake and the included Wii Toolchain file:
+   ```bash
+   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/Wii.cmake ..
+   ```
+   The system-wide toolchain provided by devkitPro will configure and build, but it does not
+   set the console's defaults, so each of them has to be passed by hand.
+
+4. Build the game:
+   ```bash
+   make -j$(nproc)
+   ```
+
+   This produces `boot.dol` in the build directory.
+
+<br>
+
+## Installing SuperTux on Wii (Homebrew Channel)
+
+1. Create a `supertux2-wii` folder under `apps/` on your SD or USB device.
+
+2. Copy in the built `boot.dol`, the `data` folder from the source tree, and the icon and
+   metadata from `packaging/wii/`:
+   ```
+   SD:/apps/supertux2-wii/boot.dol
+   SD:/apps/supertux2-wii/data/
+   SD:/apps/supertux2-wii/icon.png
+   SD:/apps/supertux2-wii/meta.xml
+   ```
+
+3. Launch SuperTux from the Homebrew Channel. The game will create a config file and save
+   folder on the first run.
+
+<br>
+
+## How to Build: Desktop Linux (Testing/Unsupported)
+
+1. Install Dependencies:
+   You will need the following build tools. For the libraries listed below, ensure you install
+   the **development headers** (often ending in `-dev` or `-devel`).
+
+   **Build Tools:**
+   ```
+   A C++23 capable compiler
+   CMake 3.16+
+   ```
+
+   **SDL 2 Framework:**
+   ```
+   SDL2 (or sdl2-compat)
+   SDL2_image
+   SDL2_mixer (only with -DENABLE_SDL_MIXER=ON)
+   ```
+
+   **Core Libraries:**
+   ```
+   libogg
+   libvorbis
+   OpenAL (or turn it off and use SDL_mixer)
+   ```
+
+   **Graphics (Optional):**
+   ```
+   OpenGL
+   GLEW
+   ```
+
+2. Fetch the submodule and create a build directory:
+   ```bash
+   git submodule update --init --recursive
+   mkdir build
+   cd build
+   ```
+
+3. Configure for desktop:
+   ```bash
+   cmake ..
+   ```
+
+4. Build:
+   ```bash
+   make -j$(nproc)
+   ```
+
+5. Run it from where it was built:
+   ```bash
+   ./supertux2-wii
+   ```
+
+   The game finds its own data folder and does not need installing. Options are reachable from
+   the menu, and `./supertux2-wii --help` lists what can be passed on the command line for the
+   handful of things the menu does not cover.
+
+**Important Note on Installation:**
+While `sudo make install` is supported by CMake, it's **not recommended**. Installing files
+directly to your system directories this way without using a package manager makes them very
+difficult to cleanly uninstall later. We strongly recommend running it from the build directory.
+
+**Note on Other Operating Systems:**
+Support for other platforms (Windows, macOS, BSD) is currently outside the scope of this
+repository, as the primary focus is the Wii hardware. Given the standard CMake infrastructure,
+adapting the build system for other platforms should be fairly trivial.
+
+<br>
+
+## License
+
+This program is distributed under the terms of the GNU General Public License version 3
+(or later). You can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Most of the `data` subdirectory is licensed under CC-by-SA instead. Everyone who contributed to
+SuperTux is credited in [AUTHORS.md](AUTHORS.md), along with the asset licenses, and the credits
+can be read from the game menu as well.
+
+Please see the [LICENSE](LICENSE) file for the full text.
+
+## Disclaimer
+
+This is an unofficial port of SuperTux that runs on the Wii via the Homebrew Channel. It is not
+affiliated with, endorsed by, nor sponsored by the creators of the Wii console nor the Homebrew
+Channel. All trademarks and copyrights are the property of their respective owners.
+
+This project is distributed in the hope that it will be useful, but **WITHOUT ANY WARRANTY**;
+without even the implied warranty of **MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**.
+See the [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html) for more
+details.
