@@ -57,8 +57,8 @@ std::string get_user_dir();
     the remote is being held upright rather than sideways. */
 bool has_expansion();
 
-/** Take both power buttons from SDL, which powers off mid-frame. A press
-    quits the game instead, as the reset button does. */
+/** Take both power buttons from SDL, so a press quits the game as the reset
+    button does instead of powering off mid-frame. */
 void take_power_buttons();
 
 /** Power off if a power button was pressed. Doesn't return if so. */
