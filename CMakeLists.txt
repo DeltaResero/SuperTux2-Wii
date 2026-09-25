@@ -629,17 +629,9 @@ INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/images
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/music
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/scripts
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/speech
+                  ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
                   ${CMAKE_CURRENT_SOURCE_DIR}/data/sounds
                   DESTINATION ${INSTALL_SUBDIR_SHARE})
-
-IF(CMAKE_BUILD_TYPE MATCHES Release)
-  INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
-                    DESTINATION ${INSTALL_SUBDIR_SHARE}
-                    PATTERN "data/levels/incubator" EXCLUDE)
-ELSE()
-  INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
-                    DESTINATION ${INSTALL_SUBDIR_SHARE})
-ENDIF()
 
 ## Create config.h now that INSTALL_SUBDIR_* have been set.
 
