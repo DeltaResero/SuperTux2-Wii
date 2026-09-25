@@ -43,9 +43,10 @@ namespace {
 
 /* The smallest mode worth offering. The view is a fixed 600 units tall
    whatever the mode, so a screen with fewer lines than this squeezes every
-   glyph down with it until the text cannot be read. */
+   glyph down with it until the text cannot be read. 448 lets in the
+   overscan-safe NTSC mode. */
 const int MIN_FULLSCREEN_WIDTH = 640;
-const int MIN_FULLSCREEN_HEIGHT = 480;
+const int MIN_FULLSCREEN_HEIGHT = 448;
 
 /** Sizes a connected screen claims, and how many modes it has at each.
 

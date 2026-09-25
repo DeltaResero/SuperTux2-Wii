@@ -32,7 +32,7 @@
 Config::Config() :
   profile(1),
 #ifdef __wii__
-  fullscreen_size(640, 480),
+  fullscreen_size(640, 448),
 #else
   fullscreen_size(0, 0),
 #endif

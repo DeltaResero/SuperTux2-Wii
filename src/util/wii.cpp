@@ -27,6 +27,7 @@
 #include <fat.h>
 #include <ogc/system.h>
 #include <ogc/usbstorage.h>
+#include <ogc/video.h>
 #include <sdcard/wiisd_io.h>
 #include <wiiuse/wpad.h>
 
@@ -42,6 +43,9 @@ const int CACHE_PAGES = 32;
 const int SECTORS_PER_PAGE = 64;
 
 const char* const APP_SUBDIR = "apps/supertux2-wii";
+
+/* Wii Linux's NTSC height, clear of the overscan most TVs crop. */
+const u16 SAFE_HEIGHT = 448;
 
 /* Set from an interrupt. */
 volatile bool power_off_requested = false;
@@ -65,6 +69,14 @@ bool dir_exists(const std::string& directory)
 
   closedir(dir);
   return true;
+}
+
+void fit_safe_height(GXRModeObj& mode)
+{
+  mode.efbHeight = SAFE_HEIGHT;
+  mode.xfbHeight = SAFE_HEIGHT;
+  mode.viHeight = SAFE_HEIGHT;
+  mode.viYOrigin = (VI_MAX_HEIGHT_NTSC - SAFE_HEIGHT) / 2;
 }
 
 void on_power_button()
@@ -211,6 +223,17 @@ void power_off_if_requested()
   while (power_off_requested)
   {
   }
+}
+
+void fit_overscan()
+{
+  /* SDL offers these by pointer, so the change reaches its mode list. */
+  fit_safe_height(TVNtsc480IntDf);
+  fit_safe_height(TVNtsc480Prog);
+  fit_safe_height(TVEurgb60Hz480IntDf);
+  fit_safe_height(TVEurgb60Hz480Prog);
+  fit_safe_height(TVMpal480IntDf);
+  fit_safe_height(TVMpal480Prog);
 }
 
 } // namespace Wii

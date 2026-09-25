@@ -64,6 +64,10 @@ void take_power_buttons();
 /** Power off if a power button was pressed. Doesn't return if so. */
 void power_off_if_requested();
 
+/** Shrink the 480-line modes to 448, centred, to clear NTSC overscan.
+    Call before SDL starts its video. */
+void fit_overscan();
+
 } // namespace Wii
 
 #endif

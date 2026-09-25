@@ -28,6 +28,7 @@ int main(int argc, char** argv)
 {
 #ifdef __wii__
   Wii::take_power_buttons();
+  Wii::fit_overscan();
 #endif
 
   int result = Main().run(argc, argv);
