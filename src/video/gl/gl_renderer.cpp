@@ -369,6 +369,11 @@ GLRenderer::apply_video_mode()
 void
 GLRenderer::start_draw()
 {
+#ifdef __wii__
+  /* SDL turns the depth test back on after every frame without telling
+     OpenGX, and this makes OpenGX send its own setting again. */
+  glDisable(GL_DEPTH_TEST);
+#endif
 }
 
 void
