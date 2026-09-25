@@ -1281,38 +1281,20 @@
       )
       (text
         (type "reference")
-        (string "http://supertuxproject.org")
+        (string "https://supertux.org")
       )
       (blank)
       (text
         (type "normal")
-        (string "Or visit us directly at IRC:")
-      )
-      (text
-        (type "reference")
-        (string "#supertux at webchat.freenode.net")
-      )
-      (blank)
-      (text
-        (type "normal")
-        (string "Or at our Forum:")
-      )
-      (text
-        (type "reference")
-        (string "http://forum.freegamedev.net/viewforum.php?f=66")
-      )
-      (blank)
-      (text
-        (type "normal")
-        (string "Comments, ideas and suggestions")
+        (string "For comments, ideas and suggestions,")
       )
       (text
         (type "normal")
-        (string "go to our mailing list")
+        (string "talk to us on Discord or IRC")
       )
       (text
-        (type "reference")
-        (string "supertux-devel@lists.lethargik.org")
+        (type "normal")
+        (string "or share them on the forum")
       )
       (blank)
       (blank)
@@ -1328,7 +1310,7 @@
       )
       (text
         (type "reference")
-        (string "https://www.transifex.com/arctic-games/supertux/")
+        (string "https://app.transifex.com/arctic-games/supertux/")
       )
       (blank)
       (blank)
