@@ -4,6 +4,11 @@ This file honors everyone who made this game possible, from the original
 creators and onwards. Our current home is the
 [SuperTux2-Wii GitHub Repository](https://github.com/DeltaResero/SuperTux2-Wii).
 
+## Wii Edition Lead Developer
+
+* **DeltaResero**
+  * [GitHub Profile](https://github.com/DeltaResero)
+
 ## Original Game Author
 
 * **Bill Kendrick**
@@ -327,6 +332,9 @@ creators and onwards. Our current home is the
 <!-- -->
 * **SDL, OpenAL and OpenGL**
   * For making such a great gaming experience possible on Linux
+<!-- -->
+* **devkitPro & Team Twiizers**
+  * For opening up the Wii to developers
 
 ## More information and contacts
 

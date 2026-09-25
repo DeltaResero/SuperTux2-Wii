@@ -9,6 +9,11 @@
     (blank)
     (blank)
     (person
+      (name "DeltaResero")
+      (info "Wii Port, Fixes & Improvements")
+    )
+    (blank)
+    (person
       (name "Bill Kendrick")
       (info "Original Developer")
       (image "images/credits/bill.jpg")
@@ -1250,10 +1255,24 @@
         possible on Linux")
       )
       (blank)
+      (person
+        (name "devkitPro & Team Twiizers")
+        (info "For opening up the Wii to developers")
+      )
+      (blank)
       (blank)
       (text
         (type "heading")
         (string "Contact")
+      )
+      (blank)
+      (text
+        (type "normal")
+        (string "Report bugs on the Issues page at")
+      )
+      (text
+        (type "reference")
+        (string "https://github.com/DeltaResero/SuperTux2-Wii")
       )
       (blank)
       (text
