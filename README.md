@@ -9,7 +9,7 @@
 ```text
 Ported by: DeltaResero
 Type: Platform game
-Version: 0.5.1-wii-d.00
+Version: 0.5.1-wii-d.01
 Software license: GPLv3+
 ```
 

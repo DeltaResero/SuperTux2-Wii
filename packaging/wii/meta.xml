@@ -2,8 +2,8 @@
 <app version="1.0">
     <name>SuperTux 2 Wii</name>
     <coder>DeltaResero</coder>
-    <version>0.5.1-wii-d.00</version>
-    <release_date>20260916000000</release_date>
+    <version>0.5.1-wii-d.01</version>
+    <release_date>20260925000000</release_date>
     <short_description>Port of SuperTux Milestone 2</short_description>
     <long_description>Wii port of the classic platformer starring Tux the Penguin
 - Based on Milestone 2 of the game, originally released in 2016
