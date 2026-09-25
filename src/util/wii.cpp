@@ -23,6 +23,7 @@
 
 #include <dirent.h>
 #include <stdexcept>
+#include <unistd.h>
 
 #include <fat.h>
 #include <ogc/system.h>
@@ -41,6 +42,10 @@ namespace {
 /* Pages of cache, and sectors per page, handed to libfat for each device. */
 const int CACHE_PAGES = 32;
 const int SECTORS_PER_PAGE = 64;
+
+/* Checks for a USB drive, 50 ms apart, before giving up on it. */
+const int USB_TRIES = 20;
+const useconds_t USB_TRY_DELAY = 50000;
 
 const char* const APP_SUBDIR = "apps/supertux2-wii";
 
@@ -135,6 +140,11 @@ bool mount_usb()
     return true;
 
   __io_usbstorage.startup();
+
+  /* A drive behind a hub can take a moment to answer. */
+  for (int i = 1; i < USB_TRIES && !__io_usbstorage.isInserted(); ++i)
+    usleep(USB_TRY_DELAY);
+
   usb_mounted = fatMount("usb", &__io_usbstorage, 0, CACHE_PAGES, SECTORS_PER_PAGE);
   if (!usb_mounted)
     __io_usbstorage.shutdown();
