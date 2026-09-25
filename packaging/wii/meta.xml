@@ -4,11 +4,11 @@
     <coder>DeltaResero</coder>
     <version>0.5.1-wii-d.00</version>
     <release_date>20260916000000</release_date>
-    <short_description>Port of SuperTux 2</short_description>
+    <short_description>Port of SuperTux Milestone 2</short_description>
     <long_description>Wii port of the classic platformer starring Tux the Penguin
 - Based on Milestone 2 of the game, originally released in 2016
 - Includes over 150 levels spread across 7 worlds
-- Supports Wii Remote, Nunchuk, Classic Controller, GameCube controller &amp; USB keyboard
+- Supports Wii Remote, Nunchuk, C/GC Controller, &amp; keyboard
 
 For more info, visit: github.com/DeltaResero/SuperTux2-Wii</long_description>
 </app>
