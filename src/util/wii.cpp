@@ -241,7 +241,7 @@ void fit_overscan()
   else if (preferred == &TVMpal480IntDf || preferred == &TVMpal480Prog)
     TVMpal240Ds = *preferred;
   else if (preferred == &TVPal576IntDfScale || preferred == &TVPal576ProgScale)
-    TVPal264Ds = *preferred;
+    TVPal264Ds = TVPal576IntDfScale;
 
   /* SDL offers these by pointer, so the change reaches its mode list. */
   fit_safe_height(TVNtsc480IntDf, SAFE_HEIGHT, VI_MAX_HEIGHT_NTSC);
@@ -252,7 +252,11 @@ void fit_overscan()
   fit_safe_height(TVMpal480Prog, SAFE_HEIGHT, VI_MAX_HEIGHT_MPAL);
   /* PAL stretches the same picture to fill the taller screen. */
   fit_safe_height(TVPal576IntDfScale, PAL_SAFE_LINES, VI_MAX_HEIGHT_PAL);
-  fit_safe_height(TVPal576ProgScale, PAL_SAFE_LINES, VI_MAX_HEIGHT_PAL);
+
+  /* The Wii can't send progressive at 50 Hz, so these become duplicates
+     of the interlaced mode and SDL drops them. */
+  TVPal528Prog = TVPal576IntDfScale;
+  TVPal576ProgScale = TVPal576IntDfScale;
 }
 
 } // namespace Wii
