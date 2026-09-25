@@ -117,6 +117,7 @@ creators and onwards. Our current home is the
 * **Daniel Alston**
 * **Matthias Braun**
 * **Mathilda Edmunds**
+* **TuxThePenguin**
 
 ## Fonts
 
@@ -335,6 +336,65 @@ creators and onwards. Our current home is the
 <!-- -->
 * **devkitPro & Team Twiizers**
   * For opening up the Wii to developers
+
+## Asset Licenses
+
+Each level names its license in the file. Contrib levels predate this, but
+are redistributable with SuperTux.
+
+### Music
+
+All music is by Marek "Wansti" Moeckel under GPLv2+ and CC-BY-SA, except:
+
+* **airship_remix.ogg, battle_theme.ogg**
+  * remaxim, from OpenGameArt.org, GPLv2+ and CC-BY-SA
+<!-- -->
+* **chipdisko.ogg**
+  * Lukas Nystrand as Mortimer Twang, GPL and CC-BY-SA
+<!-- -->
+* **forest_theme.ogg**
+  * Wansti and Tobias "ToBeFree" Frei, GPLv2+ and CC-BY-SA
+<!-- -->
+* **greatgigantic.ogg**
+  * Based on a work by Chris Huelsbeck, GPL
+<!-- -->
+* **halloween_1.ogg**
+  * Forty-Two, CC-BY-SA 4.0
+<!-- -->
+* **salcon.ogg**
+  * Remix of Salsa Con Carne by Mystical, GPL and CC-BY-SA
+
+### Sounds
+
+* **brick.wav**
+  * Yaniel, GPLv2+ and CC-BY-SA
+<!-- -->
+* **explosion.wav**
+  * Christoph Sommer, GPLv2+ and CC-BY-SA
+<!-- -->
+* **fire.ogg**
+  * artisticdude, from OpenGameArt.org, CC-BY 3.0
+<!-- -->
+* **fire-flower.wav, lava.wav, waterfall.wav**
+  * Bastian Zapf, GPL
+<!-- -->
+* **fireworks.wav, warp.wav**
+  * Ricardo Cruz, GPL
+<!-- -->
+* **gulp.wav**
+  * Q.K., from freesound.org, CC0
+<!-- -->
+* **hop.ogg, locked.ogg, switch.ogg, totem.ogg, turnkey.ogg**
+  * Wolfgang Becker, GPLv2+ and CC-BY-SA
+<!-- -->
+* **saw.wav**
+  * Paulo Morfeo, from LinCity-NG, GPL and CC-BY-SA 2.0
+<!-- -->
+* **splash.ogg**
+  * Marianne Gagnon, from blastwavefx.com and Natalie, CC-BY-SA 3.0
+<!-- -->
+* **splash.wav**
+  * soundscalpel.com, from freesound.org, CC-BY
 
 ## More information and contacts
 
