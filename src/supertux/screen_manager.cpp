@@ -47,10 +47,6 @@
 #include <chrono>
 #include <iostream>
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#endif
 
 struct ScreenManager::FPS_Stats
 {
@@ -192,9 +188,6 @@ ScreenManager::quit(std::unique_ptr<ScreenFade> screen_fade)
 {
   Integration::close_all();
 
-#ifdef __EMSCRIPTEN__
-  g_config->save();
-#endif
 
   if (g_config->transitions_enabled)
   {
@@ -424,7 +417,6 @@ ScreenManager::process_events()
         {
           g_config->show_fps = !g_config->show_fps;
         }
-#ifndef EMSCRIPTEN // Emscripten builds manage this through JS code
         else if (event.key.keysym.sym == SDLK_F11 ||
                  ((event.key.keysym.mod & KMOD_LALT || event.key.keysym.mod & KMOD_RALT) &&
                  (event.key.keysym.sym == SDLK_KP_ENTER || event.key.keysym.sym == SDLK_RETURN)))
@@ -433,7 +425,6 @@ ScreenManager::process_events()
           m_video_system.apply_config();
           m_menu_manager->on_window_resize();
         }
-#endif
         else if (event.key.keysym.sym == SDLK_PRINTSCREEN ||
                  event.key.keysym.sym == SDLK_F12)
         {
@@ -603,19 +594,8 @@ void ScreenManager::loop_iter()
 
   handle_screen_switch();
 
-#ifdef EMSCRIPTEN
-  EM_ASM({
-    supertux2_syncfs();
-  }, 0); // EM_ASM is a variadic macro and Clang requires at least 1 value for the variadic argument
-#endif
 }
 
-#ifdef __EMSCRIPTEN__
-static void g_loop_iter() {
-  auto screen_manager = ScreenManager::current();
-  screen_manager->loop_iter();
-}
-#endif
 
 void
 ScreenManager::run()
@@ -623,13 +603,9 @@ ScreenManager::run()
   Integration::init_all();
 
   handle_screen_switch();
-#ifdef __EMSCRIPTEN__
-  emscripten_set_main_loop(g_loop_iter, -1, 1);
-#else
   while (!m_screen_stack.empty()) {
     loop_iter();
   }
-#endif
 }
 
 /* EOF */

@@ -43,10 +43,6 @@
   #include <cstdlib>
 #endif
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#endif
 
 MainMenu::MainMenu()
 {
@@ -58,9 +54,6 @@ MainMenu::MainMenu()
   //       build the add-ons so we can re-enable them.
   //       Also see src/addon/downloader.*pp
   add_entry(MNID_ADDONS, _("Add-ons"));
-#ifdef __EMSCRIPTEN__
-  add_entry(MNID_MANAGEASSETS, _("Manage Assets"));
-#endif
   add_submenu(_("Options"), MenuStorage::OPTIONS_MENU);
   add_entry(MNID_LEVELEDITOR, _("Level Editor"));
   add_entry(MNID_CREDITS, _("Credits"));
@@ -93,10 +86,6 @@ MainMenu::menu_action(MenuItem& item)
       MenuManager::instance().push_menu(MenuStorage::ADDON_MENU);
       break;
 
-    case MNID_MANAGEASSETS:
-      MenuManager::instance().push_menu(MenuStorage::ASSET_MENU);
-      break;
-
      case MNID_CREDITS:
     {
       // Credits Level
@@ -118,13 +107,7 @@ MainMenu::menu_action(MenuItem& item)
       break;
 
     case MNID_DONATE:
-#ifdef __EMSCRIPTEN__
-      EM_ASM({
-        window.open("https://www.supertux.org/donate.html");
-      }, 0); // EM_ASM is a variadic macro and Clang requires at least 1 value for the variadic argument
-#else
       FileSystem::open_path("https://www.supertux.org/donate.html");
-#endif
       break;
 
     case MNID_QUITMAINMENU:

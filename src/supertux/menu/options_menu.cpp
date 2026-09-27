@@ -32,10 +32,6 @@
 #include "util/log.hpp"
 #include "video/renderer.hpp"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#endif
 
 namespace {
 
@@ -58,9 +54,6 @@ enum OptionsMenuIDs {
   MNID_WINDOW_RESOLUTION,
   MNID_FULLSCREEN,
   MNID_FULLSCREEN_RESOLUTION,
-#ifdef __EMSCRIPTEN__
-  MNID_FIT_WINDOW,
-#endif
   MNID_MAGNIFICATION,
   MNID_ASPECTRATIO,
   MNID_VSYNC,
@@ -354,7 +347,7 @@ OptionsMenu::OptionsMenu(bool complete) :
       .set_help(_("Select a profile to play with"));
   }
 
-#if !defined(ENABLE_TOUCHSCREEN_SUPPORT) && !defined(__EMSCRIPTEN__)
+#ifndef ENABLE_TOUCHSCREEN_SUPPORT
   add_toggle(MNID_FULLSCREEN,_("Window Resizable"), &g_config->window_resizable)
     .set_help(_("Allow window resizing, might require a restart to take effect"));
 
@@ -369,10 +362,6 @@ OptionsMenu::OptionsMenu(bool complete) :
 #endif
 
 #if 0
-#ifdef __EMSCRIPTEN__
-  MenuItem& fit_window = add_toggle(MNID_FIT_WINDOW, _("Fit to browser"), &g_config->fit_window);
-  fit_window.set_help(_("Fit the resolution to the size of your browser"));
-#endif
 #endif
 
   MenuItem& magnification = add_string_select(MNID_MAGNIFICATION, _("Magnification"), &next_magnification, magnifications);
@@ -381,7 +370,7 @@ OptionsMenu::OptionsMenu(bool complete) :
   MenuItem& vsync = add_string_select(MNID_VSYNC, _("VSync"), &next_vsync, vsyncs);
   vsync.set_help(_("Set the VSync mode"));
 
-#if !defined(ENABLE_TOUCHSCREEN_SUPPORT) && !defined(__EMSCRIPTEN__)
+#ifndef ENABLE_TOUCHSCREEN_SUPPORT
   MenuItem& aspect = add_string_select(MNID_ASPECTRATIO, _("Aspect Ratio"), &next_aspect_ratio, aspect_ratios);
   aspect.set_help(_("Adjust the aspect ratio"));
 #endif
@@ -536,31 +525,6 @@ OptionsMenu::menu_action(MenuItem& item)
       }
       break;
 
-#ifdef __EMSCRIPTEN__
-    case MNID_FIT_WINDOW:
-      {
-        // Emscripten's Clang detects the "$" in the macro as part of C++ code
-        // although it isn't even Javascript, it's Emscripten's way to pass
-        // arguments from C++ to Javascript
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdollar-in-identifier-extension"
-        int resultds = EM_ASM_INT({
-          if (window.supertux_setAutofit)
-            window.supertux_setAutofit($0);
-
-          return !!window.supertux_setAutofit;
-        }, g_config->fit_window);
-#pragma GCC diagnostic pop
-
-        if (!resultds)
-        {
-          Dialog::show_message(_("The game couldn't detect your browser resolution.\n"
-                                 "This most likely happens because it is not embedded\n"
-                                 "in the SuperTux custom HTML template.\n"));
-        }
-      }
-      break;
-#endif
 
     case MNID_VSYNC:
       switch (next_vsync)

@@ -9,11 +9,9 @@
 #define INSTALL_SUBDIR_BIN "${INSTALL_SUBDIR_BIN}"
 #define INSTALL_SUBDIR_SHARE "${INSTALL_SUBDIR_SHARE}"
 
-#ifndef EMSCRIPTEN
 #define SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
 #if SIZEOF_VOID_P == 8
 #define _SQ64
-#endif
 #endif
 
 #cmakedefine HAVE_ICONV_CONST

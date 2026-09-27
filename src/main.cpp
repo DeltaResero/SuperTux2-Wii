@@ -29,11 +29,9 @@ int main(int argc, char** argv)
 
   int ret = g_main->run(argc, argv);
 
-#if !defined(__EMSCRIPTEN__)
   // Manually destroy, as atexit() functions are called before global
   // destructors and thus would make the destruction crash.
   g_main.reset();
-#endif
 
   return ret;
 }
