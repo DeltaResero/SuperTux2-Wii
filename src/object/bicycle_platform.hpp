@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 
+#include <set>
+
 #include "object/path_walker.hpp"
 #include "object/moving_sprite.hpp"
 

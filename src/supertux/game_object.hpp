@@ -18,7 +18,9 @@
 #define HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_HPP
 
 #include <algorithm>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "supertux/game_object_component.hpp"
 #include "util/fade_helper.hpp"

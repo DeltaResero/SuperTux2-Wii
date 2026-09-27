@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_ITERATOR_HPP
 #define HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_ITERATOR_HPP
 
+#include <memory>
 #include <vector>
 
 #include "game_object_manager.hpp"

@@ -25,7 +25,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 #include <physfs.h>
-#include <tinygettext/log.hpp>
 
 #ifdef WIN32
 #include <codecvt>
@@ -36,7 +35,6 @@
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "object/spawnpoint.hpp"
-#include "physfs/physfs_file_system.hpp"
 #include "physfs/physfs_sdl.hpp"
 #include "sdk/integration.hpp"
 #include "sprite/sprite_data.hpp"
@@ -122,18 +120,6 @@ Main::Main() :
   m_screen_manager(),
   m_savegame()
 {
-}
-
-void
-Main::init_tinygettext()
-{
-  g_dictionary_manager.reset(new tinygettext::DictionaryManager(std::make_unique<PhysFSFileSystem>(), "UTF-8"));
-
-  tinygettext::Log::set_log_info_callback(log_info_callback);
-  tinygettext::Log::set_log_warning_callback(log_warning_callback);
-  tinygettext::Log::set_log_error_callback(log_error_callback);
-
-  g_dictionary_manager->add_directory("locale");
 }
 
 PhysfsSubsystem::PhysfsSubsystem(const char* argv0,
@@ -522,8 +508,6 @@ Main::run(int argc, char** argv)
     m_config_subsystem.reset(new ConfigSubsystem());
     args.merge_into(*g_config);
 
-    s_timelog.log("tinygettext");
-    init_tinygettext();
     switch (args.get_action())
     {
       case CommandLineArguments::PRINT_VERSION:
@@ -557,8 +541,6 @@ Main::run(int argc, char** argv)
     log_fatal << "Unexpected exception" << std::endl;
     result = 1;
   }
-
-  g_dictionary_manager.reset();
 
   return result;
 }

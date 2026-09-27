@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 
+#include <set>
+
 #include "object/moving_sprite.hpp"
 
 class PneumaticPlatform;
