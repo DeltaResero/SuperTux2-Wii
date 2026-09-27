@@ -36,7 +36,6 @@
 #include "object/player.hpp"
 #include "object/spawnpoint.hpp"
 #include "physfs/physfs_sdl.hpp"
-#include "sdk/integration.hpp"
 #include "sprite/sprite_data.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/command_line_arguments.hpp"
@@ -365,9 +364,6 @@ Main::launch_game(const CommandLineArguments& args)
   m_tile_manager.reset(new TileManager());
   m_sprite_manager.reset(new SpriteManager());
   m_resources.reset(new Resources());
-
-  s_timelog.log("integrations");
-  Integration::setup();
 
   m_console.reset(new Console(*m_console_buffer));
 

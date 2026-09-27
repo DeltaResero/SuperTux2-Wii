@@ -188,13 +188,4 @@ LevelIntro::draw(Compositor& compositor)
   
 }
 
-IntegrationStatus
-LevelIntro::get_status() const
-{
-  IntegrationStatus status;
-  status.m_details.push_back("Watching a cutscene");
-  status.m_details.push_back("In level: " + m_level.get_name());
-  return status;
-}
-
 /* EOF */

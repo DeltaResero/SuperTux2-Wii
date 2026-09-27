@@ -54,7 +54,7 @@ LevelParser::get_level_name(const std::string& filename)
 std::unique_ptr<Level>
 LevelParser::from_stream(std::istream& stream, const std::string& context, bool worldmap, bool editable)
 {
-  auto level = std::make_unique<Level>(worldmap);
+  auto level = std::make_unique<Level>();
   LevelParser parser(*level, worldmap, editable);
   parser.load(stream, context);
   return level;
@@ -63,7 +63,7 @@ LevelParser::from_stream(std::istream& stream, const std::string& context, bool 
 std::unique_ptr<Level>
 LevelParser::from_file(const std::string& filename, bool worldmap, bool editable)
 {
-  auto level = std::make_unique<Level>(worldmap);
+  auto level = std::make_unique<Level>();
   LevelParser parser(*level, worldmap, editable);
   parser.load(filename);
   return level;
