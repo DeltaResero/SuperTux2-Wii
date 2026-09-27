@@ -19,23 +19,32 @@
 
 #include "gui/menu.hpp"
 
+#include <functional>
+
 enum GameMenuIDs {
   MNID_CONTINUE,
   MNID_RESETLEVEL,
+  MNID_RESETLEVELCHECKPOINT,
   MNID_ABORTLEVEL
 };
 
-class GameMenu : public Menu
+class GameMenu final : public Menu
 {
 private:
+  // stores callback for level reset
+  std::function<void ()> reset_callback;
+  // stores callback for level reset from checkpoint
+  std::function<void ()> reset_checkpoint_callback;
+  // stores callback for level abort
+  std::function<void ()> abort_callback;
 public:
   GameMenu();
 
-  void menu_action(MenuItem* item) override;
+  void menu_action(MenuItem& item) override;
 
 private:
-  GameMenu(const GameMenu&);
-  GameMenu& operator=(const GameMenu&);
+  GameMenu(const GameMenu&) = delete;
+  GameMenu& operator=(const GameMenu&) = delete;
 };
 
 #endif

@@ -21,50 +21,44 @@
 
 class SoundFile;
 
-class StreamSoundSource : public OpenALSoundSource
+class StreamSoundSource final : public OpenALSoundSource
 {
-public:
-  StreamSoundSource();
-  virtual ~StreamSoundSource();
-
-  void set_sound_file(std::unique_ptr<SoundFile> newfile);
-
-  enum FadeState { NoFading, FadingOn, FadingOff, FadingPause, FadingResume };
-
-  void set_fading(FadeState state, float fadetime);
-  FadeState get_fade_state() const
-  {
-    return fade_state;
-  }
-  void update();
-
-  void set_looping(bool looping_)
-  {
-    this->looping = looping_;
-  }
-  bool get_looping() const
-  {
-    return looping;
-  }
-
 private:
   static const size_t STREAMBUFFERSIZE = 1024 * 500;
   static const size_t STREAMFRAGMENTS = 5;
-  static const size_t STREAMFRAGMENTSIZE
-  = STREAMBUFFERSIZE / STREAMFRAGMENTS;
+  static const size_t STREAMFRAGMENTSIZE = STREAMBUFFERSIZE / STREAMFRAGMENTS;
 
-  bool fillBufferAndQueue(ALuint buffer);
-  std::unique_ptr<SoundFile> file;
-  ALuint buffers[STREAMFRAGMENTS];
+public:
+  enum FadeState { NoFading, FadingOn, FadingOff, FadingPause, FadingResume };
 
-  FadeState fade_state;
-  float fade_start_time;
-  float fade_time;
-  bool looping;
+public:
+  StreamSoundSource();
+  ~StreamSoundSource() override;
+
+  virtual void update() override;
+  virtual void set_looping(bool looping_) override { m_looping = looping_; }
+
+  void set_sound_file(std::unique_ptr<SoundFile> newfile);
+
+  void set_fading(FadeState state, float fadetime);
+  FadeState get_fade_state() const { return m_fade_state; }
+  bool get_looping() const { return m_looping; }
 
 private:
-  StreamSoundSource(const StreamSoundSource&);
-  StreamSoundSource& operator=(const StreamSoundSource&);
+  bool fillBufferAndQueue(ALuint buffer);
+
+private:
+  std::unique_ptr<SoundFile> m_file;
+  ALuint m_buffers[STREAMFRAGMENTS];
+
+  FadeState m_fade_state;
+  float m_fade_start_time;
+  float m_fade_time;
+  bool m_looping;
+
+private:
+  StreamSoundSource(const StreamSoundSource&) = delete;
+  StreamSoundSource& operator=(const StreamSoundSource&) = delete;
 };
 
 #endif

@@ -17,15 +17,17 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_LEVELSET_SCREEN_HPP
 #define HEADER_SUPERTUX_SUPERTUX_LEVELSET_SCREEN_HPP
 
+#include <boost/optional.hpp>
 #include <string>
 
+#include "math/vector.hpp"
 #include "supertux/screen.hpp"
 #include "util/currenton.hpp"
 
 class Savegame;
 
-class LevelsetScreen : public Screen,
-                       public Currenton<LevelsetScreen>
+class LevelsetScreen final : public Screen,
+                             public Currenton<LevelsetScreen>
 {
 private:
   std::string m_basedir;
@@ -35,18 +37,22 @@ private:
   bool m_solved;
 
 public:
-  LevelsetScreen(const std::string& basedir, const std::string& level_filename, Savegame& savegame);
-  ~LevelsetScreen();
+  LevelsetScreen(const std::string& basedir, const std::string& level_filename, Savegame& savegame,
+                 const boost::optional<std::pair<std::string, Vector>>& start_pos);
 
-  void draw(DrawingContext&) override;
-  void update(float elapsed_time) override;
+  virtual void draw(Compositor& compositor) override;
+  virtual void update(float dt_sec, const Controller& controller) override;
 
-  void setup() override;
-  void leave() override;
+  virtual void setup() override;
+  virtual void leave() override;
+
+  virtual IntegrationStatus get_status() const override;
 
   void finished_level(bool win);
 
 private:
+  boost::optional<std::pair<std::string, Vector>> m_start_pos;
+
   LevelsetScreen(const LevelsetScreen&) = delete;
   LevelsetScreen& operator=(const LevelsetScreen&) = delete;
 };

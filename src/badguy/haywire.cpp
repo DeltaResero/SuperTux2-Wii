@@ -15,22 +15,26 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "audio/sound_manager.hpp"
-#include "badguy/bomb.hpp"
 #include "badguy/haywire.hpp"
+
+#include "audio/sound_manager.hpp"
+#include "audio/sound_source.hpp"
 #include "object/explosion.hpp"
 #include "object/player.hpp"
-#include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
-#include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 
-#define TIME_EXPLOSION 5.0
-#define TIME_STUNNED   0.5
+namespace {
 
-#define NORMAL_WALK_SPEED    80
-#define EXPLODING_WALK_SPEED 160
+const float TIME_EXPLOSION = 5.0f;
+const float STOMPED_TIME = 1.0f;
+const float TIME_STUNNED = 0.5f;
+
+const float NORMAL_WALK_SPEED = 80.0f;
+const float EXPLODING_WALK_SPEED = 200.0f;
+
+} // namespace
 
 Haywire::Haywire(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/haywire/haywire.sprite", "left", "right"),
@@ -39,7 +43,8 @@ Haywire::Haywire(const ReaderMapping& reader) :
   is_stunned(false),
   time_stunned(0.0f),
   ticking(),
-  grunting()
+  grunting(),
+  stomped_timer()
 {
   walk_speed = NORMAL_WALK_SPEED;
   max_drop_height = 16;
@@ -48,15 +53,15 @@ Haywire::Haywire(const ReaderMapping& reader) :
   SoundManager::current()->preload("sounds/explosion.wav");
 
   //Check if we need another sprite
-  if( !reader.get( "sprite", sprite_name ) ){
+  if ( !reader.get( "sprite", m_sprite_name ) ){
     return;
   }
-  if (sprite_name.empty()) {
-    sprite_name = "images/creatures/haywire/haywire.sprite";
+  if (m_sprite_name.empty()) {
+    m_sprite_name = "images/creatures/haywire/haywire.sprite";
     return;
   }
   //Replace sprite
-  sprite = SpriteManager::current()->create( sprite_name );
+  m_sprite = SpriteManager::current()->create( m_sprite_name );
 }
 
 bool
@@ -75,18 +80,19 @@ Haywire::collision_squished(GameObject& object)
     return true;
   }
 
-  if(WalkingBadguy::is_frozen()) {
+  if (WalkingBadguy::is_frozen()) {
     WalkingBadguy::unfreeze();
   }
 
   if (!is_exploding) {
     start_exploding();
+	stomped_timer.start(STOMPED_TIME);
   }
 
   time_stunned = TIME_STUNNED;
   is_stunned = true;
-  physic.set_velocity_x (0.0);
-  physic.set_acceleration_x (0.0);
+  m_physic.set_velocity_x(0.f);
+  m_physic.set_acceleration_x(0.f);
 
   if (player)
     player->bounce (*this);
@@ -95,59 +101,116 @@ Haywire::collision_squished(GameObject& object)
 }
 
 void
-Haywire::active_update(float elapsed_time)
+Haywire::active_update(float dt_sec)
 {
   if (is_exploding) {
     ticking->set_position(get_pos());
     grunting->set_position(get_pos());
-    if (elapsed_time >= time_until_explosion) {
+    if (dt_sec >= time_until_explosion) {
       kill_fall ();
       return;
     }
     else
-      time_until_explosion -= elapsed_time;
+      time_until_explosion -= dt_sec;
   }
 
   if (is_stunned) {
-    if (time_stunned > elapsed_time) {
-      time_stunned -= elapsed_time;
+    if (time_stunned > dt_sec) {
+      time_stunned -= dt_sec;
     }
-    else { /* if (time_stunned <= elapsed_time) */
-      time_stunned = 0.0;
+    else { /* if (time_stunned <= dt_sec) */
+      time_stunned = 0.f;
       is_stunned = false;
     }
   }
 
-  if (is_exploding) {
+  if (is_exploding)
+  {
+    if (on_ground() && std::abs(m_physic.get_velocity_x()) > 40.f && !Sector::get().get_player().is_dying())
+    {
+      //jump over 1-tall roadblocks
+      Rectf jump_box = get_bbox();
+      jump_box.set_left(m_col.m_bbox.get_left() + (m_dir == Direction::LEFT ? -48.f : 38.f));
+      jump_box.set_right(m_col.m_bbox.get_right() + (m_dir == Direction::RIGHT ? 48.f : -38.f));
+
+      Rectf exception_box = get_bbox();
+      exception_box.set_left(m_col.m_bbox.get_left() + (m_dir == Direction::LEFT ? -48.f : 38.f));
+      exception_box.set_right(m_col.m_bbox.get_right() + (m_dir == Direction::RIGHT ? 48.f : -38.f));
+      exception_box.set_top(m_col.m_bbox.get_top() - 32.f);
+      exception_box.set_bottom(m_col.m_bbox.get_bottom() - 48.f);
+
+      if (!Sector::get().is_free_of_statics(jump_box) && Sector::get().is_free_of_statics(exception_box))
+      {
+        m_physic.set_velocity_y(-325.f);
+      }
+      else
+      {
+        //jump over gaps if Tux isnt below
+        Rectf gap_box = get_bbox();
+        gap_box.set_left(m_col.m_bbox.get_left() + (m_dir == Direction::LEFT ? -38.f : 26.f));
+        gap_box.set_right(m_col.m_bbox.get_right() + (m_dir == Direction::LEFT ? -26.f : 38.f));
+        gap_box.set_top(m_col.m_bbox.get_top());
+        gap_box.set_bottom(m_col.m_bbox.get_bottom() + 28.f);
+
+        if (Sector::get().is_free_of_statics(gap_box)
+          && (get_nearest_player()->get_bbox().get_bottom() <= m_col.m_bbox.get_bottom()))
+        {
+          m_physic.set_velocity_y(-325.f);
+        }
+      }
+    }
+
+    //end of pathfinding
+
+	  if (stomped_timer.get_timeleft() < 0.05f) {
+        set_action ((m_dir == Direction::LEFT) ? "ticking-left" : "ticking-right", /* loops = */ -1);
+        walk_left_action = "ticking-left";
+        walk_right_action = "ticking-right";
+    }
+    else {
+        set_action ((m_dir == Direction::LEFT) ? "active-left" : "active-right", /* loops = */ 1);
+        walk_left_action = "active-left";
+	      walk_right_action = "active-right";
+    }
+
     auto p = get_nearest_player ();
-    float target_velocity = 0.0;
+    float target_velocity = 0.f;
 
-    if (p && time_stunned == 0.0) {
-      /* Player is on the right */
-      if (p->get_pos ().x > this->get_pos ().x)
-        target_velocity = walk_speed;
-      else /* player in on the left */
-        target_velocity = (-1.0) * walk_speed;
-    } /* if (player) */
+    if (stomped_timer.get_timeleft() >= 0.05f)
+    {
+      target_velocity = 0.f;
+    }
+    else if (p && time_stunned == 0.0f)
+    {
+      /* Player is on the right or left*/
+      target_velocity = (p->get_pos().x > get_pos().x) ? walk_speed : (-1.f) * walk_speed;
+    }
 
-    WalkingBadguy::active_update(elapsed_time, target_velocity);
+    WalkingBadguy::active_update(dt_sec, target_velocity, 3.f);
   }
-  else {
-    WalkingBadguy::active_update(elapsed_time);
-  }
+  else
+    WalkingBadguy::active_update(dt_sec);
+}
+
+void
+Haywire::deactivate()
+{
+  // stop ticking/grunting sounds, in case we are deactivated before actually
+  // exploding (see https://github.com/SuperTux/supertux/issues/1260)
+  stop_looping_sounds();
 }
 
 void
 Haywire::kill_fall()
 {
-  if(is_exploding) {
+  if (is_exploding) {
     ticking->stop();
     grunting->stop();
   }
-  if(is_valid()) {
+  if (is_valid()) {
     remove_me();
-    auto explosion = std::make_shared<Explosion>(bbox.get_middle());
-    Sector::current()->add_object(explosion);
+    Sector::get().add<Explosion>(m_col.m_bbox.get_middle(),
+      EXPLOSION_STRENGTH_DEFAULT);
   }
 
   run_dead_script();
@@ -176,10 +239,8 @@ Haywire::freeze() {
 void
 Haywire::start_exploding()
 {
-  set_action ((dir == LEFT) ? "ticking-left" : "ticking-right", /* loops = */ -1);
-  walk_left_action = "ticking-left";
-  walk_right_action = "ticking-right";
   set_walk_speed (EXPLODING_WALK_SPEED);
+  max_drop_height = -1;
   time_until_explosion = TIME_EXPLOSION;
   is_exploding = true;
 
@@ -201,6 +262,7 @@ Haywire::stop_exploding()
   walk_left_action = "left";
   walk_right_action = "right";
   set_walk_speed(NORMAL_WALK_SPEED);
+  max_drop_height = 16;
   time_until_explosion = 0.0f;
   is_exploding = false;
 
@@ -233,5 +295,18 @@ void Haywire::play_looping_sounds()
   }
 }
 
-/* vim: set sw=2 sts=2 et : */
+HitResponse Haywire::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
+{
+  if (is_exploding)
+  {
+    badguy.kill_fall();
+    return FORCE_MOVE;
+  }
+  else
+  {
+    WalkingBadguy::collision_badguy(badguy, hit);
+  }
+  return ABORT_MOVE;
+}
+
 /* EOF */

@@ -20,15 +20,18 @@
 #include <stdexcept>
 #include <string>
 
-class SoundError : public std::exception
+class SoundError final : public std::exception
 {
 public:
   SoundError(const std::string& message) throw();
-  virtual ~SoundError() throw();
+  SoundError(const SoundError&) = default;
+  SoundError& operator=(const SoundError&) = default;
+  ~SoundError() throw() override;
 
-  const char* what() const throw();
+  virtual const char* what() const throw() override;
+
 private:
-  std::string message;
+  std::string m_message;
 };
 
 #endif

@@ -19,25 +19,24 @@
 
 #include "gui/menu.hpp"
 
-class EditorLevelsetSelectMenu;
-class World;
-
-class EditorLevelsetSelectMenu : public Menu
+class EditorLevelsetSelectMenu final : public Menu
 {
 private:
   std::vector<std::string> m_contrib_worlds;
 
 public:
   EditorLevelsetSelectMenu();
-  ~EditorLevelsetSelectMenu();
+  ~EditorLevelsetSelectMenu() override;
 
-  void menu_action(MenuItem* item) override;
+  void menu_action(MenuItem& item) override;
+  void initialize();
+  void reload_menu();
 
 private:
-  EditorLevelsetSelectMenu(const EditorLevelsetSelectMenu&);
-  EditorLevelsetSelectMenu& operator=(const EditorLevelsetSelectMenu&);
+  EditorLevelsetSelectMenu(const EditorLevelsetSelectMenu&) = delete;
+  EditorLevelsetSelectMenu& operator=(const EditorLevelsetSelectMenu&) = delete;
 };
 
-#endif //HEADER_SUPERTUX_SUPERTUX_MENU_EDITOR_LEVELSET_SELECT_MENU_HPP
+#endif
 
 /* EOF */

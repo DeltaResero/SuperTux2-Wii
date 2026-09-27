@@ -18,19 +18,18 @@
 #ifndef HEADER_SUPERTUX_ADDON_ADDON_HPP
 #define HEADER_SUPERTUX_ADDON_ADDON_HPP
 
-#include <assert.h>
 #include <memory>
 #include <string>
 
-#include "util/reader_fwd.hpp"
+class ReaderMapping;
 
-class Addon
+class Addon final
 {
 public:
-  static std::unique_ptr<Addon> parse(const ReaderMapping& lisp);
+  static std::unique_ptr<Addon> parse(const ReaderMapping& mapping);
   static std::unique_ptr<Addon> parse(const std::string& fname);
 
-  enum Type { WORLD, WORLDMAP, LEVELSET, LANGUAGEPACK };
+  enum Type { WORLD, WORLDMAP, LEVELSET, LANGUAGEPACK, ADDON };
 
   enum Format {
     ORIGINAL = 0,

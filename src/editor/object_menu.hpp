@@ -19,25 +19,34 @@
 
 #include "gui/menu.hpp"
 
+class Editor;
 class GameObject;
 
-class ObjectMenu : public Menu
+class ObjectMenu final : public Menu
 {
-  public:
-    ObjectMenu(GameObject *go);
-    ~ObjectMenu();
+public:
+  enum {
+    MNID_REMOVE,
+    MNID_TEST_FROM_HERE,
+    MNID_OPEN_PARTICLE_EDITOR,
+  };
 
-    void menu_action(MenuItem* item) override;
+public:
+  ObjectMenu(Editor& editor, GameObject* go);
+  ~ObjectMenu() override;
 
-    GameObject *object;
+  virtual void menu_action(MenuItem& item) override;
+  virtual bool on_back_action() override;
 
-  private:
-    enum MenuIDs {
-      MNID_REMOVE
-    };
+private:
+  Editor& m_editor;
+  GameObject* m_object;
 
-    ObjectMenu(const ObjectMenu&);
-    ObjectMenu& operator=(const ObjectMenu&);
+private:
+  ObjectMenu(const ObjectMenu&) = delete;
+  ObjectMenu& operator=(const ObjectMenu&) = delete;
 };
 
-#endif // HEADER_SUPERTUX_EDITOR_OBJECT_MENU_HPP
+#endif
+
+/* EOF */

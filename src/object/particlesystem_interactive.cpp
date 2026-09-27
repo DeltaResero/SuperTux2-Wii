@@ -16,13 +16,17 @@
 
 #include "object/particlesystem_interactive.hpp"
 
+#include "collision/collision.hpp"
+#include "editor/editor.hpp"
 #include "math/aatriangle.hpp"
-#include "math/vector.hpp"
 #include "object/tilemap.hpp"
-#include "supertux/game_object.hpp"
-#include "supertux/collision.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/tile.hpp"
+#include "video/drawing_context.hpp"
+#include "video/surface_batch.hpp"
+#include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
 //TODO: Find a way to make rain collide with objects like bonus blocks
 //      Add an option to set rain strength
@@ -30,31 +34,63 @@
 ParticleSystem_Interactive::ParticleSystem_Interactive() :
   ParticleSystem()
 {
-  virtual_width = SCREEN_WIDTH;
-  virtual_height = SCREEN_HEIGHT;
-  z_pos = 0;
+  virtual_width = static_cast<float>(SCREEN_WIDTH);
+  virtual_height = static_cast<float>(SCREEN_HEIGHT);
+  if (!Editor::is_active()) {
+    z_pos = 0;
+  }
+}
+
+ParticleSystem_Interactive::ParticleSystem_Interactive(const ReaderMapping& mapping) :
+  ParticleSystem(mapping)
+{
+  virtual_width = static_cast<float>(SCREEN_WIDTH);
+  virtual_height = static_cast<float>(SCREEN_HEIGHT);
+  if (!Editor::is_active()) {
+    z_pos = 0;
+  }
 }
 
 ParticleSystem_Interactive::~ParticleSystem_Interactive()
 {
 }
 
-void ParticleSystem_Interactive::draw(DrawingContext& context)
+void
+ParticleSystem_Interactive::draw(DrawingContext& context)
 {
-  if(!enabled)
+  if (!enabled)
     return;
 
   context.push_transform();
+  const auto& region = Sector::current()->get_active_region();
+  std::unordered_map<SurfacePtr, SurfaceBatch> batches;
+  for (const auto& particle : particles) {
+    if(!region.contains(particle->pos))
+      continue;
 
-  for(auto& particle : particles) {
-    context.draw_surface(particle->texture, particle->pos, z_pos);
+    auto it = batches.find(particle->texture);
+    if (it == batches.end()) {
+      const auto& batch_it = batches.emplace(particle->texture,
+        SurfaceBatch(particle->texture));
+      batch_it.first->second.draw(particle->pos, particle->angle);
+    } else {
+      it->second.draw(particle->pos, particle->angle);
+    }
+  }
+
+  for(auto& it : batches) {
+    auto& surface = it.first;
+    auto& batch = it.second;
+    // FIXME: What is the colour used for?
+    context.color().draw_surface_batch(surface, batch.move_srcrects(),
+      batch.move_dstrects(), batch.move_angles(), Color::WHITE, z_pos);
   }
 
   context.pop_transform();
 }
 
 int
-ParticleSystem_Interactive::collision(Particle* object, Vector movement)
+ParticleSystem_Interactive::collision(Particle* object, const Vector& movement)
 {
   using namespace collision;
 
@@ -87,28 +123,27 @@ ParticleSystem_Interactive::collision(Particle* object, Vector movement)
   dest.move(movement);
   Constraints constraints;
 
-  for(const auto& solids : Sector::current()->solid_tilemaps) {
+  for (const auto& solids : Sector::get().get_solid_tilemaps()) {
     // FIXME Handle a nonzero tilemap offset
-    for(int x = starttilex; x*32 < max_x; ++x) {
-      for(int y = starttiley; y*32 < max_y; ++y) {
-        const Tile* tile = solids->get_tile(x, y);
-        if(!tile)
-          continue;
+    for (int x = starttilex; x*32 < max_x; ++x) {
+      for (int y = starttiley; y*32 < max_y; ++y) {
+        const Tile& tile = solids->get_tile(x, y);
+
         // skip non-solid tiles, except water
-        if(! (tile->getAttributes() & (Tile::WATER | Tile::SOLID)))
+        if (! (tile.get_attributes() & (Tile::WATER | Tile::SOLID)))
           continue;
 
         Rectf rect = solids->get_tile_bbox(x, y);
-        if(tile->is_slope ()) { // slope tile
-          AATriangle triangle = AATriangle(rect, tile->getData());
+        if (tile.is_slope ()) { // slope tile
+          AATriangle triangle = AATriangle(rect, tile.get_data());
 
-          if(rectangle_aatriangle(&constraints, dest, triangle)) {
-            if(tile->getAttributes() & Tile::WATER)
+          if (rectangle_aatriangle(&constraints, dest, triangle)) {
+            if (tile.get_attributes() & Tile::WATER)
               water = true;
           }
         } else { // normal rectangular tile
-          if(intersects(dest, rect)) {
-            if(tile->getAttributes() & Tile::WATER)
+          if (intersects(dest, rect)) {
+            if (tile.get_attributes() & Tile::WATER)
               water = true;
             set_rectangle_rectangle_constraints(&constraints, dest, rect);
           }
@@ -120,7 +155,7 @@ ParticleSystem_Interactive::collision(Particle* object, Vector movement)
   // TODO don't use magic numbers here...
 
   // did we collide at all?
-  if(!constraints.has_constraints())
+  if (!constraints.has_constraints())
     return -1;
 
   const CollisionHit& hit = constraints.hit;
@@ -133,9 +168,6 @@ ParticleSystem_Interactive::collision(Particle* object, Vector movement)
       return 1; //collision from above
     }
   }
-
-  return 0;
 }
-
 
 /* EOF */

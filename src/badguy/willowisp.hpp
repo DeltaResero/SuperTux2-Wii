@@ -18,59 +18,64 @@
 #define HEADER_SUPERTUX_BADGUY_WILLOWISP_HPP
 
 #include "badguy/badguy.hpp"
-
-class Path;
-class PathWalker;
-class SoundSource;
-
-#include "scripting/exposed_object.hpp"
+#include "object/path_object.hpp"
+#include "squirrel/exposed_object.hpp"
 #include "scripting/willowisp.hpp"
 
-class WillOWisp : public BadGuy,
-                  public ExposedObject<WillOWisp, scripting::WillOWisp>
+class SoundSource;
+
+class WillOWisp final :
+  public BadGuy,
+  public ExposedObject<WillOWisp, scripting::WillOWisp>,
+  public PathObject
 {
 public:
   WillOWisp(const ReaderMapping& reader);
-  virtual void save(Writer& writer);
 
-  void activate();
-  void deactivate();
+  virtual void finish_construction() override;
+  virtual void after_editor_set() override;
 
-  void active_update(float elapsed_time);
-  virtual bool is_flammable() const { return false; }
-  virtual bool is_freezable() const { return false; }
-  virtual void kill_fall() { vanish(); }
+  virtual void activate() override;
+  virtual void deactivate() override;
 
-  /**
-   * make WillOWisp vanish
-   */
-  void vanish();
+  virtual void active_update(float dt_sec) override;
+  virtual bool is_flammable() const override { return false; }
+  virtual bool is_freezable() const override { return false; }
+  virtual bool is_hurtable() const override { return false; }
+  virtual void kill_fall() override { vanish(); }
 
   virtual void goto_node(int node_no);
   virtual void set_state(const std::string& state);
   virtual void start_moving();
   virtual void stop_moving();
 
-  virtual void stop_looping_sounds();
-  virtual void play_looping_sounds();
+  virtual void stop_looping_sounds() override;
+  virtual void play_looping_sounds() override;
 
-  std::string get_class() const {
-    return "willowisp";
-  }
-  std::string get_display_name() const {
-    return _("Will 'o' wisp");
-  }
+  virtual std::string get_class() const override { return "willowisp"; }
+  virtual std::string get_display_name() const override { return _("Will o' Wisp"); }
 
-  virtual ObjectSettings get_settings();
-  virtual void move_to(const Vector& pos);
+  virtual ObjectSettings get_settings() override;
+  virtual void move_to(const Vector& pos) override;
 
-  Path* get_path() const {
-    return path.get();
+  virtual void expose(HSQUIRRELVM vm, SQInteger table_idx) override
+  {
+    ExposedObject<WillOWisp, scripting::WillOWisp>::expose(vm, table_idx);
   }
 
-protected:
-  virtual bool collides(GameObject& other, const CollisionHit& hit) const;
-  HitResponse collision_player(Player& player, const CollisionHit& hit);
+  virtual void unexpose(HSQUIRRELVM vm, SQInteger table_idx) override
+  {
+    ExposedObject<WillOWisp, scripting::WillOWisp>::unexpose(vm, table_idx);
+  }
+
+  /** make WillOWisp vanish */
+  void vanish();
+
+  Color get_color() const { return m_color; }
+
+private:
+  virtual bool collides(GameObject& other, const CollisionHit& hit) const override;
+  virtual HitResponse collision_player(Player& player, const CollisionHit& hit) override;
 
 private:
   enum MyState {
@@ -79,20 +84,24 @@ private:
   };
 
 private:
-  MyState mystate;
+  MyState m_mystate;
 
-  std::string target_sector;
-  std::string target_spawnpoint;
-  std::string hit_script;
+  std::string m_target_sector;
+  std::string m_target_spawnpoint;
+  std::string m_hit_script;
 
-  std::unique_ptr<SoundSource> sound_source;
+  std::unique_ptr<SoundSource> m_sound_source;
+  float m_flyspeed;
+  float m_track_range;
+  float m_vanish_range;
 
-  std::unique_ptr<Path>        path;
-  std::unique_ptr<PathWalker>  walker;
+  Color m_color;
 
-  float flyspeed;
-  float track_range;
-  float vanish_range;
+  int m_starting_node;
+
+private:
+  WillOWisp(const WillOWisp&) = delete;
+  WillOWisp& operator=(const WillOWisp&) = delete;
 };
 
 #endif

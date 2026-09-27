@@ -18,17 +18,20 @@
 #define HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 
 #include "editor/object_option.hpp"
-#include "gui/menu_action.hpp"
 #include "object/moving_sprite.hpp"
+#include "scripting/badguy.hpp"
+#include "squirrel/exposed_object.hpp"
 #include "supertux/direction.hpp"
 #include "supertux/physic.hpp"
 #include "supertux/timer.hpp"
 
+class Dispenser;
 class Player;
 class Bullet;
 
 /** Base class for moving sprites that can hurt the Player. */
-class BadGuy : public MovingSprite
+class BadGuy : public MovingSprite,
+               public ExposedObject<BadGuy, scripting::BadGuy>
 {
 public:
   BadGuy(const Vector& pos, const std::string& sprite_name, int layer = LAYER_OBJECTS,
@@ -44,23 +47,13 @@ public:
 
   /** Called each frame. The default implementation checks badguy
       state and calls active_update and inactive_update */
-  virtual void update(float elapsed_time) override;
+  virtual void update(float dt_sec) override;
 
-  virtual void save(Writer& writer) override;
-  virtual std::string get_class() const override {
-    return "badguy";
-  }
+  virtual std::string get_class() const override { return "badguy"; }
+  virtual std::string get_display_name() const override { return _("Badguy"); }
 
-  virtual std::string get_display_name() const override {
-    return _("Badguy");
-  }
-
-  virtual ObjectSettings get_settings() override {
-    ObjectSettings result = MovingSprite::get_settings();
-    result.options.push_back( dir_option(&dir) );
-    result.options.push_back( ObjectOption(MN_SCRIPT, _("Death script"), &dead_script));
-    return result;
-  }
+  virtual ObjectSettings get_settings() override;
+  virtual void after_editor_set() override;
 
   /** Called when a collision with another object occurred. The
       default implementation calls collision_player, collision_solid,
@@ -80,20 +73,10 @@ public:
 
   /** True if this badguy can break bricks or open bonusblocks in his
       current form. */
-  virtual bool can_break() const
-  {
-    return false;
-  }
+  virtual bool can_break() const { return false; }
 
-  Vector get_start_position() const
-  {
-    return start_position;
-  }
-
-  void set_start_position(const Vector& vec)
-  {
-    start_position = vec;
-  }
+  Vector get_start_position() const { return m_start_position; }
+  void set_start_position(const Vector& vec) { m_start_position = vec; }
 
   /** Called when hit by a fire bullet, and is_flammable() returns true */
   virtual void ignite();
@@ -115,6 +98,10 @@ public:
 
   virtual bool is_freezable() const;
 
+  /** Return true if this badguy can be hurt by tiles
+      with the attribute "hurts" */
+  virtual bool is_hurtable() const { return true; }
+
   bool is_frozen() const;
 
   bool is_in_water() const;
@@ -123,6 +110,24 @@ public:
   virtual std::string get_water_sprite() const {
     return "images/objects/water_drop/water_drop.sprite";
   }
+
+  void set_sprite_action(const std::string& action, int loops = 1)
+  {
+    set_action(action, loops);
+  }
+
+  /** Sets the dispenser that spawns this badguy.
+      @param parent The dispenser */
+  void set_parent_dispenser(Dispenser* parent) { m_parent_dispenser = parent; }
+
+  /** Returns the dispenser this badguys was spawned by */
+  Dispenser* get_parent_dispenser() const { return m_parent_dispenser; }
+
+  /** Returns true if the badguy can currently be affected by wind */
+  virtual bool can_be_affected_by_wind() const;
+
+  /** Adds velocity from wind */
+  virtual void add_wind_velocity(const Vector& velocity, const Vector& end_speed);
 
 protected:
   enum State {
@@ -145,6 +150,8 @@ protected:
   /** Called when the badguy collided with solid ground */
   virtual void collision_solid(const CollisionHit& hit) override;
 
+  virtual void on_flip(float height) override;
+
   /** Called when the badguy collided with another badguy */
   virtual HitResponse collision_badguy(BadGuy& other, const CollisionHit& hit);
 
@@ -157,10 +164,10 @@ protected:
   virtual HitResponse collision_bullet(Bullet& bullet, const CollisionHit& hit);
 
   /** called each frame when the badguy is activated. */
-  virtual void active_update(float elapsed_time);
+  virtual void active_update(float dt_sec);
 
   /** called each frame when the badguy is not activated. */
-  virtual void inactive_update(float elapsed_time);
+  virtual void inactive_update(float dt_sec);
 
   /** called immediately before the first call to initialize */
   virtual void initialize();
@@ -176,11 +183,10 @@ protected:
   void kill_squished(GameObject& object);
 
   void set_state(State state);
-  State get_state() const
-  { return state; }
+  State get_state() const { return m_state; }
 
   bool check_state_timer() {
-    return state_timer.check();
+    return m_state_timer.check();
   }
 
   /** returns a pointer to the nearest player or 0 if no player is available */
@@ -224,59 +230,63 @@ private:
   void try_activate();
 
 protected:
-  Physic physic;
+  Physic m_physic;
 
 public:
   /** Count this badguy to the statistics? This value should not be
       changed during runtime. */
-  bool countMe;
+  bool m_countMe;
 
 protected:
   /** true if initialize() has already been called */
-  bool is_initialized;
+  bool m_is_initialized;
 
-  Vector start_position;
+  Vector m_start_position;
 
   /** The direction we currently face in */
-  Direction dir;
+  Direction m_dir;
 
   /** The direction we initially faced in */
-  Direction start_dir;
+  Direction m_start_dir;
 
-  bool frozen;
-  bool ignited; /**< true if this badguy is currently on fire */
-  bool in_water; /** < true if the badguy is currently in water */
+  bool m_frozen;
+  bool m_ignited; /**< true if this badguy is currently on fire */
+  bool m_in_water; /** < true if the badguy is currently in water */
 
-  std::string dead_script; /**< script to execute when badguy is killed */
+  std::string m_dead_script; /**< script to execute when badguy is killed */
 
-  float melting_time;
+  float m_melting_time;
 
-  SpritePtr lightsprite;
-  bool glowing;
+  SpritePtr m_lightsprite;
+  bool m_glowing;
+
+  /** If this badguy was dispensed from a dispenser,
+      save the dispenser here. */
+  Dispenser* m_parent_dispenser;
 
 private:
-  State state;
+  State m_state;
 
   /** true if state was STATE_ACTIVE at the beginning of the last call
       to update() */
-  bool is_active_flag;
+  bool m_is_active_flag;
 
-  Timer state_timer;
+  Timer m_state_timer;
 
   /** true if we touched something solid from above and
       update_on_ground_flag was called last frame */
-  bool on_ground_flag;
+  bool m_on_ground_flag;
 
   /** floor normal stored the last time when update_on_ground_flag was
       called and we touched something solid from above */
-  Vector floor_normal;
+  Vector m_floor_normal;
 
   /** CollisionGroup the badguy should be in while active */
-  CollisionGroup colgroup_active;
+  CollisionGroup m_colgroup_active;
 
 private:
-  BadGuy(const BadGuy&);
-  BadGuy& operator=(const BadGuy&);
+  BadGuy(const BadGuy&) = delete;
+  BadGuy& operator=(const BadGuy&) = delete;
 };
 
 #endif

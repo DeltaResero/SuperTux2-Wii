@@ -17,25 +17,33 @@
 #ifndef HEADER_SUPERTUX_EDITOR_TIP_HPP
 #define HEADER_SUPERTUX_EDITOR_TIP_HPP
 
-#include "video/surface.hpp"
-#include "video/drawing_context.hpp"
+#include <string>
+#include <vector>
 
+#include "math/fwd.hpp"
+
+class DrawingContext;
 class GameObject;
 
-class Tip
+class Tip final
 {
-  public:
-    Tip(GameObject* object);
-    ~Tip();
+public:
+  Tip(GameObject& object);
+  Tip(std::string text);
+  Tip(std::string header, std::vector<std::string> text);
 
-    void draw(DrawingContext& context, Vector pos);
-    void draw_up(DrawingContext& context, Vector pos);
+  void draw(DrawingContext& context, const Vector& pos);
+  void draw_up(DrawingContext& context, const Vector& pos);
 
-  private:
-    std::vector<std::string> strings;
-    std::string header;
+private:
+  std::vector<std::string> m_strings;
+  std::string m_header;
+
+private:
+  Tip(const Tip&) = delete;
+  Tip& operator=(const Tip&) = delete;
 };
 
-#endif // HEADER_SUPERTUX_EDITOR_TIP_HPP
+#endif
 
 /* EOF */

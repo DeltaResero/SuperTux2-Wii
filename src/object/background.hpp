@@ -17,52 +17,51 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BACKGROUND_HPP
 #define HEADER_SUPERTUX_OBJECT_BACKGROUND_HPP
 
+#include "math/vector.hpp"
 #include "scripting/background.hpp"
-#include "scripting/exposed_object.hpp"
+#include "squirrel/exposed_object.hpp"
 #include "supertux/game_object.hpp"
-#include "util/reader_fwd.hpp"
+#include "supertux/timer.hpp"
+#include "video/blend.hpp"
 #include "video/drawing_context.hpp"
+#include "video/surface_ptr.hpp"
 
-class Background : public GameObject,
-                   public ExposedObject<Background, scripting::Background>
+class ReaderMapping;
+
+class Background final : public GameObject,
+                         public ExposedObject<Background, scripting::Background>
 {
 public:
   Background();
   Background(const ReaderMapping& reader);
-  virtual ~Background();
-  virtual void save(Writer& writer);
+  ~Background() override;
 
-  void set_image(const std::string& name);
-  void set_image(const std::string& name, float bkgd_speed);
-  void set_images(const std::string& name_top_, const std::string& name_middle_, const std::string& name_bottom_);
-  void set_speed(float bgd_speed);
+  virtual void update(float dt_sec) override;
+  virtual void draw(DrawingContext& context) override;
 
-  std::string get_image() const
-  { return imagefile; }
-  float get_speed() const
-  { return speed; }
+  virtual std::string get_class() const override { return "background"; }
+  virtual std::string get_display_name() const override { return _("Background"); }
 
-  virtual void update(float elapsed_time);
-
-  virtual void draw(DrawingContext& context);
-  void draw_image(DrawingContext& context, const Vector& pos);
-
-  std::string get_class() const {
-    return "background";
-  }
-
-  int get_layer() const
-  { return layer; }
-
-  std::string get_display_name() const {
-    return _("Background");
-  }
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
-
-  virtual const std::string get_icon_path() const {
+  virtual const std::string get_icon_path() const override {
     return "images/engine/editor/background.png";
   }
+
+  virtual ObjectSettings get_settings() override;
+  virtual void after_editor_set() override;
+
+  void set_image(const std::string& name);
+  void set_images(const std::string& name_top, const std::string& name_middle, const std::string& name_bottom);
+  void set_speed(float bgd_speed);
+
+  void draw_image(DrawingContext& context, const Vector& pos);
+
+  std::string get_image() const { return m_imagefile; }
+  float get_speed() const { return m_parallax_speed.x; }
+  int get_layer() const { return m_layer; }
+
+  Color get_color() const { return m_color; }
+  void set_color(Color color) { m_color = color; }
+  void fade_color(Color color, float time);
 
 private:
   enum Alignment {
@@ -73,27 +72,44 @@ private:
     BOTTOM_ALIGNMENT
   };
 
+private:
+  SurfacePtr load_background(const std::string& image_path);
+
+private:
   /** Backgrounds with NO_ALIGNMENT are repeated over the whole
       screen, backgrounds with left, right, top, bottom alignment are
-      only repeated in one direction and attached to the level edge */
-  Alignment alignment;
+      only repeated in one direction and attached to the level edge. */
+  Alignment m_alignment;
 
-  int layer;
-  std::string imagefile_top;
-  std::string imagefile;
-  std::string imagefile_bottom;
-  Vector pos; /**< coordinates of upper-left corner of image */
-  float speed; /**< scroll-speed in horizontal direction */
-  float speed_y; /**< scroll-speed in vertical direction */
-  Vector scroll_speed;
-  Vector scroll_offset;
-  SurfacePtr image_top; /**< image to draw above pos */
-  SurfacePtr image; /**< image to draw, anchored at pos */
-  SurfacePtr image_bottom; /**< image to draw below pos+screenheight */
+  /** If fill is set, the background will not repeat and is instead
+      stretched over the whole screen, alignment and top/bottom images
+      are ignored in that case. */
+  bool m_fill;
 
-  bool has_pos_x, has_pos_y;
+  int m_layer;
+  std::string m_imagefile_top;
+  std::string m_imagefile;
+  std::string m_imagefile_bottom;
+  Vector m_pos; /**< coordinates of upper-left corner of image */
+  Vector m_parallax_speed;
+  Vector m_scroll_speed;
+  Vector m_scroll_offset;
+  SurfacePtr m_image_top; /**< image to draw above pos */
+  SurfacePtr m_image; /**< image to draw, anchored at pos */
+  SurfacePtr m_image_bottom; /**< image to draw below pos+screenheight */
+
+  Blend m_blend;
+  Color m_color;
+  DrawingTarget m_target;
+
+  Timer m_timer_color;
+  Color m_src_color, m_dst_color;
+
+private:
+  Background(const Background&) = delete;
+  Background& operator=(const Background&) = delete;
 };
 
-#endif /*SUPERTUX_BACKGROUND_H*/
+#endif
 
 /* EOF */

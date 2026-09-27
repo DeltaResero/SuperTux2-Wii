@@ -20,138 +20,143 @@
 #include <memory>
 #include <string>
 
+#include "math/size.hpp"
 #include "math/vector.hpp"
+#include "object/path_object.hpp"
 #include "scripting/camera.hpp"
-#include "scripting/exposed_object.hpp"
+#include "squirrel/exposed_object.hpp"
 #include "supertux/game_object.hpp"
 #include "supertux/timer.hpp"
 
-class Sector;
 class Path;
 class PathWalker;
 class ReaderMapping;
 class CameraConfig;
 
-class Camera : public GameObject,
-               public ExposedObject<Camera, scripting::Camera>
+class Camera final : public GameObject,
+                     public ExposedObject<Camera, scripting::Camera>,
+                     public PathObject
 {
 public:
-  Camera(Sector* sector, const std::string& name = std::string());
-  virtual ~Camera();
-  virtual void save(Writer& writer);
+  enum class Mode
+  {
+    NORMAL, MANUAL, AUTOSCROLL, SCROLLTO
+  };
 
-  /// parse camera mode from lisp file
-  void parse(const ReaderMapping& reader);
+private:
+  /** The camera basically provides lookahead on the left or right
+      side or is undecided. */
+  enum class LookaheadMode {
+    NONE, LEFT, RIGHT
+  };
 
-  /// reset camera position
+public:
+  Camera(const std::string& name);
+  Camera(const ReaderMapping& reader);
+  ~Camera() override;
+
+  /** \addtogroup GameObject
+      @{ */
+  virtual void update(float dt_sec) override;
+  virtual void draw(DrawingContext& ) override;
+
+  virtual bool is_singleton() const override { return true; }
+  virtual bool is_saveable() const override;
+
+  virtual std::string get_class() const override { return "camera"; }
+  virtual std::string get_display_name() const override { return _("Camera"); }
+
+  virtual ObjectSettings get_settings() override;
+  virtual void after_editor_set() override;
+
+  virtual const std::string get_icon_path() const override { return "images/engine/editor/camera.png"; }
+  /** @} */
+
+  /** \addtogroup CameraAPI
+      @{ */
+
+  /** reset camera position */
   void reset(const Vector& tuxpos);
 
   /** return camera position */
-  const Vector& get_translation() const;
+  const Vector get_translation() const;
+  void set_translation(const Vector& translation) { m_translation = translation; }
 
-  virtual void update(float elapsed_time);
+  /** shake camera in a direction 1 time */
+  void shake(float duration, float x, float y);
 
-  virtual void draw(DrawingContext& );
-
-  // shake camera in a direction 1 time
-  void shake(float speed, float x, float y);
-
-  void set_scrolling(int scroll_x, int scroll_y)
-  {
-    translation.x = scroll_x;
-    translation.y = scroll_y;
-  }
-
-  /**
-   * scroll the upper left edge of the camera in scrolltime seconds
-   * to the position goal
-   */
+  /** scroll the upper left edge of the camera in scrolltime seconds
+      to the position goal */
   void scroll_to(const Vector& goal, float scrolltime);
   void move(const int dx, const int dy);
 
   void reload_config();
 
-  enum CameraMode
-  {
-    NORMAL, MANUAL, AUTOSCROLL, SCROLLTO
-  };
-  CameraMode mode;
-
-  /**
-   * get the coordinates of the point directly in the center of this camera
-   */
+  /** get the coordinates of the point directly in the center of this
+      camera */
   Vector get_center() const;
-  virtual bool do_save() const;
-  std::string get_class() const {
-    return "camera";
-  }
-  std::string get_display_name() const {
-    return _("Camera");
-  }
 
-  virtual ObjectSettings get_settings();
-  virtual void after_editor_set();
+  void set_mode(Mode mode_) { m_mode = mode_; }
 
-  virtual const std::string get_icon_path() const {
-    return "images/engine/editor/camera.png";
-  }
+  /** get the exact scale at this exact moment */
+  float get_current_scale() const { return m_scale; }
 
-  Path* get_path() const;
+  /** get the scale towards which the camera is moving */
+  float get_target_scale() const { return m_scale_target; }
+
+  /** smoothly slide the scale of the camera towards a new value */
+  void ease_scale(float scale, float time, easing ease);
+  /** @} */
 
 private:
-  void update_scroll_normal(float elapsed_time);
-  void update_scroll_autoscroll(float elapsed_time);
-  void update_scroll_to(float elapsed_time);
+  void update_scroll_normal(float dt_sec);
+  void update_scroll_autoscroll(float dt_sec);
+  void update_scroll_to(float dt_sec);
+  void update_scale(float dt_sec);
   void keep_in_bounds(Vector& vector);
   void shake();
 
 private:
-  /**
-   * The camera basically provides lookahead on the left or right side
-   * or is undecided.
-   */
-  enum LookaheadMode {
-    LOOKAHEAD_NONE, LOOKAHEAD_LEFT, LOOKAHEAD_RIGHT
-  };
+  Mode m_mode;
+  Mode m_defaultmode;
 
-private:
-  Vector translation;
+  Size m_screen_size;
 
-  Sector* sector;
+  Vector m_translation;
 
   // normal mode
-  LookaheadMode lookahead_mode;
-  float changetime;
-  Vector lookahead_pos;
-  Vector peek_pos;
-  Vector cached_translation;
-
-  // autoscroll mode
-  std::unique_ptr<Path> autoscroll_path;
-  std::unique_ptr<PathWalker> autoscroll_walker;
+  LookaheadMode m_lookahead_mode;
+  float m_changetime;
+  Vector m_lookahead_pos;
+  Vector m_peek_pos;
+  Vector m_cached_translation;
 
   // shaking
-  Timer shaketimer;
-  float shakespeed;
-  float shakedepth_x;
-  float shakedepth_y;
+  Timer m_shaketimer;
+  float m_shakespeed;
+  float m_shakedepth_x;
+  float m_shakedepth_y;
 
   // scrollto mode
-  Vector scroll_from;
-  Vector scroll_goal;
-  float scroll_to_pos;
-  float scrollspeed;
+  Vector m_scroll_from;
+  Vector m_scroll_goal;
+  float m_scroll_to_pos;
+  float m_scrollspeed;
 
-  std::unique_ptr<CameraConfig> config;
+  std::unique_ptr<CameraConfig> m_config;
+
+  float m_scale,
+        m_scale_origin,
+        m_scale_target,
+        m_scale_time_total,
+        m_scale_time_remaining;
+  easing m_scale_easing;
 
 private:
-  Camera(const Camera&);
-  Camera& operator=(const Camera&);
-
-  CameraMode defaultmode;
-
+  Camera(const Camera&) = delete;
+  Camera& operator=(const Camera&) = delete;
 };
 
-#endif /*SUPERTUX_CAMERA_H*/
+#endif
 
 /* EOF */

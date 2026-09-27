@@ -17,151 +17,212 @@
 #ifndef HEADER_SUPERTUX_EDITOR_EDITOR_HPP
 #define HEADER_SUPERTUX_EDITOR_EDITOR_HPP
 
+#include <functional>
+#include <vector>
 #include <string>
-#include <stdexcept>
 
-#include "control/input_manager.hpp"
-#include "editor/input_center.hpp"
-#include "editor/input_gui.hpp"
-#include "editor/layers_gui.hpp"
-#include "editor/scroller.hpp"
-#include "gui/menu.hpp"
-#include "gui/menu_manager.hpp"
+#include <physfs.h>
+
+#include "editor/overlay_widget.hpp"
+#include "editor/toolbox_widget.hpp"
+#include "editor/layers_widget.hpp"
+#include "editor/scroller_widget.hpp"
 #include "supertux/screen.hpp"
+#include "supertux/world.hpp"
 #include "util/currenton.hpp"
+#include "util/file_system.hpp"
+#include "util/log.hpp"
+#include "util/string_util.hpp"
 #include "video/surface_ptr.hpp"
 
+class GameObject;
 class Level;
+class ObjectGroup;
+class Path;
 class Savegame;
 class Sector;
 class TileSet;
+class UndoManager;
 class World;
 
-class Editor : public Screen,
-               public Currenton<Editor>
+class Editor final : public Screen,
+                     public Currenton<Editor>
 {
-  public:
-    Editor();
-    ~Editor();
+public:
+  static bool is_active();
 
-    virtual void draw(DrawingContext&) override;
-    virtual void update(float elapsed_time) override;
+  static PHYSFS_EnumerateCallbackResult foreach_recurse(void *data,
+                                                        const char *origdir,
+                                                        const char *fname);
 
-    virtual void setup() override;
-    virtual void leave() override;
+private:
+  static bool is_autosave_file(const std::string& filename) {
+    return StringUtil::has_suffix(filename, "~");
+  }
+  static std::string get_levelname_from_autosave(const std::string& filename) {
+    return is_autosave_file(filename) ? filename.substr(0, filename.size() - 1) : filename;
+  }
+  static std::string get_autosave_from_levelname(const std::string& filename) {
+    return is_autosave_file(filename) ? filename : filename + "~";
+  }
 
-    void event(SDL_Event& ev);
-    void resize();
+public:
+  static bool s_resaving_in_progress;
 
-  protected:
-    friend class EditorInputCenter;
-    friend class EditorInputGui;
-    friend class EditorLayersGui;
-    friend class EditorLevelSelectMenu;
-    friend class EditorLevelsetSelectMenu;
-    friend class EditorNewLevelsetMenu;
-    friend class EditorObjectgroupMenu;
-    friend class EditorScroller;
-    friend class EditorTilegroupMenu;
+public:
+  Editor();
+  ~Editor() override;
 
-    std::unique_ptr<Level> level;
-    std::unique_ptr<World> world;
+  virtual void draw(Compositor&) override;
+  virtual void update(float dt_sec, const Controller& controller) override;
 
-    std::string levelfile;
-    bool worldmap_mode;
+  virtual void setup() override;
+  virtual void leave() override;
 
-  public:
-    bool quit_request;
-    bool newlevel_request;
-    bool reload_request;
-    bool reactivate_request;
-    bool deactivate_request;
-    bool save_request;
-    bool test_request;
+  virtual IntegrationStatus get_status() const override;
 
-    void disable_keyboard() {
-      enabled = false;
-    }
+  void event(const SDL_Event& ev);
+  void resize();
 
-    static bool is_active();
+  void disable_keyboard() { m_enabled = false; }
 
-    Level* get_level() const {
-      return level.get();
-    }
+  Level* get_level() const { return m_level.get(); }
 
-    World* get_world() const {
-      return world.get();
-    }
+  void set_world(std::unique_ptr<World> w);
+  World* get_world() const { return m_world.get(); }
 
-    TileSet* get_tileset() const {
-      return tileset;
-    }
+  TileSet* get_tileset() const { return m_tileset; }
+  TileSelection* get_tiles() const { return m_toolbox_widget->get_tiles(); }
+  std::string get_tileselect_object() const { return m_toolbox_widget->get_object(); }
 
-    std::string get_levelfile() const {
-      return levelfile;
-    }
+  EditorToolboxWidget::InputType get_tileselect_input_type() const { return m_toolbox_widget->get_input_type(); }
 
-    void set_level(const std::string& levelfile_) {
-      Editor::current()->levelfile = levelfile_;
-      Editor::current()->reload_request = true;
-    }
+  int get_tileselect_select_mode() const;
+  int get_tileselect_move_mode() const;
 
-    void set_worldmap_mode(bool new_mode) {
-      worldmap_mode = new_mode;
-    }
+  std::string get_levelfile() const { return m_levelfile; }
 
-    bool get_worldmap_mode() const {
-      return worldmap_mode;
-    }
+  void set_level(const std::string& levelfile_) {
+    m_levelfile = levelfile_;
+    m_reload_request = true;
+  }
 
-    void load_sector(const std::string& name);
-    void load_sector(int id);
+  std::string get_level_directory() const;
 
-    void update_node_iterators();
-    void esc_press();
-    void delete_markers();
-    void sort_layers();
+  void open_level_directory();
 
-    void change_tileset();
+  bool is_testing_level() const { return m_leveltested; }
 
-    std::unique_ptr<Savegame> m_savegame;
+  void remove_autosave_file();
 
-    Sector* currentsector;
+  /** Checks whether the level can be saved and does not contain
+      obvious issues (currently: check if main sector and a spawn point
+      named "main" is present) */
+  void check_save_prerequisites(const std::function<void ()>& callback) const;
+  void check_unsaved_changes(const std::function<void ()>& action);
 
-  protected:
-    bool levelloaded;
-    bool leveltested;
+  void load_sector(const std::string& name);
+  void delete_current_sector();
 
-    TileSet* tileset;
+  void update_node_iterators();
+  void esc_press();
+  void delete_markers();
+  void sort_layers();
 
-    EditorInputCenter inputcenter;
-    EditorInputGui tileselect;
-    EditorLayersGui layerselect;
-    EditorScroller scroller;
+  void select_tilegroup(int id);
+  const std::vector<Tilegroup>& get_tilegroups() const;
+  void change_tileset();
 
-    // speed is in tiles per frame
-    void scroll_up(float speed = 1.0f);
-    void scroll_down(float speed = 1.0f);
-    void scroll_left(float speed = 1.0f);
-    void scroll_right(float speed = 1.0f);
+  void select_objectgroup(int id);
+  const std::vector<ObjectGroup>& get_objectgroups() const;
 
-  private:
-    bool enabled;
-    SurfacePtr bgr_surface;
+  void scroll(const Vector& velocity);
 
-    void reload_level();
-    void load_layers();
-    void quit_editor();
-    void test_level();
-    void update_keyboard();
+  bool is_level_loaded() const { return m_levelloaded; }
 
-    bool can_scroll_horz() const;
-    bool can_scroll_vert() const;
+  void edit_path(PathGameObject* path, GameObject* new_marked_object) {
+    m_overlay_widget->edit_path(path, new_marked_object);
+  }
 
-    Editor(const Editor&);
-    Editor& operator=(const Editor&);
+  void add_layer(GameObject* layer) { m_layers_widget->add_layer(layer); }
+
+  TileMap* get_selected_tilemap() const { return m_layers_widget->get_selected_tilemap(); }
+
+  Sector* get_sector() { return m_sector; }
+
+  void undo();
+  void redo();
+
+  void pack_addon();
+
+private:
+  void set_sector(Sector* sector);
+  void set_level(std::unique_ptr<Level> level, bool reset = true);
+  void reload_level();
+  void quit_editor();
+  /**
+   * @param filename    If non-empty, save to this file instead.
+   * @param switch_file If true, the level editor will bind itself to the new
+   *                    filename; subsequest saves will by default save to the
+   *                    new filename.
+   */
+  void save_level(const std::string& filename = "", bool switch_file = false);
+  void test_level(const boost::optional<std::pair<std::string, Vector>>& test_pos);
+  void update_keyboard(const Controller& controller);
+
+protected:
+  std::unique_ptr<Level> m_level;
+  std::unique_ptr<World> m_world;
+
+  std::string m_levelfile;
+  std::string m_autosave_levelfile;
+
+public:
+  bool m_quit_request;
+  bool m_newlevel_request;
+  bool m_reload_request;
+  bool m_reactivate_request;
+  bool m_deactivate_request;
+  bool m_save_request;
+  std::string m_save_request_filename;
+  bool m_save_request_switch;
+  bool m_test_request;
+  bool m_particle_editor_request;
+  boost::optional<std::pair<std::string, Vector>> m_test_pos;
+
+  std::unique_ptr<Savegame> m_savegame;
+  std::string* m_particle_editor_filename;
+
+private:
+  Sector* m_sector;
+
+  bool m_levelloaded;
+  bool m_leveltested;
+
+  TileSet* m_tileset;
+
+  std::vector<std::unique_ptr<Widget> > m_widgets;
+  EditorOverlayWidget* m_overlay_widget;
+  EditorToolboxWidget* m_toolbox_widget;
+  EditorLayersWidget* m_layers_widget;
+
+  bool m_enabled;
+  SurfacePtr m_bgr_surface;
+
+  std::unique_ptr<UndoManager> m_undo_manager;
+  bool m_ignore_sector_change;
+  
+  bool m_level_first_loaded;
+  
+  float m_time_since_last_save;
+
+  float m_scroll_speed;
+
+private:
+  Editor(const Editor&) = delete;
+  Editor& operator=(const Editor&) = delete;
 };
 
-#endif // HEADER_SUPERTUX_EDITOR_EDITOR_HPP
+#endif
 
 /* EOF */

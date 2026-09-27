@@ -19,20 +19,22 @@
 
 #ifndef SCRIPTING_API
 #include <string>
+
+#include "scripting/game_object.hpp"
+
 class Background;
 #endif
 
 namespace scripting {
 
-class Background
+class Background final
+#ifndef SCRIPTING_API
+  : public GameObject<::Background>
+#endif
 {
 #ifndef SCRIPTING_API
-private:
-  ::Background* m_parent;
-
 public:
-  Background(::Background* parent);
-  ~Background();
+  using GameObject::GameObject;
 
 private:
   Background(const Background&) = delete;
@@ -44,9 +46,16 @@ public:
   void set_images(const std::string& top_image, const std::string& middle_image,
                              const std::string& bottom_image);
   void set_speed(float speed);
+
+  float get_color_red();
+  float get_color_green();
+  float get_color_blue();
+  float get_color_alpha();
+  void set_color(float red, float green, float blue, float alpha);
+  void fade_color(float red, float green, float blue, float alpha, float time);
 };
 
-}
+} // namespace scripting
 
 #endif
 

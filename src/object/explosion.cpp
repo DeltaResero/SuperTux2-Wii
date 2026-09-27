@@ -19,43 +19,41 @@
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "badguy/walking_badguy.hpp"
-#include "math/random_generator.hpp"
+#include "math/random.hpp"
 #include "object/particles.hpp"
 #include "object/player.hpp"
-#include "object/sprite_particle.hpp"
+#include "supertux/sector.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
-#include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 
-#include <math.h>
-
-Explosion::Explosion(const Vector& pos) :
+Explosion::Explosion(const Vector& pos, float p_push_strength,
+    int p_num_particles) :
   MovingSprite(pos, "images/objects/explosion/explosion.sprite", LAYER_OBJECTS+40, COLGROUP_MOVING),
   hurt(true),
-  push(false),
+  push_strength(p_push_strength),
+  num_particles(p_num_particles),
   state(STATE_WAITING),
-  light(0.0f,0.0f,0.0f),
   lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
 {
   SoundManager::current()->preload("sounds/explosion.wav");
   SoundManager::current()->preload("sounds/firecracker.ogg");
-  set_pos(get_pos() - (bbox.get_middle() - get_pos()));
-  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  set_pos(get_pos() - (m_col.m_bbox.get_middle() - get_pos()));
+  lightsprite->set_blend(Blend::ADD);
   lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
 }
 
 Explosion::Explosion(const ReaderMapping& reader) :
   MovingSprite(reader, "images/objects/explosion/explosion.sprite", LAYER_OBJECTS+40, COLGROUP_MOVING),
   hurt(true),
-  push(false),
+  push_strength(-1),
+  num_particles(100),
   state(STATE_WAITING),
-  light(0.0f,0.0f,0.0f),
   lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
 {
   SoundManager::current()->preload("sounds/explosion.wav");
   SoundManager::current()->preload("sounds/firecracker.ogg");
-  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_blend(Blend::ADD);
   lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
 }
 
@@ -67,37 +65,46 @@ Explosion::explode()
   state = STATE_EXPLODING;
 
   set_action(hurt ? "default" : "pop", 1);
-  sprite->set_animation_loops(1); //TODO: this is necessary because set_action will not set "loops" when "action" is the default action
-  sprite->set_angle(graphicsRandom.randf(0, 360)); // a random rotation on the sprite to make explosions appear more random
-  SoundManager::current()->play(hurt ? "sounds/explosion.wav" : "sounds/firecracker.ogg", get_pos());
+  m_sprite->set_animation_loops(1); //TODO: this is necessary because set_action will not set "loops" when "action" is the default action
+  m_sprite->set_angle(graphicsRandom.randf(0, 360)); // a random rotation on the sprite to make explosions appear more random
+  if (hurt)
+    SoundManager::current()->play("sounds/explosion.wav", get_pos(), 0.98f);
+  else
+    SoundManager::current()->play("sounds/firecracker.ogg", get_pos(), 0.7f);
+  bool does_push = push_strength > 0;
 
   // spawn some particles
-  int pnumber = push ? 8 : 100;
-  Vector accel = Vector(0, Sector::current()->get_gravity()*100);
-  Sector::current()->add_object(std::make_shared<Particles>(
-    bbox.get_middle(), -360, 360, 450, 900, accel , pnumber, Color(.4f, .4f, .4f), 3, .8f, LAYER_OBJECTS-1));
+  Vector accel = Vector(0, Sector::get().get_gravity()*100);
+  Sector::get().add<Particles>(
+    m_col.m_bbox.get_middle(), -360, 360, 450.0f, 900.0f, accel, num_particles,
+    Color(.4f, .4f, .4f), 3, .8f, LAYER_OBJECTS-1);
 
-  if (push) {
-    Vector center = bbox.get_middle ();
-    auto near_objects = Sector::current()->get_nearby_objects (center, 10.0 * 32.0);
+  if (does_push) {
+    Vector center = m_col.m_bbox.get_middle ();
+    auto near_objects = Sector::get().get_nearby_objects (center, 128.0 * 32.0);
 
-    for(auto& obj: near_objects) {
+    for (auto& obj: near_objects) {
+      if(!Sector::current()->free_line_of_sight(center, obj->get_pos(), true))
+        continue;
+
       Vector obj_vector = obj->get_bbox ().get_middle ();
       Vector direction = obj_vector - center;
-      float distance = direction.norm ();
+      float distance = glm::length(direction);
 
       /* If the distance is very small, for example because "obj" is the badguy
        * causing the explosion, skip this object. */
-      if (distance <= 1.0)
+      if (distance <= 1.0f)
         continue;
 
       /* The force decreases with the distance squared. In the distance of one
        * tile (32 pixels) you will have a speed increase of 150 pixels/s. */
-      float force = 150.0 * 32.0*32.0 / (distance * distance);
-      if (force > 200.0)
+      float force = push_strength / (distance * distance);
+      // If we somehow get a force of over 200, keep it at 200 because
+      // unexpected behaviour could result otherwise.
+      if (force > 200.0f)
         force = 200.0;
 
-      Vector add_speed = direction.unit () * force;
+      Vector add_speed = glm::normalize(direction) * force;
 
       auto player = dynamic_cast<Player *> (obj);
       if (player) {
@@ -108,19 +115,19 @@ Explosion::explode()
       if (badguy && badguy->is_active()) {
         badguy->add_velocity (add_speed);
       }
-    } /* for (i = 0 ... near_objects) */
-  } /* if (push) */
+    }
+  }
 }
 
 void
 Explosion::update(float )
 {
-  switch(state) {
+  switch (state) {
     case STATE_WAITING:
       explode();
       break;
     case STATE_EXPLODING:
-      if(sprite->animation_done()) {
+      if (m_sprite->animation_done()) {
         remove_me();
       }
       break;
@@ -130,31 +137,23 @@ Explosion::update(float )
 void
 Explosion::draw(DrawingContext& context)
 {
-  //Draw the Sprite.
-  sprite->draw(context, get_pos(), LAYER_OBJECTS+40);
-  //Explosions produce light (if ambient light is not maxed)
-  context.get_light( bbox.get_middle(), &light);
-  if (light.red + light.green + light.blue < 3.0){
-    context.push_target();
-    context.set_target(DrawingContext::LIGHTMAP);
-    lightsprite->draw(context, bbox.get_middle(), 0);
-    context.pop_target();
-  }
+  m_sprite->draw(context.color(), get_pos(), LAYER_OBJECTS+40);
+  lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
 }
 
 HitResponse
 Explosion::collision(GameObject& other, const CollisionHit& )
 {
-  if ((state != STATE_EXPLODING) || !hurt)
+  if ((state != STATE_EXPLODING) || !hurt || m_sprite->get_current_frame() > 8)
     return ABORT_MOVE;
 
   auto player = dynamic_cast<Player*>(&other);
-  if(player != 0) {
+  if (player != nullptr) {
     player->kill(false);
   }
 
   auto badguy = dynamic_cast<BadGuy*>(&other);
-  if(badguy != 0) {
+  if (badguy != nullptr) {
     badguy->kill_fall();
   }
 

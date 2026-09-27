@@ -18,42 +18,36 @@
 #define HEADER_SUPERTUX_OBJECT_PORTABLE_HPP
 
 #include "supertux/direction.hpp"
+#include "supertux/game_object_component.hpp"
 
 class MovingObject;
 
-/**
- * An object that inherits from this object is considered "portable" and can
- * be carried around by the player.
- * The object has to additionally set the PORTABLE flag (this allows to
- * make the object only temporarily portable by resetting the flag)
- */
-class Portable
+/** An object that inherits from this object is considered "portable" and can
+    be carried around by the player.
+    The object has to additionally set the PORTABLE flag (this allows to
+    make the object only temporarily portable by resetting the flag) */
+class Portable : public GameObjectComponent
 {
 public:
-  virtual ~Portable()
-  { }
+  Portable() {}
+  ~Portable() override {}
 
-  /**
-   * called each frame when the object has been grabbed.
-   */
-  virtual void grab(MovingObject& object, const Vector& pos, Direction dir) = 0;
+  /** called each frame when the object has been grabbed. */
+  virtual void grab(MovingObject& other, const Vector& pos, Direction dir) { m_owner = &other; }
+  virtual void ungrab(MovingObject& other, Direction ) { m_owner = nullptr; }
 
-  virtual void ungrab(MovingObject& , Direction )
-  {}
+  virtual MovingObject* get_owner() const { return m_owner; }
+  virtual bool is_grabbed() const {return m_owner != nullptr; }
+  virtual bool is_portable() const { return true; }
 
-  virtual bool is_portable() const
-  {
-    return true;
-  }
-
-  /**
-   * Is the object so heavy/bulky/fragile that Tux can't run while
-   * carrying it?
-   */
-  virtual bool is_hampering() const
-  {
-    return false;
-  }
+  /** Is the object so heavy/bulky/fragile that Tux can't run while
+      carrying it? */
+  virtual bool is_hampering() const { return false; }
+protected:
+  MovingObject* m_owner = nullptr;
+private:
+  Portable(const Portable&) = delete;
+  Portable& operator=(const Portable&) = delete;
 };
 
 #endif

@@ -17,67 +17,103 @@
 #include "audio/openal_sound_source.hpp"
 
 #include "audio/sound_manager.hpp"
+#include "util/log.hpp"
 
 OpenALSoundSource::OpenALSoundSource() :
-  source()
+  m_source(),
+  m_gain(1.0f),
+  m_volume(1.0f)
 {
-  alGenSources(1, &source);
+  alGenSources(1, &m_source);
+
+  // Don't catch anything here: force the caller to catch the error, so that
+  // the caller won't handle an object in an invalid state thinking it's clean
   SoundManager::check_al_error("Couldn't create audio source: ");
+
   set_reference_distance(128);
 }
 
 OpenALSoundSource::~OpenALSoundSource()
 {
   stop();
-  alDeleteSources(1, &source);
+  alDeleteSources(1, &m_source);
 }
 
 void
 OpenALSoundSource::stop()
 {
-  alSourceRewindv(1, &source); // Stops the source
-  alSourcei(source, AL_BUFFER, AL_NONE);
-  SoundManager::check_al_error("Problem stopping audio source: ");
+#ifdef WIN32
+  // See commit 417a8e7a8c599bfc2dceaec7b6f64ac865318ef1
+  alSourceRewindv(1, &m_source); // Stops the source
+#else
+  alSourceStop(m_source);
+#endif
+  alSourcei(m_source, AL_BUFFER, AL_NONE);
+  try
+  {
+    SoundManager::check_al_error("Problem stopping audio source: ");
+  }
+  catch(const std::exception& e)
+  {
+    // Internal OpenAL error. Don't you crash on me, baby!
+    log_warning << e.what() << std::endl;
+  }
 }
 
 void
 OpenALSoundSource::play()
 {
-  alSourcePlay(source);
-  SoundManager::check_al_error("Couldn't start audio source: ");
+  alSourcePlay(m_source);
+
+  try
+  {
+    SoundManager::check_al_error("Couldn't start audio source: ");
+  }
+  catch(const std::exception& e)
+  {
+    // We probably have too many sources playing simultaneously.
+    log_warning << e.what() << std::endl;
+  }
 }
 
 bool
 OpenALSoundSource::playing() const
 {
   ALint state = AL_PLAYING;
-  alGetSourcei(source, AL_SOURCE_STATE, &state);
-  return state != AL_STOPPED;
+  alGetSourcei(m_source, AL_SOURCE_STATE, &state);
+  return state == AL_PLAYING;
 }
 
 void
 OpenALSoundSource::pause()
 {
-  alSourcePause(source);
-  SoundManager::check_al_error("Couldn't pause audio source: ");
+  alSourcePause(m_source);
+  try
+  {
+    SoundManager::check_al_error("Couldn't pause audio source: ");
+  }
+  catch(const std::exception& e)
+  {
+    log_warning << e.what() << std::endl;
+  }
 }
 
 void
 OpenALSoundSource::resume()
 {
-  if( !this->paused() )
+  if ( !paused() )
   {
     return;
   }
 
-  this->play();
+  play();
 }
 
 bool
 OpenALSoundSource::paused() const
 {
     ALint state = AL_PAUSED;
-    alGetSourcei(source, AL_SOURCE_STATE, &state);
+    alGetSourcei(m_source, AL_SOURCE_STATE, &state);
     return state == AL_PAUSED;
 }
 
@@ -89,43 +125,51 @@ OpenALSoundSource::update()
 void
 OpenALSoundSource::set_looping(bool looping)
 {
-  alSourcei(source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
+  alSourcei(m_source, AL_LOOPING, looping ? AL_TRUE : AL_FALSE);
 }
 
 void
 OpenALSoundSource::set_relative(bool relative)
 {
-  alSourcei(source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE);
+  alSourcei(m_source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE);
 }
 
 void
 OpenALSoundSource::set_position(const Vector& position)
 {
-  alSource3f(source, AL_POSITION, position.x, position.y, 0);
+  alSource3f(m_source, AL_POSITION, position.x, position.y, 0);
 }
 
 void
 OpenALSoundSource::set_velocity(const Vector& velocity)
 {
-  alSource3f(source, AL_VELOCITY, velocity.x, velocity.y, 0);
+  alSource3f(m_source, AL_VELOCITY, velocity.x, velocity.y, 0);
 }
 
 void
 OpenALSoundSource::set_gain(float gain)
 {
-  alSourcef(source, AL_GAIN, gain);
+  alSourcef(m_source, AL_GAIN, gain * m_volume);
+  m_gain = gain;
 }
 
 void
 OpenALSoundSource::set_pitch(float pitch)
 {
-  alSourcef(source, AL_PITCH, pitch);
+  alSourcef(m_source, AL_PITCH, pitch);
 }
 
 void
 OpenALSoundSource::set_reference_distance(float distance)
 {
-  alSourcef(source, AL_REFERENCE_DISTANCE, distance);
+  alSourcef(m_source, AL_REFERENCE_DISTANCE, distance);
+}
+
+void
+OpenALSoundSource::set_volume(float volume)
+{
+  m_volume = volume;
+  alSourcef(m_source, AL_GAIN, m_gain * m_volume);
 }
 
 /* EOF */

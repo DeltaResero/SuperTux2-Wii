@@ -16,14 +16,16 @@
 
 #include "badguy/treewillowisp.hpp"
 
+#include <math.h>
+
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
+#include "badguy/dispenser.hpp"
 #include "badguy/ghosttree.hpp"
+#include "math/util.hpp"
 #include "object/lantern.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
-
-#include <math.h>
 
 static const std::string TREEWILLOSOUND = "sounds/willowisp.wav";
 
@@ -34,19 +36,14 @@ TreeWillOWisp::TreeWillOWisp(GhostTree* tree_, const Vector& pos,
   was_sucked(false),
   mystate(STATE_DEFAULT),
   color(),
-  angle(),
-  radius(),
-  speed(),
+  angle(0),
+  radius(radius_),
+  speed(speed_),
   sound_source(),
   tree(tree_),
-  suck_target()
+  suck_target(0.0f, 0.0f)
 {
   SoundManager::current()->preload(TREEWILLOSOUND);
-
-  this->radius = radius_;
-  this->angle  = 0;
-  this->speed  = speed_;
-
   set_colgroup_active(COLGROUP_MOVING);
 }
 
@@ -60,7 +57,7 @@ TreeWillOWisp::activate()
   sound_source = SoundManager::current()->create_sound_source(TREEWILLOSOUND);
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
-  sound_source->set_gain(2.0);
+  sound_source->set_gain(1.0f);
   sound_source->set_reference_distance(32);
   sound_source->play();
 }
@@ -69,15 +66,20 @@ void
 TreeWillOWisp::vanish()
 {
   mystate = STATE_VANISHING;
-  sprite->set_action("vanishing", 1);
+  m_sprite->set_action("vanishing", 1);
   set_colgroup_active(COLGROUP_DISABLED);
+
+  if (m_parent_dispenser != nullptr)
+  {
+    m_parent_dispenser->notify_dead();
+  }
 }
 
 void
 TreeWillOWisp::start_sucking(const Vector& suck_target_)
 {
   mystate = STATE_SUCKED;
-  this->suck_target = suck_target_;
+  suck_target = suck_target_;
   was_sucked = true;
 }
 
@@ -103,22 +105,16 @@ TreeWillOWisp::collides(GameObject& other, const CollisionHit& ) const
 void
 TreeWillOWisp::draw(DrawingContext& context)
 {
-  sprite->draw(context, get_pos(), layer);
-
-  context.push_target();
-  context.set_target(DrawingContext::LIGHTMAP);
-
-  sprite->draw(context, get_pos(), layer);
-
-  context.pop_target();
+  m_sprite->draw(context.color(), get_pos(), m_layer);
+  m_sprite->draw(context.light(), get_pos(), m_layer);
 }
 
 void
-TreeWillOWisp::active_update(float elapsed_time)
+TreeWillOWisp::active_update(float dt_sec)
 {
   // remove TreeWillOWisp if it has completely vanished
   if (mystate == STATE_VANISHING) {
-    if(sprite->animation_done()) {
+    if (m_sprite->animation_done()) {
       remove_me();
       tree->willowisp_died(this);
     }
@@ -127,35 +123,35 @@ TreeWillOWisp::active_update(float elapsed_time)
 
   if (mystate == STATE_SUCKED) {
     Vector dir_ = suck_target - get_pos();
-    if(dir_.norm() < 5) {
+    if (glm::length(dir_) < 5) {
       vanish();
       return;
     }
-    Vector newpos = get_pos() + dir_ * elapsed_time;
-    movement = newpos - get_pos();
+    Vector newpos = get_pos() + dir_ * dt_sec;
+    m_col.set_movement(newpos - get_pos());
     return;
   }
 
-  angle = fmodf(angle + elapsed_time * speed, (float) (2*M_PI));
-  Vector newpos(start_position + Vector(sin(angle) * radius, 0));
-  movement = newpos - get_pos();
-  float sizemod = cos(angle) * 0.8f;
+  angle = fmodf(angle + dt_sec * speed, math::TAU);
+  Vector newpos(m_start_position + Vector(sinf(angle) * radius, 0));
+  m_col.set_movement(newpos - get_pos());
+  float sizemod = cosf(angle) * 0.8f;
   /* TODO: modify sprite size */
 
   sound_source->set_position(get_pos());
 
-  if(sizemod < 0) {
-    layer = LAYER_OBJECTS + 5;
+  if (sizemod < 0) {
+    m_layer = LAYER_OBJECTS + 5;
   } else {
-    layer = LAYER_OBJECTS - 20;
+    m_layer = LAYER_OBJECTS - 20;
   }
 }
 
 void
 TreeWillOWisp::set_color(const Color& color_)
 {
-  this->color = color_;
-  sprite->set_color(color_);
+  color = color_;
+  m_sprite->set_color(color_);
 }
 
 Color

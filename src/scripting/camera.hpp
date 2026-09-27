@@ -18,19 +18,29 @@
 #define HEADER_SUPERTUX_SCRIPTING_CAMERA_HPP
 
 #ifndef SCRIPTING_API
+#include "scripting/game_object.hpp"
+
 class Camera;
 #endif
 
 namespace scripting {
 
-class Camera
+class Camera final
+#ifndef SCRIPTING_API
+  : public GameObject<::Camera>
+#endif
 {
 public:
 #ifndef SCRIPTING_API
-  Camera(::Camera* camera);
-  ~Camera();
+public:
+  using GameObject::GameObject;
+
+private:
+  Camera(const Camera&) = delete;
+  Camera& operator=(const Camera&) = delete;
 #endif
 
+public:
   void reload_config();
 
   /** Shake the camera */
@@ -41,17 +51,19 @@ public:
   void set_mode(const std::string& mode);
   /** Scroll camera to position x,y in scrolltime seconds */
   void scroll_to(float x, float y, float scrolltime);
-
-#ifndef SCRIPTING_API
-  ::Camera* camera;
-
-private:
-  Camera(const Camera&);
-  Camera& operator=(const Camera&);
-#endif
+  /** Get the curent scale factor of the camera */
+  float get_current_scale();
+  /** Get the scale factor the camera is fading towards */
+  float get_target_scale();
+  /** Set the scale factor */
+  void set_scale(float scale);
+  /** Fade the scale factor over time */
+  void scale(float scale, float time);
+  /** Fade the scale factor over time with easing (smooth movement) */
+  void ease_scale(float scale, float time, const std::string& ease);
 };
 
-}
+} // namespace scripting
 
 #endif
 

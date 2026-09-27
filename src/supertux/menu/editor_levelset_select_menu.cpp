@@ -18,43 +18,58 @@
 
 #include <physfs.h>
 #include <sstream>
+#include <boost/format.hpp>
 
 #include "editor/editor.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
-#include "physfs/physfs_file_system.hpp"
-#include "supertux/game_manager.hpp"
-#include "supertux/gameconfig.hpp"
+#include "physfs/util.hpp"
 #include "supertux/levelset.hpp"
-#include "supertux/menu/contrib_levelset_menu.hpp"
-#include "supertux/menu/editor_level_select_menu.hpp"
 #include "supertux/menu/editor_levelset_select_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
-#include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
 #include "util/gettext.hpp"
+#include "util/log.hpp"
 
 EditorLevelsetSelectMenu::EditorLevelsetSelectMenu() :
   m_contrib_worlds()
 {
-  Editor::current()->deactivate_request = true;
+  initialize();
+}
+
+EditorLevelsetSelectMenu::~EditorLevelsetSelectMenu()
+{
+  auto editor = Editor::current();
+  if (editor == nullptr) {
+    return;
+  }
+  if (!editor->is_level_loaded() && !editor->m_reload_request) {
+    editor->m_quit_request = true;
+  } else {
+    editor->m_reactivate_request = true;
+  }
+}
+void
+EditorLevelsetSelectMenu::initialize()
+{
+  Editor::current()->m_deactivate_request = true;
   // Generating contrib levels list by making use of Level Subset
   std::vector<std::string> level_worlds;
 
   std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
     files(PHYSFS_enumerateFiles("levels"),
           PHYSFS_freeList);
-  for(const char* const* filename = files.get(); *filename != 0; ++filename)
+  for (const char* const* filename = files.get(); *filename != nullptr; ++filename)
   {
     std::string filepath = FileSystem::join("levels", *filename);
-    if(PhysFSFileSystem::is_directory(filepath))
+    if (physfsutil::is_directory(filepath))
     {
       level_worlds.push_back(filepath);
     }
   }
 
-  add_label(_("Choose level subset"));
+  add_label(_("Choose World"));
   add_hl();
 
   int i = 0;
@@ -62,18 +77,18 @@ EditorLevelsetSelectMenu::EditorLevelsetSelectMenu() :
   {
     try
     {
-      std::unique_ptr<World> world = World::load(level_world);
-      if(world->hide_from_contribs())
+      std::unique_ptr<World> world = World::from_directory(level_world);
+      if (world->hide_from_contribs())
       {
         continue;
       }
-      if(!world->is_levelset() && !world->is_worldmap())
+      if (!world->is_levelset() && !world->is_worldmap())
       {
         log_warning << level_world << ": unknown World type" << std::endl;
         continue;
       }
       auto title = world->get_title();
-      if(title.empty())
+      if (title.empty())
       {
         continue;
       }
@@ -81,7 +96,9 @@ EditorLevelsetSelectMenu::EditorLevelsetSelectMenu() :
                           new Levelset(level_world, /* recursively = */ true));
       int level_count = levelset->get_num_levels();
       std::ostringstream level_title;
-      level_title << title << " (" << level_count << " " << _("levels") << ")";
+      level_title << title << " (" <<
+        boost::format(__("%d level", "%d levels", level_count)) % level_count <<
+        ")";
       add_entry(i++, level_title.str());
       m_contrib_worlds.push_back(level_world);
     }
@@ -93,27 +110,22 @@ EditorLevelsetSelectMenu::EditorLevelsetSelectMenu() :
   }
 
   add_hl();
-  add_submenu(_("New level subset"), MenuStorage::EDITOR_NEW_LEVELSET_MENU);
+  add_submenu(_("Create World"), MenuStorage::EDITOR_NEW_LEVELSET_MENU);
   add_back(_("Back"),-2);
 }
-
-EditorLevelsetSelectMenu::~EditorLevelsetSelectMenu()
+void EditorLevelsetSelectMenu::reload_menu()
 {
-  auto editor = Editor::current();
-  if (!editor->levelloaded && !editor->reload_request) {
-    editor->quit_request = true;
-  } else {
-    editor->reactivate_request = true;
-  }
+  clear();
+  initialize();
 }
 
 void
-EditorLevelsetSelectMenu::menu_action(MenuItem* item)
+EditorLevelsetSelectMenu::menu_action(MenuItem& item)
 {
-  if (item->id >= 0)
+  if (item.get_id() >= 0)
   {
     std::unique_ptr<Menu> menu = std::unique_ptr<Menu>(new EditorLevelSelectMenu(
-                                 World::load(m_contrib_worlds[item->id])));
+                                 World::from_directory(m_contrib_worlds[item.get_id()]), this));
     MenuManager::instance().push_menu(std::move(menu));
   }
 }

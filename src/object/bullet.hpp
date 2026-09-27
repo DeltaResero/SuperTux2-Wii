@@ -17,44 +17,44 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BULLET_HPP
 #define HEADER_SUPERTUX_OBJECT_BULLET_HPP
 
-#include "sprite/sprite.hpp"
+#include "sprite/sprite_ptr.hpp"
+#include "supertux/direction.hpp"
 #include "supertux/moving_object.hpp"
 #include "supertux/physic.hpp"
 #include "supertux/player_status.hpp"
+#include "video/layer.hpp"
 
-class Bullet : public MovingObject
+class Bullet final : public MovingObject
 {
 public:
-  Bullet(const Vector& pos, float xm, int dir, BonusType type);
-  ~Bullet();
+  Bullet(const Vector& pos, const Vector& xm, Direction dir, BonusType type);
 
-  void update(float elapsed_time);
-  void draw(DrawingContext& context);
-  void collision_solid(const CollisionHit& hit);
-  HitResponse collision(GameObject& other, const CollisionHit& hit);
-  virtual bool do_save() const {
-    return false;
-  }
+  virtual void update(float dt_sec) override;
+  virtual void draw(DrawingContext& context) override;
+  virtual void collision_solid(const CollisionHit& hit) override;
+  virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
+  virtual bool is_saveable() const override { return false; }
 
-  /**
-   * Makes bullet bounce off an object (that got hit).
-   * To be called by the collision handler of that object.
-   * Note that the @c hit parameter is filled in as perceived by the object, not by the bullet.
-   */
+  virtual int get_layer() const override { return LAYER_OBJECTS; }
+
+  /** Makes bullet bounce off an object (that got hit). To be called
+      by the collision handler of that object. Note that the @c hit
+      parameter is filled in as perceived by the object, not by the
+      bullet. */
   void ricochet(GameObject& other, const CollisionHit& hit);
 
-  BonusType get_type() const
-  {
-    return type;
-  }
+  BonusType get_type() const { return type; }
 
 private:
   Physic physic;
   int life_count;
   SpritePtr sprite;
-  Color light;
   SpritePtr lightsprite;
   BonusType type;
+
+private:
+  Bullet(const Bullet&) = delete;
+  Bullet& operator=(const Bullet&) = delete;
 };
 
 #endif

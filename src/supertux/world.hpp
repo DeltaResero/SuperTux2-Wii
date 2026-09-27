@@ -18,58 +18,42 @@
 #define HEADER_SUPERTUX_SUPERTUX_WORLD_HPP
 
 #include <memory>
-#include <squirrel.h>
 #include <string>
-#include <vector>
 
-class World
+class World final
 {
-private:
-  World();
-
-  void load_(const std::string& directory);
-  void create_(const std::string& directory, const std::string& title, const std::string& desc);
-
 public:
-  /**
-      Load a World
-
-      @param directory  Directory containing the info file, e.g. "levels/world1"
-  */
-  static std::unique_ptr<World> load(const std::string& directory);
+  /** Load a World
+      @param directory  Directory containing the info file, e.g. "levels/world1" */
+  static std::unique_ptr<World> from_directory(const std::string& directory);
   static std::unique_ptr<World> create(const std::string& title, const std::string& desc);
 
-public:
-  ~World();
+private:
+  World(const std::string& directory);
 
-  std::string get_basedir() const;
-  std::string get_title() const;
+public:
+  std::string get_basedir() const { return m_basedir; }
+  std::string get_title() const { return m_title; }
+  std::string get_description() const { return m_description; }
 
   bool hide_from_contribs() const { return m_hide_from_contribs; }
 
   bool is_levelset() const { return m_is_levelset; }
   bool is_worldmap() const { return !m_is_levelset; }
 
-  std::string get_worldmap_filename() const { return m_worldmap_filename; }
-  std::string get_savegame_filename() const { return m_savegame_filename; }
+  std::string get_worldmap_filename() const;
+  std::string get_savegame_filename() const;
 
   void save(bool retry = false);
-  void set_default_values();
-
-private:
-  std::string m_basedir;
-  std::string m_worldmap_filename;
-  std::string m_savegame_filename;
 
 public:
   std::string m_title;
   std::string m_description;
+  bool m_is_levelset;
 
 private:
+  std::string m_basedir;
   bool m_hide_from_contribs;
-
-public:
-  bool m_is_levelset;
 
 private:
   World(const World&) = delete;

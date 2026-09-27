@@ -16,17 +16,16 @@
 
 #include "supertux/menu/contrib_levelset_menu.hpp"
 
+#include <assert.h>
 #include <sstream>
 
 #include "audio/sound_manager.hpp"
-#include "gui/menu_item.hpp"
 #include "gui/item_action.hpp"
 #include "supertux/game_manager.hpp"
-#include "supertux/globals.hpp"
+#include "supertux/level_parser.hpp"
 #include "supertux/levelset.hpp"
-#include "supertux/screen_fade.hpp"
-#include "supertux/screen_manager.hpp"
-#include "supertux/title_screen.hpp"
+#include "supertux/player_status.hpp"
+#include "supertux/savegame.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
 #include "util/gettext.hpp"
@@ -39,9 +38,8 @@ ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
 
   m_levelset = std::unique_ptr<Levelset>(new Levelset(m_world->get_basedir()));
 
-  Savegame savegame(m_world->get_savegame_filename());
-  savegame.load();
-  LevelsetState state = savegame.get_levelset_state(m_world->get_basedir());
+  auto savegame = Savegame::from_file(m_world->get_savegame_filename());
+  LevelsetState state = savegame->get_levelset_state(m_world->get_basedir());
 
   add_label(m_world->get_title());
   add_hl();
@@ -50,7 +48,7 @@ ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
   {
     std::string filename = m_levelset->get_level_filename(i);
     std::string full_filename = FileSystem::join(m_world->get_basedir(), filename);
-    std::string title = GameManager::current()->get_level_name(full_filename);
+    std::string title = LevelParser::get_level_name(full_filename);
     LevelState level_state = state.get_level_state(filename);
 
     std::ostringstream out;
@@ -70,16 +68,19 @@ ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
 }
 
 void
-ContribLevelsetMenu::menu_action(MenuItem* item)
+ContribLevelsetMenu::menu_action(MenuItem& item)
 {
-  if (dynamic_cast<ItemAction*>(item))
+  if (dynamic_cast<ItemAction*>(&item))
   {
     SoundManager::current()->stop_music();
 
+    std::string filename = m_levelset->get_level_filename(item.get_id());
+    std::string full_filename = FileSystem::join(m_world->get_basedir(), filename);
+
     // reload the World so that we have something that we can safely
     // std::move() around without wreaking the ContribMenu
-    std::unique_ptr<World> world = World::load(m_world->get_basedir());
-    GameManager::current()->start_level(std::move(world), m_levelset->get_level_filename(item->id));
+    std::unique_ptr<World> world = World::from_directory(m_world->get_basedir());
+    GameManager::current()->start_level(*world, m_levelset->get_level_filename(item.get_id()));
   }
 }
 

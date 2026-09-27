@@ -21,23 +21,22 @@
 
 #include "audio/sound_file.hpp"
 
-class WavSoundFile : public SoundFile
+class WavSoundFile final : public SoundFile
 {
 public:
   WavSoundFile(PHYSFS_file* file);
-  ~WavSoundFile();
+  ~WavSoundFile() override;
 
-  size_t read(void* buffer, size_t buffer_size);
-  void reset();
-
-private:
-  PHYSFS_file* file;
-
-  PHYSFS_sint64 datastart;
+  virtual size_t read(void* buffer, size_t buffer_size) override;
+  virtual void reset() override;
 
 private:
-  WavSoundFile(const WavSoundFile&);
-  WavSoundFile& operator=(const WavSoundFile&);
+  PHYSFS_file* m_file;
+  PHYSFS_sint64 m_datastart;
+
+private:
+  WavSoundFile(const WavSoundFile&) = delete;
+  WavSoundFile& operator=(const WavSoundFile&) = delete;
 };
 
 #endif

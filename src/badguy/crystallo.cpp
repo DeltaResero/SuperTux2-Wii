@@ -16,61 +16,52 @@
 
 #include "badguy/crystallo.hpp"
 
-#include "sprite/sprite.hpp"
-#include "supertux/object_factory.hpp"
 #include "util/reader_mapping.hpp"
-#include "object/anchor_point.hpp"
 
 Crystallo::Crystallo(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/crystallo/crystallo.sprite", "left", "right"),
-  radius()
+  m_radius()
 {
   walk_speed = 80;
   max_drop_height = 16;
-
-  if ( !reader.get("radius", radius)) {
-    radius = 100;
-  }
-}
-
-Crystallo::Crystallo(const Vector& pos, Direction d) :
-  WalkingBadguy(pos, d, "images/creatures/crystallo/crystallo.sprite", "left", "right"),
-  radius()
-{
-  walk_speed = 80;
-  max_drop_height = 16;
-  radius = 100;
+  reader.get("radius", m_radius, 100.0f);
 }
 
 ObjectSettings
-Crystallo::get_settings() {
+Crystallo::get_settings()
+{
   ObjectSettings result = WalkingBadguy::get_settings();
-  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Radius"), &radius,
-                                         "radius"));
+
+  result.add_float(_("Radius"), &m_radius, "radius", 100.0f);
+
+  result.reorder({"radius", "direction", "x", "y"});
+
   return result;
 }
 
 void
-Crystallo::active_update(float elapsed_time)
+Crystallo::active_update(float dt_sec)
 {
-  if(get_pos().x > (start_position.x + radius)){
-    if(dir != LEFT){
-      turn_around();
-    }
-  }
-  if( get_pos().x < (start_position.x - radius)){
-    if(dir != RIGHT){
-      turn_around();
-    }
-  }
-  BadGuy::active_update(elapsed_time);
+  //walking and turning properly
+  float targetwalk = m_dir == Direction::LEFT ? -80.f : 80.f;
+  if (m_dir != Direction::LEFT && get_pos().x > (m_start_position.x + m_radius - 20.f))
+    targetwalk = -80.f;
+  if (m_dir != Direction::RIGHT && get_pos().x < (m_start_position.x - m_radius + 20.f))
+    targetwalk = 80.f;
+  set_action(std::abs(m_physic.get_velocity_x()) < 80.f ?
+    m_dir == Direction::LEFT ? "slowdown-left" : "slowdown-right" :
+    m_dir == Direction::LEFT ? "left" : "right", -1);
+  WalkingBadguy::active_update(dt_sec, targetwalk, 2.f);
 }
 
 bool
 Crystallo::collision_squished(GameObject& object)
 {
-  this->set_action(dir == LEFT ? "shattered-left" : "shattered-right", /* loops = */ -1, ANCHOR_BOTTOM);
+  set_action(m_dir == Direction::LEFT ? "shattered-left" : "shattered-right", /* loops = */ -1, ANCHOR_BOTTOM);
   kill_squished(object);
+  m_physic.set_gravity_modifier(1.f);
+  m_physic.set_velocity_x(0.0);
+  m_physic.set_acceleration_x(0.0);
   return true;
 }
 

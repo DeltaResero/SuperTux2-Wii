@@ -14,74 +14,65 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "util/log.hpp"
+#include "util/file_system.hpp"
 
+#include <boost/filesystem.hpp>
+#include <boost/version.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
-
-#ifdef _WIN32
-#  include <shlwapi.h>
+#if defined(_WIN32)
+  #include <windows.h>
+  #include <shellapi.h>
 #else
-#  include <unistd.h>
+  #include <cstdlib>
 #endif
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#endif
+
+#include "gui/dialog.hpp"
+#include "util/log.hpp"
+#include "util/string_util.hpp"
+
+namespace fs = boost::filesystem;
 
 namespace FileSystem {
 
 bool exists(const std::string& path)
 {
-#ifdef _WIN32
-  DWORD dwAttrib = GetFileAttributes(path.c_str());
+  fs::path location(path);
+  boost::system::error_code ec;
 
-  return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-          !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-  return !access(path.c_str(), F_OK);
-#endif
+  // If we get an error (such as "Permission denied"), then ignore it
+  // and pretend that the path doesn't exist.
+  return fs::exists(location, ec);
 }
 
 bool is_directory(const std::string& path)
 {
-  struct stat info;
-
-  if (stat(path.c_str(), &info ) != 0)
-  {
-    // access error
-    return false;
-  }
-  else if (info.st_mode & S_IFDIR)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  fs::path location(path);
+  return fs::is_directory(location);
 }
 
 void mkdir(const std::string& directory)
 {
-#ifdef _WIN32
-  if (!CreateDirectory(directory.c_str(), NULL))
+  fs::path location(directory);
+  if (!fs::create_directory(location))
   {
     throw std::runtime_error("failed to create directory: "  + directory);
   }
-#else
-  if (::mkdir(directory.c_str(), 0777) != 0)
-  {
-    throw std::runtime_error("failed to create directory: "  + directory);
-  }
-#endif
 }
 
 std::string dirname(const std::string& filename)
 {
   std::string::size_type p = filename.find_last_of('/');
-  if(p == std::string::npos)
+  if (p == std::string::npos)
     p = filename.find_last_of('\\');
-  if(p == std::string::npos)
+  if (p == std::string::npos)
     return "./";
 
   return filename.substr(0, p+1);
@@ -90,18 +81,59 @@ std::string dirname(const std::string& filename)
 std::string basename(const std::string& filename)
 {
   std::string::size_type p = filename.find_last_of('/');
-  if(p == std::string::npos)
+  if (p == std::string::npos)
     p = filename.find_last_of('\\');
-  if(p == std::string::npos)
+  if (p == std::string::npos)
     return filename;
 
   return filename.substr(p+1, filename.size()-p-1);
 }
 
+std::string relpath(const std::string& filename, const std::string& basedir)
+{
+#if BOOST_VERSION >= 106000
+  return fs::relative(filename, basedir).string();
+#else
+  fs::path from = basedir;
+  fs::path to = filename;
+
+  // Taken from https://stackoverflow.com/a/29221546
+
+  // Start at the root path and while they are the same then do nothing then when they first
+  // diverge take the entire from path, swap it with '..' segments, and then append the remainder of the to path.
+  fs::path::const_iterator fromIter = from.begin();
+  fs::path::const_iterator toIter = to.begin();
+
+  // Loop through both while they are the same to find nearest common directory
+  while (fromIter != from.end() && toIter != to.end() && (*toIter) == (*fromIter))
+  {
+    ++toIter;
+    ++fromIter;
+  }
+
+  // Replace from path segments with '..' (from => nearest common directory)
+  fs::path finalPath;
+  while (fromIter != from.end())
+  {
+    finalPath /= "..";
+    ++fromIter;
+  }
+
+  // Append the remainder of the to path (nearest common directory => to)
+  while (toIter != to.end())
+  {
+    finalPath /= *toIter;
+    ++toIter;
+  }
+
+  return finalPath.string();
+#endif
+}
+
 std::string strip_extension(const std::string& filename)
 {
   std::string::size_type p = filename.find_last_of('.');
-  if(p == std::string::npos)
+  if (p == std::string::npos)
     return filename;
 
   return filename.substr(0, p);
@@ -113,27 +145,27 @@ std::string normalize(const std::string& filename)
 
   const char* p = filename.c_str();
 
-  while(true) {
-    while(*p == '/' || *p == '\\') {
+  while (true) {
+    while (*p == '/' || *p == '\\') {
       p++;
       continue;
     }
 
     const char* pstart = p;
-    while(*p != '/' && *p != '\\' && *p != 0) {
+    while (*p != '/' && *p != '\\' && *p != 0) {
       ++p;
     }
 
     size_t len = p - pstart;
-    if(len == 0)
+    if (len == 0)
       break;
 
     std::string pathelem(pstart, p-pstart);
-    if(pathelem == ".")
+    if (pathelem == ".")
       continue;
 
-    if(pathelem == "..") {
-      if(path_stack.empty()) {
+    if (pathelem == "..") {
+      if (path_stack.empty()) {
 
         log_warning << "Invalid '..' in path '" << filename << "'" << std::endl;
         // push it into the result path so that the user sees his error...
@@ -148,11 +180,11 @@ std::string normalize(const std::string& filename)
 
   // construct path
   std::ostringstream result;
-  for(std::vector<std::string>::iterator i = path_stack.begin();
-      i != path_stack.end(); ++i) {
+  for (std::vector<std::string>::iterator i = path_stack.begin();
+       i != path_stack.end(); ++i) {
     result << '/' << *i;
   }
-  if(path_stack.empty())
+  if (path_stack.empty())
     result << '/';
 
   return result.str();
@@ -164,14 +196,57 @@ std::string join(const std::string& lhs, const std::string& rhs)
   {
     return rhs;
   }
-  else if (lhs.back() == '/')
+  else if (rhs.empty())
+  {
+    return lhs + "/";
+  }
+  else if (lhs.back() == '/' && rhs.front() != '/')
   {
     return lhs + rhs;
+  }
+  else if (lhs.back() != '/' && rhs.front() == '/')
+  {
+    return lhs + rhs;
+  }
+  else if (lhs.back() == '/' && rhs.front() == '/')
+  {
+    return lhs + rhs.substr(1);
   }
   else
   {
     return lhs + "/" + rhs;
   }
+}
+
+bool remove(const std::string& path)
+{
+  fs::path location(path);
+  return fs::remove(location);
+}
+
+void open_path(const std::string& path)
+{
+#if defined(_WIN32) || defined (_WIN64)
+  ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
+#elif defined(__EMSCRIPTEN__)
+  emscripten_run_script(("window.supertux_download('" + path + "');").c_str());
+#else
+  #if defined(__APPLE__)
+  std::string cmd = "open \"" + path + "\"";
+  #else
+  std::string cmd = "xdg-open \"" + path + "\"";
+  #endif
+
+  int ret = system(cmd.c_str());
+  if (ret < 0)
+  {
+    log_fatal << "failed to spawn: " << cmd << std::endl;
+  }
+  else if (ret > 0)
+  {
+    log_fatal << "error " << ret << " while executing: " << cmd << std::endl;
+  }
+#endif
 }
 
 } // namespace FileSystem

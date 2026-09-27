@@ -19,9 +19,8 @@
 
 #include "gui/menu.hpp"
 
-class WorldmapCheatMenu : public Menu
+class WorldmapCheatMenu final : public Menu
 {
-private:
 private:
   enum MenuIDs {
     MNID_GROW,
@@ -30,21 +29,35 @@ private:
     MNID_AIR,
     MNID_EARTH,
     MNID_SHRINK,
+    MNID_GHOST,
     MNID_FINISH_LEVEL,
     MNID_RESET_LEVEL,
     MNID_FINISH_WORLDMAP,
     MNID_RESET_WORLDMAP,
+    MNID_MOVE_TO_LEVEL,
     MNID_MOVE_TO_MAIN
   };
 
 public:
   WorldmapCheatMenu();
 
-  void menu_action(MenuItem* item) override;
+  void menu_action(MenuItem& item) override;
 
 private:
   WorldmapCheatMenu(const WorldmapCheatMenu&) = delete;
   WorldmapCheatMenu& operator=(const WorldmapCheatMenu&) = delete;
+};
+
+class WorldmapLevelSelectMenu final : public Menu
+{
+public:
+  WorldmapLevelSelectMenu();
+
+  void menu_action(MenuItem& item) override;
+
+private:
+  WorldmapLevelSelectMenu(const WorldmapLevelSelectMenu&) = delete;
+  WorldmapLevelSelectMenu& operator=(const WorldmapLevelSelectMenu&) = delete;
 };
 
 #endif

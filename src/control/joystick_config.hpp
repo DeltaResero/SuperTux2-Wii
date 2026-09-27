@@ -21,43 +21,45 @@
 #include <SDL.h>
 
 #include "control/controller.hpp"
-#include "util/reader_fwd.hpp"
-#include "util/writer.hpp"
 
-class JoystickConfig
+class ReaderMapping;
+class Writer;
+
+class JoystickConfig final
 {
-public:
-  typedef Uint8 JoyId;
-  typedef std::map<std::pair<JoyId, int>, Controller::Control> ButtonMap;
-  typedef std::map<std::pair<JoyId, int>, Controller::Control> AxisMap;
-  typedef std::map<std::pair<JoyId, int>, Controller::Control> HatMap;
+  friend class InputManager;
+  friend class JoystickManager;
+  friend class JoystickMenu;
 
 public:
-  int dead_zone;
-  bool jump_with_up_joy;
-  bool use_game_controller;
-
-  ButtonMap joy_button_map;
-  AxisMap joy_axis_map;
-  HatMap joy_hat_map;
+  using JoystickID = SDL_JoystickID;
 
 public:
   JoystickConfig();
 
   void print_joystick_mappings() const;
 
-  int reversemap_joybutton(Controller::Control c) const;
-  int reversemap_joyaxis(Controller::Control c) const;
-  int reversemap_joyhat(Controller::Control c) const;
+  int reversemap_joybutton(Control c) const;
+  int reversemap_joyaxis(Control c) const;
+  int reversemap_joyhat(Control c) const;
 
-  void unbind_joystick_control(Controller::Control c);
+  void unbind_joystick_control(Control c);
 
-  void bind_joybutton(JoyId joy_id, int button, Controller::Control c);
-  void bind_joyaxis(JoyId joy_id, int axis, Controller::Control c);
-  void bind_joyhat(JoyId joy_id, int dir, Controller::Control c);
+  void bind_joybutton(JoystickID joy_id, int button, Control c);
+  void bind_joyaxis(JoystickID joy_id, int axis, Control c);
+  void bind_joyhat(JoystickID joy_id, int dir, Control c);
 
-  void read(const ReaderMapping& joystick_lisp);
+  void read(const ReaderMapping& joystick_mapping);
   void write(Writer& writer);
+
+private:
+  int m_dead_zone;
+  bool m_jump_with_up_joy;
+  bool m_use_game_controller;
+
+  std::map<std::pair<JoystickID, int>, Control> m_joy_button_map;
+  std::map<std::pair<JoystickID, int>, Control> m_joy_axis_map;
+  std::map<std::pair<JoystickID, int>, Control> m_joy_hat_map;
 
 private:
   JoystickConfig(const JoystickConfig&) = delete;

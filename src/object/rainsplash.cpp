@@ -16,13 +16,15 @@
 
 #include "object/rainsplash.hpp"
 
+#include "sprite/sprite.hpp"
+
 RainSplash::RainSplash(const Vector& pos, bool vertical) :
   sprite(),
   position(pos),
   frame(0)
 {
-  if (vertical) sprite = SpriteManager::current()->create("images/objects/particles/rainsplash-vertical.sprite");
-  else sprite = SpriteManager::current()->create("images/objects/particles/rainsplash.sprite");
+  if (vertical) sprite = SpriteManager::current()->create("images/particles/rainsplash-vertical.sprite");
+  else sprite = SpriteManager::current()->create("images/particles/rainsplash.sprite");
 }
 
 RainSplash::~RainSplash() {
@@ -35,7 +37,7 @@ RainSplash::hit(Player& )
 }
 
 void
-RainSplash::update(float /*time*/)
+RainSplash::update(float dt_sec)
 {
   frame++;
   if (frame >= 10) remove_me();
@@ -44,7 +46,7 @@ RainSplash::update(float /*time*/)
 void
 RainSplash::draw(DrawingContext& context)
 {
-  sprite->draw(context, position, LAYER_OBJECTS);
+  sprite->draw(context.color(), position, LAYER_OBJECTS);
 }
 
 /* EOF */

@@ -28,23 +28,16 @@ class Flower;
 class Platform;
 class Block;
 class Path;
+class Decal;
 
 /** Vertically or horizontally flip a level */
-class FlipLevelTransformer : public LevelTransformer
+class FlipLevelTransformer final : public LevelTransformer
 {
 public:
-  virtual void transform_sector(Sector* sector);
-
-private:
-  DrawingEffect transform_drawing_effect(DrawingEffect effect);
-  void transform_path(float height, float obj_height, Path& path);
-  void transform_tilemap(float height, TileMap& tilemap);
-  void transform_moving_object(float height, MovingObject& object);
-  void transform_badguy(float height, BadGuy& badguy);
-  void transform_spawnpoint(float height, SpawnPoint& spawnpoint);
-  void transform_flower(Flower& flower);
-  void transform_platform(float height, Platform& platform);
-  void transform_block(float height, Block& block);
+  static void transform_flip(Flip& flip);
+  static void transform_path(float height, float obj_height, Path& path);
+public:
+  virtual void transform_sector(Sector& sector) override;
 };
 
 #endif

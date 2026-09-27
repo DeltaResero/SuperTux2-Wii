@@ -17,18 +17,39 @@
 #ifndef HEADER_SUPERTUX_GUI_MENU_HPP
 #define HEADER_SUPERTUX_GUI_MENU_HPP
 
-#include <list>
+#include <functional>
 #include <memory>
 #include <SDL.h>
 
+#include "gui/menu_action.hpp"
 #include "math/vector.hpp"
 #include "video/color.hpp"
 
-class Color;
+class Controller;
 class DrawingContext;
+class ItemAction;
+class ItemBack;
+class ItemBadguySelect;
+class ItemColor;
+class ItemColorChannelRGBA;
+class ItemColorChannelOKLab;
+class ItemColorDisplay;
+class ItemControlField;
+class ItemFile;
+class ItemFloatField;
+class ItemGoTo;
+class ItemHorizontalLine;
+class ItemInactive;
+class ItemIntField;
+class ItemLabel;
+class ItemPaths;
+class ItemScript;
+class ItemScriptLine;
+class ItemStringSelect;
+class ItemTextField;
+class ItemToggle;
 class MenuItem;
-
-#include "gui/menu_action.hpp"
+class PathObject;
 
 class Menu
 {
@@ -36,48 +57,52 @@ public:
   Menu();
   virtual ~Menu();
 
-  MenuItem* add_hl();
-  MenuItem* add_label(const std::string& text);
-  MenuItem* add_entry(int id, const std::string& text);
-  MenuItem* add_toggle(int id, const std::string& text, bool* toggled);
-  MenuItem* add_inactive(const std::string& text);
-  MenuItem* add_back(const std::string& text, int id = -1);
-  MenuItem* add_submenu(const std::string& text, int submenu, int id = -1);
-  MenuItem* add_controlfield(int id, const std::string& text,
-                             const std::string& mapping = "");
-  MenuItem* add_string_select(int id, const std::string& text, int* selected, const std::vector<std::string>& strings);
-  MenuItem* add_textfield(const std::string& text, std::string* input, int id = -1);
-  MenuItem* add_script(const std::string& text, std::string* script, int id = -1);
-  MenuItem* add_script_line(std::string* input, int id = -1);
-  MenuItem* add_intfield(const std::string& text, int* input, int id = -1);
-  MenuItem* add_numfield(const std::string& text, float* input, int id = -1);
-  MenuItem* add_badguy_select(const std::string& text, std::vector<std::string>* badguys, int id = -1);
-  MenuItem* add_file(const std::string& text, std::string* input, const std::vector<std::string>& extensions, int id = -1);
+  virtual void menu_action(MenuItem& item) = 0;
 
-  MenuItem* add_color(const std::string& text, Color* color, int id = -1);
-  MenuItem* add_colordisplay(Color* color, int id = -1);
-  MenuItem* add_colorchannel(float* input, Color channel, int id = -1);
-
-  virtual void menu_action(MenuItem* item) = 0;
-
-  /**
-  * Executed before the menu is exited
-  * @return true if it should perform the back action, false if it shouldn't
-  */
+  /** Executed before the menu is exited
+      @return true if it should perform the back action, false if it shouldn't */
   virtual bool on_back_action() { return true; }
-
-  void process_input();
 
   /** Perform actions to bring the menu up to date with configuration changes */
   virtual void refresh() {}
 
+  virtual void on_window_resize();
+
+  ItemHorizontalLine& add_hl();
+  ItemLabel& add_label(const std::string& text);
+  ItemAction& add_entry(int id, const std::string& text);
+  ItemAction& add_entry(const std::string& text, const std::function<void()>& callback);
+  ItemToggle& add_toggle(int id, const std::string& text, bool* toggled);
+  ItemToggle& add_toggle(int id, const std::string& text,
+                         const std::function<bool()>& get_func,
+                         const std::function<void(bool)>& set_func);
+  ItemInactive& add_inactive(const std::string& text);
+  ItemBack& add_back(const std::string& text, int id = -1);
+  ItemGoTo& add_submenu(const std::string& text, int submenu, int id = -1);
+  ItemControlField& add_controlfield(int id, const std::string& text, const std::string& mapping = "");
+  ItemStringSelect& add_string_select(int id, const std::string& text, int* selected, const std::vector<std::string>& strings);
+  ItemTextField& add_textfield(const std::string& text, std::string* input, int id = -1);
+  ItemScript& add_script(const std::string& text, std::string* script, int id = -1);
+  ItemScriptLine& add_script_line(std::string* input, int id = -1);
+  ItemIntField& add_intfield(const std::string& text, int* input, int id = -1);
+  ItemFloatField& add_floatfield(const std::string& text, float* input, int id = -1);
+  ItemBadguySelect& add_badguy_select(const std::string& text, std::vector<std::string>* badguys, int id = -1);
+  ItemFile& add_file(const std::string& text, std::string* input, const std::vector<std::string>& extensions,
+                     const std::string& basedir, int id = -1);
+
+  ItemColor& add_color(const std::string& text, Color* color, int id = -1);
+  ItemColorDisplay& add_color_display(Color* color, int id = -1);
+  ItemColorChannelRGBA& add_color_channel_rgba(float* input, Color channel, int id = -1,
+    bool is_linear = false);
+  ItemColorChannelOKLab& add_color_channel_oklab(Color* color, int channel);
+  ItemPaths& add_path_settings(const std::string& text, PathObject& target, const std::string& path_ref);
+
+  void process_input(const Controller& controller);
+
   /** Remove all entries from the menu */
   void clear();
 
-  MenuItem& get_item(int index)
-  {
-    return *(items[index]);
-  }
+  MenuItem& get_item(int index) { return *(m_items[index]); }
 
   MenuItem& get_item_by_id(int id);
   const MenuItem& get_item_by_id(int id) const;
@@ -86,7 +111,7 @@ public:
   void set_active_item(int id);
 
   void draw(DrawingContext& context);
-  Vector get_center_pos() const { return pos; }
+  Vector get_center_pos() const { return m_pos; }
   void set_center_pos(float x, float y);
 
   void event(const SDL_Event& event);
@@ -94,38 +119,43 @@ public:
   float get_width() const;
   float get_height() const;
 
-  virtual void on_window_resize();
-
 protected:
-  MenuItem* add_item(std::unique_ptr<MenuItem> menu_item);
-  MenuItem* add_item(std::unique_ptr<MenuItem> menu_item, int pos_);
-  void delete_item(int pos_);
-
-  ///returns true when the text is more important than action
+  /** returns true when the text is more important than action */
   virtual bool is_sensitive() const;
 
+  MenuItem& add_item(std::unique_ptr<MenuItem> menu_item);
+  MenuItem& add_item(std::unique_ptr<MenuItem> menu_item, int pos_);
+  void delete_item(int pos_);
+
 private:
-  void process_action(MenuAction menuaction);
+  void process_action(const MenuAction& menuaction);
   void check_controlfield_change_event(const SDL_Event& event);
   void draw_item(DrawingContext& context, int index);
+  /** Recalculates the width for this menu */
+  void calculate_width();
 
 private:
-  // position of the menu (ie. center of the menu, not top/left)
-  Vector pos;
+  /** position of the menu (ie. center of the menu, not top/left) */
+  Vector m_pos;
 
   /* input implementation variables */
-  int   delete_character;
-  char  mn_input_char;
-  float menu_repeat_time;
+  int m_delete_character;
+  char m_mn_input_char;
+  float m_menu_repeat_time;
+  float m_menu_width;
 
 public:
-  std::vector<std::unique_ptr<MenuItem> > items;
+  std::vector<std::unique_ptr<MenuItem> > m_items;
 
 private:
-  int arrange_left;
+  int m_arrange_left;
 
 protected:
-  int active_item;
+  int m_active_item;
+
+private:
+  Menu(const Menu&) = delete;
+  Menu& operator=(const Menu&) = delete;
 };
 
 #endif

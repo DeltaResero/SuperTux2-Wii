@@ -14,53 +14,88 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_GUI_ITEM_COLORCHANEL_HPP
-#define HEADER_SUPERTUX_GUI_ITEM_COLORCHANEL_HPP
+#ifndef HEADER_SUPERTUX_GUI_ITEM_COLORCHANNEL_HPP
+#define HEADER_SUPERTUX_GUI_ITEM_COLORCHANNEL_HPP
 
 #include "gui/menu_item.hpp"
 
-#include "supertux/timer.hpp"
+#include "util/colorspace_oklab.hpp"
 #include "video/color.hpp"
 
-//
-class ItemColorChannel : public MenuItem
+
+class ItemColorChannelRGBA final : public MenuItem
 {
-  public:
-    ItemColorChannel(float* input_, Color channel_, int id_ = -1);
+public:
+  ItemColorChannelRGBA(float* input_, Color channel_, int id_ = -1,
+    bool is_linear = false);
 
-    /** Draws the menu item. */
-    virtual void draw(DrawingContext&, Vector pos, int menu_width, bool active);
+  /** Draws the menu item. */
+  virtual void draw(DrawingContext&, const Vector& pos, int menu_width, bool active) override;
 
-    /** Returns the minimum width of the menu item. */
-    virtual int get_width() const;
+  /** Returns the minimum width of the menu item. */
+  virtual int get_width() const override;
 
-    /** Processes the menu action. */
-    virtual void process_action(MenuAction action);
+  /** Processes the menu action. */
+  virtual void process_action(const MenuAction& action) override;
 
-    float* number;
+  /** Processes the given event. */
+  virtual void event(const SDL_Event& ev) override;
 
-    void change_input(const std::string& input_) {
-      text = input_;
-    }
+  virtual Color get_color() const override;
 
-    /** Processes the given event. */
-    virtual void event(const SDL_Event& ev);
+  virtual bool changes_width() const override { return true; }
 
-    virtual Color get_color() const;
+  void change_input(const std::string& input_) { set_text(input_); }
 
-  private:
+private:
+  void enable_edit_mode();
+  void add_char(char c);
+  void remove_char();
 
-    int flickw;
-    bool has_comma;
-    Color channel;
+private:
+  float* m_number;
+  float m_number_prev;
+  bool m_is_linear;
+  bool m_edit_mode;
+  int m_flickw;
+  Color m_channel;
 
-    void add_char(char c);
-    void remove_char();
-
-    ItemColorChannel(const ItemColorChannel&);
-    ItemColorChannel& operator=(const ItemColorChannel&);
+private:
+  ItemColorChannelRGBA(const ItemColorChannelRGBA&) = delete;
+  ItemColorChannelRGBA& operator=(const ItemColorChannelRGBA&) = delete;
 };
 
-#endif // HEADER_SUPERTUX_GUI_ITEM_COLORCHANEL_HPP
+
+class ItemColorChannelOKLab final : public MenuItem
+{
+public:
+  enum class ChannelType { CHANNEL_L, CHANNEL_C, CHANNEL_H };
+
+public:
+  ItemColorChannelOKLab(Color* col, int channel, Menu* menu);
+  virtual void draw(DrawingContext&, const Vector& pos, int menu_width,
+    bool active) override;
+  /** Returns the minimum width of the menu item. */
+  virtual int get_width() const override { return 64; }
+  virtual void process_action(const MenuAction& action) override;
+  virtual void event(const SDL_Event& ev) override;
+  virtual bool changes_width() const override { return true; }
+
+private:
+  void set_color(ColorOKLCh& col_oklch_clipped, ColorOKLCh& col_oklch_store);
+
+private:
+  Color* m_color;
+  ColorOKLCh m_col_prev;
+  ChannelType m_channel;
+  Menu* m_menu;
+  bool m_mousedown;
+
+private:
+  ItemColorChannelOKLab(const ItemColorChannelOKLab&) = delete;
+  ItemColorChannelOKLab& operator=(const ItemColorChannelOKLab&) = delete;
+};
+
+#endif
 
 /* EOF */

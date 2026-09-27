@@ -19,26 +19,30 @@
 
 #include "gui/menu.hpp"
 
-class FileSystemMenu : public Menu
+class FileSystemMenu final : public Menu
 {
 public:
-  FileSystemMenu(std::string* filename_, const std::vector<std::string>& extensions_);
-  ~FileSystemMenu();
+  FileSystemMenu(std::string* filename, const std::vector<std::string>& extensions, const std::string& basedir, const std::function<void(std::string)> callback = nullptr);
+  ~FileSystemMenu() override;
 
-  void menu_action(MenuItem* item) override;
+  void menu_action(MenuItem& item) override;
 
 private:
-  std::string* filename;
-  std::string directory;
-  std::vector<std::string> extensions;
-  std::vector<std::string> directories;
-  std::vector<std::string> files;
-
   void refresh_items();
   bool has_right_suffix(const std::string& file) const;
 
-  FileSystemMenu(const FileSystemMenu&);
-  FileSystemMenu& operator=(const FileSystemMenu&);
+private:
+  std::string* m_filename;
+  std::string m_directory;
+  std::vector<std::string> m_extensions;
+  std::string m_basedir;
+  std::vector<std::string> m_directories;
+  std::vector<std::string> m_files;
+  std::function<void(std::string)> m_callback;
+
+private:
+  FileSystemMenu(const FileSystemMenu&) = delete;
+  FileSystemMenu& operator=(const FileSystemMenu&) = delete;
 };
 
 #endif

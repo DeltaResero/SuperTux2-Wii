@@ -16,22 +16,10 @@
 
 #include "badguy/ghostflame.hpp"
 
-#include <math.h>
-
-#include "audio/sound_manager.hpp"
-#include "math/random_generator.hpp"
-#include "object/sprite_particle.hpp"
-#include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
-#include "supertux/object_factory.hpp"
-#include "supertux/sector.hpp"
-#include "util/reader_mapping.hpp"
-
 Ghostflame::Ghostflame(const ReaderMapping& reader) :
-  Flame(reader)
+  Flame(reader, "images/creatures/flame/ghostflame.sprite")
 {
-  lightsprite->set_color(Color(0.21f, 0.00f, 0.21f));
-  sprite = SpriteManager::current()->create("images/creatures/flame/ghostflame.sprite");
+  m_lightsprite->set_color(Color(0.21f, 0.00f, 0.21f));
 }
 
 bool

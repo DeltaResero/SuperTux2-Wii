@@ -15,19 +15,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "badguy/bomb.hpp"
 #include "badguy/short_fuse.hpp"
+
+#include "audio/sound_manager.hpp"
 #include "object/bullet.hpp"
 #include "object/explosion.hpp"
 #include "object/player.hpp"
-#include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
-#include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
-#include "util/log.hpp"
 #include "util/reader_mapping.hpp"
-
-#define EXPLOSION_FORCE 1000.0f
 
 ShortFuse::ShortFuse(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/short_fuse/short_fuse.sprite", "left", "right")
@@ -36,15 +32,17 @@ ShortFuse::ShortFuse(const ReaderMapping& reader) :
   max_drop_height = -1;
 
   //Check if we need another sprite
-  if( !reader.get( "sprite", sprite_name ) ){
+  if ( !reader.get( "sprite", m_sprite_name ) ){
     return;
   }
-  if (sprite_name.empty()) {
-    sprite_name = "images/creatures/short_fuse/short_fuse.sprite";
+  if (m_sprite_name.empty()) {
+    m_sprite_name = "images/creatures/short_fuse/short_fuse.sprite";
     return;
   }
   //Replace sprite
-  sprite = SpriteManager::current()->create( sprite_name );
+  m_sprite = SpriteManager::current()->create( m_sprite_name );
+
+  SoundManager::current()->preload("sounds/firecracker.ogg");
 }
 
 void
@@ -53,11 +51,9 @@ ShortFuse::explode()
   if (!is_valid())
     return;
 
-  auto explosion = std::make_shared<Explosion>(get_bbox ().get_middle());
-
-  explosion->hurts(false);
-  explosion->pushes(true);
-  Sector::current()->add_object(explosion);
+  auto& explosion = Sector::get().add<Explosion>(get_bbox().get_middle(),
+    EXPLOSION_STRENGTH_NEAR, 8);
+  explosion.hurts(false);
 
   run_dead_script();
   remove_me();
@@ -70,7 +66,7 @@ ShortFuse::collision_squished(GameObject& obj)
     return true;
 
   auto player = dynamic_cast<Player*>(&obj);
-  if(player)
+  if (player)
     player->bounce(*this);
 
   explode ();
@@ -107,5 +103,4 @@ ShortFuse::ignite()
   kill_fall();
 }
 
-/* vim: set sw=2 sts=2 et : */
 /* EOF */

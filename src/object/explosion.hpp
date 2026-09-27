@@ -19,49 +19,27 @@
 
 #include "object/moving_sprite.hpp"
 
-/**
- * Just your average explosion - goes boom, hurts Tux
- */
-class Explosion : public MovingSprite
+#define EXPLOSION_STRENGTH_DEFAULT (1464.8f * 32.0f * 32.0f)
+#define EXPLOSION_STRENGTH_NEAR (150.0f * 32.0f * 32.0f)
+
+/** Just your average explosion - goes boom, hurts Tux */
+class Explosion final : public MovingSprite
 {
 public:
-  /**
-   * Create new Explosion centered(!) at @c pos
-   */
-  Explosion(const Vector& pos);
+  /** Create new Explosion centered(!) at @c pos */
+  Explosion(const Vector& pos, float push_strength, int num_particles=100);
   Explosion(const ReaderMapping& reader);
 
-  void update(float elapsed_time);
-  void draw(DrawingContext& context);
-  HitResponse collision(GameObject& other, const CollisionHit& hit);
-  virtual bool do_save() const {
-    return false;
-  }
+  virtual void update(float dt_sec) override;
+  virtual void draw(DrawingContext& context) override;
+  virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
+  virtual bool is_saveable() const override { return false; }
 
-  bool hurts() const
-  {
-    return this->hurt;
-  }
+  bool hurts() const { return hurt; }
+  void hurts (bool val) { hurt = val; }
 
-  void hurts (bool val)
-  {
-    this->hurt = val;
-  }
-
-  bool pushes() const
-  {
-    return this->push;
-  }
-
-  void pushes (bool val)
-  {
-    this->push = val;
-  }
-
-protected:
-  /**
-   * plays sound, starts animation
-   */
+private:
+  /** plays sound, starts animation */
   void explode();
 
 private:
@@ -69,12 +47,17 @@ private:
     STATE_WAITING,
     STATE_EXPLODING
   };
+
+private:
   bool hurt;
-  bool push;
+  float push_strength;
+  int num_particles;
   State state;
-  Color light;
   SpritePtr lightsprite;
 
+private:
+  Explosion(const Explosion&) = delete;
+  Explosion& operator=(const Explosion&) = delete;
 };
 
 #endif

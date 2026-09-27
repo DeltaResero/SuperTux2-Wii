@@ -19,26 +19,35 @@
 
 #include <SDL.h>
 #include <map>
+#include <set>
 
 #include "control/controller.hpp"
-#include "util/writer.hpp"
 
 class ReaderMapping;
+class Writer;
 
-class KeyboardConfig
+class KeyboardConfig final
 {
+  friend class KeyboardManager;
+  friend class KeyboardMenu;
+
 public:
   KeyboardConfig();
 
-  SDL_Keycode reversemap_key(Controller::Control c) const;
-  void bind_key(SDL_Keycode key, Controller::Control c);
+  SDL_Keycode reversemap_key(Control c) const;
+  void bind_key(SDL_Keycode key, Control c);
 
-  void read(const ReaderMapping& keymap_lisp);
+  void read(const ReaderMapping& keymap_mapping);
   void write(Writer& writer);
 
-  typedef std::map<SDL_Keycode, Controller::Control> KeyMap;
-  KeyMap keymap;
-  bool jump_with_up_kbd;
+private:
+  std::map<SDL_Keycode, Control> m_keymap;
+  std::set<Control> m_configurable_controls;
+  bool m_jump_with_up_kbd;
+
+private:
+  KeyboardConfig(const KeyboardConfig&) = delete;
+  KeyboardConfig& operator=(const KeyboardConfig&) = delete;
 };
 
 #endif

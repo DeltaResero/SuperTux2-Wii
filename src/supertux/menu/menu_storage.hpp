@@ -25,7 +25,7 @@ class Menu;
 class OptionsMenu;
 class ProfileMenu;
 
-class MenuStorage
+class MenuStorage final
 {
 private:
   static MenuStorage* s_instance;
@@ -50,8 +50,10 @@ public:
     JOYSTICK_MENU,
     WORLDMAP_MENU,
     WORLDMAP_CHEAT_MENU,
+    WORLDMAP_LEVEL_SELECT_MENU,
     GAME_MENU,
     CHEAT_MENU,
+    DEBUG_MENU,
     EDITOR_LEVELSET_SELECT_MENU,
     EDITOR_NEW_LEVELSET_MENU,
     EDITOR_LEVEL_SELECT_MENU,
@@ -61,7 +63,12 @@ public:
     EDITOR_SECTORS_MENU,
     EDITOR_SECTOR_MENU,
     EDITOR_LEVEL_MENU,
-    EDITOR_LEVELSET_MENU
+    EDITOR_LEVELSET_MENU,
+    PARTICLE_EDITOR_MENU,
+    PARTICLE_EDITOR_SAVE_AS,
+    PARTICLE_EDITOR_OPEN,
+    INTEGRATIONS_MENU,
+    ASSET_MENU
   };
 
 public:
@@ -71,8 +78,8 @@ public:
   std::unique_ptr<Menu> create(MenuId menu_id);
 
 private:
-  MenuStorage(const MenuStorage&);
-  MenuStorage& operator=(const MenuStorage&);
+  MenuStorage(const MenuStorage&) = delete;
+  MenuStorage& operator=(const MenuStorage&) = delete;
 };
 
 #endif

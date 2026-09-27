@@ -16,7 +16,11 @@
 
 #include "control/controller.hpp"
 
-const char* Controller::controlNames[] = {
+#include <ostream>
+
+namespace {
+
+const char* g_control_names[] = {
   "left",
   "right",
   "up",
@@ -30,13 +34,37 @@ const char* Controller::controlNames[] = {
   "menu-back",
   "remove",
   "cheat-menu",
+  "debug-menu",
   "console",
   "peek-left",
   "peek-right",
   "peek-up",
   "peek-down",
-  0
+  nullptr
 };
+
+} // namespace
+
+std::ostream& operator<<(std::ostream& os, Control control)
+{
+  return os << g_control_names[static_cast<int>(control)];
+}
+
+std::string Control_to_string(Control control)
+{
+  return g_control_names[static_cast<int>(control)];
+}
+
+boost::optional<Control> Control_from_string(const std::string& text)
+{
+  for(int i = 0; g_control_names[i] != nullptr; ++i) {
+    if (text == g_control_names[i]) {
+      return static_cast<Control>(i);
+    }
+  }
+
+  return boost::none;
+}
 
 Controller::Controller()
 {
@@ -49,41 +77,42 @@ Controller::~Controller()
 void
 Controller::reset()
 {
-  for(int i = 0; i < CONTROLCOUNT; ++i) {
-    controls[i] = false;
-    oldControls[i] = false;
+  for (int i = 0; i < static_cast<int>(Control::CONTROLCOUNT); ++i) {
+    m_controls[i] = false;
+    m_old_controls[i] = false;
   }
 }
 
 void
 Controller::set_control(Control control, bool value)
 {
-  controls[control] = value;
+  m_controls[static_cast<int>(control)] = value;
 }
 
 bool
 Controller::hold(Control control) const
 {
-  return controls[control];
+  return m_controls[static_cast<int>(control)];
 }
 
 bool
 Controller::pressed(Control control) const
 {
-  return !oldControls[control] && controls[control];
+  return !m_old_controls[static_cast<int>(control)] && m_controls[static_cast<int>(control)];
 }
 
 bool
 Controller::released(Control control) const
 {
-  return oldControls[control] && !controls[control];
+  return m_old_controls[static_cast<int>(control)] && !m_controls[static_cast<int>(control)];
 }
 
 void
 Controller::update()
 {
-  for(int i = 0; i < CONTROLCOUNT; ++i)
-    oldControls[i] = controls[i];
+  for (int i = 0; i < static_cast<int>(Control::CONTROLCOUNT); ++i) {
+    m_old_controls[i] = m_controls[i];
+  }
 }
 
 /* EOF */

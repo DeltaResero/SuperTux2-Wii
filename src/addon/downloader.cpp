@@ -24,17 +24,20 @@
 #include <physfs.h>
 #include <sstream>
 #include <stdexcept>
+#include <version.h>
 
-#include "util/log.hpp"
-#include "version.h"
-
-#ifdef WIN32
-#include <SDL.h>
-#include "util/file_system.hpp"
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+#include <emscripten/html5.h>
 #endif
+
+#include "util/file_system.hpp"
+#include "util/log.hpp"
+#include "util/string_util.hpp"
 
 namespace {
 
+// This one is necessary for a download function
 size_t my_curl_string_append(void* ptr, size_t size, size_t nmemb, void* userdata)
 {
   std::string& s = *static_cast<std::string*>(userdata);
@@ -44,13 +47,22 @@ size_t my_curl_string_append(void* ptr, size_t size, size_t nmemb, void* userdat
   return size * nmemb;
 }
 
+#ifndef EMSCRIPTEN
 size_t my_curl_physfs_write(void* ptr, size_t size, size_t nmemb, void* userdata)
 {
   PHYSFS_file* f = static_cast<PHYSFS_file*>(userdata);
   PHYSFS_sint64 written = PHYSFS_writeBytes(f, ptr, size * nmemb);
   log_debug << "read " << size * nmemb << " bytes of data..." << std::endl;
-  return written;
+  if (written < 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return static_cast<size_t>(written);
+  }
 }
+#endif
 
 } // namespace
 
@@ -66,18 +78,22 @@ TransferStatus::update()
   m_downloader.update();
 }
 
-class Transfer
+class Transfer final
 {
 private:
   Downloader& m_downloader;
   TransferId m_id;
 
   std::string m_url;
+#ifndef EMSCRIPTEN
   CURL* m_handle;
   std::array<char, CURL_ERROR_SIZE> m_error_buffer;
+#endif
 
   TransferStatusPtr m_status;
+#ifndef EMSCRIPTEN
   std::unique_ptr<PHYSFS_file, int(*)(PHYSFS_File*)> m_fout;
+#endif
 
 public:
   Transfer(Downloader& downloader, TransferId id,
@@ -86,15 +102,21 @@ public:
     m_downloader(downloader),
     m_id(id),
     m_url(url),
+#ifndef EMSCRIPTEN
     m_handle(),
     m_error_buffer({{'\0'}}),
-    m_status(new TransferStatus(m_downloader, id)),
+#endif
+    m_status(new TransferStatus(m_downloader, id))
+#ifndef EMSCRIPTEN
+    ,
     m_fout(PHYSFS_openWrite(outfile.c_str()), PHYSFS_close)
+#endif
   {
+#ifndef EMSCRIPTEN
     if (!m_fout)
     {
       std::ostringstream out;
-      out << "PHYSFS_openRead() failed: " << PHYSFS_getLastError();
+      out << "PHYSFS_openRead() failed: " << PHYSFS_getLastErrorCode();
       throw std::runtime_error(out.str());
     }
 
@@ -120,11 +142,19 @@ public:
       curl_easy_setopt(m_handle, CURLOPT_PROGRESSDATA, this);
       curl_easy_setopt(m_handle, CURLOPT_PROGRESSFUNCTION, &Transfer::on_progress_wrap);
     }
+#else
+    // Avoid code injection from funny callers
+    auto url_clean = StringUtil::replace_all(StringUtil::replace_all(url, "\\", "\\\\"), "'", "\\'");
+    auto path_clean = StringUtil::replace_all(StringUtil::replace_all(FileSystem::join(std::string(PHYSFS_getWriteDir()), outfile), "\\", "\\\\"), "'", "\\'");
+    emscripten_run_script(("supertux_xhr_download(" + std::to_string(m_id) + ", '" + url_clean + "', '" + path_clean + "');").c_str());
+#endif
   }
 
   ~Transfer()
   {
+#ifndef EMSCRIPTEN
     curl_easy_cleanup(m_handle);
+#endif
   }
 
   TransferStatusPtr get_status() const
@@ -132,31 +162,37 @@ public:
     return m_status;
   }
 
+#ifndef EMSCRIPTEN
   const char* get_error_buffer() const
   {
     return m_error_buffer.data();
   }
+#endif
 
   TransferId get_id() const
   {
     return m_id;
   }
 
+#ifndef EMSCRIPTEN
   CURL* get_curl_handle() const
   {
     return m_handle;
   }
+#endif
 
   std::string get_url() const
   {
     return m_url;
   }
 
+#ifndef EMSCRIPTEN
   size_t on_data(void* ptr, size_t size, size_t nmemb)
   {
     PHYSFS_writeBytes(m_fout.get(), ptr, size * nmemb);
     return size * nmemb;
   }
+#endif
 
   int on_progress(double dltotal, double dlnow,
                    double ultotal, double ulnow)
@@ -171,10 +207,12 @@ public:
   }
 
 private:
+#ifndef EMSCRIPTEN
   static size_t on_data_wrap(char* ptr, size_t size, size_t nmemb, void* userdata)
   {
     return static_cast<Transfer*>(userdata)->on_data(ptr, size, nmemb);
   }
+#endif
 
   static int on_progress_wrap(void* userdata,
                               double dltotal, double dlnow,
@@ -189,28 +227,36 @@ private:
 };
 
 Downloader::Downloader() :
+#ifndef EMSCRIPTEN
   m_multi_handle(),
+#endif
   m_transfers(),
   m_next_transfer_id(1)
 {
+#ifndef EMSCRIPTEN
   curl_global_init(CURL_GLOBAL_ALL);
   m_multi_handle = curl_multi_init();
   if (!m_multi_handle)
   {
     throw std::runtime_error("curl_multi_init() failed");
   }
+#endif
 }
 
 Downloader::~Downloader()
 {
-  for(auto& transfer : m_transfers)
+#ifndef EMSCRIPTEN
+  for (auto& transfer : m_transfers)
   {
     curl_multi_remove_handle(m_multi_handle, transfer->get_curl_handle());
   }
+#endif
   m_transfers.clear();
 
+#ifndef EMSCRIPTEN
   curl_multi_cleanup(m_multi_handle);
   curl_global_cleanup();
+#endif
 }
 
 void
@@ -220,6 +266,7 @@ Downloader::download(const std::string& url,
 {
   log_info << "Downloading " << url << std::endl;
 
+#ifndef EMSCRIPTEN
   char error_buffer[CURL_ERROR_SIZE+1];
 
   CURL* curl_handle = curl_easy_init();
@@ -240,6 +287,13 @@ Downloader::download(const std::string& url,
     std::string why = error_buffer[0] ? error_buffer : "unhandled error";
     throw std::runtime_error(url + ": download failed: " + why);
   }
+#else
+  log_warning << "Direct download not yet implemented for Emscripten" << std::endl;
+  // FUTURE MAINTAINERS: If this needs to be implemented, take a look at
+  // emscripten_wget(), emscripten_async_wget(), emscripten_wget_data() and
+  // emscripten_async_wget_data():
+  // https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_wget
+#endif
 }
 
 std::string
@@ -253,10 +307,18 @@ Downloader::download(const std::string& url)
 void
 Downloader::download(const std::string& url, const std::string& filename)
 {
+#ifndef EMSCRIPTEN
   log_info << "download: " << url << " to " << filename << std::endl;
   std::unique_ptr<PHYSFS_file, int(*)(PHYSFS_File*)> fout(PHYSFS_openWrite(filename.c_str()),
                                                           PHYSFS_close);
   download(url, my_curl_physfs_write, fout.get());
+#else
+  log_warning << "Direct download not yet implemented for Emscripten" << std::endl;
+  // FUTURE MAINTAINERS: If this needs to be implemented, take a look at
+  // emscripten_wget(), emscripten_async_wget(), emscripten_wget_data() and
+  // emscripten_async_wget_data():
+  // https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_wget
+#endif
 }
 
 void
@@ -275,10 +337,12 @@ Downloader::abort(TransferId id)
   {
     TransferStatusPtr status = (*it)->get_status();
 
+#ifndef EMSCRIPTEN
     curl_multi_remove_handle(m_multi_handle, (*it)->get_curl_handle());
+#endif
     m_transfers.erase(it);
 
-    for(auto& callback : status->callbacks)
+    for (auto& callback : status->callbacks)
     {
       try
       {
@@ -295,10 +359,11 @@ Downloader::abort(TransferId id)
 void
 Downloader::update()
 {
+#ifndef EMSCRIPTEN
   // read data from the network
   CURLMcode ret;
   int running_handles;
-  while((ret = curl_multi_perform(m_multi_handle, &running_handles)) == CURLM_CALL_MULTI_PERFORM)
+  while ((ret = curl_multi_perform(m_multi_handle, &running_handles)) == CURLM_CALL_MULTI_PERFORM)
   {
     log_debug << "updating" << std::endl;
   }
@@ -308,11 +373,12 @@ Downloader::update()
   CURLMsg* msg;
   while ((msg = curl_multi_info_read(m_multi_handle, &msgs_in_queue)))
   {
-    switch(msg->msg)
+    switch (msg->msg)
     {
       case CURLMSG_DONE:
         {
-          log_info << "Download completed with " << msg->data.result << std::endl;
+          CURLcode resultfromcurl = msg->data.result;
+          log_info << "Download completed with " << resultfromcurl << std::endl;
           curl_multi_remove_handle(m_multi_handle, msg->easy_handle);
 
           auto it = std::find_if(m_transfers.begin(), m_transfers.end(),
@@ -324,10 +390,10 @@ Downloader::update()
           status->error_msg = (*it)->get_error_buffer();
           m_transfers.erase(it);
 
-          if (msg->data.result == CURLE_OK)
+          if (resultfromcurl == CURLE_OK)
           {
             bool success = true;
-            for(auto& callback : status->callbacks)
+            for (auto& callback : status->callbacks)
             {
               try
               {
@@ -343,8 +409,8 @@ Downloader::update()
           }
           else
           {
-            log_warning << "Error: " << curl_easy_strerror(msg->data.result) << std::endl;
-            for(auto& callback : status->callbacks)
+            log_warning << "Error: " << curl_easy_strerror(resultfromcurl) << std::endl;
+            for (auto& callback : status->callbacks)
             {
               try
               {
@@ -364,16 +430,123 @@ Downloader::update()
         break;
     }
   }
+#endif
 }
 
 TransferStatusPtr
 Downloader::request_download(const std::string& url, const std::string& outfile)
 {
   log_info << "request_download: " << url << std::endl;
-  std::unique_ptr<Transfer> transfer(new Transfer(*this, m_next_transfer_id++, url, outfile));
+  auto transfer = std::make_unique<Transfer>(*this, m_next_transfer_id++, url, outfile);
+#ifndef EMSCRIPTEN
   curl_multi_add_handle(m_multi_handle, transfer->get_curl_handle());
+#endif
   m_transfers.push_back(std::move(transfer));
   return m_transfers.back()->get_status();
 }
+
+#ifdef EMSCRIPTEN
+void
+Downloader::onDownloadProgress(int id, int loaded, int total)
+{
+  auto it = std::find_if(m_transfers.begin(), m_transfers.end(),
+                         [&id](const std::unique_ptr<Transfer>& rhs)
+                         {
+                           return id == rhs->get_id();
+                         });
+  if (it == m_transfers.end())
+  {
+    log_warning << "transfer not found: " << id << std::endl;
+  }
+  else
+  {
+    (*it)->on_progress(static_cast<double>(loaded), static_cast<double>(total), 0.0, 0.0);
+  }
+}
+
+void
+Downloader::onDownloadFinished(int id)
+{
+  auto it = std::find_if(m_transfers.begin(), m_transfers.end(),
+                         [&id](const std::unique_ptr<Transfer>& rhs)
+                         {
+                           return id == rhs->get_id();
+                         });
+  if (it == m_transfers.end())
+  {
+    log_warning << "transfer not found: " << id << std::endl;
+  }
+  else
+  {
+    for (auto& callback : (*it)->get_status()->callbacks)
+    {
+      try
+      {
+        callback(true);
+      }
+      catch(const std::exception& err)
+      {
+        log_warning << "Exception in Downloader: " << err.what() << std::endl;
+      }
+    }
+  }
+}
+
+void
+Downloader::onDownloadError(int id)
+{
+  auto it = std::find_if(m_transfers.begin(), m_transfers.end(),
+                         [&id](const std::unique_ptr<Transfer>& rhs)
+                         {
+                           return id == rhs->get_id();
+                         });
+  if (it == m_transfers.end())
+  {
+    log_warning << "transfer not found: " << id << std::endl;
+  }
+  else
+  {
+    for (auto& callback : (*it)->get_status()->callbacks)
+    {
+      try
+      {
+        callback(false);
+      }
+      catch(const std::exception& err)
+      {
+        log_warning << "Exception in Downloader: " << err.what() << std::endl;
+      }
+    }
+  }
+}
+
+void
+Downloader::onDownloadAborted(int id)
+{
+  auto it = std::find_if(m_transfers.begin(), m_transfers.end(),
+                         [&id](const std::unique_ptr<Transfer>& rhs)
+                         {
+                           return id == rhs->get_id();
+                         });
+  if (it == m_transfers.end())
+  {
+    log_warning << "transfer not found: " << id << std::endl;
+  }
+  else
+  {
+    for (auto& callback : (*it)->get_status()->callbacks)
+    {
+      try
+      {
+        callback(false);
+      }
+      catch(const std::exception& err)
+      {
+        log_warning << "Exception in Downloader: " << err.what() << std::endl;
+      }
+    }
+  }
+}
+#endif
 
 /* EOF */

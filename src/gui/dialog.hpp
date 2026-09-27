@@ -22,7 +22,9 @@
 #include <string>
 #include <vector>
 
+#include "gui/menu_manager.hpp"
 #include "math/sizef.hpp"
+#include "util/gettext.hpp"
 
 class Controller;
 class DrawingContext;
@@ -40,12 +42,13 @@ private:
   std::vector<Button> m_buttons;
   int m_selected_button;
   int m_cancel_button;
-  int m_passive;
+  bool m_passive;
+  bool m_clear_diags;
 
   Sizef m_text_size;
 
 public:
-  Dialog(bool passive = false);
+  Dialog(bool passive = false, bool auto_clear_dialogs = true);
   virtual ~Dialog();
 
   void set_text(const std::string& text);
@@ -68,6 +71,25 @@ public:
   bool is_passive() const
   {
     return m_passive;
+  }
+
+  static void show_message(const std::string& text)
+  {
+    auto dialog = std::make_unique<Dialog>();
+    dialog->set_text(text);
+    dialog->clear_buttons();
+    dialog->add_button(_("OK"), [] {});
+    MenuManager::instance().set_dialog(std::move(dialog));
+  }
+
+  static void show_confirmation(const std::string& text, const std::function<void ()>& callback)
+  {
+    auto dialog = std::make_unique<Dialog>();
+    dialog->set_text(text);
+    dialog->clear_buttons();
+    dialog->add_default_button(_("Yes"), callback);
+    dialog->add_cancel_button(_("No"));
+    MenuManager::instance().set_dialog(std::move(dialog));
   }
 
 private:

@@ -20,42 +20,44 @@
 #include <memory>
 
 #include "object/block.hpp"
-#include "supertux/textscroller.hpp"
 
 class InfoBoxLine;
 
-class InfoBlock : public Block
+class InfoBlock final : public Block
 {
 public:
-  InfoBlock(const ReaderMapping& lisp);
-  virtual ~InfoBlock();
-  void update(float elapsed_time);
-  void draw(DrawingContext& context);
+  InfoBlock(const ReaderMapping& mapping);
+  ~InfoBlock() override;
+
+  virtual void update(float dt_sec) override;
+  virtual void draw(DrawingContext& context) override;
+
+  virtual std::string get_class() const override { return "infoblock"; }
+  virtual std::string get_display_name() const override { return _("Info Block"); }
+
+  virtual ObjectSettings get_settings() override;
 
   void show_message();
   void hide_message();
-  std::string get_class() const {
-    return "infoblock";
-  }
-  std::string get_display_name() const {
-    return _("Info block");
-  }
 
-  virtual ObjectSettings get_settings();
+private:
+  virtual void hit(Player& player) override;
+  virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
-protected:
-  virtual void hit(Player& player);
-  virtual HitResponse collision(GameObject& other, const CollisionHit& hit);
   Player* get_nearest_player() const;
 
-protected:
-  std::string message;
-  //AmbientSound* ringing;
-  //bool stopped;
-  float shown_pct; /**< Value in the range of 0..1, depending on how much of the infobox is currently shown */
-  float dest_pct; /**< With each call to update(), shown_pct will slowly transition to this value */
-  std::vector<std::unique_ptr<InfoBoxLine> > lines; /**< lines of text (or images) to display */
-  float lines_height;
+private:
+  std::string m_message;
+  //AmbientSound* m_ringing;
+  //bool m_stopped;
+  float m_shown_pct; /**< Value in the range of 0..1, depending on how much of the infobox is currently shown */
+  float m_dest_pct; /**< With each call to update(), shown_pct will slowly transition to this value */
+  std::vector<std::unique_ptr<InfoBoxLine> > m_lines; /**< lines of text (or images) to display */
+  float m_lines_height;
+
+private:
+  InfoBlock(const InfoBlock&) = delete;
+  InfoBlock& operator=(const InfoBlock&) = delete;
 };
 
 #endif

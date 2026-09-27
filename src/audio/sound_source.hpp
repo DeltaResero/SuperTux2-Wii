@@ -17,13 +17,11 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SOUND_SOURCE_HPP
 #define HEADER_SUPERTUX_AUDIO_SOUND_SOURCE_HPP
 
-class Vector;
+#include "math/fwd.hpp"
 
-/**
- * A sound source represents the source of audio output. You can place
- * sources at certain points in your world or set their velocity to produce
- * doppler effects
- */
+/** A sound source represents the source of audio output. You can
+    place sources at certain points in your world or set their
+    velocity to produce doppler effects */
 class SoundSource
 {
 public:

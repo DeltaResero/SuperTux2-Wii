@@ -1,6 +1,88 @@
 SuperTux Release and Development Notes
 ======================================
 
+SuperTux 0.6.3 (2021-12-22)
+---------------------------
+The SuperTux team is excited to announce the release of SuperTux 0.6.3 after approximately 1.5 years of development.  This release introduces many new features; perhaps the most new features in a long time!
+
+Some of the most significant changes include:
+- WASM compilation! SuperTux nightlies can now be played directly in the browser (thanks to Semphris)
+- Added swimming (thanks to Daniel and Zwatotem)
+- Added walljumping (thanks to Daniel)
+- Autotiles (thanks to Semphris)
+- Updated animations (thanks to Alzter, Daniel and RustyBox)
+- Refreshed many contrib worldmaps (thanks to Servalot)
+- Many updates to paths, with easing, bezier curves, path sharing between objects, and more (thanks to Semphris)
+- Remade the crystal tileset (thanks to Alzter and RustyBox)
+- Many new snow tiles (thanks to Daniel)
+- Many new objects, like the sideways bumper and falling blocks (thanks to Daniel)
+- Custom particles (thanks to Semphris)
+- A new rublight object (thanks to HybridDog)
+- Official binaries for FreeBSD, Linux 32-bit and Ubuntu Touch (thanks to Semphris)
+- Added in-game progress statistics (thanks to Semphris)
+- New color picker based on OKLab (thanks to HybridDog)
+- Add-on creator, to easily create add-on packages with your world (thanks to Semphris)
+- Rework of the Revenge in Redmond worldmap (thanks to RustyBox)
+- Added timeshift ambience in the worldmap (thanks to Semphris)
+- Skippable cutscenes (thanks to Semphris)
+- Editor auto-saves at regular intervals (thanks to Semphris)
+- Optional integration with Discord (thanks to Semphris)
+- Updated translations, of course (thanks to translators)
+
+And these are just the most significant changes; there are plenty of other small features and bugfixes for you all to explore :)
+
+SuperTux 0.6.2 (2020-05-14)
+---------------------------
+The SuperTux Team is excited to announce the availability of SuperTux 0.6.2. This release fixes a number of bugs that were reported after 0.6.1. It also features reworked graphics and levels. 
+
+Other changes include a power-up counter in the hud, new sprites for the door, a new tileset and several new badguys. But overall, this release is supossed to celebrate our anniversary (May 2000) with a little surprise Add-On, which can be found in the contrib levels!
+
+Changes:
+  - A new worldmap, "Revenge In Redmond" celebrating SuperTux's 20th anniversary, which includes new enemies and sprites !!!
+  - New and improved backgrounds and sprites
+  - Improvements to many levels in the Icy Island and forest world
+  - Speed improvements for levels using a huge amount of lava tiles
+  - An issue causing the bridge in the forest world to not be shown in certain cases was fixed
+
+SuperTux 0.6.1 (2019-12-15)
+---------------------------
+The SuperTux Team is excited to announce the availability of SuperTux 0.6.1. This is first and foremost a bugfix release that fixes reported issues after the release of 0.6.0 a year ago, however, we also introduced a lot of other changes, such as new graphics, levels and other game content.
+
+Changes:
+* Rework of the first 3 Bonus Worlds
+* Added 3 new bonus worlds to the core game
+* Improvements to the story mode
+* Addition of Ghost Forest to the Story Mode
+* New Backgrounds and Music by BlasterMaster
+* Tiles and Sprites Improvements by Alzter, weluvgoatz and RustyBox
+* New enemy: The Ghoul
+* Fixes and optimizations (Fixing buggy controls, game speed, etc.)
+* Level Editor Improvements, Fixes and Optimisations
+* Revamp of the Credits Menu
+* Blocks (and other objects behaving like blocks, such as lanterns) no longer jitter when stacked on top of one another
+* Trampolines as bonus block contents no longer hurt Tux
+* An issue causing music not to get saved in the level editor was fixed
+
+SuperTux 0.6.0 (2018-12-23)
+---------------------------
+
+The SuperTux team is excited to announce the availability of the first alpha for the upcoming stable release 0.6.0 after almost two years of development.
+
+Changes:
+* Complete redesign of the icy world and forest world
+* Complete revamp of our rendering engine, the game should be much faster than it was previously
+* We now support OpenGL 3.3 Core as well as OpenGL ES 2.0, thus allowing SuperTux to be run on the Raspberry Pi, and potentially WebGL.
+* A few graphics have been updated, and effects have been added
+    * The save bell was reworked (Thanks to Raghavendra "raghukamath" Kamath!)
+    * Improved big Tux graphics (Thanks to Alzter)
+    * Various effects and shaders (Thanks to Grumbel)
+* Support for right-to-left languages through vector fonts. This will also fix a few non-ASCII characters, which often caused problems before in translations
+* Forest worldmap redesigned with new levels and other redesigned levels (Thank you, RustyBox and Serano)
+* A lot of other under-the-hood changes and bugfixes
+* Official Linux binaries
+
+**Note:** If you've previously used torches in your levels and their positioning is off, please re-position them. We had to re-align their bounding boxes in order to fix bugs with their flame.
+
 SuperTux 0.5.1 (2016-11-05)
 ---------------------------
 

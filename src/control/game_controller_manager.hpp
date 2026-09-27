@@ -20,21 +20,16 @@
 #include <vector>
 #include <array>
 
-#include "SDL.h"
-
 #include "control/controller.hpp"
 
 class InputManager;
+struct SDL_ControllerAxisEvent;
+struct SDL_ControllerButtonEvent;
+struct _SDL_GameController;
+typedef struct _SDL_GameController SDL_GameController;
 
-class GameControllerManager
+class GameControllerManager final
 {
-private:
-  InputManager* m_parent;
-  int m_deadzone;
-  std::vector<SDL_GameController*> m_game_controllers;
-  std::array<bool, Controller::CONTROLCOUNT> m_stick_state;
-  std::array<bool, Controller::CONTROLCOUNT> m_button_state;
-
 public:
   GameControllerManager(InputManager* parent);
   ~GameControllerManager();
@@ -44,6 +39,13 @@ public:
 
   void on_controller_added(int joystick_index);
   void on_controller_removed(int instance_id);
+
+private:
+  InputManager* m_parent;
+  int m_deadzone;
+  std::vector<SDL_GameController*> m_game_controllers;
+  std::array<bool, static_cast<int>(Control::CONTROLCOUNT)> m_stick_state;
+  std::array<bool, static_cast<int>(Control::CONTROLCOUNT)> m_button_state;
 
 private:
   GameControllerManager(const GameControllerManager&) = delete;

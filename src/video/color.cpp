@@ -14,9 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <config.h>
-
 #include "video/color.hpp"
+
+#include <assert.h>
 
 const Color Color::BLACK(0.0, 0.0, 0.0);
 const Color Color::RED(1.0, 0.0, 0.0);
@@ -40,9 +40,9 @@ Color::Color(float red_, float green_, float blue_, float alpha_) :
   blue(blue_),
   alpha(alpha_)
 {
-  assert(0 <= red   && red <= 1.0);
-  assert(0 <= green && green <= 1.0);
-  assert(0 <= blue  && blue <= 1.0);
+  assert(0 <= red   && red <= 1.0f);
+  assert(0 <= green && green <= 1.0f);
+  assert(0 <= blue  && blue <= 1.0f);
 }
 
 Color::Color(const std::vector<float>& vals) :
@@ -61,13 +61,13 @@ Color::Color(const std::vector<float>& vals) :
   red   = vals[0];
   green = vals[1];
   blue  = vals[2];
-  if(vals.size() > 3)
+  if (vals.size() > 3)
     alpha = vals[3];
   else
     alpha = 1.0;
-  assert(0 <= red   && red <= 1.0);
-  assert(0 <= green && green <= 1.0);
-  assert(0 <= blue  && blue <= 1.0);
+  assert(0 <= red   && red <= 1.0f);
+  assert(0 <= green && green <= 1.0f);
+  assert(0 <= blue  && blue <= 1.0f);
 }
 
 bool
@@ -77,10 +77,25 @@ Color::operator==(const Color& other) const
     && alpha == other.alpha;
 }
 
+bool
+Color::operator!=(const Color& other) const
+{
+  return !(operator==(other));
+}
+
 float
 Color::greyscale() const
 {
   return red * 0.30f + green * 0.59f + blue * 0.11f;
+}
+
+Color
+Color::multiply_linearly(float v) const
+{
+  // For the approximate sRGB conversion, it is sufficient to apply the exponent
+  // to v
+  v = add_gamma(v);
+  return Color(red * v, green * v, blue * v, alpha);
 }
 
 bool

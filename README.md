@@ -1,12 +1,7 @@
 # SuperTux
 
-[![Build Status](https://travis-ci.org/SuperTux/supertux.svg?branch=master)](https://travis-ci.org/SuperTux/supertux)
-[![AppVeyor Build Satus](https://ci.appveyor.com/api/projects/status/github/SuperTux/supertux?svg=true&branch=master)](https://ci.appveyor.com/project/supertux/supertux-9ml4d/branch/master)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/4025/badge.svg)](https://scan.coverity.com/projects/4025)
+[![Build](https://github.com/SuperTux/supertux/workflows/main/badge.svg?branch=master)](https://github.com/SuperTux/supertux/actions?query=workflow%3Amain)
 [![Github All Releases](https://img.shields.io/github/downloads/supertux/supertux/total.svg?maxAge=2592000)](https://github.com/SuperTux/supertux)
-[![#supertux on freenode](https://img.shields.io/badge/freenode-%23supertux-brightgreen.svg)](https://webchat.freenode.net/?channels=supertux)
-
-## Description
 
 SuperTux is a jump'n'run game with strong inspiration from the
 Super Mario Bros. games for the various Nintendo platforms.
@@ -14,6 +9,8 @@ Super Mario Bros. games for the various Nintendo platforms.
 Run and jump through multiple worlds, fighting off enemies by jumping
 on them, bumping them from below or tossing objects at them, grabbing
 power-ups and other stuff on the way.
+
+![Screenshot](https://www.supertux.org/images/0_6_0/0_6_0_3.png)
 
 
 ## Story: Penny gets captured!
@@ -23,14 +20,28 @@ Antarctica. Suddenly, a creature jumped from behind an ice bush, there
 was a flash, and Tux fell asleep!
 
 When Tux wakes up, he finds that Penny is missing. Where she lay
-before now lies a letter. "Tux, my arch enemy!" says the letter. "I
-have captured your beautiful Penny and have taken her to my fortress.
-The path to my fortress is littered with my minions. Give up on the
-thought of trying to reclaim her, you haven't got a chance! -Nolok"
+before now lies a letter:
+>Tux, my arch enemy! I have captured your beautiful Penny and have
+>taken her to my fortress. The path to my fortress is littered with my
+>minions. Give up on the thought of trying to reclaim her, you haven't
+>got a chance!
+>
+>-Nolok
 
 Tux looks and sees Nolok's fortress in the distance. Determined to
 save his beloved Penny, he begins his journey.
 
+## Installation
+
+For major platforms, stable releases are built and available for download from
+[supertux.org](https://www.supertux.org/download.html) or alternatively directly
+from [GitHub](https://github.com/SuperTux/supertux/releases). You should be able
+to install these using default tools provided by your platform. On macOS, when
+Gatekeeper is enabled (default) it will refuse to open SuperTux. This is due to
+the lack of a signature on the application. If you wish to open SuperTux anyway
+without disabling the Gatekeeper feature entirely, you can open the application
+from the context menu (control click on the icon). macOS will then remember your
+choice the next time.
 
 ## Documentation
 
@@ -43,29 +54,8 @@ Please see them:
 * `LICENSE.txt` - The GNU General Public License, under whose terms SuperTux is
 licensed. (Most of the data subdirectory is also licensed under
 CC-by-SA)
-* `docs/levelguidelines.txt` - Very useful information for those that want to
-design levels for SuperTux.
 * `data/credits.stxt` - Credits for people that contributed to the creation of
 SuperTux. (You can view these in the game menu as well.)
-
-
-## Running the game
-
-SuperTux makes use of proc to see where it is. In other words, it does
-not have any need to be installed and can be run from anywhere. This
-makes it possible to click in the executable in your filemanager (i.e.
-Konqueror or Nautilus) as opposed to many other Linux games.
-
-Options can be reached from the menu, so you don't need to specify
-arguments, but if you want, type `supertux2 --help` to check the ones
-that are available. Also, notice that SuperTux saves the options, so
-it's often enough to specify them once. For example, fullscreen mode
-causes problems on some setups, so just run `supertux2 --window` and
-you should be set.
-
-The game uses OpenGL to render the graphics. You will either need a
-CPU with about 1 GHz or an accelerated video card with recent
-graphics drivers.
 
 
 ## Playing the game
@@ -85,32 +75,35 @@ arrow keys or the mouse.
 In the worldmap, the arrow keys are used to navigate and Enter to
 enter the current level.
 
+## Community
+
+In case you need help, feel free to reach out using the following means:
+
+* **IRC:** [#supertux](ircs://irc.libera.chat/#supertux) on
+  [Libera Chat](https://libera.chat) hosts most of the discussions between
+  developers. Also, real-time support can be provided here. If you don't know
+  how to use an IRC client, you access the channel using a web-based
+  [client](https://kiwiirc.com/nextclient/irc.libera.chat:+6697/?nick=Guest?#supertux).
+  Please stay around after asking questions, otherwise you will be disconnected
+  and might miss potential answers.
+* **Matrix:** [#supertux:matrix.org](https://matrix.to/#/#supertux:matrix.org)
+  is bridged to our IRC room.
+* **[Forum](https://forum.freegamedev.net/viewforum.php?f=66):** The SuperTux
+  community is very active on the forum, the discussion ranges from feature
+  proposals to support questions. In particular, most community-contributed
+  add-ons are published there first, so this is worth checking.
+* **Mailing Lists:** The
+  [supertux-devel](http://lists.lethargik.org/listinfo.cgi/supertux-devel-lethargik.org)
+  mailing list is dead. Here is the [archive](https://github.com/supertux-community/supertux-devel-maillist).
+* **Social Media:** Mostly on [Twitter](https://twitter.com/supertux_team) at
+  the moment.
+* **Discord:** Also, you can join our [Discord server](https://discord.com/invite/AcvtHWz) to get in touch with us.
 
 ## Development status
 
-With the release of SuperTux 0.4.0 (December 2015), we wanted to provide a
-fairly stable release. The release of SuperTux 0.5.0 should have fixed some
-stability issues from 0.4.0 and introduced a new level editor. Development of
-the game will continue (of course), now working towards more releases.
-Most notably, development focus will be shifted on providing a better gameplay
-experience.
-
-The Forest World (you can check it out: Start Game > Contrib Levels > Forest
-World) is relatively unstable, which is why it resides only in the contrib
-levels menu. We (SuperTux Team) intend to continue with the development of the
-Forest World, but decided that in order to allow more access to the most recent
-version (in repositories etc.) we would have to release Milestone 2 without the
-Forest World included in the Story Mode. Constructive feedback with regards to
-the Forest World is welcome.
-
-Don't forget that you can get involved with the development at
-<https://github.com/supertux/supertux>,
-or get notified about the recent changes on Twitter
-[@supertux_team](https://twitter.com/supertux_team)
-
-
-## The End
-
-Thanks for playing SuperTux.
-
-The SuperTux Team
+As of now, with the release of SuperTux 0.6.3 (December 2021), the Forest World is almost
+finished, since the ghost forest section has been included. However, some levels, especially
+the Ghostree Level, are considered to be placeholders, because for the next version (0.7.0) a
+great overhaul is planned with new features like reworked boss fights, graphics, and worlds.
+If you have some Constructive Feedback, Contributions or ideas to share, don't hestitate
+to contact us with one of the possibilities given above.

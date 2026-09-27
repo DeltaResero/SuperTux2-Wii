@@ -17,17 +17,17 @@
 
 #include "supertux/menu/joystick_menu.hpp"
 
-#include <sstream>
-
 #include "control/joystick_manager.hpp"
 #include "gui/item_controlfield.hpp"
+#include "gui/item_toggle.hpp"
 #include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "util/gettext.hpp"
 
 namespace {
 
 enum {
-  MNID_JUMP_WITH_UP = Controller::CONTROLCOUNT,
+  MNID_JUMP_WITH_UP = static_cast<int>(Control::CONTROLCOUNT),
   MNID_SCAN_JOYSTICKS,
   MNID_AUTO_JOYSTICK_CFG
 };
@@ -54,7 +54,7 @@ JoystickMenu::recreate_menu()
 
   add_toggle(MNID_AUTO_JOYSTICK_CFG, _("Manual Configuration"),
              &m_auto_joystick_cfg)
-    ->set_help(_("Use manual configuration instead of SDL2's automatic GameController support"));
+    .set_help(_("Use manual configuration instead of SDL2's automatic GameController support"));
 
   if (m_input_manager.use_game_controller())
   {
@@ -66,30 +66,23 @@ JoystickMenu::recreate_menu()
     {
       m_joysticks_available = true;
 
-      add_controlfield(Controller::UP,          _("Up"));
-      add_controlfield(Controller::DOWN,        _("Down"));
-      add_controlfield(Controller::LEFT,        _("Left"));
-      add_controlfield(Controller::RIGHT,       _("Right"));
-      add_controlfield(Controller::JUMP,        _("Jump"));
-      add_controlfield(Controller::ACTION,      _("Action"));
-      add_controlfield(Controller::START,       _("Pause/Menu"));
-      add_controlfield(Controller::PEEK_LEFT,   _("Peek Left"));
-      add_controlfield(Controller::PEEK_RIGHT,  _("Peek Right"));
-      add_controlfield(Controller::PEEK_UP,     _("Peek Up"));
-      add_controlfield(Controller::PEEK_DOWN,   _("Peek Down"));
+      add_controlfield(static_cast<int>(Control::UP),          _("Up"));
+      add_controlfield(static_cast<int>(Control::DOWN),        _("Down"));
+      add_controlfield(static_cast<int>(Control::LEFT),        _("Left"));
+      add_controlfield(static_cast<int>(Control::RIGHT),       _("Right"));
+      add_controlfield(static_cast<int>(Control::JUMP),        _("Jump"));
+      add_controlfield(static_cast<int>(Control::ACTION),      _("Action"));
+      add_controlfield(static_cast<int>(Control::START),       _("Pause/Menu"));
+      add_controlfield(static_cast<int>(Control::PEEK_LEFT),   _("Peek Left"));
+      add_controlfield(static_cast<int>(Control::PEEK_RIGHT),  _("Peek Right"));
+      add_controlfield(static_cast<int>(Control::PEEK_UP),     _("Peek Up"));
+      add_controlfield(static_cast<int>(Control::PEEK_DOWN),   _("Peek Down"));
       if (g_config->developer_mode) {
-        add_controlfield(Controller::CONSOLE, _("Console"));
+        add_controlfield(static_cast<int>(Control::CONSOLE), _("Console"));
+        add_controlfield(static_cast<int>(Control::CHEAT_MENU), _("Cheat Menu"));
+        add_controlfield(static_cast<int>(Control::DEBUG_MENU), _("Debug Menu"));
       }
-      if (g_config->developer_mode) {
-        add_controlfield(Controller::CHEAT_MENU, _("Cheat Menu"));
-      }
-      add_hl();
-      add_inactive(_("The following feature is deprecated."));
-      // l10n: Continuation of string "The following feature is deprecated."
-      add_inactive(_("It will be removed from the next release"));
-      // l10n: Continuation of string "It will be removed from the next release"
-      add_inactive(_("of SuperTux."));
-      add_toggle(MNID_JUMP_WITH_UP, _("Jump with Up"), &g_config->joystick_config.jump_with_up_joy);
+      add_toggle(MNID_JUMP_WITH_UP, _("Jump with Up"), &g_config->joystick_config.m_jump_with_up_joy);
     }
     else
     {
@@ -108,7 +101,7 @@ JoystickMenu::recreate_menu()
 std::string
 JoystickMenu::get_button_name(int button) const
 {
-  if(button < 0)
+  if (button < 0)
   {
     return _("None");
   }
@@ -121,25 +114,25 @@ JoystickMenu::get_button_name(int button) const
 }
 
 void
-JoystickMenu::menu_action(MenuItem* item)
+JoystickMenu::menu_action(MenuItem& item)
 {
-  if (0 <= item->id && item->id < Controller::CONTROLCOUNT)
+  if (0 <= item.get_id() && item.get_id() < static_cast<int>(Control::CONTROLCOUNT))
   {
-    ItemControlField* micf = dynamic_cast<ItemControlField*>(item);
+    ItemControlField* micf = dynamic_cast<ItemControlField*>(&item);
     if (!micf) {
       return;
     }
     micf->change_input(_("Press Button"));
-    m_input_manager.joystick_manager->bind_next_event_to(static_cast<Controller::Control>(item->id));
+    m_input_manager.joystick_manager->bind_next_event_to(static_cast<Control>(item.get_id()));
   }
-  else if (item->id == MNID_AUTO_JOYSTICK_CFG)
+  else if (item.get_id() == MNID_AUTO_JOYSTICK_CFG)
   {
-    //m_input_manager.use_game_controller(!item->toggled);
+    //m_input_manager.use_game_controller(!item.toggled);
     m_input_manager.use_game_controller(!m_auto_joystick_cfg);
     m_input_manager.reset();
     recreate_menu();
   }
-  else if(item->id == MNID_SCAN_JOYSTICKS)
+  else if (item.get_id() == MNID_SCAN_JOYSTICKS)
   {
     m_input_manager.reset();
     recreate_menu();
@@ -147,7 +140,7 @@ JoystickMenu::menu_action(MenuItem* item)
 }
 
 void
-JoystickMenu::refresh_menu_item(Controller::Control id)
+JoystickMenu::refresh_menu_item(Control id)
 {
   ItemControlField* itemcf = dynamic_cast<ItemControlField*>(&get_item_by_id(static_cast<int>(id)));
   if (!itemcf) {
@@ -226,24 +219,23 @@ JoystickMenu::refresh()
 {
   if (m_joysticks_available)
   {
-    refresh_menu_item(Controller::UP);
-    refresh_menu_item(Controller::DOWN);
-    refresh_menu_item(Controller::LEFT);
-    refresh_menu_item(Controller::RIGHT);
+    refresh_menu_item(Control::UP);
+    refresh_menu_item(Control::DOWN);
+    refresh_menu_item(Control::LEFT);
+    refresh_menu_item(Control::RIGHT);
 
-    refresh_menu_item(Controller::JUMP);
-    refresh_menu_item(Controller::ACTION);
-    refresh_menu_item(Controller::START);
-    refresh_menu_item(Controller::PEEK_LEFT);
-    refresh_menu_item(Controller::PEEK_RIGHT);
-    refresh_menu_item(Controller::PEEK_UP);
-    refresh_menu_item(Controller::PEEK_DOWN);
+    refresh_menu_item(Control::JUMP);
+    refresh_menu_item(Control::ACTION);
+    refresh_menu_item(Control::START);
+    refresh_menu_item(Control::PEEK_LEFT);
+    refresh_menu_item(Control::PEEK_RIGHT);
+    refresh_menu_item(Control::PEEK_UP);
+    refresh_menu_item(Control::PEEK_DOWN);
 
     if (g_config->developer_mode) {
-      refresh_menu_item(Controller::CONSOLE);
-    }
-    if (g_config->developer_mode) {
-      refresh_menu_item(Controller::CHEAT_MENU);
+      refresh_menu_item(Control::CONSOLE);
+      refresh_menu_item(Control::CHEAT_MENU);
+      refresh_menu_item(Control::DEBUG_MENU);
     }
   }
 }

@@ -63,18 +63,16 @@ public:
   std::vector<LevelState> level_states;
 };
 
-class Savegame
+class Savegame final
 {
-private:
-  std::string m_filename;
-  std::unique_ptr<PlayerStatus> m_player_status;
+public:
+  static std::unique_ptr<Savegame> from_file(const std::string& filename);
 
 public:
   Savegame(const std::string& filename);
-  ~Savegame();
 
   /** Returns content of (tux ...) entry */
-  PlayerStatus* get_player_status() const { return m_player_status.get(); }
+  PlayerStatus& get_player_status() const { return *m_player_status; }
 
   std::string get_title() const;
 
@@ -88,10 +86,16 @@ public:
   WorldmapState get_worldmap_state(const std::string& name);
 
   void save();
-  void load();
+
+  bool is_title_screen() const;
 
 private:
+  void load();
   void clear_state_table();
+
+private:
+  std::string m_filename;
+  std::unique_ptr<PlayerStatus> m_player_status;
 
 private:
   Savegame(const Savegame&) = delete;

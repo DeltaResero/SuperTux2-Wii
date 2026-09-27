@@ -21,7 +21,7 @@
 
 class Sizef;
 
-class Size
+class Size final
 {
 public:
   Size() :
@@ -34,10 +34,8 @@ public:
     height(height_)
   {}
 
-  Size(const Size& rhs) :
-    width(rhs.width),
-    height(rhs.height)
-  {}
+  Size(const Size& rhs) = default;
+  Size& operator=(const Size& rhs) = default;
 
   explicit Size(const Sizef& rhs);
 
@@ -67,6 +65,11 @@ public:
     width  -= rhs.width;
     height -= rhs.height;
     return *this;
+  }
+
+  bool is_valid() const 
+  {
+    return width > 0 && height > 0;
   }
 
 public:
@@ -117,3 +120,5 @@ inline bool operator!=(const Size& lhs, const Size& rhs)
 std::ostream& operator<<(std::ostream& s, const Size& size);
 
 #endif
+
+/* EOF */

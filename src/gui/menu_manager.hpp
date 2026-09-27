@@ -17,18 +17,17 @@
 #ifndef HEADER_SUPERTUX_GUI_MENU_MANAGER_HPP
 #define HEADER_SUPERTUX_GUI_MENU_MANAGER_HPP
 
-#include <list>
 #include <memory>
 #include <vector>
 
-#include "SDL.h"
-
+class Controller;
 class Dialog;
 class DrawingContext;
 class Menu;
 class MenuTransition;
+union SDL_Event;
 
-class MenuManager
+class MenuManager final
 {
 private:
   static MenuManager* s_instance;
@@ -48,7 +47,7 @@ public:
   ~MenuManager();
 
   void event(const SDL_Event& event);
-  void process_input();
+  void process_input(const Controller& controller);
   void refresh();
 
   void draw(DrawingContext& context);
@@ -68,14 +67,18 @@ public:
     return !m_menu_stack.empty();
   }
 
+  bool has_dialog() const
+  {
+    return m_dialog || m_has_next_dialog;
+  }
   Menu* current_menu() const;
 
 private:
   void transition(Menu* from, Menu* to);
 
 private:
-  MenuManager(const MenuManager&);
-  MenuManager& operator=(const MenuManager&);
+  MenuManager(const MenuManager&) = delete;
+  MenuManager& operator=(const MenuManager&) = delete;
 };
 
 #endif

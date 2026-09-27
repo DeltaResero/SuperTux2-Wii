@@ -17,15 +17,11 @@
 
 #include "addon/addon.hpp"
 
-#include <physfs.h>
-#include <stdexcept>
 #include <sstream>
 
-#include "util/log.hpp"
 #include "util/reader.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 
 namespace {
 
@@ -45,9 +41,13 @@ Addon::Type addon_type_from_string(const std::string& type)
   {
     return Addon::LEVELSET;
   }
-  else if(type == "languagepack")
+  else if (type == "languagepack")
   {
     return Addon::LANGUAGEPACK;
+  }
+  else if (type == "addon")
+  {
+    return Addon::ADDON;
   }
   else
   {
@@ -58,13 +58,13 @@ Addon::Type addon_type_from_string(const std::string& type)
 } // namespace
 
 std::unique_ptr<Addon>
-Addon::parse(const ReaderMapping& lisp)
+Addon::parse(const ReaderMapping& mapping)
 {
   std::unique_ptr<Addon> addon(new Addon);
 
   try
   {
-    if (!lisp.get("id", addon->m_id))
+    if (!mapping.get("id", addon->m_id))
     {
       throw std::runtime_error("(id ...) field missing from addon description");
     }
@@ -79,18 +79,18 @@ Addon::parse(const ReaderMapping& lisp)
       throw std::runtime_error("addon id contains illegal characters: " + addon->m_id);
     }
 
-    lisp.get("version", addon->m_version);
+    mapping.get("version", addon->m_version);
 
     std::string type;
-    lisp.get("type", type);
+    mapping.get("type", type);
     addon->m_type = addon_type_from_string(type);
 
-    lisp.get("title", addon->m_title);
-    lisp.get("author", addon->m_author);
-    lisp.get("license", addon->m_license);
-    lisp.get("url", addon->m_url);
-    lisp.get("md5", addon->m_md5);
-    lisp.get("format", addon->m_format);
+    mapping.get("title", addon->m_title);
+    mapping.get("author", addon->m_author);
+    mapping.get("license", addon->m_license);
+    mapping.get("url", addon->m_url);
+    mapping.get("md5", addon->m_md5);
+    mapping.get("format", addon->m_format);
 
     return addon;
   }
@@ -108,9 +108,9 @@ Addon::parse(const std::string& fname)
   try
   {
     register_translation_directory(fname);
-    auto doc = ReaderDocument::parse(fname);
+    auto doc = ReaderDocument::from_file(fname);
     auto root = doc.get_root();
-    if(root.get_name() != "supertux-addoninfo")
+    if (root.get_name() != "supertux-addoninfo")
     {
       throw std::runtime_error("file is not a supertux-addoninfo file.");
     }
@@ -177,6 +177,5 @@ Addon::set_enabled(bool v)
 {
   m_enabled = v;
 }
-
 
 /* EOF */

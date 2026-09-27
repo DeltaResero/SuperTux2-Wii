@@ -18,46 +18,60 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_SPECIAL_TILE_HPP
 #define HEADER_SUPERTUX_WORLDMAP_SPECIAL_TILE_HPP
 
-#include <memory>
 #include <string>
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/game_object.hpp"
-#include "util/reader_fwd.hpp"
+
+class ReaderMapping;
 
 namespace worldmap {
 
-class SpecialTile : public GameObject
+class SpecialTile final : public GameObject
 {
 public:
-  SpecialTile(const ReaderMapping& lisp);
-  virtual ~SpecialTile();
+  SpecialTile(const ReaderMapping& mapping);
+  ~SpecialTile() override;
 
-  virtual void draw(DrawingContext& context);
-  virtual void update(float elapsed_time);
+  virtual void draw(DrawingContext& context) override;
+  virtual void update(float dt_sec) override;
 
-public:
-  Vector pos;
+  Vector get_pos() const { return m_pos; }
+  std::string get_map_message() const { return m_map_message; }
+  bool is_passive_message() const { return m_passive_message; }
+  std::string get_script() const { return m_script; }
+
+  bool get_apply_action_north() const { return m_apply_action_north; }
+  bool get_apply_action_east() const  { return m_apply_action_east; }
+  bool get_apply_action_south() const { return m_apply_action_south; }
+  bool get_apply_action_west() const { return m_apply_action_west; }
+
+private:
+  Vector m_pos;
 
   /** Sprite to render instead of guessing what image to draw */
-  SpritePtr sprite;
+  SpritePtr m_sprite;
 
   /** Message to show in the Map */
-  std::string map_message;
-  bool passive_message;
+  std::string m_map_message;
+  bool m_passive_message;
 
   /** Script to execute when tile is touched */
-  std::string script;
+  std::string m_script;
 
   /** Hide special tile */
-  bool invisible;
+  bool m_invisible;
 
   /** Only applies actions (ie. passive messages) when going to that direction */
-  bool apply_action_north;
-  bool apply_action_east;
-  bool apply_action_south;
-  bool apply_action_west;
+  bool m_apply_action_north;
+  bool m_apply_action_east;
+  bool m_apply_action_south;
+  bool m_apply_action_west;
+
+private:
+  SpecialTile(const SpecialTile&) = delete;
+  SpecialTile& operator=(const SpecialTile&) = delete;
 };
 
 } // namespace worldmap

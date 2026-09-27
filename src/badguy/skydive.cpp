@@ -16,103 +16,143 @@
 
 #include "badguy/skydive.hpp"
 
+#include "audio/sound_manager.hpp"
+#include "object/explosion.hpp"
+#include "object/player.hpp"
+#include "sprite/sprite.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/sector.hpp"
-#include "object/anchor_point.hpp"
-#include "object/player.hpp"
-#include "object/explosion.hpp"
+#include "supertux/tile.hpp"
 
 SkyDive::SkyDive(const ReaderMapping& reader) :
-  BadGuy(reader, "images/creatures/skydive/skydive.sprite"),
-  is_grabbed(false)
+  BadGuy(reader, "images/creatures/skydive/skydive.sprite")
 {
-}
-
-SkyDive::SkyDive(const Vector& pos, Direction d) :
-  BadGuy(pos, d, "images/creatures/skydive/skydive.sprite"),
-  is_grabbed(false)
-{
+  SoundManager::current()->preload("sounds/explosion.wav");
 }
 
 void
 SkyDive::collision_solid(const CollisionHit& hit)
 {
-  if (hit.bottom) {
-    explode ();
-    return;
-  }
-
   if (hit.left || hit.right)
-    physic.set_velocity_x (0.0);
-} /* void collision_solid */
+    m_physic.set_velocity_x(0.0);
+  explode();
+  return;
+}
 
 HitResponse
 SkyDive::collision_badguy(BadGuy&, const CollisionHit& hit)
 {
   if (hit.bottom) {
-    explode ();
-    return (ABORT_MOVE);
+    explode();
+    return ABORT_MOVE;
   }
 
-  return (FORCE_MOVE);
-} /* HitResponse collision_badguy */
-
-void
-SkyDive::grab (MovingObject&, const Vector& pos, Direction dir_)
-{
-  movement = pos - get_pos();
-  this->dir = dir_;
-
-  is_grabbed = true;
-
-  physic.set_velocity_x (movement.x * LOGICAL_FPS);
-  physic.set_velocity_y (0.0);
-  physic.set_acceleration_y (0.0);
-  physic.enable_gravity (false);
-  set_colgroup_active (COLGROUP_DISABLED);
+  return FORCE_MOVE;
 }
 
 void
-SkyDive::ungrab (MovingObject& , Direction)
+SkyDive::grab(MovingObject& object, const Vector& pos, Direction dir_)
 {
-  is_grabbed = false;
+  Portable::grab(object, pos, dir_);
+  Vector movement = pos - get_pos();
+  m_col.set_movement(movement);
+  m_dir = dir_;
 
-  physic.set_velocity_y (0);
-  physic.set_acceleration_y (0);
-  physic.enable_gravity (true);
-  set_colgroup_active (COLGROUP_MOVING);
+  m_physic.set_velocity_x(movement.x * LOGICAL_FPS);
+  m_physic.set_velocity_y(0.0);
+  m_physic.set_acceleration_y(0.0);
+  m_physic.enable_gravity(false);
+  set_colgroup_active(COLGROUP_DISABLED);
+}
+
+void
+SkyDive::ungrab(MovingObject& object, Direction dir_)
+{
+  m_sprite->set_action("falling", 1);
+  auto player = dynamic_cast<Player*> (&object);
+  //handle swimming
+  if (player)
+  {
+    if (player->is_swimming() || player->is_water_jumping())
+    {
+      float swimangle = player->get_swimming_angle();
+      m_physic.set_velocity(Vector(std::cos(swimangle) * 40.f, std::sin(swimangle) * 40.f) +
+        player->get_physic().get_velocity());
+    }
+    //handle non-swimming
+    else
+    {
+      //handle x-movement
+      if (fabsf(player->get_physic().get_velocity_x()) < 1.0f)
+        m_physic.set_velocity_x(0.f);
+      else if ((player->m_dir == Direction::LEFT && player->get_physic().get_velocity_x() <= -1.0f)
+        || (player->m_dir == Direction::RIGHT && player->get_physic().get_velocity_x() >= 1.0f))
+        m_physic.set_velocity_x(player->get_physic().get_velocity_x()
+          + (player->m_dir == Direction::LEFT ? -10.f : 10.f));
+      else
+        m_physic.set_velocity_x(player->get_physic().get_velocity_x()
+          + (player->m_dir == Direction::LEFT ? -330.f : 330.f));
+      //handle y-movement
+      m_physic.set_velocity_y(dir_ == Direction::UP ? -500.f :
+        dir_ == Direction::DOWN ? 500.f :
+        player->get_physic().get_velocity_x() != 0.f ? -200.f : 0.f);
+    }
+  }
+  else
+  {
+    m_physic.set_velocity_y(0);
+    m_physic.set_acceleration_y(0);
+  }
+  m_physic.enable_gravity(true);
+  set_colgroup_active(COLGROUP_MOVING);
+  Portable::ungrab(object, dir_);
 }
 
 HitResponse
 SkyDive::collision_player(Player&, const CollisionHit& hit)
 {
   if (hit.bottom) {
-    explode ();
-    return (ABORT_MOVE);
+    explode();
+    return ABORT_MOVE;
   }
 
   return FORCE_MOVE;
-} /* HitResponse collision_player */
+}
 
 bool
-SkyDive::collision_squished (GameObject& obj)
+SkyDive::collision_squished(GameObject& obj)
 {
-  auto player = dynamic_cast<Player *> (&obj);
+  auto player = dynamic_cast<Player *>(&obj);
   if (player) {
-    player->bounce (*this);
-    return (false);
+    player->bounce(*this);
+    return false;
   }
 
-  explode ();
-  return (false);
-} /* bool collision_squished */
+  explode();
+  return false;
+}
 
 void
-SkyDive::active_update (float elapsed_time)
+SkyDive::collision_tile(uint32_t tile_attributes)
 {
-  if (!is_grabbed)
-    movement = physic.get_movement(elapsed_time);
-} /* void active_update */
+  if (tile_attributes & Tile::HURTS)
+  {
+    explode();
+  }
+}
+
+void
+SkyDive::active_update(float dt_sec)
+{
+  if (!is_grabbed())
+    m_col.set_movement(m_physic.get_movement(dt_sec));
+}
+
+void
+SkyDive::kill_fall()
+{
+  explode();
+}
 
 void
 SkyDive::explode()
@@ -120,14 +160,12 @@ SkyDive::explode()
   if (!is_valid())
     return;
 
-  auto explosion = std::make_shared<Explosion>(get_anchor_pos (bbox, ANCHOR_BOTTOM));
+  auto& explosion = Sector::get().add<Explosion>(
+    get_anchor_pos(m_col.m_bbox, ANCHOR_BOTTOM), EXPLOSION_STRENGTH_NEAR);
 
-  explosion->hurts(true);
-  explosion->pushes(false);
-  Sector::current()->add_object(explosion);
+  explosion.hurts(true);
 
-  remove_me ();
-} /* void explode */
+  remove_me();
+}
 
-/* vim: set sw=2 sts=2 et fdm=marker : */
 /* EOF */

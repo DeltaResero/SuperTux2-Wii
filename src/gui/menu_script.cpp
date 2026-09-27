@@ -16,12 +16,8 @@
 
 #include "gui/menu_script.hpp"
 
-#include "audio/sound_manager.hpp"
 #include "gui/item_script_line.hpp"
-#include "gui/menu_item.hpp"
-#include "gui/item_action.hpp"
 #include "util/gettext.hpp"
-#include "util/log.hpp"
 
 ScriptMenu::ScriptMenu(std::string* script_) :
   base_script(script_),
@@ -29,7 +25,7 @@ ScriptMenu::ScriptMenu(std::string* script_) :
 {
   script_strings.clear();
 
-  add_label(_("Edit the script"));
+  add_label(_("Edit script"));
   add_hl();
 
   // Split the script to the lines.
@@ -60,9 +56,9 @@ ScriptMenu::~ScriptMenu()
 }
 
 void
-ScriptMenu::push_string(std::string new_line)
+ScriptMenu::push_string(const std::string& new_line)
 {
-  script_strings.push_back( std::unique_ptr<std::string>(new std::string(new_line)) );
+  script_strings.push_back(std::make_unique<std::string>(new_line));
   add_script_line( (script_strings.end()-1)->get() );
 }
 
@@ -73,23 +69,23 @@ ScriptMenu::remove_line() {
     return;
   }
 
-  script_strings.erase(script_strings.begin() + (active_item - 2));
-  delete_item(active_item);
+  script_strings.erase(script_strings.begin() + (m_active_item - 2));
+  delete_item(m_active_item);
 }
 
 void
 ScriptMenu::add_line() {
-  auto new_line = std::unique_ptr<std::string>(new std::string());
-  script_strings.insert(script_strings.begin() + (active_item - 1), move(new_line));
+  auto new_line = std::make_unique<std::string>();
+  script_strings.insert(script_strings.begin() + (m_active_item - 1), move(new_line));
 
   auto line_item = std::unique_ptr<ItemScriptLine>(
-        new ItemScriptLine( (script_strings.begin()+(active_item-1))->get() ));
-  add_item(move(line_item), active_item+1);
-  active_item++;
+        new ItemScriptLine( (script_strings.begin()+(m_active_item-1))->get() ));
+  add_item(std::move(line_item), m_active_item+1);
+  m_active_item++;
 }
 
 void
-ScriptMenu::menu_action(MenuItem* item)
+ScriptMenu::menu_action(MenuItem& item)
 {
 
 }

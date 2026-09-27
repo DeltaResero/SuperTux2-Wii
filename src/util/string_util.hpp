@@ -19,7 +19,7 @@
 
 #include <string>
 
-class StringUtil
+class StringUtil final
 {
 public:
   static bool has_suffix(const std::string& data, const std::string& suffix);
@@ -27,6 +27,12 @@ public:
   /** Compare two strings according to their numeric value, similar to
       what 'sort -n' does. */
   static bool numeric_less(const std::string& lhs, const std::string& rhs);
+
+  static std::string tolower(const std::string& text);
+
+  static std::string replace_all(const std::string& haystack,
+                                 const std::string& needle,
+                                 const std::string& replacement);
 };
 
 #endif

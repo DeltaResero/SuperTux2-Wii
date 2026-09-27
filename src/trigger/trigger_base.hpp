@@ -18,17 +18,18 @@
 #define HEADER_SUPERTUX_TRIGGER_TRIGGER_BASE_HPP
 
 #include <list>
-#include <memory>
 
-#include "sprite/sprite_ptr.hpp"
 #include "supertux/moving_object.hpp"
 #include "supertux/object_remove_listener.hpp"
 
+#include "sprite/sprite_ptr.hpp"
+#include "video/layer.hpp"
+
 class Player;
 
-/** This class is the base class for all objects you can interact with in some
- * way. There are several interaction types defined like touch and activate
- */
+/** This class is the base class for all objects you can interact with
+    in some way. There are several interaction types defined like
+    touch and activate */
 class TriggerBase : public MovingObject,
                     public ObjectRemoveListener
 {
@@ -39,35 +40,36 @@ public:
     EVENT_ACTIVATE   /**< Action button pressed    */
   };
 
+public:
+  TriggerBase(const ReaderMapping& mapping);
   TriggerBase();
-  ~TriggerBase();
+  ~TriggerBase() override;
 
-  void update(float elapsed_time);
-  void draw(DrawingContext& context);
-  HitResponse collision(GameObject& other, const CollisionHit& hit);
+  virtual void update(float dt_sec) override;
+  virtual void draw(DrawingContext& context) override;
+  virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
-  /**
-   * Receive trigger events
-   */
+  /** Receive trigger events */
   virtual void event(Player& player, EventType type) = 0;
 
-  /**
-   * Called by GameObject destructor of an object in losetouch_listeners
-   */
-  virtual void object_removed(GameObject* object);
+  /** Called by GameObject destructor of an object in losetouch_listeners */
+  virtual void object_removed(GameObject* object) override;
+
+  virtual int get_layer() const override { return LAYER_TILES + 1; }
 
 private:
-  SpritePtr sprite;
-  bool lasthit;
-  bool hit;
+  SpritePtr m_sprite;
+  bool m_lasthit;
+  bool m_hit;
 
-  std::list<Player*> losetouch_listeners; /**< Players that will be informed when we lose touch with them */
+  /** Players that will be informed when we lose touch with them */
+  std::vector<Player*> m_losetouch_listeners;
 
 private:
-  TriggerBase(const TriggerBase&);
-  TriggerBase& operator=(const TriggerBase&);
+  TriggerBase(const TriggerBase&) = delete;
+  TriggerBase& operator=(const TriggerBase&) = delete;
 };
 
-#endif /*SUPERTUX_INTERACTIVE_OBJECT_H*/
+#endif
 
 /* EOF */

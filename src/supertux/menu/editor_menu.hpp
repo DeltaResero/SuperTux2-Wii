@@ -18,33 +18,36 @@
 #define HEADER_SUPERTUX_SUPERTUX_MENU_EDITOR_MENU_HPP
 
 #include "gui/menu.hpp"
-#include "video/color.hpp"
 
-class Level;
-
-class EditorMenu : public Menu
+class EditorMenu final : public Menu
 {
-private:
-public:
-  EditorMenu();
-  ~EditorMenu();
-
-  void menu_action(MenuItem* item) override;
-
 private:
   enum MenuIDs {
     MNID_RETURNTOEDITOR,
     MNID_SAVELEVEL,
+    MNID_SAVEASLEVEL,
+    MNID_SAVECOPYLEVEL,
     MNID_TESTLEVEL,
+    MNID_PACK,
+    MNID_OPEN_DIR,
+    MNID_SHARE,
     MNID_LEVELSEL,
     MNID_LEVELSETSEL,
+	  MNID_HELP,
     MNID_QUITEDITOR
   };
 
-  EditorMenu(const EditorMenu&);
-  EditorMenu& operator=(const EditorMenu&);
+public:
+  EditorMenu();
+  ~EditorMenu() override;
+
+  void menu_action(MenuItem& item) override;
+
+private:
+  EditorMenu(const EditorMenu&) = delete;
+  EditorMenu& operator=(const EditorMenu&) = delete;
 };
 
-#endif //HEADER_SUPERTUX_SUPERTUX_MENU_EDITOR_MENU_HPP
+#endif
 
 /* EOF */

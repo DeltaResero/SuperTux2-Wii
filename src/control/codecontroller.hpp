@@ -19,18 +19,21 @@
 
 #include "control/controller.hpp"
 
-/**
- * This is a dummy controller that doesn't react to any user input but should
- * be controlled by code
- */
-class CodeController : public Controller
+/** This is a dummy controller that doesn't react to any user input but should
+    be controlled by code */
+class CodeController final : public Controller
 {
 public:
   CodeController();
-  virtual ~CodeController();
+  ~CodeController() override;
+
+  virtual void update() override;
 
   void press(Control c, bool pressed = true);
-  void update();
+
+private:
+  CodeController(const CodeController&) = delete;
+  CodeController& operator=(const CodeController&) = delete;
 };
 
 #endif

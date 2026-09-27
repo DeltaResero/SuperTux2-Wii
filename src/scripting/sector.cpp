@@ -1,5 +1,6 @@
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
+//                2021 A. Semphris <semphris@protonmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,55 +17,24 @@
 
 #include "scripting/sector.hpp"
 
-#include <physfs.h>
-
+#include "math/easing.hpp"
+#include "object/ambient_light.hpp"
+#include "object/music_object.hpp"
 #include "supertux/sector.hpp"
+#include "video/color.hpp"
 
 namespace scripting {
 
 Sector::Sector(::Sector* parent) :
+  GameObjectManager(parent),
   m_parent(parent)
 {
-}
-
-Sector::~Sector()
-{
-}
-
-void
-Sector::set_ambient_light(float red, float green, float blue)
-{
-  m_parent->set_ambient_light(red, green, blue);
-}
-
-float
-Sector::get_ambient_red() const
-{
-  return m_parent->get_ambient_red();
-}
-
-float
-Sector::get_ambient_green() const
-{
-  return m_parent->get_ambient_green();
-}
-
-float
-Sector::get_ambient_blue() const
-{
-  return m_parent->get_ambient_blue();
 }
 
 void
 Sector::set_gravity(float gravity)
 {
   m_parent->set_gravity(gravity);
-}
-
-void
-Sector::set_music(const std::string& music)
-{
-  m_parent->music = music;
 }
 
 } // namespace scripting

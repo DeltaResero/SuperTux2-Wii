@@ -19,10 +19,10 @@
 #define HEADER_SUPERTUX_SUPERTUX_PLAYER_STATUS_HPP
 
 #include <memory>
+#include <string>
+#include <algorithm>
 
-#include "video/color.hpp"
-#include "video/surface_ptr.hpp"
-
+class DrawingContext;
 class ReaderMapping;
 class Writer;
 
@@ -30,29 +30,26 @@ static const float BORDER_X = 10;
 static const float BORDER_Y = 10;
 
 enum BonusType {
-  NO_BONUS, GROWUP_BONUS, FIRE_BONUS, ICE_BONUS, AIR_BONUS, EARTH_BONUS
+  NO_BONUS = 0, GROWUP_BONUS, FIRE_BONUS, ICE_BONUS, AIR_BONUS, EARTH_BONUS
 };
-class DrawingContext;
 
-/**
- * This class keeps player status between different game sessions (for
- * example when switching maps in the worldmap)
- */
-class PlayerStatus
+/** This class keeps player status between different game sessions (for
+    example when switching maps in the worldmap) */
+class PlayerStatus final
 {
-  static Color text_color;
 public:
   PlayerStatus();
-  ~PlayerStatus();
   void reset();
   void add_coins(int count, bool play_sound = true);
+  void take_checkpoint_coins();
 
   void write(Writer& writer);
-  void read(const ReaderMapping& lisp);
+  void read(const ReaderMapping& mapping);
 
-  void draw(DrawingContext& context);
-
+  int get_max_coins() const;
+  bool can_reach_checkpoint() const;
   std::string get_bonus_prefix() const;/**Returns the prefix of the animations that should be displayed*/
+  bool has_hat_sprite() const { return bonus > GROWUP_BONUS; }
 
 public:
   int  coins;
@@ -66,13 +63,8 @@ public:
   std::string last_worldmap; /**< the last played worldmap */
 
 private:
-  int displayed_coins;
-  int displayed_coins_frame;
-  SurfacePtr coin_surface;
-
-private:
-  PlayerStatus(const PlayerStatus&);
-  PlayerStatus& operator=(const PlayerStatus&);
+  PlayerStatus(const PlayerStatus&) = delete;
+  PlayerStatus& operator=(const PlayerStatus&) = delete;
 };
 
 #endif

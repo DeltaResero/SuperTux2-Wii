@@ -14,21 +14,17 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <algorithm>
-
 #include "string_util.hpp"
+
+#include <algorithm>
+#include <string>
+#include <string.h>
 
 bool
 StringUtil::has_suffix(const std::string& data, const std::string& suffix)
 {
-  if (data.length() >= suffix.length())
-  {
-    return data.compare(data.length() - suffix.length(), suffix.length(), suffix) == 0;
-  }
-  else
-  {
-    return false;
-  }
+  return data.length() >= suffix.length()
+         && data.compare(data.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
 
 bool
@@ -37,7 +33,7 @@ StringUtil::numeric_less(const std::string& lhs, const std::string& rhs)
   std::string::size_type i = 0;
   std::string::size_type min_len = std::min(lhs.size(), rhs.size());
 
-  while(i < min_len)
+  while (i < min_len)
   {
     if (isdigit(lhs[i]) && isdigit(rhs[i]))
     {
@@ -46,14 +42,14 @@ StringUtil::numeric_less(const std::string& lhs, const std::string& rhs)
       std::string::size_type ri = i+1;
 
       // find the end of the number in both strings
-      while(li < lhs.size() && isdigit(lhs[li])) { li += 1; }
-      while(ri < rhs.size() && isdigit(rhs[ri])) { ri += 1; }
+      while (li < lhs.size() && isdigit(lhs[li])) { li += 1; }
+      while (ri < rhs.size() && isdigit(rhs[ri])) { ri += 1; }
 
       if (li == ri)
       {
         // end is at the same point in both strings, so do a detaile
         // comparism of the numbers
-        for(std::string::size_type j = i; j < li; ++j)
+        for (std::string::size_type j = i; j < li; ++j)
         {
           if (lhs[j] != rhs[j])
           {
@@ -89,4 +85,24 @@ StringUtil::numeric_less(const std::string& lhs, const std::string& rhs)
   return lhs.size() < rhs.size();
 }
 
+std::string
+StringUtil::tolower(const std::string& text)
+{
+  std::string result = text;
+  std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+  return result;
+}
+
+std::string
+StringUtil::replace_all(const std::string& haystack, const std::string& needle,
+                        const std::string& replacement)
+{
+  std::string ret = haystack;
+  size_t start_pos = 0;
+  while((start_pos = ret.find(needle, start_pos)) != std::string::npos) {
+    ret.replace(start_pos, needle.length(), replacement);
+    start_pos += replacement.length();
+  }
+  return ret;
+}
 /* EOF */

@@ -28,10 +28,15 @@ TEST(ReaderTest, get)
     "   (myfloat 1.125)\n\r"
     "   (mystring \"Hello World\")\n"
     "   (mystringtrans (_ \"Hello World\"))\n"
+    "   (myboolarray #t #f #t #f)\n"
+    "   (myintarray 5 4 3 2 1 0)\n"
+    "   (myfloatarray 6.5 5.25 4.125 3.0625 2.0 1.0 0.5 0.25 0.125)\n"
+    "   (mystringarray \"One\" \"Two\" \"Three\")\n"
     "   (mymapping (a 1) (b 2))\n"
+    "   (mycustom \"1234\")\n"
     ")\n");
 
-  auto doc = ReaderDocument::parse(in);
+  auto doc = ReaderDocument::from_stream(in);
   auto root = doc.get_root();
   ASSERT_EQ("supertux-test", root.get_name());
   auto mapping = root.get_mapping();
@@ -67,16 +72,60 @@ TEST(ReaderTest, get)
   }
 
   {
-    ReaderMapping child_mapping;
+    std::vector<bool> expected{ true, false, true, false };
+    std::vector<bool> result;
+    mapping.get("myboolarray", result);
+    ASSERT_EQ(expected, result);
+  }
+
+  {
+    std::vector<int> expected{ 5, 4, 3, 2, 1, 0 };
+    std::vector<int> result;
+    mapping.get("myintarray", result);
+    ASSERT_EQ(expected, result);
+  }
+
+  {
+    std::vector<float> expected({6.5f, 5.25f, 4.125f, 3.0625f, 2.0f, 1.0f, 0.5f, 0.25f, 0.125f});
+    std::vector<float> result;
+    mapping.get("myfloatarray", result);
+    ASSERT_EQ(expected, result);
+  }
+
+  {
+    std::vector<std::string> expected{"One", "Two", "Three"};
+    std::vector<std::string> result;
+    mapping.get("mystringarray", result);
+    ASSERT_EQ(expected, result);
+  }
+
+  {
+    boost::optional<ReaderMapping> child_mapping;
     mapping.get("mymapping", child_mapping);
 
     int a;
-    child_mapping.get("a", a);
+    child_mapping->get("a", a);
     ASSERT_EQ(1, a);
 
     int b;
-    child_mapping.get("b", b);
+    child_mapping->get("b", b);
     ASSERT_EQ(2, b);
+  }
+
+  {
+    auto from_string = [](const std::string& text){ return std::stoi(text); };
+
+    int value = 0;
+    mapping.get_custom("mycustom", value, from_string);
+    ASSERT_EQ(1234, value);
+
+    int value2 = 0;
+    mapping.get_custom("does-not-exist", value2, from_string);
+    ASSERT_EQ(0, value2);
+
+    int value3 = 0;
+    mapping.get_custom("does-not-exist", value3, from_string, 4321);
+    ASSERT_EQ(4321, value3);
   }
 
   {
@@ -102,7 +151,7 @@ TEST(ReaderTest, syntax_error)
     "   (mymapping err (a 1) (b 2))\n"
     ")\n");
 
-  auto doc = ReaderDocument::parse(in);
+  auto doc = ReaderDocument::from_stream(in);
   auto root = doc.get_root();
   ASSERT_EQ("supertux-test", root.get_name());
   auto mapping = root.get_mapping();
@@ -110,14 +159,14 @@ TEST(ReaderTest, syntax_error)
   bool mybool;
   int myint;
   float myfloat;
-  ReaderMapping mymapping;
+  boost::optional<ReaderMapping> mymapping;
   ASSERT_THROW({mapping.get("mybool", mybool);}, std::runtime_error);
   ASSERT_THROW({mapping.get("myint", myint);}, std::runtime_error);
   ASSERT_THROW({mapping.get("myfloat", myfloat);}, std::runtime_error);
 
   mapping.get("mymapping", mymapping);
-  ASSERT_THROW({mymapping.get("a", myint);}, std::runtime_error);
-  ASSERT_THROW({mymapping.get("b", myint);}, std::runtime_error);
+  ASSERT_THROW({mymapping->get("a", myint);}, std::runtime_error);
+  ASSERT_THROW({mymapping->get("b", myint);}, std::runtime_error);
 }
 
 /* EOF */

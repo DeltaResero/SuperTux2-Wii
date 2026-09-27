@@ -41,12 +41,10 @@ private:
   friend class KeyboardMenu;
   friend class JoystickMenu;
 
-  typedef Controller::Control Control;
-
 public:
   InputManager(KeyboardConfig& keyboard_config,
                JoystickConfig& joystick_config);
-  virtual ~InputManager();
+  ~InputManager() override;
 
   void process_event(const SDL_Event& event);
 
@@ -56,7 +54,8 @@ public:
   void use_game_controller(bool v);
   bool use_game_controller() const { return m_use_game_controller; }
 
-  Controller* get_controller() const;
+  const Controller& get_controller() const;
+  Controller& get_controller();
 
 private:
   std::unique_ptr<Controller> controller;
@@ -68,8 +67,8 @@ public:
   std::unique_ptr<GameControllerManager> game_controller_manager;
 
 private:
-  InputManager(const InputManager&);
-  InputManager& operator=(const InputManager&);
+  InputManager(const InputManager&) = delete;
+  InputManager& operator=(const InputManager&) = delete;
 };
 
 #endif

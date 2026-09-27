@@ -19,24 +19,33 @@
 
 #include <string>
 
-#include "util/reader_fwd.hpp"
 #include "math/vector.hpp"
-#include "supertux/game_object.hpp"
 #include "worldmap/direction.hpp"
+
+class ReaderMapping;
 
 namespace worldmap {
 
-class SpawnPoint
+class SpawnPoint final
 {
 public:
-  SpawnPoint(const ReaderMapping& lisp);
+  SpawnPoint(const ReaderMapping& mapping);
 
-  std::string name;
-  Vector pos;
-  Direction auto_dir; /**< automatically start walking in this direction */
+  std::string get_name() const { return m_name; }
+  Vector get_pos() const { return m_pos; }
+  Direction get_auto_dir() const { return m_auto_dir; }
+
+private:
+  std::string m_name;
+  Vector m_pos;
+  Direction m_auto_dir; /**< automatically start walking in this direction */
+
+private:
+  SpawnPoint(const SpawnPoint&) = delete;
+  SpawnPoint& operator=(const SpawnPoint&) = delete;
 };
 
-}
+} // namespace worldmap
 
 #endif
 

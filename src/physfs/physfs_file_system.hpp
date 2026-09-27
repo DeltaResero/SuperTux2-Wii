@@ -14,19 +14,19 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_FILE_SYSTEM_HPP
-#define HEADER_SUPERTUX_PHYSFS_FILE_SYSTEM_HPP
+#ifndef HEADER_SUPERTUX_PHYSFS_PHYSFS_FILE_SYSTEM_HPP
+#define HEADER_SUPERTUX_PHYSFS_PHYSFS_FILE_SYSTEM_HPP
 
 #include <tinygettext/file_system.hpp>
 
-class PhysFSFileSystem : public tinygettext::FileSystem
+/** Helper class for tinygettext */
+class PhysFSFileSystem final : public tinygettext::FileSystem
 {
 public:
   PhysFSFileSystem();
 
-  std::vector<std::string>    open_directory(const std::string& pathname);
-  std::unique_ptr<std::istream> open_file(const std::string& filename);
-  static bool is_directory(const std::string& filename);
+  virtual std::vector<std::string> open_directory(const std::string& pathname) override;
+  virtual std::unique_ptr<std::istream> open_file(const std::string& filename) override;
 };
 
 #endif

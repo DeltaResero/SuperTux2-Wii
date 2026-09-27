@@ -16,32 +16,23 @@
 
 #include "scripting/gradient.hpp"
 
-#include <physfs.h>
-
 #include "object/gradient.hpp"
 
 namespace scripting {
 
-Gradient::Gradient(::Gradient* parent) :
-  gradient(parent)
-{
-}
-
-Gradient::~Gradient()
-{
-}
-
 void
 Gradient::set_direction(const std::string& direction)
 {
-  if(direction == "horizontal")
-    gradient->set_direction(GradientDirection::HORIZONTAL);
-  else if(direction == "vertical")
-    gradient->set_direction(GradientDirection::VERTICAL);
-  else if(direction == "horizontal_sector")
-    gradient->set_direction(GradientDirection::HORIZONTAL_SECTOR);
-  else if(direction == "vertical_sector")
-    gradient->set_direction(GradientDirection::VERTICAL_SECTOR);
+  SCRIPT_GUARD_VOID;
+
+  if (direction == "horizontal")
+    object.set_direction(GradientDirection::HORIZONTAL);
+  else if (direction == "vertical")
+    object.set_direction(GradientDirection::VERTICAL);
+  else if (direction == "horizontal_sector")
+    object.set_direction(GradientDirection::HORIZONTAL_SECTOR);
+  else if (direction == "vertical_sector")
+    object.set_direction(GradientDirection::VERTICAL_SECTOR);
   else
     log_info << "Invalid direction for gradient \"" << direction << "\"";
 }
@@ -49,38 +40,71 @@ Gradient::set_direction(const std::string& direction)
 std::string
 Gradient::get_direction() const
 {
-  auto direction = gradient->get_direction();
+  SCRIPT_GUARD_DEFAULT;
 
-  if(direction == GradientDirection::HORIZONTAL)
+  auto direction = object.get_direction();
+
+  if (direction == GradientDirection::HORIZONTAL)
     return "horizontal";
-  if(direction == GradientDirection::VERTICAL)
+  if (direction == GradientDirection::VERTICAL)
     return "vertical";
-  if(direction == GradientDirection::HORIZONTAL_SECTOR)
+  if (direction == GradientDirection::HORIZONTAL_SECTOR)
     return "horizontal_sector";
-  if(direction == GradientDirection::VERTICAL_SECTOR)
+  if (direction == GradientDirection::VERTICAL_SECTOR)
     return "vertical_sector";
 
-  return NULL;
+  return nullptr;
 }
 
 void
 Gradient::set_color1(float red, float green, float blue)
 {
-  gradient->set_gradient(Color(red, green, blue), gradient->get_gradient_bottom());
+  SCRIPT_GUARD_VOID;
+  object.set_gradient(Color(red, green, blue), object.get_gradient_bottom());
 }
 
 void
 Gradient::set_color2(float red, float green, float blue)
 {
-  gradient->set_gradient(gradient->get_gradient_top(), Color(red, green, blue));
+  SCRIPT_GUARD_VOID;
+  object.set_gradient(object.get_gradient_top(), Color(red, green, blue));
+}
+
+void
+Gradient::set_colors(float red1, float green1, float blue1, float red2, float green2, float blue2)
+{
+  SCRIPT_GUARD_VOID;
+  object.set_gradient(Color(red1, green1, blue1), Color(red2, green2, blue2));
+}
+
+void
+Gradient::fade_color1(float red, float green, float blue, float time)
+{
+  SCRIPT_GUARD_VOID;
+  object.fade_gradient(Color(red, green, blue), object.get_gradient_bottom(), time);
+}
+
+void
+Gradient::fade_color2(float red, float green, float blue, float time)
+{
+  SCRIPT_GUARD_VOID;
+  object.fade_gradient(object.get_gradient_top(), Color(red, green, blue), time);
+}
+
+void
+Gradient::fade_colors(float red1, float green1, float blue1, float red2, float green2, float blue2, float time)
+{
+  SCRIPT_GUARD_VOID;
+  object.fade_gradient(Color(red1, green1, blue1), Color(red2, green2, blue2), time);
 }
 
 void
 Gradient::swap_colors()
 {
-  gradient->set_gradient(gradient->get_gradient_bottom(), gradient->get_gradient_top());
+  SCRIPT_GUARD_VOID;
+  object.set_gradient(object.get_gradient_bottom(), object.get_gradient_top());
 }
 
-}
+} // namespace scripting
 
 /* EOF */

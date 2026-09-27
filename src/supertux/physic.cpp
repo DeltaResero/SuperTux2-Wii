@@ -27,27 +27,11 @@ Physic::Physic() :
 {
 }
 
-Physic::~Physic()
-{
-}
-
 void
 Physic::reset()
 {
   ax = ay = vx = vy = 0;
   gravity_enabled_flag = true;
-}
-
-void
-Physic::set_velocity_x(float nvx)
-{
-  vx = nvx;
-}
-
-void
-Physic::set_velocity_y(float nvy)
-{
-  vy = nvy;
 }
 
 void
@@ -64,46 +48,6 @@ Physic::set_velocity(const Vector& vector)
   vy = vector.y;
 }
 
-void Physic::inverse_velocity_x()
-{
-  vx = -vx;
-}
-
-void Physic::inverse_velocity_y()
-{
-  vy = -vy;
-}
-
-float
-Physic::get_velocity_x() const
-{
-  return vx;
-}
-
-float
-Physic::get_velocity_y() const
-{
-  return vy;
-}
-
-Vector
-Physic::get_velocity() const
-{
-  return Vector(vx, vy);
-}
-
-void
-Physic::set_acceleration_x(float nax)
-{
-  ax = nax;
-}
-
-void
-Physic::set_acceleration_y(float nay)
-{
-  ay = nay;
-}
-
 void
 Physic::set_acceleration(float nax, float nay)
 {
@@ -111,53 +55,24 @@ Physic::set_acceleration(float nax, float nay)
   ay = nay;
 }
 
-float
-Physic::get_acceleration_x() const
+void
+Physic::set_acceleration(const Vector& vector)
 {
-  return ax;
-}
-
-float
-Physic::get_acceleration_y() const
-{
-  return ay;
+  ax = vector.x;
+  ay = vector.y;
 }
 
 Vector
-Physic::get_acceleration() const
+Physic::get_movement(float dt_sec)
 {
-  return Vector(ax, ay);
-}
-
-void
-Physic::enable_gravity(bool enable_gravity_)
-{
-  gravity_enabled_flag = enable_gravity_;
-}
-
-bool
-Physic::gravity_enabled() const
-{
-  return gravity_enabled_flag;
-}
-
-void
-Physic::set_gravity_modifier(float gravity_modifier_)
-{
-  this->gravity_modifier = gravity_modifier_;
-}
-
-Vector
-Physic::get_movement(float elapsed_time)
-{
-  float grav = gravity_enabled_flag ? (Sector::current()->get_gravity() * gravity_modifier * 100.0f) : 0;
+  float grav = gravity_enabled_flag ? (Sector::get().get_gravity() * gravity_modifier * 100.0f) : 0;
 
   // Semi-implicit Euler integration
   // with constant acceleration, this will result in a position delta of
-  // v t + .5 a t (t+elapsed_time) at total time t
-  vx += ax * elapsed_time;
-  vy += (ay + grav) * elapsed_time;
-  Vector result(vx * elapsed_time, vy * elapsed_time);
+  // v t + .5 a t (t+dt_sec) at total time t
+  vx += ax * dt_sec;
+  vy += (ay + grav) * dt_sec;
+  Vector result(vx * dt_sec, vy * dt_sec);
 
   return result;
 }

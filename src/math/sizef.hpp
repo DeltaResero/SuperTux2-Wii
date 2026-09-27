@@ -23,7 +23,7 @@
 
 class Size;
 
-class Sizef
+class Sizef final
 {
 public:
   Sizef() :
@@ -41,10 +41,8 @@ public:
     height(height_)
   {}
 
-  Sizef(const Sizef& rhs) :
-    width(rhs.width),
-    height(rhs.height)
-  {}
+  Sizef(const Sizef& rhs) = default;
+  Sizef& operator=(const Sizef& rhs) = default;
 
   Sizef(const Size& rhs);
 
@@ -79,6 +77,11 @@ public:
   Vector as_vector() const
   {
     return Vector(width, height);
+  }
+
+  bool is_valid() const 
+  {
+    return width > 0 && height > 0;
   }
 
 public:
