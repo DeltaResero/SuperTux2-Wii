@@ -5,7 +5,6 @@ Last update: December 18, 2021
 Quick links:
 - [Binaires](#binaries)
   - [Releases](#releases)
-  - [Nightlies](#nightlies)
 - [Compiling](#compiling)
   - [Requirements](#requirements)
   - [Unix and Unix-like (Linux/MacOS/\*BSD)](#linuxunix-using-cmake)
@@ -25,27 +24,8 @@ no prebuilt binaries for your platform, then you might still be able
 to compile the source code yourself. In this case read the next
 sections.
 
-### Nightlies
-
-We also provide binaries automatically generated as code is added to the
-repository. These are built using GitHub Actions and are generally used to
-validate code quality, but as they produce binaries, those can be downloaded
-and installed like any release. You may find the nightlies at
-<https://download.supertux.org/>.
-
-Alternatively, if you have a GitHub account, you may find nightlies directly on
-GitHub either
-[here](https://github.com/SuperTux/supertux/actions/workflows/main.yml?query=branch%3Amaster)
-for common platforms (Windows, Mac, Linux) or
-[here](https://github.com/SuperTux/supertux/actions/workflows/other.yml?query=branch%3Amaster)
-for the rest (FreeBSD, WASM, Ubuntu Touch); click on any entry in the list on
-the right (topmost = most recent), then scroll down to the Artifacts section.
-Note that this only works if you are logged in to GitHub.
-
 Compiling
 ---------
-
-<sub>Tip: You may take inspiration from the [workflow files](.github/workflows).</sub>
 
 ### Requirements
 
@@ -94,10 +74,9 @@ in the library package.
 
 **Note II:** We tried to write our code clean, portable and platform neutral,
 so it should be possible to compile it on a wide range of platforms and also
-with other compilers than gcc or clang. We use GitHub Actions
-to test commits and pull requests in our repository, but unfortunately it's not
-always possible to test the code in very exotic setups. However, feel free to
-report issues to our bug tracker on GitHub.
+with other compilers than gcc or clang. It is not always possible to test the
+code in very exotic setups, so feel free to report issues to our bug tracker on
+GitHub.
 
 **Note III (regarding glbinding):** To use glbinding instead of GLEW, call `cmake`
 with the flag -DGLBINDING_ENABLED=ON
