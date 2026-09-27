@@ -23,12 +23,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
-#if defined(_WIN32)
-  #include <windows.h>
-  #include <shellapi.h>
-#else
-  #include <cstdlib>
-#endif
 
 #include "gui/dialog.hpp"
 #include "util/log.hpp"
@@ -218,25 +212,6 @@ bool remove(const std::string& path)
 {
   fs::path location(path);
   return fs::remove(location);
-}
-
-void open_path(const std::string& path)
-{
-#if defined(_WIN32) || defined (_WIN64)
-  ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
-#else
-  std::string cmd = "xdg-open \"" + path + "\"";
-
-  int ret = system(cmd.c_str());
-  if (ret < 0)
-  {
-    log_fatal << "failed to spawn: " << cmd << std::endl;
-  }
-  else if (ret > 0)
-  {
-    log_fatal << "error " << ret << " while executing: " << cmd << std::endl;
-  }
-#endif
 }
 
 } // namespace FileSystem

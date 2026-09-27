@@ -31,17 +31,8 @@
 #include "supertux/textscroller_screen.hpp"
 #include "supertux/world.hpp"
 #include "util/log.hpp"
-#include "util/file_system.hpp"
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
-
-#if defined(_WIN32)
-  #include <windows.h>
-  #include <shellapi.h>
-#else
-  #include <cstdlib>
-#endif
-
 
 MainMenu::MainMenu()
 {
@@ -51,7 +42,6 @@ MainMenu::MainMenu()
   add_entry(MNID_STARTGAME, "Start Game");
   add_submenu("Options", MenuStorage::OPTIONS_MENU);
   add_entry(MNID_CREDITS, "Credits");
-  add_entry(MNID_DONATE, "Donate");
 #ifndef REMOVE_QUIT_BUTTON
   add_entry(MNID_QUITMAINMENU, "Quit");
 #endif
@@ -83,10 +73,6 @@ MainMenu::menu_action(MenuItem& item)
       GameManager::current()->start_level(*world, "credits.stl");
     }
 	  break;
-
-    case MNID_DONATE:
-      FileSystem::open_path("https://www.supertux.org/donate.html");
-      break;
 
     case MNID_QUITMAINMENU:
       MenuManager::instance().clear_menu_stack();
