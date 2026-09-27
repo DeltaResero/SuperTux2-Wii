@@ -11,3 +11,14 @@ trim_trailing_whitespace = true
 
 [*.md]
 trim_trailing_whitespace = false
+
+# Trailing space and the closing newline are part of the payload in a
+# patch, and rewrapping a hunk line invalidates it.
+[*.{patch,diff}]
+trim_trailing_whitespace = false
+insert_final_newline = false
+max_line_length = off
+
+# Recipe lines have to start with a tab or make will not read them.
+[{Makefile,*.mk}]
+indent_style = tab
