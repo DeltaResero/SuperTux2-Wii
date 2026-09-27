@@ -60,8 +60,6 @@ distributions.
 * [FreeType](https://www.freetype.org/)
 * [GLM](https://github.com/g-truc/glm)
 * [ZLib](https://www.zlib.net/)
-* [libraqm](https://github.com/HOST-Oman/libraqm): optional, but needed
-  to display Arabic
 
 **Note I:** for any of the above listed libraries (OpenGL, SDL2, SDL2_image,
 OpenAL, GLEW/glbinding, Boost, libogg and libvorbis), you should
@@ -82,7 +80,7 @@ For ease of use, here are some installation lines for some Linux distributions:
 
 - Ubuntu 18.04/20.04:
   ```
-  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libboost-all-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libraqm-dev libglew-dev libharfbuzz-dev libfribidi-dev libglm-dev zlib1g-dev
+  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libboost-all-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libglew-dev libglm-dev zlib1g-dev
   ```
 
 ### Linux/UNIX using CMake
