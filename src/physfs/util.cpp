@@ -55,11 +55,6 @@ bool is_directory(const std::string& path)
   }
 }
 
-bool remove(const std::string& filename)
-{
-  return PHYSFS_delete(filename.c_str()) == 0;
-}
-
 } // namespace physfsutil
 
 /* EOF */
