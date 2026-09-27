@@ -52,35 +52,17 @@ LevelParser::get_level_name(const std::string& filename)
 }
 
 std::unique_ptr<Level>
-LevelParser::from_stream(std::istream& stream, const std::string& context, bool worldmap, bool editable)
+LevelParser::from_file(const std::string& filename)
 {
   auto level = std::make_unique<Level>();
-  LevelParser parser(*level, worldmap, editable);
-  parser.load(stream, context);
-  return level;
-}
-
-std::unique_ptr<Level>
-LevelParser::from_file(const std::string& filename, bool worldmap, bool editable)
-{
-  auto level = std::make_unique<Level>();
-  LevelParser parser(*level, worldmap, editable);
+  LevelParser parser(*level);
   parser.load(filename);
   return level;
 }
 
-LevelParser::LevelParser(Level& level, bool worldmap, bool editable) :
-  m_level(level),
-  m_worldmap(worldmap),
-  m_editable(editable)
+LevelParser::LevelParser(Level& level) :
+  m_level(level)
 {
-}
-
-void
-LevelParser::load(std::istream& stream, const std::string& context)
-{
-  auto doc = ReaderDocument::from_stream(stream, context);
-  load(doc);
 }
 
 void
@@ -126,7 +108,7 @@ LevelParser::load(const ReaderDocument& doc)
     auto iter = level.get_iter();
     while (iter.next()) {
       if (iter.get_key() == "sector") {
-        auto sector = SectorParser::from_reader(m_level, iter.as_mapping(), m_editable);
+        auto sector = SectorParser::from_reader(m_level, iter.as_mapping());
         m_level.add_sector(std::move(sector));
       }
     }
@@ -150,7 +132,7 @@ LevelParser::load_old_format(const ReaderMapping& reader)
   reader.get("name", m_level.m_name);
   reader.get("author", m_level.m_author);
 
-  auto sector = SectorParser::from_reader_old_format(m_level, reader, m_editable);
+  auto sector = SectorParser::from_reader_old_format(m_level, reader);
   m_level.add_sector(std::move(sector));
 }
 

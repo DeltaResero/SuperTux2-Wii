@@ -105,7 +105,7 @@ Sector::~Sector()
 }
 
 void
-Sector::finish_construction(bool editable)
+Sector::finish_construction()
 {
   flush_game_objects();
 
@@ -114,18 +114,16 @@ Sector::finish_construction(bool editable)
   // but I don't know if it's going to introduce other bugs..   ~ Semphris
   try_process_resolve_requests();
 
-  if (!editable) {
-    convert_tiles2gameobject();
+  convert_tiles2gameobject();
 
-    bool has_background = std::any_of(get_objects().begin(), get_objects().end(),
-                                      [](const auto& obj) {
-                                        return (dynamic_cast<Background*>(obj.get()) ||
-                                                dynamic_cast<Gradient*>(obj.get()));
-                                      });
-    if (!has_background) {
-      auto& gradient = add<Gradient>();
-      gradient.set_gradient(Color(0.3f, 0.4f, 0.75f), Color(1.f, 1.f, 1.f));
-    }
+  bool has_background = std::any_of(get_objects().begin(), get_objects().end(),
+                                    [](const auto& obj) {
+                                      return (dynamic_cast<Background*>(obj.get()) ||
+                                              dynamic_cast<Gradient*>(obj.get()));
+                                    });
+  if (!has_background) {
+    auto& gradient = add<Gradient>();
+    gradient.set_gradient(Color(0.3f, 0.4f, 0.75f), Color(1.f, 1.f, 1.f));
   }
 
   if (get_solid_tilemaps().empty()) {

@@ -28,11 +28,11 @@ class Sector;
 class SectorParser final
 {
 public:
-  static std::unique_ptr<Sector> from_reader(Level& level, const ReaderMapping& sector, bool editable);
-  static std::unique_ptr<Sector> from_reader_old_format(Level& level, const ReaderMapping& sector, bool editable);
+  static std::unique_ptr<Sector> from_reader(Level& level, const ReaderMapping& sector);
+  static std::unique_ptr<Sector> from_reader_old_format(Level& level, const ReaderMapping& sector);
 
 private:
-  SectorParser(Sector& sector, bool editable);
+  SectorParser(Sector& sector);
 
   void parse_old_format(const ReaderMapping& reader);
   void parse(const ReaderMapping& sector);
@@ -40,7 +40,6 @@ private:
 
 private:
   Sector& m_sector;
-  bool m_editable;
 
 private:
   SectorParser(const SectorParser&) = delete;

@@ -43,28 +43,27 @@
 static const std::string DEFAULT_BG = "images/background/antarctic/arctis2.png";
 
 std::unique_ptr<Sector>
-SectorParser::from_reader(Level& level, const ReaderMapping& reader, bool editable)
+SectorParser::from_reader(Level& level, const ReaderMapping& reader)
 {
   auto sector = std::make_unique<Sector>(level);
   BIND_SECTOR(*sector);
-  SectorParser parser(*sector, editable);
+  SectorParser parser(*sector);
   parser.parse(reader);
   return sector;
 }
 
 std::unique_ptr<Sector>
-SectorParser::from_reader_old_format(Level& level, const ReaderMapping& reader, bool editable)
+SectorParser::from_reader_old_format(Level& level, const ReaderMapping& reader)
 {
   auto sector = std::make_unique<Sector>(level);
   BIND_SECTOR(*sector);
-  SectorParser parser(*sector, editable);
+  SectorParser parser(*sector);
   parser.parse_old_format(reader);
   return sector;
 }
 
-SectorParser::SectorParser(Sector& sector, bool editable) :
-  m_sector(sector),
-  m_editable(editable)
+SectorParser::SectorParser(Sector& sector) :
+  m_sector(sector)
 {
 }
 
@@ -134,7 +133,7 @@ SectorParser::parse(const ReaderMapping& sector)
     }
   }
 
-  m_sector.finish_construction(m_editable);
+  m_sector.finish_construction();
 }
 
 void
@@ -292,7 +291,7 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
     log_warning << "sector '" << m_sector.get_name() << "' does not contain a solid tile layer." << std::endl;
   }
 
-  m_sector.finish_construction(m_editable);
+  m_sector.finish_construction();
 }
 
 /* EOF */
