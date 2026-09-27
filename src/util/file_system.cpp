@@ -29,10 +29,6 @@
 #else
   #include <cstdlib>
 #endif
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#endif
 
 #include "gui/dialog.hpp"
 #include "util/log.hpp"
@@ -228,14 +224,8 @@ void open_path(const std::string& path)
 {
 #if defined(_WIN32) || defined (_WIN64)
   ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
-#elif defined(__EMSCRIPTEN__)
-  emscripten_run_script(("window.supertux_download('" + path + "');").c_str());
 #else
-  #if defined(__APPLE__)
-  std::string cmd = "open \"" + path + "\"";
-  #else
   std::string cmd = "xdg-open \"" + path + "\"";
-  #endif
 
   int ret = system(cmd.c_str());
   if (ret < 0)

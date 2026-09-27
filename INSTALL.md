@@ -5,13 +5,10 @@ Last update: December 18, 2021
 Quick links:
 - [Binaires](#binaries)
   - [Releases](#releases)
-  - [Nightlies](#nightlies)
 - [Compiling](#compiling)
   - [Requirements](#requirements)
   - [Unix and Unix-like (Linux/MacOS/\*BSD)](#linuxunix-using-cmake)
   - [Windows](#windows-using-cmake-and-visual-studio)
-  - [Browser (WASM)](#wasm-using-emscripten)
-  - [Ubuntu Touch](#ubuntu-touch-using-clickable)
 
 Binaries
 --------
@@ -25,27 +22,8 @@ no prebuilt binaries for your platform, then you might still be able
 to compile the source code yourself. In this case read the next
 sections.
 
-### Nightlies
-
-We also provide binaries automatically generated as code is added to the
-repository. These are built using GitHub Actions and are generally used to
-validate code quality, but as they produce binaries, those can be downloaded
-and installed like any release. You may find the nightlies at
-<https://download.supertux.org/>.
-
-Alternatively, if you have a GitHub account, you may find nightlies directly on
-GitHub either
-[here](https://github.com/SuperTux/supertux/actions/workflows/main.yml?query=branch%3Amaster)
-for common platforms (Windows, Mac, Linux) or
-[here](https://github.com/SuperTux/supertux/actions/workflows/other.yml?query=branch%3Amaster)
-for the rest (FreeBSD, WASM, Ubuntu Touch); click on any entry in the list on
-the right (topmost = most recent), then scroll down to the Artifacts section.
-Note that this only works if you are logged in to GitHub.
-
 Compiling
 ---------
-
-<sub>Tip: You may take inspiration from the [workflow files](.github/workflows).</sub>
 
 ### Requirements
 
@@ -94,10 +72,9 @@ in the library package.
 
 **Note II:** We tried to write our code clean, portable and platform neutral,
 so it should be possible to compile it on a wide range of platforms and also
-with other compilers than gcc or clang. We use GitHub Actions
-to test commits and pull requests in our repository, but unfortunately it's not
-always possible to test the code in very exotic setups. However, feel free to
-report issues to our bug tracker on GitHub.
+with other compilers than gcc or clang. It is not always possible to test the
+code in very exotic setups, so feel free to report issues to our bug tracker on
+GitHub.
 
 **Note III (regarding glbinding):** To use glbinding instead of GLEW, call `cmake`
 with the flag -DGLBINDING_ENABLED=ON
@@ -222,110 +199,3 @@ You may also run `cmake --build .` instead.
 6. Build the project.
 
 7. Now you can run SuperTux using the run_supertux.bat file
-
-
-### WASM using Emscripten
-
-To compile SuperTux to host on the web, you will need [the Emscripten
-SDK](https://github.com/emscripten-core/emsdk) and
-[vcpkg](https://github.com/Microsoft/vcpkg), in addition to the
-[general development tools](#requirements). Note that you only need the
-*General development tools*; you do not need any library, as those are managed
-with Vcpkg.
-
-Note that you must install and activate the version **1.40.1** of the Emscripten
-toolchain; newer versions are known not to work properly.
-
-0. Make sure you have all the submodules if you are using Git:
-```
-git submodule update --init --recursive
-```
-
-1. Patch SDL_ttf by applying the patch in `mk/emscripten/SDL_ttf.patch`:
-```
-# For git users:
-git apply mk/emscripten/SDL_ttf.patch
-
-# If you do not have git installed:
-patch -p1 < mk/emscripten/SDL_ttf.patch
-```
-
-2. Install dependencies using Vcpkg (Make sure you enabled Emscripten and ran
-`source .../emsdk_env.sh`!):
-```
-vcpkg integrate install
-vcpkg install --target wasm32-emscripten boost-date-time boost-filesystem boost-format boost-locale boost-optional boost-system glbinding libpng libogg libvorbis glm zlib
-```
-
-3. Run CMake using Emscripten's wrapper:
-```
-emcmake cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_OPENGLES2=ON -DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=wasm32-emscripten -DGLBINDING_ENABLED=ON -DEMSCRIPTEN=1 ..
-```
-Replace `/path/to/vcpkg` with the absolute path to where Vcpkg is installed.
-Note that Debug builds are generally unplayably slow. Also, the
-`-DENABLE_OPENGLES2=ON` flag is optional and will enable using WebGL instead of
-the SDL renderer. Currently, the WebGL renderer is much slower than the SDL
-renderer.
-
-4. Copy data files to the build folder, as Emscripten will package them to make
-them usable from WASM:
-```
-rsync -aP ../data/ data/
-```
-
-5. Build SuperTux:
-```
-emmake make -j$(nproc || sysctl -n hw.ncpu || echo 2)
-```
-
-6. Replace the Emscripten HTML template with SuperTux's custom container:
-```
-rm supertux2.html && cp template.html supertux2.html
-```
-You may skip the step above you intend to directly open the `template.html` file;
-note that SuperTux won't work if it is not located in the custom template, as it
-requires some custom JavaScript functions to work properly.
-
-7. Run the Emscripten webserver:
-```
-# Without --no-browser, Emscripten does not wait for data to finish downloading,
-# which fails the process. It only works by launching Emscripten in no-browser
-# mode, and then by opening the browser manually.
-emrun --no_browser .
-```
-
-You can now play SuperTux by opening `http://localhost:6931/supertux2.html` in
-your browser.
-
-Note that if you intend to run SuperTux on a public web server, you must set
-[two headers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements)
-as a web security requirement.
-
-### Ubuntu Touch using Clickable
-
-To compile for Ubuntu Touch phones, you will need an Ubuntu desktop, as well as
-[Clickable](https://clickable-ut.dev/en/latest/install.html). You will not
-need any other development library, as those are already managed by Clickable.
-
-First, make sure you have all the submodules:
-```
-git submodule update --init --recursive
-```
-
-Then:
-- To install SuperTux on your phone, plug your phone to your computer and run:
-  ```
-  clickable --config mk/clickable/clickable.json
-  ```
-
-- To run SuperTux directly on your computer:
-  ```
-  clickable desktop --config mk/clickable/clickable.json
-  ```
-
-- To build SuperTux without running it:
-  ```
-  clickable build --config mk/clickable/clickable.json
-  ```
-  You may specify an architecture using the `--arch ARCH` flag. Clickable
-  currently supports `amd64`, `arm64` and `armhf`.

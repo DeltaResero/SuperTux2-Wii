@@ -25,10 +25,6 @@
 #include "util/writer.hpp"
 #include "util/log.hpp"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#endif
 
 Config::Config() :
   profile(1),
@@ -37,9 +33,6 @@ Config::Config() :
   window_size(1280, 800),
   window_resizable(true),
   aspect_size(0, 0), // auto detect
-#ifdef __EMSCRIPTEN__
-  fit_window(true),
-#endif
   magnification(0.0f),
   use_fullscreen(false),
   video(VideoSystem::VIDEO_AUTO),
@@ -88,11 +81,6 @@ Config::Config() :
 void
 Config::load()
 {
-#ifdef __EMSCRIPTEN__
-  EM_ASM({
-    supertux_loadFiles();
-  }, 0); // EM_ASM is a variadic macro and Clang requires at least 1 value for the variadic argument
-#endif
 
   auto doc = ReaderDocument::from_file("config");
   auto root = doc.get_root();
@@ -175,13 +163,6 @@ Config::load()
 
     config_video_mapping->get("magnification", magnification);
 
-#ifdef __EMSCRIPTEN__
-    // Forcibly set autofit to true
-    // TODO: Remove the autofit parameter entirely - it should always be true
-
-    //config_video_mapping->get("fit_window", fit_window);
-    fit_window = true;
-#endif
   }
 
   boost::optional<ReaderMapping> config_audio_mapping;
@@ -292,11 +273,6 @@ Config::save()
   writer.write("aspect_width",  aspect_size.width);
   writer.write("aspect_height", aspect_size.height);
 
-#ifdef __EMSCRIPTEN__
-  // Forcibly set autofit to true
-  // TODO: Remove the autofit parameter entirely - it should always be true
-  writer.write("fit_window", true /* fit_window */);
-#endif
 
   writer.write("magnification", magnification);
 

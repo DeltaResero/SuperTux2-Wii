@@ -51,18 +51,13 @@ include(ConfigureFiles)
 include(ExternalProject)
 include(CheckCXXCompilerFlag)
 
-## For autopackage
-set(APPDATADIR "${CMAKE_INSTALL_PREFIX}/share/games/supertux2")
-
 set(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 set(BUILD_CONFIG_DATA_DIR "${CMAKE_BINARY_DIR}/data")
 ## Check endianess
 
-if(NOT EMSCRIPTEN)
-  # FIXME: Any reason why we need this?
-  include(TestBigEndian)
-  test_big_endian(WORDS_BIGENDIAN)
-endif(NOT EMSCRIPTEN)
+# FIXME: Any reason why we need this?
+include(TestBigEndian)
+test_big_endian(WORDS_BIGENDIAN)
 
 ## Add definitions
 if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
@@ -71,26 +66,7 @@ elseif(CMAKE_BUILD_TYPE MATCHES Debug)
   add_definitions(-DDEBUG)
 endif()
 
-if(EMSCRIPTEN)
-  set(CMAKE_EXECUTABLE_SUFFIX .html)
-  set(IS_EMSCRIPTEN_BUILD ON)
-
-  set(USE_FLAGS " -sUSE_SDL=2 -sFULL_ES2=1 -sUSE_SDL_IMAGE=2 -sUSE_FREETYPE=2 -sUSE_PTHREADS=1 -sDISABLE_EXCEPTION_CATCHING=0 --preload-file ${BUILD_CONFIG_DATA_DIR} -sTOTAL_MEMORY=67108864 -sALLOW_MEMORY_GROWTH=1 -sSDL2_IMAGE_FORMATS='[\"png\",\"jpg\"]' --use-preload-plugins")
-  if(CMAKE_BUILD_TYPE MATCHES Debug)
-    set(USE_FLAGS "${USE_FLAGS} -fsanitize=undefined -sSAFE_HEAP=1 -sASSERTIONS=1 -sDEMANGLE_SUPPORT=1")
-  endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${USE_FLAGS} -sERROR_ON_UNDEFINED_SYMBOLS=0")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_FLAGS} -sERROR_ON_UNDEFINED_SYMBOLS=0")
-  set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${USE_FLAGS} -sERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} ${USE_FLAGS} -sERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js")
-endif()
-
-# TODO: Add " OR ANDROID OR IOS" to this
-if(EMSCRIPTEN OR UBUNTU_TOUCH)
-  option(REMOVE_QUIT_BUTTON "Remove the option to quit the game (useful on mobile devices)" ON)
-else()
-  option(REMOVE_QUIT_BUTTON "Remove the option to quit the game (useful on mobile devices)" OFF)
-endif()
+option(REMOVE_QUIT_BUTTON "Remove the option to quit the game (useful on mobile devices)" OFF)
 
 set(SUPERTUX_SYSTEM_NAME ${CMAKE_SYSTEM_NAME})
 set(VCPKG_BUILD OFF CACHE BOOL "Use dependencies installed via vcpkg (not dependency package)")
@@ -144,15 +120,7 @@ if(WIN32)
   endif()
 endif(WIN32)
 
-# Detect mobile builds
-option(UBUNTU_TOUCH "Compile the project for an Ubuntu Touch target" OFF)
-
-# Mobile builds
-if (UBUNTU_TOUCH)
-  option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection for touchscreen devices" ON)
-else()
-  option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection for touchscreen devices" OFF)
-endif()
+option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection for touchscreen devices" OFF)
 
 ## Add lots of dependencies to compiler switches
 
@@ -214,34 +182,32 @@ if(WIN32)
 
 else(WIN32)
 
-  if (NOT EMSCRIPTEN)
-    if (VCPKG_BUILD)
-      find_package(SDL2 CONFIG REQUIRED)
-      find_package(sdl2-image CONFIG REQUIRED)
-      find_path(SDL2_INCLUDE_DIRS SDL2/SDL.h)
-      find_path(SDL2IMAGE_INCLUDE_DIRS SDL2/SDL_image.h)
-      set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS}/SDL2)
-      set(SDL2IMAGE_INCLUDE_DIRS ${SDL2IMAGE_INCLUDE_DIRS}/SDL2)
-      find_library(SDL2_LIBRARIES SDL2)
-      find_library(SDL2IMAGE_LIBRARIES SDL2_image)
-      message(STATUS "SDL2_INCLUDE_DIR is ${SDL2_INCLUDE_DIRS}")
-    elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
-      # 32-bit
-      find_library(SDL2_LIBRARIES SDL2)
-      find_library(SDL2IMAGE_LIBRARIES SDL2_image)
-      find_path(SDL2_INCLUDE_DIRS SDL2/SDL.h)
-      find_path(SDL2IMAGE_INCLUDE_DIRS SDL2/SDL_image.h)
-      set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS}/SDL2)
-      set(SDL2IMAGE_INCLUDE_DIRS ${SDL2IMAGE_INCLUDE_DIRS}/SDL2)
-      message(STATUS "SDL LIBS: ${SDL2_LIBRARIES}")
-      message(STATUS "SDL INCL: ${SDL2_INCLUDE_DIRS}")
-    else()
-      # 64-bit
-      include(FindPkgConfig)
-      pkg_search_module(SDL2 REQUIRED sdl2>=2.0.1)
-      pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
-    endif()
-  endif(NOT EMSCRIPTEN)
+  if (VCPKG_BUILD)
+    find_package(SDL2 CONFIG REQUIRED)
+    find_package(sdl2-image CONFIG REQUIRED)
+    find_path(SDL2_INCLUDE_DIRS SDL2/SDL.h)
+    find_path(SDL2IMAGE_INCLUDE_DIRS SDL2/SDL_image.h)
+    set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS}/SDL2)
+    set(SDL2IMAGE_INCLUDE_DIRS ${SDL2IMAGE_INCLUDE_DIRS}/SDL2)
+    find_library(SDL2_LIBRARIES SDL2)
+    find_library(SDL2IMAGE_LIBRARIES SDL2_image)
+    message(STATUS "SDL2_INCLUDE_DIR is ${SDL2_INCLUDE_DIRS}")
+  elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    # 32-bit
+    find_library(SDL2_LIBRARIES SDL2)
+    find_library(SDL2IMAGE_LIBRARIES SDL2_image)
+    find_path(SDL2_INCLUDE_DIRS SDL2/SDL.h)
+    find_path(SDL2IMAGE_INCLUDE_DIRS SDL2/SDL_image.h)
+    set(SDL2_INCLUDE_DIRS ${SDL2_INCLUDE_DIRS}/SDL2)
+    set(SDL2IMAGE_INCLUDE_DIRS ${SDL2IMAGE_INCLUDE_DIRS}/SDL2)
+    message(STATUS "SDL LIBS: ${SDL2_LIBRARIES}")
+    message(STATUS "SDL INCL: ${SDL2_INCLUDE_DIRS}")
+  else()
+    # 64-bit
+    include(FindPkgConfig)
+    pkg_search_module(SDL2 REQUIRED sdl2>=2.0.1)
+    pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+  endif()
 endif(WIN32)
 set(HAVE_SDL TRUE)
 
@@ -253,16 +219,13 @@ option(GLBINDING_ENABLED "Use glbinding instead of GLEW" OFF)
 option(GLBINDING_DEBUG_OUTPUT "Enable glbinding debug output for each called OpenGL function" OFF)
 
 if(ENABLE_OPENGL)
-  if(EMSCRIPTEN AND ENABLE_OPENGLES2)
-    set(HAVE_OPENGL TRUE)
-    add_definitions(-DUSE_OPENGLES2)
-  elseif(ENABLE_OPENGLES2 AND NOT EMSCRIPTEN)
+  if(ENABLE_OPENGLES2)
     pkg_check_modules(GLESV2 REQUIRED glesv2)
     set(HAVE_OPENGL TRUE)
     set(OPENGL_INCLUDE_DIR  ${GLESV2_INCLUDE_DIRS})
     set(OPENGL_LIBRARY ${GLESV2_LIBRARIES})
     add_definitions(-DUSE_OPENGLES2)
-  else(NOT EMSCRIPTEN)
+  else()
     set(OpenGL_GL_PREFERENCE "LEGACY")
     find_package(OpenGL)
     if(OPENGL_FOUND)
@@ -288,16 +251,12 @@ if(ENABLE_OPENGL)
   endif()
 endif(ENABLE_OPENGL)
 
-if(NOT EMSCRIPTEN)
-  if(VCPKG_BUILD)
-    find_package(OpenAL CONFIG REQUIRED)
-  else()
-    find_package(OpenAL REQUIRED)
-  endif()
-  include_directories(SYSTEM ${OPENAL_INCLUDE_DIR})
+if(VCPKG_BUILD)
+  find_package(OpenAL CONFIG REQUIRED)
 else()
-  include_directories(${CMAKE_SOURCE_DIR}/mk/emscripten/AL)
+  find_package(OpenAL REQUIRED)
 endif()
+include_directories(SYSTEM ${OPENAL_INCLUDE_DIR})
 
 find_package(OggVorbis REQUIRED)
 include_directories(SYSTEM ${VORBIS_INCLUDE_DIR})
@@ -363,27 +322,25 @@ include_directories(BEFORE SYSTEM ${PHYSFS_INCLUDE_DIR})
 
 ## The curl headers are in the standard include path in dependencies
 ## so it's not required to add them here
-if (NOT EMSCRIPTEN)
-  find_package(CURL REQUIRED)
-  if(WIN32 AND VCPKG_BUILD)
-    list(LENGTH CURL_LIBRARY CURL_LIBRARY_LENGTH)
-    if (CURL_LIBRARY_LENGTH EQUAL 1)
-      set(CURL_LIBRARY_DEBUG_LIB   ${CURL_LIBRARY})
-        set(CURL_LIBRARY_RELEASE_LIB ${CURL_LIBRARY_DEBUG_LIB}/../../../lib/libcurl.lib)
-        get_filename_component(CURL_LIBRARY_RELEASE_LIB ${CURL_LIBRARY_RELEASE_LIB} REALPATH)
-        unset(CURL_LIBRARY CACHE)
-        unset(CURL_LIBRARY)
-        unset(CURL_LIBRARIES  CACHE)
-        unset(CURL_LIBRARIES)
-        set(CURL_LIBRARY "debug;${CURL_LIBRARY_DEBUG_LIB};optimized;${CURL_LIBRARY_RELEASE_LIB}")
-        set(CURL_LIBRARIES ${CURL_LIBRARY})
-    endif()
+find_package(CURL REQUIRED)
+if(WIN32 AND VCPKG_BUILD)
+  list(LENGTH CURL_LIBRARY CURL_LIBRARY_LENGTH)
+  if (CURL_LIBRARY_LENGTH EQUAL 1)
+    set(CURL_LIBRARY_DEBUG_LIB   ${CURL_LIBRARY})
+      set(CURL_LIBRARY_RELEASE_LIB ${CURL_LIBRARY_DEBUG_LIB}/../../../lib/libcurl.lib)
+      get_filename_component(CURL_LIBRARY_RELEASE_LIB ${CURL_LIBRARY_RELEASE_LIB} REALPATH)
+      unset(CURL_LIBRARY CACHE)
+      unset(CURL_LIBRARY)
+      unset(CURL_LIBRARIES  CACHE)
+      unset(CURL_LIBRARIES)
+      set(CURL_LIBRARY "debug;${CURL_LIBRARY_DEBUG_LIB};optimized;${CURL_LIBRARY_RELEASE_LIB}")
+      set(CURL_LIBRARIES ${CURL_LIBRARY})
   endif()
-  if(CURL_FOUND)
-    include_directories(SYSTEM ${CURL_INCLUDE_DIR})
-    set(HAVE_LIBCURL TRUE)
-  endif(CURL_FOUND)
-endif(NOT EMSCRIPTEN)
+endif()
+if(CURL_FOUND)
+  include_directories(SYSTEM ${CURL_INCLUDE_DIR})
+  set(HAVE_LIBCURL TRUE)
+endif(CURL_FOUND)
 
 find_package(ZLIB REQUIRED)
 
@@ -448,29 +405,6 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_scree
   PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/addon/addon_manager.cpp
   PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-
-## Configure doxygen
-# Adapted from https://tty1.net/blog/2014/cmake-doxygen_en.html
-# add a target to generate API documentation with Doxygen
-find_package(Doxygen)
-option(BUILD_DOCUMENTATION "Build API documentation using Doxygen" ${DOXYGEN_FOUND})
-
-if(BUILD_DOCUMENTATION)
-  if(NOT DOXYGEN_FOUND)
-    message(FATAL_ERROR "Doxygen is needed to build the documentation.")
-  endif()
-
-  set(doxyfile_in ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
-  set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/docs/Doxyfile)
-
-  configure_file(${doxyfile_in} ${doxyfile} @ONLY)
-
-  add_custom_target(doc
-    COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating API documentation with Doxygen"
-    VERBATIM)
-endif()
 
 ## Check platform-dependent build options
 
@@ -570,13 +504,11 @@ include_directories(SYSTEM ${TINYGETTEXT_PREFIX}/include)
 
 
 ## external/SDL_ttf with patches
-if (NOT EMSCRIPTEN)
-  if (VCPKG_BUILD)
-    find_package(freetype CONFIG REQUIRED)
-  else()
-    find_package(Freetype REQUIRED)
-  endif()
-endif(NOT EMSCRIPTEN)
+if (VCPKG_BUILD)
+  find_package(freetype CONFIG REQUIRED)
+else()
+  find_package(Freetype REQUIRED)
+endif()
 if (NOT VCPKG_BUILD)
   find_package(RAQM)
 endif()
@@ -594,8 +526,7 @@ ExternalProject_Add(SDL_ttf
   -DWITH_RAQM=${RAQM_FOUND}
   -DRAQM_LIBRARIES=${RAQM_LIBRARY}
   -DRAQM_INCLUDE_DIR=${RAQM_INCLUDE_DIR}
-  -DBUILD_SHARED_LIBS=OFF
-  -DEMSCRIPTEN=${EMSCRIPTEN})
+  -DBUILD_SHARED_LIBS=OFF)
 add_library(SDL_ttf_lib STATIC IMPORTED)
 set_target_properties(SDL_ttf_lib PROPERTIES IMPORTED_LOCATION "${SDL_TTF_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}SDL2_ttf${CMAKE_STATIC_LIBRARY_SUFFIX}")
 link_directories(${SDL_TTF_PREFIX}/lib)
@@ -633,25 +564,6 @@ if(WIN32)
   add_definitions(-D_USE_MATH_DEFINES -DNOMINMAX)
   add_definitions(-DWIN32)
 endif(WIN32)
-
-## Lint
-
-if(CMAKE_VERSION VERSION_GREATER 3.6)
-  if (USE_CLANG_TIDY)
-    find_program(
-      CLANG_TIDY_EXE
-      NAMES "clang-tidy"
-      DOC "Path to clang-tidy executable"
-      )
-
-    if(NOT CLANG_TIDY_EXE)
-      message(FATAL_ERROR "clang-tidy not found.")
-    else()
-      message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-      set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
-    endif()
-  endif()
-endif()
 
 ## Build list of sources for supertux binary
 
@@ -711,7 +623,6 @@ endif(COMPILE_AMALGATION)
 
 option(WERROR "Stop on first compiler warning" OFF)
 option(WARNINGS "Enable long list of warnings for compiler to check" OFF)
-option(USE_CLANG_TIDY "Run clang-tidy" OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g" CACHE STRING "Debug flags")
@@ -869,11 +780,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  add_definitions(-DMACOSX)
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-
 ## On Windows, add an icon
 
 if(WIN32)
@@ -900,9 +806,6 @@ if(GENERATE_WRAPPER)
     DEPENDS tools/miniswig/miniswig
     IMPLICIT_DEPENDS CXX ${CMAKE_CURRENT_SOURCE_DIR}/src/scripting/wrapper.interface.hpp
     )
-  if(USE_CLANG_TIDY)
-    set_target_properties(miniswig PROPERTIES CXX_CLANG_TIDY "")
-  endif()
 endif(GENERATE_WRAPPER)
 
 ## Generate supertux executable in the right place
@@ -928,10 +831,6 @@ target_link_libraries(supertux2 supertux2_lib Boost::filesystem Boost::locale)
 
 set_target_properties(supertux2_lib PROPERTIES OUTPUT_NAME supertux2_lib)
 set_target_properties(supertux2_lib PROPERTIES COMPILE_FLAGS "${SUPERTUX2_EXTRA_WARNING_FLAGS}")
-if(EMSCRIPTEN)
-  target_link_options(supertux2 PUBLIC -sEXPORTED_FUNCTIONS=['_main','_set_resolution','_save_config','_onDownloadProgress','_onDownloadFinished','_onDownloadError','_onDownloadAborted'] PUBLIC -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap'] PUBLIC -sEXTRA_EXPORTED_RUNTIME_METHODS=['ccall','cwrap'])
-endif(EMSCRIPTEN)
-
 if(WIN32 AND NOT VCPKG_BUILD)
   ## Copy dlls on windows
   add_custom_command(TARGET supertux2_lib POST_BUILD
@@ -946,21 +845,19 @@ add_dependencies(supertux2_lib tinygettext)
 add_dependencies(supertux2_lib squirrel)
 add_dependencies(supertux2_lib SDL_ttf)
 
-if(VCPKG_BUILD AND NOT EMSCRIPTEN)
+if(VCPKG_BUILD)
   target_include_directories(supertux2_lib PUBLIC ${CURL_INCLUDE_DIRS})
 endif()
 
 target_include_directories(partio_zip_lib PUBLIC external/partio_zip/)
 
-if (NOT EMSCRIPTEN)
-  target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS})
-  target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2IMAGE_INCLUDE_DIRS})
-  if(VCPKG_BUILD AND NOT WIN32)
-    target_link_libraries(supertux2_lib PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2::SDL2_image)
-  else()
-    target_link_libraries(supertux2_lib PUBLIC ${SDL2_LIBRARIES})
-    target_link_libraries(supertux2_lib PUBLIC ${SDL2IMAGE_LIBRARIES})
-  endif()
+target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS})
+target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2IMAGE_INCLUDE_DIRS})
+if(VCPKG_BUILD AND NOT WIN32)
+  target_link_libraries(supertux2_lib PRIVATE SDL2::SDL2main SDL2::SDL2 SDL2::SDL2_image)
+else()
+  target_link_libraries(supertux2_lib PUBLIC ${SDL2_LIBRARIES})
+  target_link_libraries(supertux2_lib PUBLIC ${SDL2IMAGE_LIBRARIES})
 endif()
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL_TTF_PREFIX}/include/SDL2)
 target_link_libraries(supertux2_lib PUBLIC SDL_ttf_lib)
@@ -983,14 +880,10 @@ target_link_libraries(supertux2_lib PUBLIC partio_zip_lib)
 if(ENABLE_DISCORD)
 target_link_libraries(supertux2_lib PUBLIC discord-rpc)
 endif(ENABLE_DISCORD)
-if(NOT EMSCRIPTEN)
-  if(VCPKG_BUILD)
-    target_link_libraries(supertux2_lib PUBLIC OpenAL::OpenAL)
-  else()
-    target_link_libraries(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
-  endif()
+if(VCPKG_BUILD)
+  target_link_libraries(supertux2_lib PUBLIC OpenAL::OpenAL)
 else()
-  link_libraries(-lopenal)
+  target_link_libraries(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
 target_link_libraries(supertux2_lib PUBLIC Boost::filesystem Boost::date_time Boost::locale)
@@ -999,11 +892,6 @@ if(USE_SYSTEM_PHYSFS)
 else()
   add_dependencies(supertux2_lib physfs)
   target_link_libraries(supertux2_lib PUBLIC physfs_lib)
-  if(APPLE)
-    target_link_libraries(supertux2_lib PUBLIC "-framework CoreFoundation")
-    target_link_libraries(supertux2_lib PUBLIC "-framework Foundation")
-    target_link_libraries(supertux2_lib PUBLIC "-framework IOKit")
-  endif()
 endif()
 
 if(HAVE_OPENGL)
@@ -1017,15 +905,13 @@ if(HAVE_OPENGL)
   endif()
 endif(HAVE_OPENGL)
 
-if(NOT EMSCRIPTEN)
-  if(HAVE_LIBCURL)
-    if(VCPKG_BUILD)
-      target_link_libraries(supertux2_lib PUBLIC ${CURL_LIBRARIES})
-    else()
-      target_link_libraries(supertux2_lib PUBLIC ${CURL_LIBRARY})
-    endif()
-  endif(HAVE_LIBCURL)
-endif(NOT EMSCRIPTEN)
+if(HAVE_LIBCURL)
+  if(VCPKG_BUILD)
+    target_link_libraries(supertux2_lib PUBLIC ${CURL_LIBRARIES})
+  else()
+    target_link_libraries(supertux2_lib PUBLIC ${CURL_LIBRARY})
+  endif()
+endif(HAVE_LIBCURL)
 
 if(BUILD_TESTS)
   find_package(Threads REQUIRED)
@@ -1049,7 +935,6 @@ endif()
 
 ## Install stuff
 
-option(DISABLE_CPACK_BUNDLING "Build an .app bundle without CPack" OFF)
 if(WIN32 AND NOT UNIX)
 
   set(INSTALL_SUBDIR_BIN "bin" CACHE STRING "Installation subdir for binaries")
@@ -1072,52 +957,19 @@ if(WIN32 AND NOT UNIX)
   endif()
 
 else(WIN32 AND NOT UNIX)
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
+  set(INSTALL_SUBDIR_BIN "games" CACHE STRING "Installation subdir for binaries")
+  set(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
+  set(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
 
-    set(INFOPLIST_CFBUNDLEEXECUTABLE "supertux2")
+  set(LINUX_DESKTOP_ICON "supertux2")
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "supertux2.desktop")
+  install(FILES ${CMAKE_BINARY_DIR}/supertux2.desktop DESTINATION "share/applications")
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
 
-    set(INSTALL_SUBDIR_BIN "SuperTux.app/Contents/MacOS" CACHE STRING "Installation subdir for binaries")
-    set(INSTALL_SUBDIR_SHARE "SuperTux.app/Contents/Resources/data" CACHE STRING "Installation subdir for data")
-    set(INSTALL_SUBDIR_DOC "SuperTux.app/Contents/Resources" CACHE STRING "Installation subdir for docs")
-
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/info.plist.in ${CMAKE_BINARY_DIR}/tools/darwin/info.plist)
-    install(FILES ${CMAKE_BINARY_DIR}/tools/darwin/info.plist DESTINATION "SuperTux.app/Contents/")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/receipt DESTINATION "SuperTux.app/Contents/_MASReceipt/")
-
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.icns DESTINATION "SuperTux.app/Contents/Resources/")
-
-  else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
-
-    set(INSTALL_SUBDIR_BIN "games" CACHE STRING "Installation subdir for binaries")
-    set(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
-    set(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
-
-    if(UBUNTU_TOUCH)
-      set(LINUX_DESKTOP_ICON "assets/supertux-256x256.png")
-      # FIXME: The "install" folder is a folder managed by Clickable and shouldn't be hardcoded here
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "install/supertux2.desktop")
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/supertux2.apparmor DESTINATION ".")
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/install/manifest.json)
-      set(APPS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/supertux2")
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux-256x256.png DESTINATION "assets")
-    else(UBUNTU_TOUCH)
-      set(LINUX_DESKTOP_ICON "supertux2")
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "supertux2.desktop")
-      install(FILES ${CMAKE_BINARY_DIR}/supertux2.desktop DESTINATION "share/applications")
-      set(APPS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${INSTALL_SUBDIR_BIN}/supertux2")
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
-    endif(UBUNTU_TOUCH)
-
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.svg DESTINATION "share/icons/hicolor/scalable/apps")
-
-  endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.svg DESTINATION "share/icons/hicolor/scalable/apps")
 endif(WIN32 AND NOT UNIX)
 
-if(UBUNTU_TOUCH)
-  install(TARGETS supertux2 DESTINATION ".")
-else(UBUNTU_TOUCH)
-  install(TARGETS supertux2 DESTINATION ${INSTALL_SUBDIR_BIN})
-endif(UBUNTU_TOUCH)
+install(TARGETS supertux2 DESTINATION ${INSTALL_SUBDIR_BIN})
 
 if(WIN32)
   get_property(SQUIRREL_LIB_PATH TARGET squirrel_lib PROPERTY IMPORTED_LOCATION)
@@ -1128,13 +980,7 @@ if(WIN32)
   install(FILES ${SQUIRREL_LIB_PATH} ${SQSTDLIB_LIB_PATH} ${PHYSFS_LIB_PATH} DESTINATION ${INSTALL_SUBDIR_BIN})
 endif()
 
-if(EMSCRIPTEN)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/emscripten/template.html.in ${CMAKE_CURRENT_BINARY_DIR}/template.html)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/emscripten/supertux2.png ${CMAKE_CURRENT_BINARY_DIR}/supertux2.png COPYONLY)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/emscripten/supertux2_bkg.png ${CMAKE_CURRENT_BINARY_DIR}/supertux2_bkg.png COPYONLY)
-endif(EMSCRIPTEN)
-
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt ${CMAKE_CURRENT_SOURCE_DIR}/NEWS.md DESTINATION ${INSTALL_SUBDIR_DOC})
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE DESTINATION ${INSTALL_SUBDIR_DOC})
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/credits.stxt DESTINATION ${INSTALL_SUBDIR_SHARE})
 
@@ -1183,41 +1029,6 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 ## CPack/Installation-specific stuff
 
 include(InstallRequiredSystemLibraries)
-set(DIRS ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DISABLE_CPACK_BUNDLING)
-  set(INFOPLIST_CFBUNDLEEXECUTABLE "SuperTux")
-
-  find_package(png)
-  foreach (_file ${PNG_LIBRARIES})
-    get_filename_component(_resolvedFile "${_file}" REALPATH)
-    get_filename_component(_name "${_file}" NAME)
-    install(FILES ${_resolvedFile} DESTINATION "MacOS" RENAME ${_name})
-  endforeach()
-  find_package(jpeg)
-  foreach (_file ${JPEG_LIBRARIES})
-    get_filename_component(_resolvedFile "${_file}" REALPATH)
-    get_filename_component(_name "${_file}" NAME)
-    install(FILES ${_resolvedFile} DESTINATION "MacOS" RENAME ${_name})
-  endforeach()
-
-  install(CODE "
-       if(\"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/\" MATCHES \".*\\\\.app.*\")
-       include(BundleUtilities)
-       fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
-       endif()
-       ")
-
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/info.plist.in" "${CMAKE_BINARY_DIR}/tools/darwin/info.plist")
-
-  set(CPACK_BUNDLE_NAME "SuperTux")
-  set(CPACK_BUNDLE_PLIST "${CMAKE_BINARY_DIR}/tools/darwin/info.plist")
-  set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.icns")
-  set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/startup.sh")
-  set(CPACK_DMG_VOLUME_NAME "SuperTux ${SUPERTUX_VERSION_STRING}")
-  set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/dsstore_setup.scpt")
-  set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/background.png")
-endif()
 
 
 set(CPACK_PACKAGE_NAME "SuperTux")
@@ -1234,7 +1045,7 @@ set(CPACK_RPM_PACKAGE_DESCRIPTION "Classic 2D jump 'n run sidescroller with Tux\
 set(CPACK_RPM_PACKAGE_LICENSE "GNU General Public License (GPL)")
 set(CPACK_RPM_PACKAGE_GROUP "Amusements/Games/Action/Arcade")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_PACKAGE_VERSION_MAJOR ${SUPERTUX_VERSION_MAJOR})
 set(CPACK_PACKAGE_VERSION_MINOR ${SUPERTUX_VERSION_MINOR})
 
@@ -1275,12 +1086,6 @@ mark_as_advanced(
   CMAKE_INSTALL_PREFIX
   EXECUTABLE_OUTPUT_PATH
   LIBRARY_OUTPUT_PATH
-  CMAKE_OSX_ARCHITECTURES
-  CMAKE_OSX_SYSROOT
-  )
-
-mark_as_advanced(
-  APPDATADIR
   )
 
 mark_as_advanced(

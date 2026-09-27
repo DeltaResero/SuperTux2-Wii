@@ -54,10 +54,6 @@ public:
   /** the aspect ratio */
   Size aspect_size;
 
-#ifdef __EMSCRIPTEN__
-  /** @deprecated Whether to automatically resize the game when the browser is resized */
-  bool fit_window;
-#endif
 
   float magnification;
 

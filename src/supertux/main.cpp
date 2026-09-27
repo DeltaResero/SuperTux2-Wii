@@ -42,14 +42,12 @@ extern "C" {
 #include "editor/tile_selection.hpp"
 #include "editor/tip.hpp"
 #include "editor/tool_icon.hpp"
-#include "gui/dialog.hpp"
 #include "gui/menu_manager.hpp"
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "object/spawnpoint.hpp"
 #include "physfs/physfs_file_system.hpp"
 #include "physfs/physfs_sdl.hpp"
-#include "port/emscripten.hpp"
 #include "sdk/integration.hpp"
 #include "sprite/sprite_data.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -187,7 +185,6 @@ PhysfsSubsystem::PhysfsSubsystem(const char* argv0,
 
 void PhysfsSubsystem::find_datadir() const
 {
-#ifndef __EMSCRIPTEN__
   std::string datadir;
   if (m_forced_datadir)
   {
@@ -223,12 +220,6 @@ void PhysfsSubsystem::find_datadir() const
   {
     log_warning << "Couldn't add '" << datadir << "' to physfs searchpath: " << PHYSFS_getLastErrorCode() << std::endl;
   }
-#else
-  if (!PHYSFS_mount(BUILD_CONFIG_DATA_DIR, nullptr, 1))
-  {
-    log_warning << "Couldn't add '" << BUILD_CONFIG_DATA_DIR << "' to physfs searchpath: " << PHYSFS_getLastErrorCode() << std::endl;
-  }
-#endif
 }
 
 void PhysfsSubsystem::find_userdir() const
@@ -299,9 +290,6 @@ if (FileSystem::is_directory(olduserdir)) {
 }
 #endif
 
-#ifdef EMSCRIPTEN
-  userdir = "/home/web_user/.local/share/supertux2/";
-#endif
 
   if (!FileSystem::is_directory(userdir))
   {
@@ -309,12 +297,6 @@ if (FileSystem::is_directory(olduserdir)) {
   log_info << "Created SuperTux userdir: " << userdir << std::endl;
   }
 
-#ifdef EMSCRIPTEN
-  EM_ASM({
-    FS.mount(IDBFS, {}, "/home/web_user/.local/share/supertux2/");
-    FS.syncfs(true, (err) => { console.log(err); });
-  }, 0); // EM_ASM is a variadic macro and Clang requires at least 1 value for the variadic argument
-#endif
 
   if (!PHYSFS_setWriteDir(userdir.c_str()))
   {
@@ -347,10 +329,7 @@ PhysfsSubsystem::~PhysfsSubsystem()
 
 SDLSubsystem::SDLSubsystem()
 {
-  Uint32 flags = SDL_INIT_TIMER | SDL_INIT_VIDEO;
-#ifndef UBUNTU_TOUCH
-  flags |= SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
-#endif
+  Uint32 flags = SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
   if (SDL_Init(flags) < 0)
   {
     std::stringstream msg;
@@ -428,7 +407,6 @@ Main::launch_game(const CommandLineArguments& args)
 
   s_timelog.log("commandline");
 
-#ifndef EMSCRIPTEN
   auto video = g_config->video;
   if (args.resave && *args.resave) {
     if (args.video) {
@@ -440,10 +418,6 @@ Main::launch_game(const CommandLineArguments& args)
   s_timelog.log("video");
 
   m_video_system = VideoSystem::create(video);
-#else
-  // Force SDL for WASM builds, as OpenGL is reportedly slow on some devices
-  m_video_system = VideoSystem::create(VideoSystem::VIDEO_SDL);
-#endif
   init_video();
 
   m_ttf_surface_manager.reset(new TTFSurfaceManager());
@@ -565,13 +539,6 @@ Main::launch_game(const CommandLineArguments& args)
     }
   }
 
-#ifdef UBUNTU_TOUCH
-  Dialog::show_message(_("The UBports version is under heavy development!\n"
-                         "If you encounter issues, PLEASE contact the maintainter\n"
-                         "at https://github.com/supertux/supertux/issues or on the\n"
-                         "Open Store's Telegram at https://open-store.io/telegram"));
-#endif
-
   m_screen_manager->run();
 }
 
@@ -581,9 +548,6 @@ Main::run(int argc, char** argv)
   // First and foremost, set error handlers (to print stack trace on SIGSEGV, etc.)
   ErrorHandler::set_handlers();
 
-#ifdef __EMSCRIPTEN__
-  init_emscripten();
-#endif
 
 #ifdef WIN32
 	//SDL is used instead of PHYSFS because both create the same path in app data

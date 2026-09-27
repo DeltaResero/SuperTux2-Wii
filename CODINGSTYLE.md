@@ -65,9 +65,6 @@ Include guards are of the form:
 #define HEADER_SUPERTUX_{PATH}_{FILE}_HPP
 ```
 
-`tools/fix_include_guards.sh` is a little script that will help to fix
-include guards on file renames.
-
 ## Variables
 
 Prefix member variable names with `m_`, global variables with `g_`, and static
