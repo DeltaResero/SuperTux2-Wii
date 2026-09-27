@@ -18,12 +18,10 @@
 #include "video/bitmap_font.hpp"
 
 #include <algorithm>
-#include <physfs.h>
 #include <cmath>
 #include <sstream>
 
 #include "physfs/physfs_sdl.hpp"
-#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -66,24 +64,13 @@ BitmapFont::BitmapFont(GlyphWidth glyph_width_,
 {
   for (unsigned int i=0; i<65536;i++) glyphs[i].surface_idx = -1;
 
-  const std::string fontdir = FileSystem::dirname(filename);
-  const std::string fontname = FileSystem::basename(filename);
-
-  // scan for prefix-filename across the whole search path
-  char **rc = PHYSFS_enumerateFiles(fontdir.c_str());
-  for (char **i = rc; *i != nullptr; i++) {
-    std::string filename_(*i);
-    if ( filename_.rfind(fontname) != std::string::npos ) {
-      try {
-        loadFontFile(fontdir + filename_);
-      }
-      catch(const std::exception& e)
-      {
-        log_fatal << "Couldn't load font file: " << e.what() << std::endl;
-      }
-    }
+  try {
+    loadFontFile(filename);
   }
-  PHYSFS_freeList(rc);
+  catch(const std::exception& e)
+  {
+    log_fatal << "Couldn't load font file: " << e.what() << std::endl;
+  }
 }
 
 void
