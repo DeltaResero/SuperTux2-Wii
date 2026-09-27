@@ -20,7 +20,6 @@
 
 #include "supertux/object_remove_listener.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 #include "video/color.hpp"
 
 GameObject::GameObject() :
@@ -70,25 +69,6 @@ GameObject::del_remove_listener(ObjectRemoveListener* listener)
                                        m_remove_listeners.end(),
                                        listener),
                            m_remove_listeners.end());
-}
-
-void
-GameObject::save(Writer& writer)
-{
-  auto settings = get_settings();
-  for (const auto& option_ptr : settings.get_options())
-  {
-    const auto& option = *option_ptr;
-    option.save(writer);
-  }
-}
-
-ObjectSettings
-GameObject::get_settings()
-{
-  ObjectSettings result(get_display_name());
-  result.add_text(_("Name"), &m_name, "name", std::string());
-  return result;
 }
 
 void

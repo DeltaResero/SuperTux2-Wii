@@ -20,8 +20,6 @@
 #include <memory>
 #include <string>
 
-class ObjectOption;
-
 namespace worldmap {
 
 enum class Direction { NONE, WEST, EAST, NORTH, SOUTH };

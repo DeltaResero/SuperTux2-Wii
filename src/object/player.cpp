@@ -21,7 +21,6 @@
 #include "badguy/badguy.hpp"
 #include "control/codecontroller.hpp"
 #include "control/input_manager.hpp"
-#include "editor/editor.hpp"
 #include "math/util.hpp"
 #include "math/random.hpp"
 #include "object/bullet.hpp"
@@ -203,7 +202,6 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
   m_airarrow(Surface::from_file("images/engine/hud/airarrow.png")),
   m_floor_normal(0.0f, 0.0f),
   m_ghost_mode(false),
-  m_edit_mode(false),
   m_unduck_hurt_timer(),
   m_idle_timer(),
   m_idle_stage(0),
@@ -1553,10 +1551,6 @@ Player::kick()
 void
 Player::draw(DrawingContext& context)
 {
-  if (Editor::is_active()) {
-    return;
-  }
-
   if (!m_visible)
     return;
 
@@ -1929,12 +1923,6 @@ Player::kill(bool completely)
   } else {
     SoundManager::current()->play("sounds/kill.wav");
 
-    // do not die when in edit mode
-    if (m_edit_mode) {
-      set_ghost_mode(true);
-      return;
-    }
-
     if (m_player_status.can_reach_checkpoint())
     {
       for (int i = 0; i < 5; i++)
@@ -2106,12 +2094,6 @@ Player::set_ghost_mode(bool enable)
     m_physic.enable_gravity(true);
     log_debug << "You feel solid again." << std::endl;
   }
-}
-
-void
-Player::set_edit_mode(bool enable)
-{
-  m_edit_mode = enable;
 }
 
 void

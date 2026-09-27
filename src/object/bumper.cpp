@@ -38,17 +38,6 @@ Bumper::Bumper(const ReaderMapping& reader) :
 	physic.enable_gravity(false);
 }
   
-ObjectSettings
-Bumper::get_settings()
-{
-  ObjectSettings result = MovingSprite::get_settings();
-
-  result.add_bool(_("Facing Left"), &left, "left", false);
-
-  result.reorder({"left", "sprite", "x", "y"});
-
-  return result;
-}
   
 void
 Bumper::update(float dt_sec)

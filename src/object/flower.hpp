@@ -27,9 +27,6 @@ class Flower final : public MovingObject
 
 public:
   Flower(BonusType type);
-  virtual bool is_saveable() const override {
-    return false;
-  }
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;

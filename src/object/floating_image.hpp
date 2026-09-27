@@ -26,9 +26,6 @@ class FloatingImage final : public GameObject
 public:
   FloatingImage(const std::string& sprite);
   ~FloatingImage() override;
-  virtual bool is_saveable() const override {
-    return false;
-  }
 
   void set_layer(int layer_) {
     layer = layer_;

@@ -140,12 +140,4 @@ Firefly::collision(GameObject& other, const CollisionHit& )
   return ABORT_MOVE;
 }
 
-ObjectSettings
-Firefly::get_settings()
-{
-  ObjectSettings result = MovingSprite::get_settings();
-  result.add_test_from_here();
-  return result;
-}
-
 /* EOF */

@@ -54,13 +54,6 @@ Level_toggle_pause()
   GameSession::current()->toggle_pause();
 }
 
-void
-Level_edit(bool edit_mode)
-{
-  if (GameSession::current() == nullptr) return;
-  GameSession::current()->set_editmode(edit_mode);
-}
-
 } // namespace scripting
 
 /* EOF */

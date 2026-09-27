@@ -19,6 +19,7 @@
 #define HEADER_SUPERTUX_GUI_MENU_ITEM_HPP
 
 #include "gui/menu.hpp"
+#include "video/color.hpp"
 
 class MenuItem
 {

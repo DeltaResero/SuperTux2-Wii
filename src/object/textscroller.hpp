@@ -39,10 +39,8 @@ public:
 
   virtual void draw(DrawingContext& context) override;
   virtual void update(float dt_sec) override;
-  virtual ObjectSettings get_settings() override;
   virtual std::string get_class() const override { return "textscroller"; }
   virtual std::string get_display_name() const override { return _("Text Scroller"); }
-  virtual const std::string get_icon_path() const override { return "images/engine/editor/textscroller.png"; }
 
   void set_default_speed(float default_speed);
   void scroll(float offset);

@@ -37,7 +37,6 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual void update(float dt_sec) override;
   virtual bool is_singleton() const override { return true; }
-  virtual bool is_saveable() const override { return false; }
 
   void set_text(const std::string& text);
   void set_font(const std::string& name);

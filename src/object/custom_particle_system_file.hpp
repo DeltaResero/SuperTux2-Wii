@@ -29,7 +29,6 @@
 class CustomParticleSystemFile final :
   public CustomParticleSystem
 {
-  friend class ParticleEditor;
 public:
   CustomParticleSystemFile();
   CustomParticleSystemFile(const ReaderMapping& reader);
@@ -37,11 +36,6 @@ public:
 
   virtual std::string get_class() const override { return "particles-custom-file"; }
   virtual std::string get_display_name() const override { return _("Custom Particles from file"); }
-  virtual ObjectSettings get_settings() override;
-
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/sparkle-file.png";
-  }
 
 private:
   void update_data();

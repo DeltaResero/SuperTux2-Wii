@@ -47,9 +47,6 @@ public:
   virtual std::string get_class() const override { return "dispenser"; }
   virtual std::string get_display_name() const override { return _("Dispenser"); }
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
   virtual void expose(HSQUIRRELVM vm, SQInteger table_idx) override
   {
     ExposedObject<Dispenser, scripting::Dispenser>::expose(vm, table_idx);

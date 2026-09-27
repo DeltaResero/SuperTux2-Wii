@@ -43,18 +43,6 @@ PushButton::PushButton(const ReaderMapping& mapping) :
   }
 }
 
-ObjectSettings
-PushButton::get_settings()
-{
-  ObjectSettings result = MovingSprite::get_settings();
-
-  result.add_script(_("Script"), &script, "script");
-
-  result.reorder({"script", "x", "y"});
-
-  return result;
-}
-
 void
 PushButton::update(float /*dt_sec*/)
 {

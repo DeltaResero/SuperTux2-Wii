@@ -23,8 +23,6 @@
 #include "video/renderer.hpp"
 #include "video/video_system.hpp"
 
-bool Compositor::s_render_lighting = true;
-
 Compositor::Compositor(VideoSystem& video_system) :
   m_video_system(video_system),
   m_obst(),
@@ -55,8 +53,6 @@ Compositor::render()
                                   [](std::unique_ptr<DrawingContext>& ctx){
                                     return ctx->use_lightmap();
                                   });
-
-  use_lightmap = use_lightmap && s_render_lighting;
 
   // prepare lightmap
   if (use_lightmap)

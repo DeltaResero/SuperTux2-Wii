@@ -22,23 +22,12 @@
 #include <string>
 
 #include "math/fwd.hpp"
-#include "supertux/autotile.hpp"
 #include "video/color.hpp"
 #include "video/surface_ptr.hpp"
 
 class Canvas;
 class DrawingContext;
 class Tile;
-
-class Tilegroup final
-{
-public:
-  Tilegroup();
-
-  bool developers_group = false;
-  std::string name;
-  std::vector<int> tiles;
-};
 
 class TileSet final
 {
@@ -51,33 +40,17 @@ public:
 
   void add_tile(int id, std::unique_ptr<Tile> tile);
 
-  /** Adds a group of tiles that haven't
-      been assigned to any other group */
-  void add_unassigned_tilegroup();
-
-  void add_tilegroup(const Tilegroup& tilegroup);
-
   const Tile& get(const uint32_t id) const;
   
-  AutotileSet* get_autotileset_from_tile(uint32_t tile_id) const;
 
   uint32_t get_max_tileid() const {
     return static_cast<uint32_t>(m_tiles.size());
   }
 
-  const std::vector<Tilegroup>& get_tilegroups() const {
-    return m_tilegroups;
-  }
-
   void print_debug_info(const std::string& filename);
   
-public:
-  // Must be public because of tile_set_parser.cpp
-  std::vector<AutotileSet*>* m_autotilesets;
-
 private:
   std::vector<std::unique_ptr<Tile> > m_tiles;
-  std::vector<Tilegroup> m_tilegroups;
 
 private:
   TileSet(const TileSet&) = delete;

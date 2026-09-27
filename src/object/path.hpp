@@ -26,9 +26,7 @@
 #include "math/vector.hpp"
 #include "math/easing.hpp"
 
-class ObjectOption;
 class ReaderMapping;
-class Writer;
 
 enum class WalkMode {
   // moves from first to last path node and stops
@@ -40,7 +38,6 @@ enum class WalkMode {
 };
 
 WalkMode string_to_walk_mode(const std::string& mode_string);
-std::string walk_mode_to_string(WalkMode walk_mode);
 
 class Path final
 {
@@ -72,7 +69,6 @@ public:
   Path(const Vector& pos);
 
   void read(const ReaderMapping& reader);
-  void save(Writer& writer);
 
   Vector get_base() const;
 
@@ -84,9 +80,6 @@ public:
 
   /** Moves all nodes by given shift. */
   void move_by(const Vector& shift);
-
-  /** Puts node markers to the nodes to edit them. */
-  void edit_path();
 
   /** Returns false when has no nodes */
   bool is_valid() const;

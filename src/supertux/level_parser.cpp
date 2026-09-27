@@ -71,49 +71,6 @@ LevelParser::from_file(const std::string& filename, bool worldmap, bool editable
   return level;
 }
 
-std::unique_ptr<Level>
-LevelParser::from_nothing(const std::string& basedir)
-{
-  auto level = std::make_unique<Level>(false);
-  LevelParser parser(*level, false, false);
-
-  // Find a free level filename
-  std::string level_file;
-  int num = 0;
-  do {
-    num++;
-    level_file = basedir + "/level" + std::to_string(num) + ".stl";
-  } while ( PHYSFS_exists(level_file.c_str()) );
-  std::string level_name = "Level " + std::to_string(num);
-  level_file = "level" + std::to_string(num) + ".stl";
-
-  parser.create(level_file, level_name);
-  return level;
-}
-
-std::unique_ptr<Level>
-LevelParser::from_nothing_worldmap(const std::string& basedir, const std::string& name)
-{
-  auto level = std::make_unique<Level>(true);
-  LevelParser parser(*level, true, false);
-
-  // Find a free level filename
-  std::string level_file = basedir + "/worldmap.stwm";
-  if (PHYSFS_exists(level_file.c_str())) {
-    int num = 0;
-    do {
-      num++;
-      level_file = basedir + "/worldmap" + std::to_string(num) + ".stwm";
-    } while ( PHYSFS_exists(level_file.c_str()) );
-    level_file = "worldmap" + std::to_string(num) + ".stwm";
-  } else {
-    level_file = "worldmap.stwm";
-  }
-
-  parser.create(level_file, name);
-  return level;
-}
-
 LevelParser::LevelParser(Level& level, bool worldmap, bool editable) :
   m_level(level),
   m_worldmap(worldmap),
@@ -197,19 +154,6 @@ LevelParser::load_old_format(const ReaderMapping& reader)
   reader.get("author", m_level.m_author);
 
   auto sector = SectorParser::from_reader_old_format(m_level, reader, m_editable);
-  m_level.add_sector(std::move(sector));
-}
-
-void
-LevelParser::create(const std::string& filepath, const std::string& levelname)
-{
-  m_level.m_filename = filepath;
-  m_level.m_name = levelname;
-  m_level.m_license = "CC-BY-SA 4.0 International";
-  m_level.m_tileset = m_worldmap ? "images/ice_world.strf" : "images/tiles.strf";
-
-  auto sector = SectorParser::from_nothing(m_level);
-  sector->set_name("main");
   m_level.add_sector(std::move(sector));
 }
 

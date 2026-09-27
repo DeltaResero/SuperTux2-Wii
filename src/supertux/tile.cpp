@@ -25,8 +25,6 @@
 #include "video/drawing_context.hpp"
 #include "video/surface.hpp"
 
-bool Tile::draw_editor_images = false;
-
 namespace {
 
 bool is_above_line (float l_x, float l_y, float m,
@@ -46,47 +44,30 @@ bool is_below_line (float l_x, float l_y, float m,
 
 Tile::Tile() :
   m_images(),
-  m_editor_images(),
   m_attributes(0),
   m_data(0),
   m_fps(1),
   m_object_name(),
-  m_object_data(),
-  m_deprecated(false)
+  m_object_data()
 {
 }
 
 Tile::Tile(const std::vector<SurfacePtr>& images,
-           const std::vector<SurfacePtr>& editor_images,
            uint32_t attributes, uint32_t data, float fps,
            const std::string& obj_name,
-           const std::string& obj_data,
-           bool deprecated) :
+           const std::string& obj_data) :
   m_images(images),
-  m_editor_images(editor_images),
   m_attributes(attributes),
   m_data(data),
   m_fps(fps),
   m_object_name(obj_name),
-  m_object_data(obj_data),
-  m_deprecated(deprecated)
+  m_object_data(obj_data)
 {
 }
 
 void
 Tile::draw(Canvas& canvas, const Vector& pos, int z_pos, const Color& color) const
 {
-  if (draw_editor_images) {
-    if (m_editor_images.size() > 1) {
-      size_t frame = size_t(g_game_time * m_fps) % m_editor_images.size();
-      canvas.draw_surface(m_editor_images[frame], pos, 0, color, Blend(), z_pos);
-      return;
-    } else if (m_editor_images.size() == 1) {
-      canvas.draw_surface(m_editor_images[0], pos, 0, color, Blend(), z_pos);
-      return;
-    }
-  }
-
   if (m_images.size() > 1) {
     size_t frame = size_t(g_game_time * m_fps) % m_images.size();
     canvas.draw_surface(m_images[frame], pos, 0, color, Blend(), z_pos);
@@ -215,19 +196,6 @@ Tile::get_current_surface() const
     return m_images[0];
   } else {
     return {};
-  }
-}
-
-SurfacePtr
-Tile::get_current_editor_surface() const
-{
-  if (m_editor_images.size() > 1) {
-    size_t frame = size_t(g_game_time * m_fps) % m_editor_images.size();
-    return m_editor_images[frame];
-  } else if (m_editor_images.size() == 1) {
-    return m_editor_images[0];
-  } else {
-    return get_current_surface();
   }
 }
 

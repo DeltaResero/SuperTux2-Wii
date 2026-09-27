@@ -18,7 +18,6 @@
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
-#include "editor/editor.hpp"
 #include "object/bouncy_coin.hpp"
 #include "object/player.hpp"
 #include "object/tilemap.hpp"
@@ -32,7 +31,6 @@ Coin::Coin(const Vector& pos) :
   PathObject(),
   m_offset(0.0f, 0.0f),
   m_from_tilemap(false),
-  m_add_path(false),
   m_physic(),
   m_collect_script(),
   m_starting_node(0)
@@ -45,7 +43,6 @@ Coin::Coin(const ReaderMapping& reader) :
   PathObject(),
   m_offset(0.0f, 0.0f),
   m_from_tilemap(false),
-  m_add_path(false),
   m_physic(),
   m_collect_script(),
   m_starting_node(0)
@@ -70,8 +67,6 @@ Coin::finish_construction()
     set_pos(get_path()->get_nodes()[m_starting_node].position);
     get_walker()->jump_to_node(m_starting_node);
   }
-
-  m_add_path = get_walker() && get_path() && get_path()->is_valid();
 }
 
 void
@@ -92,26 +87,6 @@ Coin::update(float dt_sec)
 
     if (get_path()->is_valid()) {
       m_col.set_movement(v - get_pos());
-    }
-  }
-}
-
-void
-Coin::editor_update()
-{
-  if (get_walker()) {
-    if (m_from_tilemap) {
-      set_pos(m_offset + get_walker()->get_pos());
-    } else {
-      set_pos(get_walker()->get_pos());
-
-      if (!get_path()) return;
-      if (!get_path()->is_valid()) return;
-
-      if (m_starting_node >= static_cast<int>(get_path()->get_nodes().size()))
-        m_starting_node = static_cast<int>(get_path()->get_nodes().size()) - 1;
-
-      set_pos(get_path()->get_nodes()[m_starting_node].position);
     }
   }
 }
@@ -276,62 +251,6 @@ Coin::move_to(const Vector& pos)
     get_path()->move_by(shift);
   }
   set_pos(pos);
-}
-
-ObjectSettings
-Coin::get_settings()
-{
-  ObjectSettings result = MovingSprite::get_settings();
-
-  result.add_path_ref(_("Path"), *this, get_path_ref(), "path-ref");
-  m_add_path = get_walker() && get_path() && get_path()->is_valid();
-  result.add_bool(_("Following path"), &m_add_path);
-
-  if (get_walker() && get_path()->is_valid()) {
-    result.add_walk_mode(_("Path Mode"), &get_path()->m_mode, {}, {});
-    result.add_bool(_("Adapt Speed"), &get_path()->m_adapt_speed, {}, {});
-    result.add_int(_("Starting Node"), &m_starting_node, "starting-node", 0, 0U);
-  }
-
-  result.add_script(_("Collect script"), &m_collect_script, "collect-script");
-
-  result.reorder({"collect-script", "path-ref"});
-
-  return result;
-}
-
-void
-Coin::after_editor_set()
-{
-  MovingSprite::after_editor_set();
-
-  if (get_walker() && get_path()->is_valid()) {
-    if (!m_add_path) {
-      get_path()->m_nodes.clear();
-    }
-  } else {
-    if (m_add_path) {
-      init_path_pos(m_col.m_bbox.p1());
-    }
-  }
-}
-
-ObjectSettings
-HeavyCoin::get_settings()
-{
-  auto result = MovingSprite::get_settings();
-
-  result.add_script(_("Collect script"), &m_collect_script, "collect-script");
-
-  result.reorder({"collect-script", "sprite", "x", "y"});
-
-  return result;
-}
-
-void
-HeavyCoin::after_editor_set()
-{
-  MovingSprite::after_editor_set();
 }
 
 /* EOF */

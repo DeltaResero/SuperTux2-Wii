@@ -35,9 +35,6 @@ public:
 public:
   Electrifier(TileChangeMap replacements, float seconds);
   Electrifier(uint32_t oldtile, uint32_t newtile, float seconds);
-  virtual bool is_saveable() const override {
-    return false;
-  }
 
 protected:
   virtual void update(float dt_sec) override;

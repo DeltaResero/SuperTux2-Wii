@@ -42,13 +42,6 @@ public:
   virtual std::string get_class() const override { return "background"; }
   virtual std::string get_display_name() const override { return _("Background"); }
 
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/background.png";
-  }
-
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
   void set_image(const std::string& name);
   void set_images(const std::string& name_top, const std::string& name_middle, const std::string& name_bottom);
   void set_speed(float bgd_speed);

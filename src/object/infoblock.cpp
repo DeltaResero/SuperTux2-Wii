@@ -18,7 +18,6 @@
 
 #include <algorithm>
 
-#include "editor/editor.hpp"
 #include "object/player.hpp"
 #include "supertux/info_box_line.hpp"
 #include "supertux/sector.hpp"
@@ -33,7 +32,7 @@ InfoBlock::InfoBlock(const ReaderMapping& mapping) :
   m_lines(),
   m_lines_height(0)
 {
-  if (!mapping.get("message", m_message) && !(Editor::is_active())) {
+  if (!mapping.get("message", m_message)) {
     log_warning << "No message in InfoBlock" << std::endl;
   }
   //stopped = false;
@@ -47,18 +46,6 @@ InfoBlock::InfoBlock(const ReaderMapping& mapping) :
 
 InfoBlock::~InfoBlock()
 {
-}
-
-ObjectSettings
-InfoBlock::get_settings()
-{
-  ObjectSettings result = Block::get_settings();
-
-  result.add_translatable_text(_("Message"), &m_message, "message");
-
-  result.reorder({"message", "x", "y"});
-
-  return result;
 }
 
 void

@@ -18,12 +18,9 @@
 
 #include "object/path.hpp"
 
-#include "editor/bezier_marker.hpp"
-#include "editor/node_marker.hpp"
 #include "math/easing.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 #include "util/log.hpp"
 
 WalkMode
@@ -38,21 +35,6 @@ string_to_walk_mode(const std::string& mode_string)
   else {
     log_warning << "Unknown path mode '" << mode_string << "'found. Using oneshot instead." << std::endl;
     return WalkMode::ONE_SHOT;
-  }
-}
-
-std::string
-walk_mode_to_string(WalkMode walk_mode)
-{
-  if (walk_mode == WalkMode::ONE_SHOT)
-    return "oneshot";
-  else if (walk_mode == WalkMode::PING_PONG)
-    return "pingpong";
-  else if (walk_mode == WalkMode::CIRCULAR)
-    return "circular";
-  else {
-    log_warning << "Unknown path mode found. Using oneshot instead." << std::endl;
-    return "oneshot";
   }
 }
 
@@ -125,49 +107,6 @@ Path::read(const ReaderMapping& reader)
     throw std::runtime_error("Path with zero nodes");
 }
 
-void
-Path::save(Writer& writer)
-{
-  if (!is_valid()) return;
-
-  writer.start_list("path");
-  if (m_mode != WalkMode::CIRCULAR) {
-    writer.write("mode", walk_mode_to_string(m_mode), false);
-  }
-  writer.write("adapt_speed", m_adapt_speed);
-
-  for (auto& nod : m_nodes) {
-    writer.start_list("node");
-    writer.write("x", nod.position.x);
-    writer.write("y", nod.position.y);
-
-    if (nod.bezier_before.x != nod.position.x || nod.bezier_before.y != nod.position.y)
-    {
-      writer.write("bezier_before_x", nod.bezier_before.x);
-      writer.write("bezier_before_y", nod.bezier_before.y);
-    }
-
-    if (nod.bezier_after.x != nod.position.x || nod.bezier_after.y != nod.position.y)
-    {
-      writer.write("bezier_after_x", nod.bezier_after.x);
-      writer.write("bezier_after_y", nod.bezier_after.y);
-    }
-
-    if (nod.time != 1.0f) {
-      writer.write("time", nod.time);
-    }
-    if (nod.speed != 0.0f) {
-      writer.write("speed", nod.speed);
-    }
-    if (nod.easing != EaseNone) {
-      writer.write("easing", getEasingName(nod.easing));
-    }
-    writer.end_list("node");
-  }
-
-  writer.end_list("path");
-}
-
 Vector
 Path::get_base() const
 {
@@ -217,20 +156,6 @@ Path::move_by(const Vector& shift)
     nod.position += shift;
     nod.bezier_before += shift;
     nod.bezier_after += shift;
-  }
-}
-
-void
-Path::edit_path()
-{
-  int id = 0;
-  for (auto i = m_nodes.begin(); i != m_nodes.end(); ++i) {
-    auto& before = Sector::get().add<BezierMarker>(&(*i), &(i->bezier_before));
-    auto& after = Sector::get().add<BezierMarker>(&(*i), &(i->bezier_after));
-    auto& nm = Sector::get().add<NodeMarker>(this, i, id, before.get_uid(), after.get_uid());
-    before.set_parent(nm.get_uid());
-    after.set_parent(nm.get_uid());
-    id++;
   }
 }
 

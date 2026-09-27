@@ -17,7 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 
-#include "editor/object_option.hpp"
 #include "object/moving_sprite.hpp"
 #include "scripting/badguy.hpp"
 #include "squirrel/exposed_object.hpp"
@@ -51,9 +50,6 @@ public:
 
   virtual std::string get_class() const override { return "badguy"; }
   virtual std::string get_display_name() const override { return _("Badguy"); }
-
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
 
   /** Called when a collision with another object occurred. The
       default implementation calls collision_player, collision_solid,

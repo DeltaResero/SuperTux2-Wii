@@ -40,9 +40,6 @@ public:
   virtual std::string get_class() const override { return "magicblock"; }
   virtual std::string get_display_name() const override { return _("Magic Tile"); }
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
 private:
   bool m_is_solid;
   float m_trigger_red;

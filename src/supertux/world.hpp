@@ -26,7 +26,6 @@ public:
   /** Load a World
       @param directory  Directory containing the info file, e.g. "levels/world1" */
   static std::unique_ptr<World> from_directory(const std::string& directory);
-  static std::unique_ptr<World> create(const std::string& title, const std::string& desc);
 
 private:
   World(const std::string& directory);
@@ -43,8 +42,6 @@ public:
 
   std::string get_worldmap_filename() const;
   std::string get_savegame_filename() const;
-
-  void save(bool retry = false);
 
 public:
   std::string m_title;

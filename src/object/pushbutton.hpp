@@ -30,8 +30,6 @@ public:
   virtual std::string get_class() const override { return "pushbutton"; }
   virtual std::string get_display_name() const override { return _("Button"); }
 
-  virtual ObjectSettings get_settings() override;
-
 private:
   enum PushButtonState {
     OFF,

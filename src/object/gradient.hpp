@@ -36,16 +36,8 @@ public:
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
 
-  virtual bool is_saveable() const override;
-
   virtual std::string get_class() const override { return "gradient"; }
   virtual std::string get_display_name() const override { return _("Gradient"); }
-
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/gradient.png";
-  }
-
-  virtual ObjectSettings get_settings() override;
 
   void set_gradient(Color top, Color bottom);
   void fade_gradient(Color top, Color bottom, float time);

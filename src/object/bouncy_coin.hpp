@@ -29,9 +29,6 @@ public:
              const std::string& sprite_path = "images/objects/coin/coin.sprite");
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
-  virtual bool is_saveable() const override {
-    return false;
-  }
 
 private:
   SpritePtr sprite;

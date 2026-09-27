@@ -35,9 +35,6 @@ public:
   virtual std::string get_class() const override { return "candle"; }
   virtual std::string get_display_name() const override { return _("Candle"); }
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
   /** @name Scriptable Methods
       @{ */
   void puff_smoke(); /**< spawn a puff of smoke */

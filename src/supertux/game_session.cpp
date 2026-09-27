@@ -20,7 +20,6 @@
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
-#include "editor/editor.hpp"
 #include "gui/menu_manager.hpp"
 #include "math/vector.hpp"
 #include "object/camera.hpp"
@@ -72,7 +71,6 @@ GameSession::GameSession(const std::string& levelfile_, Savegame& savegame, Stat
   m_best_level_statistics(statistics),
   m_savegame(savegame),
   m_play_time(0),
-  m_edit_mode(false),
   m_levelintro_shown(false),
   m_coins_at_start(),
   m_bonus_at_start(),
@@ -106,11 +104,6 @@ GameSession::restart_level(bool after_death)
   m_bonus_at_start = currentStatus.bonus;
   m_max_fire_bullets_at_start = currentStatus.max_fire_bullets;
   m_max_ice_bullets_at_start = currentStatus.max_ice_bullets;
-
-  if (m_edit_mode) {
-    force_ghost_mode();
-    return (-1);
-  }
 
   m_game_pause   = false;
   m_end_sequence = nullptr;
@@ -235,26 +228,6 @@ GameSession::is_active() const
 }
 
 void
-GameSession::set_editmode(bool edit_mode_)
-{
-  if (m_edit_mode == edit_mode_) return;
-  m_edit_mode = edit_mode_;
-
-  m_currentsector->get_player().set_edit_mode(edit_mode_);
-
-  if (edit_mode_) {
-
-    // entering edit mode
-
-  } else {
-
-    // leaving edit mode
-    restart_level();
-
-  }
-}
-
-void
 GameSession::force_ghost_mode()
 {
   m_currentsector->get_player().set_ghost_mode(true);
@@ -337,9 +310,7 @@ GameSession::update(float dt_sec, const Controller& controller)
       || controller.hold(Control::RIGHT));
   }
 
-  if (controller.pressed(Control::CHEAT_MENU) &&
-      (g_config->developer_mode || (Editor::current() && Editor::current()->is_testing_level()))
-     )
+  if (controller.pressed(Control::CHEAT_MENU) && g_config->developer_mode)
   {
     if (!MenuManager::instance().is_active())
     {
@@ -393,9 +364,6 @@ GameSession::update(float dt_sec, const Controller& controller)
     {
       reset_demo_controller();
     }
-    //Keep persistent across sectors
-    if (m_edit_mode)
-      m_currentsector->get_player().set_edit_mode(m_edit_mode);
     m_newsector = "";
     m_newspawnpoint = "";
     // retain invincibility if the player has it
@@ -477,11 +445,6 @@ GameSession::finish(bool win)
 
   using namespace worldmap;
 
-  if (m_edit_mode) {
-    force_ghost_mode();
-    return;
-  }
-
   if (win) {
     if (WorldMap::current())
     {
@@ -541,12 +504,6 @@ GameSession::get_working_directory() const
 void
 GameSession::start_sequence(Sequence seq, const SequenceData* data)
 {
-  // do not play sequences when in edit mode
-  if (m_edit_mode) {
-    force_ghost_mode();
-    return;
-  }
-
   // handle special "stoptux" sequence
   if (seq == SEQ_STOPTUX) {
     if (!m_end_sequence) {

@@ -21,8 +21,6 @@
 #include <sexp/value.hpp>
 
 #include "badguy/jumpy.hpp"
-#include "editor/editor.hpp"
-#include "editor/worldmap_objects.hpp"
 #include "object/ambient_light.hpp"
 #include "object/background.hpp"
 #include "object/camera.hpp"
@@ -61,16 +59,6 @@ SectorParser::from_reader_old_format(Level& level, const ReaderMapping& reader, 
   BIND_SECTOR(*sector);
   SectorParser parser(*sector, editable);
   parser.parse_old_format(reader);
-  return sector;
-}
-
-std::unique_ptr<Sector>
-SectorParser::from_nothing(Level& level)
-{
-  auto sector = std::make_unique<Sector>(level);
-  BIND_SECTOR(*sector);
-  SectorParser parser(*sector, false);
-  parser.create_sector();
   return sector;
 }
 
@@ -303,63 +291,6 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
   if (m_sector.get_solid_tilemaps().empty()) {
     log_warning << "sector '" << m_sector.get_name() << "' does not contain a solid tile layer." << std::endl;
   }
-
-  m_sector.finish_construction(m_editable);
-}
-
-void
-SectorParser::create_sector()
-{
-  auto tileset = TileManager::current()->get_tileset(m_sector.get_level().get_tileset());
-  bool worldmap = m_sector.get_level().is_worldmap();
-  if (!worldmap)
-  {
-    auto& background = m_sector.add<Background>();
-    background.set_image(DEFAULT_BG);
-    background.set_speed(0.5);
-
-    auto& bkgrd = m_sector.add<TileMap>(tileset);
-    bkgrd.resize(100, 35);
-    bkgrd.set_layer(-100);
-    bkgrd.set_solid(false);
-
-    auto& frgrd = m_sector.add<TileMap>(tileset);
-    frgrd.resize(100, 35);
-    frgrd.set_layer(100);
-    frgrd.set_solid(false);
-
-    // Add background gradient to sector:
-    auto& gradient = m_sector.add<Gradient>();
-    gradient.set_gradient(Color(0.3f, 0.4f, 0.75f), Color::WHITE);
-    gradient.set_layer(-301);
-  }
-  else
-  {
-    auto& water = m_sector.add<TileMap>(tileset);
-    water.resize(100, 35, 1);
-    water.set_layer(-100);
-    water.set_solid(false);
-  }
-
-  auto& intact = m_sector.add<TileMap>(tileset);
-  if (worldmap) {
-    intact.resize(100, 100, 0);
-  } else {
-    intact.resize(100, 35, 0);
-  }
-  intact.set_layer(0);
-  intact.set_solid(true);
-
-  if (worldmap) {
-    m_sector.add<worldmap_editor::WorldmapSpawnPoint>("main", Vector(4, 4));
-  } else {
-    m_sector.add<SpawnPointMarker>("main", Vector(64, 480));
-  }
-
-  m_sector.add<Camera>("Camera");
-  m_sector.add<MusicObject>();
-
-  m_sector.flush_game_objects();
 
   m_sector.finish_construction(m_editable);
 }

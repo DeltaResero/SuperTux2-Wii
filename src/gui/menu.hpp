@@ -19,37 +19,25 @@
 
 #include <functional>
 #include <memory>
+#include <string>
+#include <vector>
 #include <SDL.h>
 
 #include "gui/menu_action.hpp"
 #include "math/vector.hpp"
-#include "video/color.hpp"
 
 class Controller;
 class DrawingContext;
 class ItemAction;
 class ItemBack;
-class ItemBadguySelect;
-class ItemColor;
-class ItemColorChannelRGBA;
-class ItemColorChannelOKLab;
-class ItemColorDisplay;
 class ItemControlField;
-class ItemFile;
-class ItemFloatField;
 class ItemGoTo;
 class ItemHorizontalLine;
 class ItemInactive;
-class ItemIntField;
 class ItemLabel;
-class ItemPaths;
-class ItemScript;
-class ItemScriptLine;
 class ItemStringSelect;
-class ItemTextField;
 class ItemToggle;
 class MenuItem;
-class PathObject;
 
 class Menu
 {
@@ -81,21 +69,6 @@ public:
   ItemGoTo& add_submenu(const std::string& text, int submenu, int id = -1);
   ItemControlField& add_controlfield(int id, const std::string& text, const std::string& mapping = "");
   ItemStringSelect& add_string_select(int id, const std::string& text, int* selected, const std::vector<std::string>& strings);
-  ItemTextField& add_textfield(const std::string& text, std::string* input, int id = -1);
-  ItemScript& add_script(const std::string& text, std::string* script, int id = -1);
-  ItemScriptLine& add_script_line(std::string* input, int id = -1);
-  ItemIntField& add_intfield(const std::string& text, int* input, int id = -1);
-  ItemFloatField& add_floatfield(const std::string& text, float* input, int id = -1);
-  ItemBadguySelect& add_badguy_select(const std::string& text, std::vector<std::string>* badguys, int id = -1);
-  ItemFile& add_file(const std::string& text, std::string* input, const std::vector<std::string>& extensions,
-                     const std::string& basedir, int id = -1);
-
-  ItemColor& add_color(const std::string& text, Color* color, int id = -1);
-  ItemColorDisplay& add_color_display(Color* color, int id = -1);
-  ItemColorChannelRGBA& add_color_channel_rgba(float* input, Color channel, int id = -1,
-    bool is_linear = false);
-  ItemColorChannelOKLab& add_color_channel_oklab(Color* color, int channel);
-  ItemPaths& add_path_settings(const std::string& text, PathObject& target, const std::string& path_ref);
 
   void process_input(const Controller& controller);
 
@@ -107,7 +80,6 @@ public:
   MenuItem& get_item_by_id(int id);
   const MenuItem& get_item_by_id(int id) const;
 
-  int get_active_item_id() const;
   void set_active_item(int id);
 
   void draw(DrawingContext& context);
@@ -120,12 +92,7 @@ public:
   float get_height() const;
 
 protected:
-  /** returns true when the text is more important than action */
-  virtual bool is_sensitive() const;
-
   MenuItem& add_item(std::unique_ptr<MenuItem> menu_item);
-  MenuItem& add_item(std::unique_ptr<MenuItem> menu_item, int pos_);
-  void delete_item(int pos_);
 
 private:
   void process_action(const MenuAction& menuaction);

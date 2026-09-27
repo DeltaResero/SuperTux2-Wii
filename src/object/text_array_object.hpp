@@ -44,14 +44,9 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual bool is_singleton() const override { return true; }
-  virtual bool is_saveable() const override { return false; }
 
   virtual std::string get_class() const override { return "text-array"; }
   virtual std::string get_display_name() const override { return _("Text array"); }
-
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/textarray.png";
-  }
 
   /////////// TextArray api related ///////////
 

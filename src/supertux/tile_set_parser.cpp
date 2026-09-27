@@ -21,8 +21,6 @@
 #include <sexp/value.hpp>
 #include <sexp/io.hpp>
 
-#include "supertux/autotile_parser.hpp"
-#include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/tile_set.hpp"
 #include "util/log.hpp"
@@ -58,43 +56,15 @@ TileSetParser::parse()
       ReaderMapping tile_mapping = iter.as_mapping();
       parse_tile(tile_mapping);
     }
-    else if (iter.get_key() == "tilegroup")
-    {
-      /* tilegroups are only interesting for the editor */
-      ReaderMapping reader = iter.as_mapping();
-      Tilegroup tilegroup;
-      reader.get("name", tilegroup.name);
-      reader.get("tiles", tilegroup.tiles);
-      m_tileset.add_tilegroup(tilegroup);
-    }
     else if (iter.get_key() == "tiles")
     {
       ReaderMapping tiles_mapping = iter.as_mapping();
       parse_tiles(tiles_mapping);
     }
-    else if (iter.get_key() == "autotileset")
-    {
-      ReaderMapping reader = iter.as_mapping();
-      std::string autotile_filename;
-      if (!reader.get("source", autotile_filename))
-      {
-        log_warning << "No source path for autotiles in file '" << m_filename << "'" << std::endl;
-      }
-      else
-      {
-        AutotileParser* parser = new AutotileParser(m_tileset.m_autotilesets,
-            FileSystem::normalize(m_tiles_path + autotile_filename));
-        parser->parse();
-      }
-    }
     else
     {
       log_warning << "Unknown symbol '" << iter.get_key() << "' in tileset file" << std::endl;
     }
-  }
-  if (g_config->developer_mode)
-  {
-    m_tileset.add_unassigned_tilegroup();
   }
 }
 
@@ -160,24 +130,15 @@ TileSetParser::parse_tile(const ReaderMapping& reader)
     attributes |= Tile::SOLID | Tile::SLOPE;
   }
 
-  std::vector<SurfacePtr> editor_surfaces;
-  boost::optional<ReaderMapping> editor_images_mapping;
-  if (reader.get("editor-images", editor_images_mapping)) {
-    editor_surfaces = parse_imagespecs(*editor_images_mapping);
-  }
-
   std::vector<SurfacePtr> surfaces;
   boost::optional<ReaderMapping> images_mapping;
   if (reader.get("images", images_mapping)) {
     surfaces = parse_imagespecs(*images_mapping);
   }
 
-  bool deprecated = false;
-  reader.get("deprecated", deprecated);
-
-  auto tile = std::make_unique<Tile>(surfaces, editor_surfaces,
+  auto tile = std::make_unique<Tile>(surfaces,
                                      attributes, data, fps,
-                                     object_name, object_data, deprecated);
+                                     object_name, object_data);
   m_tileset.add_tile(id, std::move(tile));
 }
 
@@ -256,12 +217,6 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
   {
     if (shared_surface)
     {
-      std::vector<SurfacePtr> editor_surfaces;
-      boost::optional<ReaderMapping> editor_surfaces_mapping;
-      if (reader.get("editor-images", editor_surfaces_mapping)) {
-        editor_surfaces = parse_imagespecs(*editor_surfaces_mapping);
-      }
-
       std::vector<SurfacePtr> surfaces;
       boost::optional<ReaderMapping> surfaces_mapping;
       if (reader.get("image", surfaces_mapping) ||
@@ -283,15 +238,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
                 return surface->region(Rect(x, y, Size(32, 32)));
               });
 
-          std::vector<SurfacePtr> editor_regions;
-          editor_regions.reserve(editor_surfaces.size());
-          std::transform(editor_surfaces.begin(), editor_surfaces.end(), std::back_inserter(editor_regions),
-              [x, y] (const SurfacePtr& surface) { 
-                return surface->region(Rect(x, y, Size(32, 32)));
-              });
-
           auto tile = std::make_unique<Tile>(regions,
-                                             editor_regions,
                                              (has_attributes ? attributes[i] : 0),
                                              (has_datas ? datas[i] : 0),
                                              fps);
@@ -316,14 +263,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
             surfaces = parse_imagespecs(*surfaces_mapping, Rect(x, y, Size(32, 32)));
           }
 
-          std::vector<SurfacePtr> editor_surfaces;
-          boost::optional<ReaderMapping> editor_surfaces_mapping;
-          if (reader.get("editor-images", editor_surfaces_mapping)) {
-            editor_surfaces = parse_imagespecs(*editor_surfaces_mapping, Rect(x, y, Size(32, 32)));
-          }
-
           auto tile = std::make_unique<Tile>(surfaces,
-                                             editor_surfaces,
                                              (has_attributes ? attributes[i] : 0),
                                              (has_datas ? datas[i] : 0),
                                              fps);

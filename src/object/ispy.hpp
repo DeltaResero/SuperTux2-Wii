@@ -32,9 +32,6 @@ public:
   virtual std::string get_class() const override { return "ispy"; }
   virtual std::string get_display_name() const override { return _("Ispy"); }
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
 private:
   enum IspyState {
     ISPYSTATE_IDLE,

@@ -79,9 +79,6 @@ public:
 
   boost::optional<std::string> repository_url;
 
-  boost::optional<bool> editor;
-  boost::optional<bool> resave;
-
   // boost::optional<std::string> locale;
 
 public:

@@ -35,9 +35,6 @@ public:
             const float min_initial_velocity, const float max_initial_velocity,
             const Vector& acceleration, int number, Color color,
             int size, float life_time, int drawing_layer);
-  virtual bool is_saveable() const override {
-    return false;
-  }
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;

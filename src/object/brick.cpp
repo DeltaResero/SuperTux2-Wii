@@ -126,12 +126,4 @@ Brick::try_break(Player* player)
   }
 }
 
-ObjectSettings
-Brick::get_settings()
-{
-  ObjectSettings result = Block::get_settings();
-  result.add_bool(_("Breakable"), &m_breakable, "breakable");
-  return result;
-}
-
 /* EOF */

@@ -22,6 +22,7 @@
 #include "object/particlesystem_interactive.hpp"
 #include "object/particle_zone.hpp"
 #include "scripting/custom_particles.hpp"
+#include "video/color.hpp"
 #include "video/surface.hpp"
 #include "video/surface_ptr.hpp"
 
@@ -29,7 +30,6 @@ class CustomParticleSystem :
   public ParticleSystem_Interactive,
   public ExposedObject<CustomParticleSystem, scripting::CustomParticles>
 {
-  friend class ParticleEditor;
   friend class scripting::CustomParticles;
 public:
   CustomParticleSystem();
@@ -43,12 +43,6 @@ public:
 
   virtual std::string get_class() const override { return "particles-custom"; }
   virtual std::string get_display_name() const override { return _("Custom Particles"); }
-  virtual void save(Writer& writer) override;
-  virtual ObjectSettings get_settings() override;
-
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/sparkle.png";
-  }
 
   virtual void expose(HSQUIRRELVM vm, SQInteger table_idx) override {
     ExposedObject<CustomParticleSystem, scripting::CustomParticles>::expose(vm, table_idx);

@@ -21,7 +21,6 @@
 
 class ReaderMapping;
 class Sector;
-class Writer;
 
 /** Represents a collection of Sectors running in a single GameSession.
 
@@ -39,10 +38,6 @@ private:
 public:
   Level(bool m_is_worldmap);
   ~Level();
-
-  // saves to a levelfile
-  void save(const std::string& filename, bool retry = false);
-  void save(std::ostream& stream);
 
   void add_sector(std::unique_ptr<Sector> sector);
   const std::string& get_name() const { return m_name; }
@@ -63,10 +58,7 @@ public:
 
   bool is_worldmap() const { return m_is_worldmap; }
 
-  std::string get_license() const { return m_license; }
-
 private:
-  void save(Writer& writer);
   void load_old_format(const ReaderMapping& reader);
 
 public:

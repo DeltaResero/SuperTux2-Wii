@@ -34,8 +34,6 @@ public:
   virtual std::string get_class() const override { return "weak_block"; }
   virtual std::string get_display_name() const override { return _("Weak Tile"); }
 
-  virtual ObjectSettings get_settings() override;
-
 private:
   virtual HitResponse collision_bullet(Bullet& bullet, const CollisionHit& hit);
 

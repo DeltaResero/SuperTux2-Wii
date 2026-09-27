@@ -64,7 +64,6 @@ public:
 
   void init(const Level& level);
   void finish(float time);
-  void invalidate();
 
   void update(const Statistics& stats); /**< Given another Statistics object finds the best of each one */
   bool completed(const Statistics& stats, const float target_time) const; /* Check if stats match total stats */

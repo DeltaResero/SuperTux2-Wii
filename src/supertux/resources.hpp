@@ -48,9 +48,6 @@ public:
   /** Big font for menu titles and headers in text scrolls */
   static FontPtr big_font;
 
-  /** Font used for control interface elements (particle editor) */
-  static FontPtr control_font;
-
   static SurfacePtr checkbox;
   static SurfacePtr checkbox_checked;
   static SurfacePtr back;

@@ -32,9 +32,6 @@ class DrawingContext;
 class Tile final
 {
 public:
-  static bool draw_editor_images;
-
-public:
   /** bitset for tile attributes */
   enum {
     /** solid tile that is indestructible by Tux */
@@ -100,17 +97,14 @@ public:
 public:
   Tile();
   Tile(const std::vector<SurfacePtr>& images,
-       const std::vector<SurfacePtr>& editor_images,
        uint32_t attributes, uint32_t data, float fps,
-       const std::string& obj_name = "", const std::string& obj_data = "",
-       bool deprecated = false);
+       const std::string& obj_name = "", const std::string& obj_data = "");
 
   /** Draw a tile on the screen */
   void draw(Canvas& canvas, const Vector& pos, int z_pos, const Color& color = Color(1, 1, 1)) const;
   void draw_debug(Canvas& canvas, const Vector& pos, int z_pos, const Color& color = Color(1.0f, 0.f, 1.0f, 0.5f)) const;
 
   SurfacePtr get_current_surface() const;
-  SurfacePtr get_current_editor_surface() const;
 
   uint32_t get_attributes() const { return m_attributes; }
   int get_data() const { return m_data; }
@@ -140,8 +134,6 @@ public:
   /** Checks the UNISOLID attribute. Returns "true" if set, "false" otherwise. */
   bool is_unisolid() const { return (m_attributes & UNISOLID) != 0; }
 
-  bool is_deprecated() const { return m_deprecated; }
-
   const std::string& get_object_name() const { return m_object_name; }
   const std::string& get_object_data() const { return m_object_data; }
 
@@ -157,7 +149,6 @@ private:
 
 private:
   std::vector<SurfacePtr> m_images;
-  std::vector<SurfacePtr> m_editor_images;
 
   /** tile attributes */
   uint32_t m_attributes;
@@ -169,9 +160,6 @@ private:
 
   std::string m_object_name;
   std::string m_object_data;
-
-  /** Discourage use of this tile by not making it available in the editor */
-  bool m_deprecated;
 
 private:
   Tile(const Tile&) = delete;

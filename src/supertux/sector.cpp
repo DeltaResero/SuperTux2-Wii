@@ -23,7 +23,6 @@
 #include "badguy/badguy.hpp"
 #include "collision/collision.hpp"
 #include "collision/collision_system.hpp"
-#include "editor/editor.hpp"
 #include "math/aatriangle.hpp"
 #include "math/rect.hpp"
 #include "object/ambient_light.hpp"
@@ -56,7 +55,6 @@
 #include "supertux/savegame.hpp"
 #include "supertux/tile.hpp"
 #include "util/file_system.hpp"
-#include "util/writer.hpp"
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
@@ -78,9 +76,7 @@ Sector::Sector(Level& parent) :
   m_collision_system(new CollisionSystem(*this)),
   m_gravity(10.0)
 {
-  Savegame* savegame = (Editor::current() && Editor::is_active()) ?
-    Editor::current()->m_savegame.get() :
-    GameSession::current() ? &GameSession::current()->get_savegame() : nullptr;
+  Savegame* savegame = GameSession::current() ? &GameSession::current()->get_savegame() : nullptr;
   PlayerStatus& player_status = savegame ? savegame->get_player_status() : dummy_player_status;
 
   if (savegame && !m_level.m_suppress_pause_menu && !savegame->is_title_screen()) {
@@ -263,7 +259,7 @@ Sector::activate(const Vector& player_pos)
   }
 
   // Run init script
-  if (!m_init_script.empty() && !Editor::is_active()) {
+  if (!m_init_script.empty()) {
     run_script(m_init_script, "init-script");
   }
 }
@@ -478,48 +474,6 @@ Sector::inside(const Rectf& rect) const
   return false;
 }
 
-Size
-Sector::get_editor_size() const
-{
-  // Find the solid tilemap with the greatest surface
-  size_t max_surface = 0;
-  Size size;
-  for (const auto& solids: get_solid_tilemaps()) {
-    size_t surface = solids->get_width() * solids->get_height();
-    if (surface > max_surface) {
-      max_surface = surface;
-      size = solids->get_size();
-    }
-  }
-
-  return size;
-}
-
-void
-Sector::resize_sector(const Size& old_size, const Size& new_size, const Size& resize_offset)
-{
-  BIND_SECTOR(*this);
-
-  bool is_offset = resize_offset.width || resize_offset.height;
-  Vector obj_shift = Vector(static_cast<float>(resize_offset.width) * 32.0f,
-                            static_cast<float>(resize_offset.height) * 32.0f);
-  for (const auto& object : get_objects()) {
-    auto tilemap = dynamic_cast<TileMap*>(object.get());
-    if (tilemap) {
-      if (tilemap->get_size() == old_size) {
-        tilemap->resize(new_size, resize_offset);
-      } else if (is_offset) {
-        tilemap->move_by(obj_shift);
-      }
-    } else if (is_offset) {
-      auto moving_object = dynamic_cast<MovingObject*>(object.get());
-      if (moving_object) {
-        moving_object->move_to(moving_object->get_pos() + obj_shift);
-      }
-    }
-  }
-}
-
 void
 Sector::change_solid_tiles(uint32_t old_tile_id, uint32_t new_tile_id)
 {
@@ -595,47 +549,6 @@ void Sector::play_looping_sounds()
   for (const auto& object : get_objects()) {
     object->play_looping_sounds();
   }
-}
-
-void
-Sector::save(Writer &writer)
-{
-  BIND_SECTOR(*this);
-
-  writer.start_list("sector", false);
-
-  writer.write("name", m_name, false);
-
-  if (!m_level.is_worldmap()) {
-    if (m_gravity != 10.0f) {
-      writer.write("gravity", m_gravity);
-    }
-  }
-
-  if (m_init_script.size()) {
-    writer.write("init-script", m_init_script,false);
-  }
-
-  // saving objects;
-  std::vector<GameObject*> objects(get_objects().size());
-  std::transform(get_objects().begin(), get_objects().end(), objects.begin(), [] (auto& obj) {
-    return obj.get();
-  });
-
-  std::stable_sort(objects.begin(), objects.end(),
-                   [](const GameObject* lhs, GameObject* rhs) {
-                     return lhs->get_class() < rhs->get_class();
-                   });
-
-  for (auto& obj : objects) {
-    if (obj->is_saveable()) {
-      writer.start_list(obj->get_class());
-      obj->save(writer);
-      writer.end_list(obj->get_class());
-    }
-  }
-
-  writer.end_list("sector");
 }
 
 void

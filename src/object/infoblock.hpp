@@ -35,8 +35,6 @@ public:
   virtual std::string get_class() const override { return "infoblock"; }
   virtual std::string get_display_name() const override { return _("Info Block"); }
 
-  virtual ObjectSettings get_settings() override;
-
   void show_message();
   void hide_message();
 

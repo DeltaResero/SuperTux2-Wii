@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_GUI_ITEM_STRINGSELECT_HPP
 
 #include <functional>
+#include <string>
+#include <vector>
 
 #include "gui/menu_item.hpp"
 
