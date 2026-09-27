@@ -1,6 +1,3 @@
-// src/gui/menu_manager.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -69,11 +66,6 @@ public:
   bool is_active() const
   {
     return !m_menu_stack.empty();
-  }
-
-  bool has_dialog() const
-  {
-    return m_dialog != nullptr;
   }
 
   Menu* current_menu() const;

@@ -1,6 +1,3 @@
-// src/badguy/yeti.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Boss "Yeti"
 //  Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -32,8 +29,6 @@
 
 #include <float.h>
 #include <math.h>
-#include <memory>
-#include <vector>
 
 namespace {
 const float JUMP_DOWN_VX = 250; /**< horizontal speed while jumping off the dais */
@@ -351,6 +346,15 @@ bool
 Yeti::is_flammable() const
 {
   return false;
+}
+
+ObjectSettings
+Yeti::get_settings() {
+  ObjectSettings result = BadGuy::get_settings();
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, "hud-icon", &hud_icon, "hud-icon", false));
+  result.options.push_back( ObjectOption(MN_TOGGLE,    _("Fixed position"), &fixed_pos, "fixed-pos"));
+  result.options.push_back( ObjectOption(MN_INTFIELD,  _("Lives"),          &hit_points, "lives"));
+  return result;
 }
 
 /* EOF */

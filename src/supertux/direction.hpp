@@ -1,6 +1,3 @@
-// src/supertux/direction.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,11 +18,14 @@
 #define HEADER_SUPERTUX_SUPERTUX_DIRECTION_HPP
 
 #include <iostream>
-#include <string>
+
+class ObjectOption;
 
 enum Direction { AUTO, LEFT, RIGHT, UP, DOWN };
 
 std::ostream& operator<<(std::ostream& o, const Direction& dir);
+
+ObjectOption dir_option(Direction *dir);
 
 std::string dir_to_string(const Direction& dir);
 std::string dir_to_prefixed(const Direction& dir, const std::string& prefix);

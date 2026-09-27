@@ -1,6 +1,3 @@
-// src/badguy/flame.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,14 +15,14 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/flame.hpp"
-#include <numbers>
 
 #include <math.h>
-#include <cmath>
 
 #include "audio/sound_manager.hpp"
+#include "editor/editor.hpp"
 #include "math/random_generator.hpp"
 #include "sprite/sprite.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "object/sprite_particle.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
@@ -35,7 +32,7 @@ static const std::string FLAME_SOUND = "sounds/flame.wav";
 
 Flame::Flame(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/flame/flame.sprite", LAYER_FLOATINGOBJECTS,
-         LIGHT_SMALL),
+         "images/objects/lightmap_light/lightmap_light-small.sprite"),
   angle(0),
   radius(),
   speed(),
@@ -43,27 +40,39 @@ Flame::Flame(const ReaderMapping& reader) :
 {
   if ( !reader.get("radius", radius)) radius = 100;
   if ( !reader.get("speed", speed)) speed = 2;
-
-  bbox.set_pos(Vector(start_position.x + cos(angle) * radius,
-                      start_position.y + sin(angle) * radius));
-
+  if (!Editor::is_active()) {
+    bbox.set_pos(Vector(start_position.x + cos(angle) * radius,
+                        start_position.y + sin(angle) * radius));
+  }
   countMe = false;
   SoundManager::current()->preload(FLAME_SOUND);
 
   set_colgroup_active(COLGROUP_TOUCHABLE);
 
-  lightcolor = Color(0.21f, 0.13f, 0.08f);
+  lightsprite->set_color(Color(0.21f, 0.13f, 0.08f));
   glowing = true;
+}
+
+ObjectSettings
+Flame::get_settings() {
+  ObjectSettings result = BadGuy::get_settings();
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Radius"), &radius,
+                                         "radius"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed"), &speed,
+                                         "speed"));
+  return result;
 }
 
 void
 Flame::active_update(float elapsed_time)
 {
-  angle = fmodf(angle + elapsed_time * speed, 2*std::numbers::pi_v<float>);
-  Vector newpos(start_position.x + cos(angle) * radius,
-                start_position.y + sin(angle) * radius);
-  movement = newpos - get_pos();
-  sound_source->set_position(get_pos());
+  angle = fmodf(angle + elapsed_time * speed, (float) (2*M_PI));
+  if (!Editor::is_active()) {
+    Vector newpos(start_position.x + cos(angle) * radius,
+                  start_position.y + sin(angle) * radius);
+    movement = newpos - get_pos();
+    sound_source->set_position(get_pos());
+  }
 
   if (sprite->get_action() == "fade" && sprite->animation_done()) remove_me();
 }
@@ -71,10 +80,13 @@ Flame::active_update(float elapsed_time)
 void
 Flame::activate()
 {
+  if(Editor::is_active())
+    return;
   sound_source = SoundManager::current()->create_sound_source(FLAME_SOUND);
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
-  sound_source->set_close_range();
+  sound_source->set_gain(2.0);
+  sound_source->set_reference_distance(32);
   sound_source->play();
 }
 

@@ -1,6 +1,3 @@
-// src/object/platform.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,9 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_PLATFORM_HPP
 
-#include <memory>
-#include <string>
-
 #include "object/moving_sprite.hpp"
 #include "object/path_walker.hpp"
 #include "scripting/exposed_object.hpp"
@@ -38,6 +32,8 @@ public:
   Platform(const ReaderMapping& reader);
   Platform(const ReaderMapping& reader, const std::string& default_sprite);
   Platform(const Platform& platform);
+  virtual void save(Writer& writer);
+  virtual ObjectSettings get_settings();
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit);
   virtual void update(float elapsed_time);
@@ -65,6 +61,8 @@ public:
    * @}
    */
 
+  virtual void move_to(const Vector& pos);
+
   Path& get_path() const {
     return *path.get();
   }
@@ -72,7 +70,7 @@ public:
     return "platform";
   }
   std::string get_display_name() const {
-    return "Platform";
+    return _("Platform");
   }
 
 private:

@@ -1,6 +1,3 @@
-// src/gui/dialog.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -18,10 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "gui/dialog.hpp"
-#include <numbers>
 
 #include <algorithm>
-#include <memory>
 
 #include "control/controller.hpp"
 #include "gui/menu_manager.hpp"
@@ -231,7 +226,7 @@ Dialog::draw(DrawingContext& ctx)
     if (i == m_selected_button)
     {
       float button_height = 24.0f;
-      float blink = (sinf(real_time * std::numbers::pi_v<float> * 1.0f)/2.0f + 0.5f) * 0.5f + 0.25f;
+      float blink = (sinf(real_time * M_PI * 1.0f)/2.0f + 0.5f) * 0.5f + 0.25f;
       ctx.draw_filled_rect(Rectf(Vector(pos.x - button_width/2, pos.y - button_height/2),
                                  Vector(pos.x + button_width/2, pos.y + button_height/2)).grown(2.0f),
                            Color(1.0f, 1.0f, 1.0f, blink),
@@ -244,7 +239,7 @@ Dialog::draw(DrawingContext& ctx)
                            LAYER_GUI-10);
     }
 
-    ctx.draw_text(Resources::normal_font, m_buttons[static_cast<size_t>(i)].text,
+    ctx.draw_text(Resources::normal_font, m_buttons[i].text,
                   Vector(pos.x, pos.y - int(Resources::normal_font->get_height()/2)),
                   ALIGN_CENTER, LAYER_GUI,
                   i == m_selected_button ? ColorScheme::Menu::active_color : ColorScheme::Menu::default_color);
@@ -254,10 +249,9 @@ Dialog::draw(DrawingContext& ctx)
 void
 Dialog::on_button_click(int button) const
 {
-  const Button& btn = m_buttons[static_cast<size_t>(button)];
-  if (btn.callback)
+  if (m_buttons[button].callback)
   {
-    btn.callback();
+    m_buttons[button].callback();
   }
   MenuManager::instance().set_dialog({});
 }

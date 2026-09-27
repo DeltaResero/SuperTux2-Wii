@@ -1,6 +1,3 @@
-// src/object/smoke_cloud.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/smoke_cloud.hpp"
-
-#include <string>
 
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"

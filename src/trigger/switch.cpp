@@ -1,6 +1,3 @@
-// src/trigger/switch.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Switch Trigger
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -26,6 +23,7 @@
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 #include "trigger/switch.hpp"
+#include "util/gettext.hpp"
 
 #include <sstream>
 
@@ -55,6 +53,24 @@ Switch::Switch(const ReaderMapping& reader) :
 
 Switch::~Switch()
 {
+}
+
+ObjectSettings
+Switch::get_settings() {
+  ObjectSettings result(_("Switch"));
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Name"), &name));
+  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite", true, false);
+  spr.select.push_back(".sprite");
+  result.options.push_back(spr);
+  result.options.push_back( ObjectOption(MN_SCRIPT, _("Turn on script"), &script, "script"));
+  result.options.push_back( ObjectOption(MN_SCRIPT, _("Turn off script"), &off_script,
+                                         "off-script", true, false));
+  return result;
+}
+
+void
+Switch::after_editor_set() {
+  sprite = SpriteManager::current()->create(sprite_name);
 }
 
 void

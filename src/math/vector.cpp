@@ -1,6 +1,3 @@
-// src/math/vector.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,19 +15,12 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
-#include <cmath>
 
 #include "math/vector.hpp"
 
 Vector Vector::unit() const
 {
-  const float length = norm();
-  /* A vector of no length points nowhere, and dividing by that length would
-     hand the caller a NaN that spreads into whatever position it is added to.
-     Answer with no direction instead. */
-  if (length == 0.0f) return Vector(0.0f, 0.0f);
-
-  return *this / length;
+  return *this / norm();
 }
 
 float Vector::norm() const

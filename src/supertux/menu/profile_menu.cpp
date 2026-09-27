@@ -1,6 +1,3 @@
-// src/supertux/menu/profile_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,36 +16,35 @@
 
 #include "supertux/menu/profile_menu.hpp"
 
-#include <format>
+#include <boost/format.hpp>
 #include <sstream>
-#include <memory>
-#include <string>
 
 #include "gui/menu_manager.hpp"
 #include "gui/menu_item.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
+#include "util/gettext.hpp"
 
 ProfileMenu::ProfileMenu()
 {
-  add_label("Select Profile");
+  add_label(_("Select Profile"));
   add_hl();
   for(int i = 1; i <= 5; ++i)
   {
     std::ostringstream out;
     if (i == g_config->profile)
     {
-      out << std::format("[Profile {}]", i);
+      out << str(boost::format(_("[Profile %s]")) %i);
     }
     else
     {
-      out << std::format("Profile {}", i);
+      out << str(boost::format(_("Profile %s")) %i);
     }
     add_entry(i, out.str());
   }
 
   add_hl();
-  add_back("Back");
+  add_back(_("Back"));
 }
 
 void

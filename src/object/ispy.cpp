@@ -1,6 +1,3 @@
-// src/object/ispy.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Ispy
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -51,6 +48,30 @@ Ispy::Ispy(const ReaderMapping& reader) :
   if (dir == AUTO) { log_warning << "Setting an Ispy's direction to AUTO is no good idea" << std::endl; }
 
   // set initial sprite action
+  sprite->set_action((dir == DOWN) ? "idle-down" : ((dir == LEFT) ? "idle-left" : "idle-right"));
+}
+
+void
+Ispy::save(Writer& writer) {
+  MovingSprite::save(writer);
+  if(dir != AUTO) {
+    writer.write("direction", dir_to_string(dir), false);
+  }
+}
+
+ObjectSettings
+Ispy::get_settings() {
+  ObjectSettings result = MovingSprite::get_settings();
+  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script, "script"));
+  result.options.push_back( dir_option(&dir) );
+
+  return result;
+}
+
+void
+Ispy::after_editor_set()
+{
+  MovingSprite::after_editor_set();
   sprite->set_action((dir == DOWN) ? "idle-down" : ((dir == LEFT) ? "idle-left" : "idle-right"));
 }
 

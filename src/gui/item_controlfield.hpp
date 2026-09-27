@@ -1,6 +1,3 @@
-// src/gui/item_controlfield.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -23,7 +20,6 @@
 #include <list>
 #include <memory>
 #include <SDL.h>
-#include <string>
 
 #include "gui/menu_item.hpp"
 
@@ -33,7 +29,7 @@ class ItemControlField : public MenuItem
     ItemControlField(const std::string& text_, const std::string& input_, int id = -1);
 
     /** Draws the menu item. */
-    virtual void draw(DrawingContext&, Vector pos, int menu_width, float value_width, bool active);
+    virtual void draw(DrawingContext&, Vector pos, int menu_width, bool active);
 
     /** Returns the minimum width of the menu item. */
     virtual int get_width() const;

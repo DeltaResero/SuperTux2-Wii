@@ -1,6 +1,3 @@
-// src/supertux/spawn_point.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -25,6 +22,7 @@
 #include "math/vector.hpp"
 
 class ReaderMapping;
+class Writer;
 
 class SpawnPoint
 {
@@ -33,6 +31,7 @@ public:
   SpawnPoint(const SpawnPoint& other);
   SpawnPoint(const ReaderMapping& lisp);
 
+  void save(Writer& writer);
 
   std::string name;
   Vector pos;

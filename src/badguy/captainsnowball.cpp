@@ -1,6 +1,3 @@
-// src/badguy/captainsnowball.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -31,6 +28,15 @@ namespace{
 CaptainSnowball::CaptainSnowball(const ReaderMapping& reader)
   : WalkingBadguy(reader, "images/creatures/snowball/cpt-snowball.sprite", "left", "right")
 {
+  walk_speed = BOARDING_SPEED;
+  max_drop_height = -1;
+  physic.set_velocity_y(-400);
+}
+
+CaptainSnowball::CaptainSnowball(const Vector& pos, Direction d)
+  : WalkingBadguy(pos, d, "images/creatures/snowball/cpt-snowball.sprite", "left", "right")
+{
+  // Created during game eg. by dispencer. Board the enemy!
   walk_speed = BOARDING_SPEED;
   max_drop_height = -1;
   physic.set_velocity_y(-400);

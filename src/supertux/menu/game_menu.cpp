@@ -1,6 +1,3 @@
-// src/supertux/menu/game_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -27,6 +24,7 @@
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/options_menu.hpp"
 #include "supertux/screen_manager.hpp"
+#include "util/gettext.hpp"
 
 GameMenu::GameMenu()
 {
@@ -34,11 +32,11 @@ GameMenu::GameMenu()
 
   add_label(level->name);
   add_hl();
-  add_entry(MNID_CONTINUE, "Continue");
-  add_entry(MNID_RESETLEVEL, "Restart Level");
-  add_submenu("Options", MenuStorage::INGAME_OPTIONS_MENU);
+  add_entry(MNID_CONTINUE, _("Continue"));
+  add_entry(MNID_RESETLEVEL, _("Restart Level"));
+  add_submenu(_("Options"), MenuStorage::INGAME_OPTIONS_MENU);
   add_hl();
-  add_entry(MNID_ABORTLEVEL, "Abort Level");
+  add_entry(MNID_ABORTLEVEL, _("Abort Level"));
 }
 
 void

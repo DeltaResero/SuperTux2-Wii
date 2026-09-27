@@ -1,6 +1,3 @@
-// src/gui/item_inactive.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -23,7 +20,6 @@
 #include <list>
 #include <memory>
 #include <SDL.h>
-#include <string>
 
 #include "gui/menu_item.hpp"
 

@@ -1,6 +1,3 @@
-// src/object/light.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -23,6 +20,7 @@
 #include <memory>
 
 #include "math/vector.hpp"
+#include "sprite/sprite_ptr.hpp"
 #include "supertux/game_object.hpp"
 #include "video/color.hpp"
 
@@ -31,6 +29,9 @@ class Light : public GameObject
 public:
   Light(const Vector& center, const Color& color = Color(1.0, 1.0, 1.0, 1.0));
   virtual ~Light();
+  virtual bool do_save() const {
+    return false;
+  }
 
   void update(float elapsed_time);
   void draw(DrawingContext& context);
@@ -38,6 +39,7 @@ public:
 protected:
   Vector position;
   Color color;
+  SpritePtr sprite;
 };
 
 #endif

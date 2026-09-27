@@ -1,6 +1,3 @@
-// src/control/input_manager.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>,
 //           2007,2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -27,7 +24,9 @@
 #include "control/keyboard_manager.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/gameconfig.hpp"
+#include "util/gettext.hpp"
 #include "util/log.hpp"
+#include "util/writer.hpp"
 
 InputManager::InputManager(KeyboardConfig& keyboard_config,
                            JoystickConfig& joystick_config) :

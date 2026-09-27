@@ -1,6 +1,3 @@
-// src/object/powerup.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -25,35 +22,12 @@
 #include "object/sprite_particle.hpp"
 #include "scripting/level.hpp"
 #include "sprite/sprite.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 
 #include <sstream>
-#include <memory>
-
-namespace {
-
-/** The glow a powerup gives off, which is the only thing its picture decides. */
-Color glow_for(const std::string& sprite_name)
-{
-  if (sprite_name == "images/powerups/egg/egg.sprite")
-    return Color(0.2f, 0.2f, 0.0f);
-  if (sprite_name == "images/powerups/fireflower/fireflower.sprite")
-    return Color(0.3f, 0.0f, 0.0f);
-  if (sprite_name == "images/powerups/iceflower/iceflower.sprite")
-    return Color(0.0f, 0.1f, 0.2f);
-  if (sprite_name == "images/powerups/airflower/airflower.sprite")
-    return Color(0.15f, 0.0f, 0.15f);
-  if (sprite_name == "images/powerups/earthflower/earthflower.sprite")
-    return Color(0.0f, 0.3f, 0.0f);
-  if (sprite_name == "images/powerups/star/star.sprite")
-    return Color(0.4f, 0.4f, 0.4f);
-
-  return Color(0.0f, 0.0f, 0.0f);
-}
-
-} // namespace
 
 PowerUp::PowerUp(const ReaderMapping& lisp) :
   MovingSprite(lisp, "images/powerups/egg/egg.sprite", LAYER_OBJECTS, COLGROUP_MOVING),
@@ -61,7 +35,7 @@ PowerUp::PowerUp(const ReaderMapping& lisp) :
   script(),
   no_physics(),
   light(0.0f,0.0f,0.0f),
-  lightcolor(glow_for(sprite_name))
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
 {
   if (!lisp.get("script", script)) script = "";
   if (!lisp.get("disable-physics", no_physics)) no_physics = false;
@@ -69,6 +43,23 @@ PowerUp::PowerUp(const ReaderMapping& lisp) :
   SoundManager::current()->preload("sounds/grow.ogg");
   SoundManager::current()->preload("sounds/fire-flower.wav");
   SoundManager::current()->preload("sounds/gulp.wav");
+  //set default light for glow effect for standard sprites
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(0.0f, 0.0f, 0.0f));
+  if (sprite_name == "images/powerups/egg/egg.sprite") {
+    lightsprite->set_color(Color(0.2f, 0.2f, 0.0f));
+  } else if (sprite_name == "images/powerups/fireflower/fireflower.sprite") {
+    lightsprite->set_color(Color(0.3f, 0.0f, 0.0f));
+  } else if (sprite_name == "images/powerups/iceflower/iceflower.sprite") {
+    lightsprite->set_color(Color(0.0f, 0.1f, 0.2f));
+  } else if (sprite_name == "images/powerups/airflower/airflower.sprite") {
+    lightsprite->set_color(Color(0.15f, 0.0f, 0.15f));
+  } else if (sprite_name == "images/powerups/earthflower/earthflower.sprite") {
+    lightsprite->set_color(Color(0.0f, 0.3f, 0.0f));
+  } else if (sprite_name == "images/powerups/star/star.sprite") {
+    lightsprite->set_color(Color(0.4f, 0.4f, 0.4f));
+  }
+
 }
 
 PowerUp::PowerUp(const Vector& pos, const std::string& sprite_name_) :
@@ -77,11 +68,27 @@ PowerUp::PowerUp(const Vector& pos, const std::string& sprite_name_) :
   script(),
   no_physics(false),
   light(0.0f,0.0f,0.0f),
-  lightcolor(glow_for(sprite_name))
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
 {
   physic.enable_gravity(true);
   SoundManager::current()->preload("sounds/grow.ogg");
   SoundManager::current()->preload("sounds/fire-flower.wav");
+  //set default light for glow effect for standard sprites
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(0.0f, 0.0f, 0.0f));
+  if (sprite_name == "images/powerups/egg/egg.sprite") {
+    lightsprite->set_color(Color(0.2f, 0.2f, 0.0f));
+  } else if (sprite_name == "images/powerups/fireflower/fireflower.sprite") {
+    lightsprite->set_color(Color(0.3f, 0.0f, 0.0f));
+  } else if (sprite_name == "images/powerups/iceflower/iceflower.sprite") {
+    lightsprite->set_color(Color(0.0f, 0.1f, 0.2f));
+  } else if (sprite_name == "images/powerups/airflower/airflower.sprite") {
+    lightsprite->set_color(Color(0.15f, 0.0f, 0.15f));
+  } else if (sprite_name == "images/powerups/earthflower/earthflower.sprite") {
+    lightsprite->set_color(Color(0.0f, 0.3f, 0.0f));
+  } else if (sprite_name == "images/powerups/star/star.sprite") {
+    lightsprite->set_color(Color(0.4f, 0.4f, 0.4f));
+  }
 }
 
 void
@@ -190,8 +197,22 @@ PowerUp::draw(DrawingContext& context){
     if (sprite_name == "images/powerups/star/star.sprite") {
       sprite->draw(context, get_pos(), layer);
     }
-    context.draw_light(bbox.get_middle(), LIGHT_SMALL, lightcolor);
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    lightsprite->draw(context, bbox.get_middle(), 0);
+    context.pop_target();
   }
+}
+
+ObjectSettings
+PowerUp::get_settings() {
+  ObjectSettings result = MovingSprite::get_settings();
+  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script,
+                                         "script"));
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Disable gravity"), &no_physics,
+                                         "disable-physics"));
+
+  return result;
 }
 
 /* EOF */

@@ -1,6 +1,3 @@
-// src/trigger/scripttrigger.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_TRIGGER_SCRIPTTRIGGER_HPP
 #define HEADER_SUPERTUX_TRIGGER_SCRIPTTRIGGER_HPP
 
-#include <string>
-
 #include "trigger/trigger_base.hpp"
 
 class Writer;
@@ -30,10 +25,14 @@ class ScriptTrigger : public TriggerBase
 {
 public:
   ScriptTrigger(const ReaderMapping& reader);
+  ScriptTrigger(const Vector& pos, const std::string& script);
   ~ScriptTrigger();
   std::string get_class() const {
     return "scripttrigger";
   }
+
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
   void write(Writer& writer);
   void event(Player& player, EventType type);
@@ -42,6 +41,7 @@ public:
 private:
   EventType triggerevent;
   std::string script;
+  Vector new_size;
   bool must_activate;
 };
 

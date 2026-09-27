@@ -1,6 +1,3 @@
-// src/supertux/resources.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2003 Tobias Glaesser <tobi.web@gmx.de>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
@@ -19,8 +16,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "supertux/resources.hpp"
-
-#include <string>
 
 #include "gui/mousecursor.hpp"
 #include "sprite/sprite_manager.hpp"

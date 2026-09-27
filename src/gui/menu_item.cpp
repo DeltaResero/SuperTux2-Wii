@@ -1,6 +1,3 @@
-// src/gui/menu_item.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                2015 Hume2 <teratux.mail@gmail.com>
@@ -70,7 +67,7 @@ MenuItem::set_help(const std::string& help_text)
 }
 
 void
-MenuItem::draw(DrawingContext& context, Vector pos, int menu_width, float value_width, bool active) {
+MenuItem::draw(DrawingContext& context, Vector pos, int menu_width, bool active) {
   context.draw_text(Resources::normal_font, text,
                     Vector( pos.x + menu_width/2 , pos.y - int(Resources::normal_font->get_height())/2 ),
                     ALIGN_CENTER, LAYER_GUI, active ? ColorScheme::Menu::active_color : get_color());

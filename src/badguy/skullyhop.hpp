@@ -1,6 +1,3 @@
-// src/badguy/skullyhop.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SkullyHop - A Hopping Skull
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SKULLYHOP_HPP
 #define HEADER_SUPERTUX_BADGUY_SKULLYHOP_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 /**
@@ -31,6 +26,7 @@ class SkullyHop : public BadGuy
 {
 public:
   SkullyHop(const ReaderMapping& reader);
+  SkullyHop(const Vector& pos, Direction d);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);
@@ -44,8 +40,10 @@ public:
     return "skullyhop";
   }
   std::string get_display_name() const {
-    return "Skully hop";
+    return _("Skully hop");
   }
+
+  void after_editor_set();
 
 private:
   enum SkullyHopState {

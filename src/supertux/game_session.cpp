@@ -1,6 +1,3 @@
-// src/supertux/game_session.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,10 +18,6 @@
 
 #include <float.h>
 #include <fstream>
-#include <exception>
-#include <sstream>
-#include <stdexcept>
-#include <utility>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
@@ -53,6 +46,7 @@
 #include "supertux/screen_manager.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
+#include "util/gettext.hpp"
 #include "worldmap/worldmap.hpp"
 
 #ifdef WIN32
@@ -83,6 +77,7 @@ GameSession::GameSession(const std::string& levelfile_, Savegame& savegame, Stat
   playback_demo_stream(0),
   demo_controller(0),
   play_time(0),
+  edit_mode(false),
   levelintro_shown(false),
   coins_at_start(),
   bonus_at_start(),
@@ -115,6 +110,11 @@ GameSession::restart_level(bool after_death)
     bonus_at_start = currentStatus->bonus;
     max_fire_bullets_at_start = currentStatus->max_fire_bullets;
     max_ice_bullets_at_start = currentStatus->max_ice_bullets;
+
+  if (edit_mode) {
+    force_ghost_mode();
+    return (-1);
+  }
 
   game_pause   = false;
   end_sequence = 0;
@@ -310,6 +310,26 @@ GameSession::is_active() const
 }
 
 void
+GameSession::set_editmode(bool edit_mode_)
+{
+  if (this->edit_mode == edit_mode_) return;
+  this->edit_mode = edit_mode_;
+
+  currentsector->get_players()[0]->set_edit_mode(edit_mode_);
+
+  if (edit_mode_) {
+
+    // entering edit mode
+
+  } else {
+
+    // leaving edit mode
+    restart_level();
+
+  }
+}
+
+void
 GameSession::force_ghost_mode()
 {
   currentsector->get_players()[0]->set_ghost_mode(true);
@@ -449,14 +469,8 @@ GameSession::update(float elapsed_time)
     active = true;
   }
   // handle controller
-  // The menu ignores the pause key, so it closes the pause menu here.
-  if(game_pause && InputManager::current()->get_controller()->pressed(Controller::START) &&
-     MenuManager::instance().is_active() && !MenuManager::instance().has_dialog())
-  {
-    MenuManager::instance().clear_menu_stack();
-  }
-  else if(InputManager::current()->get_controller()->pressed(Controller::ESCAPE) ||
-          InputManager::current()->get_controller()->pressed(Controller::START))
+  if(InputManager::current()->get_controller()->pressed(Controller::ESCAPE) ||
+     InputManager::current()->get_controller()->pressed(Controller::START))
   {
     on_escape_press();
   }
@@ -497,14 +511,14 @@ GameSession::update(float elapsed_time)
     currentsector = sector;
     currentsector->play_looping_sounds();
     //Keep persistent across sectors
+    if(edit_mode)
+      currentsector->get_players()[0]->set_edit_mode(edit_mode);
     newsector = "";
     newspawnpoint = "";
   }
 
-  /* The unpause above clears game_pause, but the speed it restores only reaches
-     the timestep next frame, so this frame still carries the paused zero. Running
-     the world on it moves nothing and reports nobody standing on anything. */
-  if(!game_pause && elapsed_time > 0) {
+  // Update the world state and all objects in the world
+  if(!game_pause) {
     // Update the world
     if (!end_sequence) {
       play_time += elapsed_time; //TODO: make sure we don't count cutscene time
@@ -532,22 +546,12 @@ GameSession::update(float elapsed_time)
   if(currentsector->player->invincible_timer.started()) {
     if(currentsector->player->invincible_timer.get_timeleft() <=
        TUX_INVINCIBLE_TIME_WARNING) {
-      if(currentsector->get_music_type() != HERRING_WARNING_MUSIC) {
-        currentsector->play_music(HERRING_WARNING_MUSIC);
-      }
+      currentsector->play_music(HERRING_WARNING_MUSIC);
     } else {
-      if(currentsector->get_music_type() != HERRING_MUSIC) {
-        currentsector->play_music(HERRING_MUSIC);
-      }
+      currentsector->play_music(HERRING_MUSIC);
     }
   } else if(currentsector->get_music_type() != LEVEL_MUSIC) {
-    /* Dying stops the invincibility timer, so a death with the star still on
-       arrives here on the very next frame. Death has already begun fading the
-       music out across its animation, and starting the level music here would
-       cut that fade off and play over it. */
-    if(!currentsector->player->is_dying()) {
-      currentsector->play_music(LEVEL_MUSIC);
-    }
+    currentsector->play_music(LEVEL_MUSIC);
   }
   if (reset_button) {
     reset_button = false;
@@ -564,6 +568,11 @@ GameSession::finish(bool win)
   end_seq_started = true;
 
   using namespace worldmap;
+
+  if (edit_mode) {
+    force_ghost_mode();
+    return;
+  }
 
   if(win) {
     if(WorldMap::current())
@@ -603,6 +612,12 @@ GameSession::get_working_directory() const
 void
 GameSession::start_sequence(Sequence seq)
 {
+  // do not play sequences when in edit mode
+  if (edit_mode) {
+    force_ghost_mode();
+    return;
+  }
+
   // handle special "stoptux" sequence
   if (seq == SEQ_STOPTUX) {
     if (!end_sequence) {

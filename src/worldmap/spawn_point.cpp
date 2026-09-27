@@ -1,6 +1,3 @@
-// src/worldmap/spawn_point.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Worldmap Spawnpoint
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //

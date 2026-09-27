@@ -1,6 +1,3 @@
-// src/scripting/willowisp.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2007 Matthias Braun <matze@braunis.de>
 //
@@ -20,16 +17,17 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_WILLOWISP_HPP
 #define HEADER_SUPERTUX_SCRIPTING_WILLOWISP_HPP
 
+#ifndef SCRIPTING_API
 #include <string>
 
 class WillOWisp;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class WillOWisp : public ssq::ExposableClass
+class WillOWisp
 {
+#ifndef SCRIPTING_API
 private:
   ::WillOWisp* m_parent;
 
@@ -40,6 +38,7 @@ public:
 private:
   WillOWisp(const WillOWisp&) = delete;
   WillOWisp& operator=(const WillOWisp&) = delete;
+#endif
 
 public:
   /** Move willowisp to given node */

@@ -1,6 +1,3 @@
-// src/util/currenton.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 /*
 **  Windstille - A Sci-Fi Action-Adventure Game
 **  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>

@@ -1,6 +1,3 @@
-// src/supertux/moving_object.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_SUPERTUX_MOVING_OBJECT_HPP
 
 #include <stdint.h>
-#include <string>
 
 #include "math/rectf.hpp"
 #include "supertux/collision_hit.hpp"
@@ -103,8 +99,10 @@ public:
   {
   }
 
-  /** The name this kind of object goes by in a level file, which is the
-      same name the factory builds it from. */
+  /** This function saves the object.
+   *  Editor will use that.
+   */
+  virtual void save(Writer& writer);
   virtual std::string get_class() const {
     return "moving-object";
   }
@@ -113,6 +111,9 @@ public:
   {
     return bbox.p1;
   }
+
+  /** puts resizers at its edges, used in editor input center */
+  void edit_bbox();
 
   /** returns the bounding box of the Object */
   const Rectf& get_bbox() const

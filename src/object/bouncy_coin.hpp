@@ -1,6 +1,3 @@
-// src/object/bouncy_coin.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_BOUNCY_COIN_HPP
 
 #include <memory>
-#include <string>
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
@@ -36,6 +32,9 @@ public:
   ~BouncyCoin();
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
+  virtual bool do_save() const {
+    return false;
+  }
 
 private:
   SpritePtr sprite;

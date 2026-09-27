@@ -1,6 +1,3 @@
-// src/object/pneumatic_platform.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - PneumaticPlatform
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -20,9 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 
-#include <set>
-#include <string>
-
 #include "object/moving_sprite.hpp"
 
 /**
@@ -41,7 +35,7 @@ public:
     return "pneumatic-platform";
   }
   std::string get_display_name() const {
-    return "Pneumatic platform";
+    return _("Pneumatic platform");
   }
 
   bool do_save() const {
@@ -49,6 +43,8 @@ public:
   }
 
   void move_to(const Vector& pos);
+  void editor_delete();
+  void after_editor_set();
 
 protected:
   PneumaticPlatform* master; /**< pointer to PneumaticPlatform that does movement calculation */

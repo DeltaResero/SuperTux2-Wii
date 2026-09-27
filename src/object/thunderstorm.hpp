@@ -1,6 +1,3 @@
-// src/object/thunderstorm.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Thunderstorm Game Object
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_THUNDERSTORM_HPP
 #define HEADER_SUPERTUX_OBJECT_THUNDERSTORM_HPP
-
-#include <string>
 
 #include "util/reader_fwd.hpp"
 #include "scripting/exposed_object.hpp"
@@ -83,7 +78,13 @@ public:
     return "thunderstorm";
   }
   std::string get_display_name() const {
-    return "Thunderstorm";
+    return _("Thunderstorm");
+  }
+
+  virtual ObjectSettings get_settings();
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/thunderstorm.png";
   }
 
 private:

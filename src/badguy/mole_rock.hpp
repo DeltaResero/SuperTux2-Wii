@@ -1,6 +1,3 @@
-// src/badguy/mole_rock.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  MoleRock - Rock thrown by "Mole" Badguy
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_MOLE_ROCK_HPP
 #define HEADER_SUPERTUX_BADGUY_MOLE_ROCK_HPP
-
-#include <string>
 
 #include "badguy/badguy.hpp"
 
@@ -50,7 +45,7 @@ public:
     return "mole_rock";
   }
   std::string get_display_name() const {
-    return "Mole's rock";
+    return _("Mole's rock");
   }
 
 protected:

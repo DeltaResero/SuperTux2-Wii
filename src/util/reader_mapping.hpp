@@ -1,6 +1,3 @@
-// src/util/reader_mapping.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,10 +17,6 @@
 #ifndef HEADER_SUPERTUX_UTIL_READER_MAPPING_HPP
 #define HEADER_SUPERTUX_UTIL_READER_MAPPING_HPP
 
-#include <cstdint>
-#include <string>
-#include <vector>
-
 #include "util/reader_iterator.hpp"
 
 namespace sexp {
@@ -41,6 +34,7 @@ public:
   // sx should point to (section (name value)...)
   ReaderMapping(const ReaderDocument* doc, const sexp::Value* sx);
 
+  static bool translations_enabled;
 
   ReaderIterator get_iter() const;
 

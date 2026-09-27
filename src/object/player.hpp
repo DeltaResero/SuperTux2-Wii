@@ -1,6 +1,3 @@
-// src/object/player.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,15 +17,11 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PLAYER_HPP
 #define HEADER_SUPERTUX_OBJECT_PLAYER_HPP
 
-#include <memory>
-#include <string>
-
 #include "scripting/exposed_object.hpp"
 #include "scripting/player.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/direction.hpp"
 #include "supertux/moving_object.hpp"
-#include "supertux/object_remove_listener.hpp"
 #include "supertux/physic.hpp"
 #include "supertux/player_status.hpp"
 #include "supertux/script_interface.hpp"
@@ -49,13 +42,6 @@ static const float GROWING_TIME = 0.35f;
 static const int GROWING_FRAMES = 7;
 static const float TUX_BACKFLIP_TIME = 2.1f; // minimum air time that backflip results in a loss of control
 
-/* Sizes: */
-static const float TUX_WIDTH = 31.8f;
-static const float RUNNING_TUX_WIDTH = 34;
-static const float SMALL_TUX_HEIGHT = 30.8f;
-static const float BIG_TUX_HEIGHT = 62.8f;
-static const float DUCKED_TUX_HEIGHT = 31.8f;
-
 class Player : public MovingObject,
                public ExposedObject<Player, scripting::Player>
 {
@@ -64,6 +50,9 @@ public:
   //Tux can only go this fast. If set to 0 no special limit is used, only the default limits.
   void set_speedlimit(float newlimit);
   float get_speedlimit() const;
+  virtual bool do_save() const {
+    return false;
+  }
 
 public:
   Player(PlayerStatus* player_status, const std::string& name);
@@ -212,6 +201,12 @@ public:
   void set_ghost_mode(bool enable);
 
   /**
+   * Switches edit mode on/off.
+   * In edit mode, Tux will enter ghost_mode instead of dying.
+   */
+  void set_edit_mode(bool enable);
+
+  /**
    * Returns whether ghost mode is currently enabled
    */
   bool get_ghost_mode() const { return ghost_mode; }
@@ -282,9 +277,6 @@ private:
   int  backflip_direction;
   Direction peekingX;
   Direction peekingY;
-  /** Runs while up or down is held standing still, for the peek off no button. */
-  Timer peek_hold_timer;
-  bool peek_held;
   float ability_time;
   bool stone;
   bool swimming;
@@ -293,18 +285,7 @@ private:
   bool jump_early_apex;
   bool on_ice;
   bool ice_this_frame;
-  /** Which pool of light the headlamp is throwing, and which way round.
-      Remembered rather than worked out when drawing, because Tux has actions
-      the headlamp has no shape for -- turning to stone, or dying -- and it
-      held its last one through those. */
-  int headlamp_shape;
-  bool headlamp_mirrored;
-  /** How far the headlamp is turned from where it normally lies, which
-      happens during a backflip and nowhere else. */
-  float light_angle;
-  void set_headlamp_action(const std::string& action);
-  void draw_headlamp(DrawingContext& context) const;
-  void set_light_angle(float angle);
+  SpritePtr lightsprite;
   SpritePtr powersprite;
 
 public:
@@ -338,28 +319,6 @@ public:
 
   Portable* grabbed_object;
 
-  /** Hears about the grabbed object going away, so the pointer above never
-      outlives what it points at. */
-  class GrabListener : public ObjectRemoveListener
-  {
-  public:
-    GrabListener(Player& player_) : player(player_)
-    {}
-
-    virtual void object_removed(GameObject* object) {
-      player.ungrab_object(object);
-    }
-
-  private:
-    Player& player;
-
-  private:
-    GrabListener(const GrabListener&);
-    GrabListener& operator=(const GrabListener&);
-  };
-
-  std::unique_ptr<ObjectRemoveListener> grabbed_object_remove_listener;
-
   SpritePtr sprite; /**< The main sprite representing Tux */
 
   SurfacePtr airarrow; /**< arrow indicating Tux' position when he's above the camera */
@@ -368,11 +327,8 @@ public:
   void position_grabbed_object();
   void try_grab();
 
-  /** Lets go of whatever is held, if anything. Pass the object only from an
-      ObjectRemoveListener, where letting go of it again would be too late. */
-  void ungrab_object(GameObject* gameobject = NULL);
-
   bool ghost_mode; /**< indicates if Tux should float around and through solid objects */
+  bool edit_mode; /**< indicates if Tux should switch to ghost mode rather than dying */
 
   Timer unduck_hurt_timer; /**< if Tux wants to stand up again after ducking and cannot, this timer is started */
 

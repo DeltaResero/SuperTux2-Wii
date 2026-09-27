@@ -1,6 +1,3 @@
-// src/scripting/text.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,16 +17,17 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_TEXT_HPP
 #define HEADER_SUPERTUX_SCRIPTING_TEXT_HPP
 
+#ifndef SCRIPTING_API
 #include <string>
 
 class TextObject;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class Text : public ssq::ExposableClass
+class Text
 {
+#ifndef SCRIPTING_API
 private:
   ::TextObject* m_parent;
 
@@ -40,6 +38,7 @@ public:
 private:
   Text(const Text&) = delete;
   Text& operator=(const Text&) = delete;
+#endif
 
 public:
   void set_text(const std::string& text);

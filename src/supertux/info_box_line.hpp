@@ -1,6 +1,3 @@
-// src/supertux/info_box_line.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -44,11 +41,6 @@ public:
 
   void draw(DrawingContext& context, const Rectf& bbox, int layer);
   float get_height() const;
-
-  /** Whether this line is a picture rather than words. */
-  bool is_image() const { return lineType == IMAGE; }
-  /** How wide the picture is, or nothing at all for a line of words. */
-  float get_image_width() const;
 
   static std::vector<std::unique_ptr<InfoBoxLine> > split(const std::string& text, float width);
 

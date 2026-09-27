@@ -1,6 +1,3 @@
-// src/object/brick.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,23 +17,22 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BRICK_HPP
 #define HEADER_SUPERTUX_OBJECT_BRICK_HPP
 
-#include <string>
-
 #include "object/block.hpp"
 
 class Brick : public Block
 {
 public:
+  Brick(const Vector& pos, int data, const std::string& spriteName);
   Brick(const ReaderMapping& lisp);
 
   void try_break(Player* player);
   HitResponse collision(GameObject& other, const CollisionHit& hit);
-
+  virtual ObjectSettings get_settings();
   std::string get_class() const {
     return "brick";
   }
   std::string get_display_name() const {
-    return "Brick";
+    return _("Brick");
   }
 
 protected:

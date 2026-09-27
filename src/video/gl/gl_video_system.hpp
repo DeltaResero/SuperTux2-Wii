@@ -1,6 +1,3 @@
-// src/video/gl/gl_video_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -33,7 +30,6 @@ private:
   std::unique_ptr<TextureManager> m_texture_manager;
   std::unique_ptr<Renderer> m_renderer;
   std::unique_ptr<Lightmap> m_lightmap;
-  unsigned int m_max_texture_size;
 
 public:
   GLVideoSystem();
@@ -41,15 +37,11 @@ public:
   Renderer& get_renderer() const override;
   Lightmap& get_lightmap() const override;
   TexturePtr new_texture(SDL_Surface* image) override;
-  unsigned int get_max_texture_size() const override;
   SurfaceData* new_surface_data(const Surface& surface) override;
   void free_surface_data(SurfaceData* surface_data) override;
 
   void apply_config() override;
   void resize(int w, int h) override;
-
-  void set_vsync(int mode) override;
-  int get_vsync() const override;
 
 private:
   GLVideoSystem(const GLVideoSystem&) = delete;

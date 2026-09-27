@@ -1,6 +1,3 @@
-// src/video/gl/gl_painter.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,8 +17,14 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GL_GL_PAINTER_HPP
 #define HEADER_SUPERTUX_VIDEO_GL_GL_PAINTER_HPP
 
-#include "math/vector.hpp"
-#include "video/glutil.hpp"
+#ifdef USE_GLBINDING
+#include <glbinding/gl/gl.h>
+using namespace gl;
+#else
+#include <GL/glew.h>
+
+#include "SDL_opengl.h"
+#endif
 
 struct DrawingRequest;
 
@@ -33,10 +36,8 @@ private:
 public:
   GLPainter();
 
-  /** @param scale the target's pixels per logical unit, to land the picture
-      on whole pixels, or zero to leave it where it falls */
-  static void draw_surface(const DrawingRequest& request, const Vector& scale);
-  static void draw_surface_part(const DrawingRequest& request, const Vector& scale);
+  static void draw_surface(const DrawingRequest& request);
+  static void draw_surface_part(const DrawingRequest& request);
   static void draw_gradient(const DrawingRequest& request);
   static void draw_filled_rect(const DrawingRequest& request);
   static void draw_inverse_ellipse(const DrawingRequest& request);

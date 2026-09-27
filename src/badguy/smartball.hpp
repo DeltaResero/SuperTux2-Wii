@@ -1,6 +1,3 @@
-// src/badguy/smartball.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Smart Snowball
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SMARTBALL_HPP
 #define HEADER_SUPERTUX_BADGUY_SMARTBALL_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 /*
@@ -31,6 +26,7 @@ class SmartBall : public WalkingBadguy
 {
 public:
   SmartBall(const ReaderMapping& reader);
+  SmartBall(const Vector& pos, Direction d);
 
   virtual std::string get_water_sprite() const {
     return "images/objects/water_drop/pink_drop.sprite";
@@ -40,7 +36,7 @@ public:
     return "smartball";
   }
   std::string get_display_name() const {
-    return "Smart Ball";
+    return _("Smart Ball");
   }
 
 protected:

@@ -1,6 +1,3 @@
-// src/video/drawing_context.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -25,7 +22,7 @@
 #include "math/sizef.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
-#include "util/log.hpp"
+#include "util/obstackpp.hpp"
 #include "video/drawing_request.hpp"
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"
@@ -36,7 +33,6 @@
 
 DrawingContext::DrawingContext(VideoSystem& video_system_) :
   video_system(video_system_),
-  light_texture(),
   transformstack(),
   transform(),
   blend_stack(),
@@ -47,15 +43,19 @@ DrawingContext::DrawingContext(VideoSystem& video_system_) :
   ambient_color(1.0f, 1.0f, 1.0f, 1.0f),
   target(NORMAL),
   target_stack(),
-  arena()
+  obst(),
+  screenshot_requested(false)
 {
   requests = &drawing_requests;
+  obstack_init(&obst);
 }
 
 DrawingContext::~DrawingContext()
 {
   clear_drawing_requests(lightmap_requests);
   clear_drawing_requests(drawing_requests);
+
+  obstack_free(&obst, NULL);
 }
 
 void
@@ -73,28 +73,21 @@ DrawingContext::clear_drawing_requests(DrawingRequests& requests_)
 }
 
 void
-DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
-                             const Sizef& dstsize,
+DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
                              float angle, const Color& color, const Blend& blend,
                              int layer)
 {
   assert(surface != 0);
 
-  if(surface->is_split())
-  {
-    draw_split_surface(surface, position, dstsize, angle, color, blend, layer);
-    return;
-  }
-
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type = SURFACE;
   request->pos = transform.apply(position);
 
   if(request->pos.x >= SCREEN_WIDTH || request->pos.y >= SCREEN_HEIGHT
-     || request->pos.x + dstsize.width < 0
-     || request->pos.y + dstsize.height < 0)
+     || request->pos.x + surface->get_width() < 0
+     || request->pos.y + surface->get_height() < 0)
     return;
 
   request->layer = layer;
@@ -104,93 +97,28 @@ DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
   request->color = color;
   request->blend = blend;
 
-  auto surfacerequest = new(arena) SurfaceRequest();
+  auto surfacerequest = new(obst) SurfaceRequest();
   surfacerequest->surface = surface.get();
-  surfacerequest->dstsize = dstsize;
   request->request_data = surfacerequest;
 
   requests->push_back(request);
 }
 
 void
-DrawingContext::draw_split_surface(const SurfacePtr& surface, const Vector& position,
-                                   const Sizef& dstsize,
-                                   float angle, const Color& color, const Blend& blend,
-                                   int layer)
-{
-  if(angle != 0.0f)
-  {
-    /* A request turns about the middle of what it draws, so pieces given
-       the same angle would each spin where they stand and come apart. The
-       turn is dropped rather than drawn wrongly; no picture this large is
-       turned anywhere in the game, so this is here to be noticed if one
-       ever is. */
-    static bool warned = false;
-    if(!warned)
-    {
-      warned = true;
-      log_warning << "Can't turn a picture held in pieces; drawing it square on"
-                  << std::endl;
-    }
-  }
-
-  const float scale_x = dstsize.width  / static_cast<float>(surface->get_width());
-  const float scale_y = dstsize.height / static_cast<float>(surface->get_height());
-  const bool mirrored = (transform.drawing_effect & HORIZONTAL_FLIP) != 0;
-  const bool upended  = (transform.drawing_effect & VERTICAL_FLIP) != 0;
-
-  for(const auto& cell : surface->get_cells())
-  {
-    const int cell_width  = cell.surface->get_width();
-    const int cell_height = cell.surface->get_height();
-
-    /* Each piece is turned over where it stands by the effect it inherits,
-       so the pieces have to change places as well for the picture to come
-       out reversed rather than shuffled. */
-    const int x = mirrored ? surface->get_width()  - cell.x - cell_width  : cell.x;
-    const int y = upended  ? surface->get_height() - cell.y - cell_height : cell.y;
-
-    draw_surface(cell.surface,
-                 Vector(position.x + static_cast<float>(x) * scale_x,
-                        position.y + static_cast<float>(y) * scale_y),
-                 Sizef(static_cast<float>(cell_width)  * scale_x,
-                       static_cast<float>(cell_height) * scale_y),
-                 0.0f, color, blend, layer);
-  }
-}
-
-void
-DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
-                             float angle, const Color& color, const Blend& blend,
-                             int layer)
-{
-  assert(surface != 0);
-
-  draw_surface(surface, position, Sizef(surface->get_size()),
-               angle, color, blend, layer);
-}
-
-void
-DrawingContext::draw_surface(const SurfacePtr& surface, const Vector& position,
+DrawingContext::draw_surface(SurfacePtr surface, const Vector& position,
                              int layer)
 {
   draw_surface(surface, position, 0.0f, Color(1.0f, 1.0f, 1.0f), Blend(), layer);
 }
 
 void
-DrawingContext::draw_surface_part(const SurfacePtr& surface,
+DrawingContext::draw_surface_part(SurfacePtr surface,
                                   const Rectf& srcrect, const Rectf& dstrect,
                                   int layer)
 {
   assert(surface != 0);
 
-  if(surface->is_split())
-  {
-    draw_split_surface_part(surface, srcrect, dstrect, layer);
-    return;
-  }
-
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type = SURFACE_PART;
@@ -199,7 +127,7 @@ DrawingContext::draw_surface_part(const SurfacePtr& surface,
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto surfacepartrequest = new(arena) SurfacePartRequest();
+  auto surfacepartrequest = new(obst) SurfacePartRequest();
   surfacepartrequest->srcrect = srcrect;
   surfacepartrequest->dstsize = dstrect.get_size();
   surfacepartrequest->surface = surface.get();
@@ -210,95 +138,10 @@ DrawingContext::draw_surface_part(const SurfacePtr& surface,
 }
 
 void
-DrawingContext::draw_split_surface_part(const SurfacePtr& surface,
-                                        const Rectf& srcrect, const Rectf& dstrect,
-                                        int layer)
-{
-  const float src_width  = srcrect.get_width();
-  const float src_height = srcrect.get_height();
-  if(src_width <= 0.0f || src_height <= 0.0f)
-  {
-    return;
-  }
-
-  const float scale_x = dstrect.get_width()  / src_width;
-  const float scale_y = dstrect.get_height() / src_height;
-  const bool mirrored = (transform.drawing_effect & HORIZONTAL_FLIP) != 0;
-  const bool upended  = (transform.drawing_effect & VERTICAL_FLIP) != 0;
-
-  for(const auto& cell : surface->get_cells())
-  {
-    const float cell_left   = static_cast<float>(cell.x);
-    const float cell_top    = static_cast<float>(cell.y);
-    const float cell_right  = cell_left + static_cast<float>(cell.surface->get_width());
-    const float cell_bottom = cell_top  + static_cast<float>(cell.surface->get_height());
-
-    /* Only the part of this piece the caller actually asked for. A piece
-       the request misses entirely is skipped. */
-    const float left   = std::max(srcrect.p1.x, cell_left);
-    const float top    = std::max(srcrect.p1.y, cell_top);
-    const float right  = std::min(srcrect.p2.x, cell_right);
-    const float bottom = std::min(srcrect.p2.y, cell_bottom);
-    if(right <= left || bottom <= top)
-    {
-      continue;
-    }
-
-    const float dst_x = mirrored
-      ? dstrect.p1.x + (srcrect.p2.x - right) * scale_x
-      : dstrect.p1.x + (left - srcrect.p1.x) * scale_x;
-    const float dst_y = upended
-      ? dstrect.p1.y + (srcrect.p2.y - bottom) * scale_y
-      : dstrect.p1.y + (top - srcrect.p1.y) * scale_y;
-
-    draw_surface_part(cell.surface,
-                      Rectf(left - cell_left, top - cell_top,
-                            right - cell_left, bottom - cell_top),
-                      Rectf(dst_x, dst_y,
-                            dst_x + (right - left) * scale_x,
-                            dst_y + (bottom - top) * scale_y),
-                      layer);
-  }
-}
-
-void
-DrawingContext::draw_light(const Vector& center, LightSize size,
-                           const Color& color, int layer, const Blend& blend)
-{
-  const float diameter = static_cast<float>(size);
-
-  draw_light(center, Sizef(diameter, diameter), 0.0f,
-             size == LIGHT_MEDIUM ? LIGHT_WIDE : LIGHT_SOFT,
-             color, layer, blend);
-}
-
-void
-DrawingContext::draw_light(const Vector& center, const Sizef& size,
-                           float angle, LightCurve curve,
-                           const Color& color, int layer, const Blend& blend)
-{
-  /* Both painters turn a drawing about the middle of where it lands, so a
-     light that is not upright needs nothing said about where it pivots. */
-  SurfacePtr light = light_texture.get(curve,
-                                       static_cast<int>(size.width),
-                                       static_cast<int>(size.height));
-
-  push_target();
-  set_target(LIGHTMAP);
-
-  draw_surface(light,
-               Vector(center.x - size.width / 2.0f,
-                      center.y - size.height / 2.0f),
-               size, angle, color, blend, layer);
-
-  pop_target();
-}
-
-void
 DrawingContext::draw_text(FontPtr font, const std::string& text,
                           const Vector& position, FontAlignment alignment, int layer, Color color)
 {
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type = TEXT;
@@ -308,7 +151,7 @@ DrawingContext::draw_text(FontPtr font, const std::string& text,
   request->alpha = transform.alpha;
   request->color = color;
 
-  auto textrequest = new(arena) TextRequest();
+  auto textrequest = new(obst) TextRequest();
   textrequest->font = font.get();
   textrequest->text = text;
   textrequest->alignment = alignment;
@@ -329,7 +172,7 @@ void
 DrawingContext::draw_gradient(const Color& top, const Color& bottom, int layer,
                               const GradientDirection& direction, const Rectf& region)
 {
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type = GRADIENT;
@@ -339,7 +182,7 @@ DrawingContext::draw_gradient(const Color& top, const Color& bottom, int layer,
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto gradientrequest = new(arena) GradientRequest();
+  auto gradientrequest = new(obst) GradientRequest();
   gradientrequest->top = top;
   gradientrequest->bottom = bottom;
   gradientrequest->direction = direction;
@@ -353,7 +196,7 @@ void
 DrawingContext::draw_filled_rect(const Vector& topleft, const Vector& size,
                                  const Color& color, int layer)
 {
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type = FILLRECT;
@@ -363,7 +206,7 @@ DrawingContext::draw_filled_rect(const Vector& topleft, const Vector& size,
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto fillrectrequest = new(arena) FillRectRequest();
+  auto fillrectrequest = new(obst) FillRectRequest();
   fillrectrequest->size = size;
   fillrectrequest->color = color;
   fillrectrequest->color.alpha = color.alpha * transform.alpha;
@@ -383,7 +226,7 @@ DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color,
 void
 DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color, float radius, int layer)
 {
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type   = FILLRECT;
@@ -393,7 +236,7 @@ DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color, float ra
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto fillrectrequest = new(arena) FillRectRequest;
+  auto fillrectrequest = new(obst) FillRectRequest;
   fillrectrequest->size = Vector(rect.get_width(), rect.get_height());
   fillrectrequest->color = color;
   fillrectrequest->color.alpha = color.alpha * transform.alpha;
@@ -406,7 +249,7 @@ DrawingContext::draw_filled_rect(const Rectf& rect, const Color& color, float ra
 void
 DrawingContext::draw_inverse_ellipse(const Vector& pos, const Vector& size, const Color& color, int layer)
 {
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type   = INVERSEELLIPSE;
@@ -416,7 +259,7 @@ DrawingContext::draw_inverse_ellipse(const Vector& pos, const Vector& size, cons
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto ellipse = new(arena)InverseEllipseRequest;
+  auto ellipse = new(obst)InverseEllipseRequest;
 
   ellipse->color        = color;
   ellipse->color.alpha  = color.alpha * transform.alpha;
@@ -429,7 +272,7 @@ DrawingContext::draw_inverse_ellipse(const Vector& pos, const Vector& size, cons
 void
 DrawingContext::draw_line(const Vector& pos1, const Vector& pos2, const Color& color, int layer)
 {
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type   = LINE;
@@ -439,7 +282,7 @@ DrawingContext::draw_line(const Vector& pos1, const Vector& pos2, const Color& c
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto line = new(arena) LineRequest;
+  auto line = new(obst) LineRequest;
 
   line->color        = color;
   line->color.alpha  = color.alpha * transform.alpha;
@@ -452,7 +295,7 @@ DrawingContext::draw_line(const Vector& pos1, const Vector& pos2, const Color& c
 void
 DrawingContext::draw_triangle(const Vector& pos1, const Vector& pos2, const Vector& pos3, const Color& color, int layer)
 {
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
 
   request->target = target;
   request->type   = TRIANGLE;
@@ -462,7 +305,7 @@ DrawingContext::draw_triangle(const Vector& pos1, const Vector& pos2, const Vect
   request->drawing_effect = transform.drawing_effect;
   request->alpha = transform.alpha;
 
-  auto triangle = new(arena) TriangleRequest;
+  auto triangle = new(obst) TriangleRequest;
 
   triangle->color        = color;
   triangle->color.alpha  = color.alpha * transform.alpha;
@@ -490,7 +333,7 @@ DrawingContext::get_light(const Vector& position, Color* color)
     return;
   }
 
-  auto request = new(arena) DrawingRequest();
+  auto request = new(obst) DrawingRequest();
   request->target = target;
   request->type = GETLIGHT;
   request->pos = transform.apply(position);
@@ -503,7 +346,7 @@ DrawingContext::get_light(const Vector& position, Color* color)
   }
 
   request->layer = LAYER_GUI; //make sure all get_light requests are handled last.
-  auto getlightrequest = new(arena) GetLightRequest();
+  auto getlightrequest = new(obst) GetLightRequest();
   getlightrequest->color_ptr = color;
   request->request_data = getlightrequest;
   lightmap_requests.push_back(request);
@@ -530,7 +373,7 @@ DrawingContext::do_drawing()
     handle_drawing_requests(lightmap_requests);
     lightmap.end_draw();
 
-    auto request = new(arena) DrawingRequest();
+    auto request = new(obst) DrawingRequest();
     request->target = NORMAL;
     request->type = DRAW_LIGHTMAP;
     request->layer = LAYER_HUD - 1;
@@ -545,7 +388,14 @@ DrawingContext::do_drawing()
   clear_drawing_requests(lightmap_requests);
   clear_drawing_requests(drawing_requests);
 
-  arena.reset();
+  obstack_free(&obst, NULL);
+  obstack_init(&obst);
+
+  // if a screenshot was requested, take one
+  if (screenshot_requested) {
+    renderer.do_take_screenshot();
+    screenshot_requested = false;
+  }
 
   renderer.flip();
 }
@@ -720,6 +570,12 @@ void
 DrawingContext::set_ambient_color( Color new_color )
 {
   ambient_color = new_color;
+}
+
+void
+DrawingContext::take_screenshot()
+{
+  screenshot_requested = true;
 }
 
 /* EOF */

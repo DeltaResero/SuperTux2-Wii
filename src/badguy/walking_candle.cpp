@@ -1,6 +1,3 @@
-// src/badguy/walking_candle.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -19,10 +16,9 @@
 
 #include "badguy/walking_candle.hpp"
 
-#include <vector>
-
 #include "object/lantern.hpp"
 #include "sprite/sprite.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -38,7 +34,7 @@ WalkingCandle::WalkingCandle(const ReaderMapping& reader)
     lightcolor = Color(vColor);
   }
   sprite->set_color(lightcolor);
-  BadGuy::lightcolor = lightcolor;
+  lightsprite->set_color(lightcolor);
 
   countMe = false;
   glowing = true;
@@ -70,10 +66,6 @@ WalkingCandle::unfreeze() {
 
 HitResponse
 WalkingCandle::collision(GameObject& other, const CollisionHit& hit) {
-  /* A lantern coming down onto a candle adds the candle's colour to its own and
-     the candle dies with it. It has to be clear above the candle rather than
-     merely touching it, or the puzzle this exists for would be trivial. A
-     frozen candle does none of it. */
   auto l = dynamic_cast<Lantern*>(&other);
   if (l && !frozen) if (l->get_bbox().p2.y < bbox.p1.y) {
     l->add_color(lightcolor);
@@ -82,6 +74,19 @@ WalkingCandle::collision(GameObject& other, const CollisionHit& hit) {
     return FORCE_MOVE;
   }
   return WalkingBadguy::collision(other, hit);
+}
+
+ObjectSettings
+WalkingCandle::get_settings() {
+  ObjectSettings result = BadGuy::get_settings();
+  result.options.push_back( ObjectOption(MN_COLOR, _("Colour"), &lightcolor, "color"));
+  return result;
+}
+
+void
+WalkingCandle::after_editor_set() {
+  sprite->set_color(lightcolor);
+  lightsprite->set_color(lightcolor);
 }
 
 /* EOF */

@@ -1,6 +1,3 @@
-// src/math/size.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -35,6 +32,11 @@ public:
   Size(int width_, int height_) :
     width(width_),
     height(height_)
+  {}
+
+  Size(const Size& rhs) :
+    width(rhs.width),
+    height(rhs.height)
   {}
 
   explicit Size(const Sizef& rhs);
@@ -115,5 +117,3 @@ inline bool operator!=(const Size& lhs, const Size& rhs)
 std::ostream& operator<<(std::ostream& s, const Size& size);
 
 #endif
-
-/* EOF */

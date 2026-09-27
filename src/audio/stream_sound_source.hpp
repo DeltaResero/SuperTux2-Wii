@@ -1,6 +1,3 @@
-// src/audio/stream_sound_source.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_AUDIO_STREAM_SOUND_SOURCE_HPP
 #define HEADER_SUPERTUX_AUDIO_STREAM_SOUND_SOURCE_HPP
-
-#include <memory>
 
 #include "audio/openal_sound_source.hpp"
 
@@ -54,7 +49,7 @@ public:
 
 private:
   static const size_t STREAMBUFFERSIZE = 1024 * 500;
-  static constexpr size_t STREAMFRAGMENTS = 5;
+  static const size_t STREAMFRAGMENTS = 5;
   static const size_t STREAMFRAGMENTSIZE
   = STREAMBUFFERSIZE / STREAMFRAGMENTS;
 

@@ -1,6 +1,3 @@
-// src/video/lightmap.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,6 +19,7 @@
 
 #include <SDL_video.h>
 #include <memory>
+#include <obstack.h>
 #include <stdint.h>
 #include <string>
 #include <vector>

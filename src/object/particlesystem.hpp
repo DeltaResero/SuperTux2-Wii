@@ -1,6 +1,3 @@
-// src/object/particlesystem.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,8 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_PARTICLESYSTEM_HPP
 
 #include <vector>
-#include <memory>
-#include <string>
 
 #include "math/vector.hpp"
 #include "scripting/exposed_object.hpp"
@@ -57,8 +52,9 @@ public:
   }
   virtual std::string get_display_name() const override
   {
-    return "Particle system";
+    return _("Particle system");
   }
+  virtual ObjectSettings get_settings() override;
 
   virtual void parse(const ReaderMapping& reader);
   virtual void draw(DrawingContext& context) override;

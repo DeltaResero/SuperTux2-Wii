@@ -1,6 +1,3 @@
-// src/supertux/menu/options_menu.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2004 Tobas Glaesser <tobi.web@gmx.de>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
@@ -21,12 +18,7 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_OPTIONS_MENU_HPP
 #define HEADER_SUPERTUX_SUPERTUX_OPTIONS_MENU_HPP
 
-#include <string>
-#include <vector>
-
 #include "gui/menu.hpp"
-
-class MenuItem;
 
 class OptionsMenu : public Menu
 {
@@ -35,33 +27,15 @@ class OptionsMenu : public Menu
     virtual ~OptionsMenu();
 
     void menu_action(MenuItem* item) override;
-    void on_window_resize() override;
-    void refresh() override;
-
-    /* The VSync row's help runs to three lines, deep enough to reach the
-       notice at the foot of the title screen, so this menu is placed together
-       with its help rather than on its own. */
-    bool placed_with_help() const override { return true; }
-
-  private:
-    /** Apply a change to the video mode, keeping the pointer on whatever row
-        of this menu it was already over. */
-    void apply_video_change();
 
   private:
     int next_magnification;
     int next_aspect_ratio;
-    int next_vsync;
+    int next_resolution;
 
     std::vector<std::string> magnifications;
     std::vector<std::string> aspect_ratios;
-    std::vector<std::string> vsyncs;
-
-    MenuItem* resolution_item;
-
-  private:
-    OptionsMenu(const OptionsMenu&) = delete;
-    OptionsMenu& operator=(const OptionsMenu&) = delete;
+    std::vector<std::string> resolutions;
 };
 
 #endif

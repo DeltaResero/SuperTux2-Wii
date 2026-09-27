@@ -1,6 +1,3 @@
-// src/supertux/screen_manager.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -22,13 +19,13 @@
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
+#include "editor/editor.hpp"
 #include "gui/menu.hpp"
 #include "gui/menu_manager.hpp"
 #include "object/player.hpp"
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "scripting/time_scheduler.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/console.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/gameconfig.hpp"
@@ -41,7 +38,6 @@
 #include "supertux/screen.hpp"
 #include "supertux/screen_fade.hpp"
 #include "supertux/sector.hpp"
-#include "supertux/tile_manager.hpp"
 #include "supertux/timer.hpp"
 #include "video/drawing_context.hpp"
 #include "video/renderer.hpp"
@@ -65,7 +61,8 @@ ScreenManager::ScreenManager() :
   m_actions(),
   m_fps(0),
   m_screen_fade(),
-  m_screen_stack()
+  m_screen_stack(),
+  m_screenshot_requested(false)
 {
   using namespace scripting;
   TimeScheduler::instance = new TimeScheduler();
@@ -176,9 +173,7 @@ ScreenManager::draw(DrawingContext& context)
     m_screen_fade->draw(context);
   }
 
-#ifdef ENABLE_CONSOLE
   Console::current()->draw(context);
-#endif
 
   if (g_config->show_fps)
   {
@@ -190,6 +185,12 @@ ScreenManager::draw(DrawingContext& context)
     draw_player_pos(context);
   }
 
+  // if a screenshot was requested, pass request on to drawing_context
+  if (m_screenshot_requested)
+  {
+    context.take_screenshot();
+    m_screenshot_requested = false;
+  }
   context.do_drawing();
 
   /* Calculate frames per second */
@@ -210,6 +211,7 @@ ScreenManager::draw(DrawingContext& context)
 void
 ScreenManager::update_gamelogic(float elapsed_time)
 {
+  scripting::Scripting::current()->update_debugger();
   scripting::TimeScheduler::instance->update(game_time);
 
   if (!m_screen_stack.empty())
@@ -224,9 +226,7 @@ ScreenManager::update_gamelogic(float elapsed_time)
     m_screen_fade->update(elapsed_time);
   }
 
-#ifdef ENABLE_CONSOLE
   Console::current()->update(elapsed_time);
-#endif
 }
 
 void
@@ -239,6 +239,10 @@ ScreenManager::process_events()
     InputManager::current()->process_event(event);
 
     m_menu_manager->event(event);
+
+    if (Editor::is_active()) {
+      Editor::current()->event(event);
+    }
 
     switch(event.type)
     {
@@ -253,21 +257,8 @@ ScreenManager::process_events()
             VideoSystem::current()->resize(event.window.data1,
                                            event.window.data2);
             m_menu_manager->on_window_resize();
-            break;
-
-          /* A window can be maximised and restored from outside the game, so
-             the setting follows the window rather than the other way about. */
-          case SDL_WINDOWEVENT_MAXIMIZED:
-            if (!g_config->use_fullscreen)
-            {
-              g_config->window_maximised = true;
-            }
-            break;
-
-          case SDL_WINDOWEVENT_RESTORED:
-            if (!g_config->use_fullscreen)
-            {
-              g_config->window_maximised = false;
+            if (Editor::is_active()) {
+              Editor::current()->resize();
             }
             break;
 
@@ -293,6 +284,11 @@ ScreenManager::process_events()
           g_config->use_fullscreen = !g_config->use_fullscreen;
           VideoSystem::current()->apply_config();
           m_menu_manager->on_window_resize();
+        }
+        else if (event.key.keysym.sym == SDLK_PRINTSCREEN ||
+                 event.key.keysym.sym == SDLK_F12)
+        {
+          take_screenshot();
         }
         else if (event.key.keysym.sym == SDLK_F2 &&
                  event.key.keysym.mod & KMOD_CTRL)
@@ -331,11 +327,6 @@ ScreenManager::handle_screen_switch()
       // move actions to a new vector since setup() might modify it
       auto actions = std::move(m_actions);
 
-      /* Whether a screen went away in this pass, and with it every object it
-         was holding. That is the moment, and the only moment, at which the
-         art those objects were using can be handed back. */
-      bool screen_closed = false;
-
       for(auto& action : actions)
       {
         switch (action.type)
@@ -348,7 +339,6 @@ ScreenManager::handle_screen_switch()
               current_screen = nullptr;
             }
             m_screen_stack.pop_back();
-            screen_closed = true;
             break;
 
           case Action::PUSH_ACTION:
@@ -359,15 +349,11 @@ ScreenManager::handle_screen_switch()
           case Action::QUIT_ACTION:
             m_screen_stack.clear();
             current_screen = nullptr;
-            screen_closed = true;
             break;
         }
       }
 
-      const bool screen_changed =
-        !m_screen_stack.empty() && current_screen != m_screen_stack.back().get();
-
-      if (screen_changed)
+      if (current_screen != m_screen_stack.back().get())
       {
         if(current_screen != nullptr) {
           current_screen->leave();
@@ -378,23 +364,6 @@ ScreenManager::handle_screen_switch()
           m_screen_stack.back()->setup();
           m_speed = 1.0;
           m_waiting_threads.wakeup();
-        }
-      }
-
-      /* Let go of artwork nothing is using, once the screen going away has
-         said its goodbyes and the one arriving has taken hold of what it
-         wants. Anything the two have in common is claimed by then and stays,
-         so a shared tileset is not dropped and read again. */
-      if (screen_closed || screen_changed)
-      {
-        if (SpriteManager::current() != nullptr)
-        {
-          SpriteManager::current()->release_unused();
-        }
-
-        if (TileManager::current() != nullptr)
-        {
-          TileManager::current()->release_unused();
         }
       }
     }
@@ -457,6 +426,12 @@ ScreenManager::run(DrawingContext &context)
 
     handle_screen_switch();
   }
+}
+
+void
+ScreenManager::take_screenshot()
+{
+  m_screenshot_requested = true;
 }
 
 /* EOF */

@@ -1,6 +1,3 @@
-// src/supertux/sector.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,15 +15,10 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "supertux/sector.hpp"
-#include <numbers>
 
 #include <algorithm>
 #include <math.h>
 #include <vector>
-#include <exception>
-#include <limits>
-#include <sstream>
-#include <utility>
 
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -34,6 +26,7 @@
 
 #include "audio/sound_manager.hpp"
 #include "badguy/jumpy.hpp"
+#include "editor/editor.hpp"
 #include "math/aatriangle.hpp"
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
@@ -43,7 +36,7 @@
 #include "object/smoke_cloud.hpp"
 #include "object/text_object.hpp"
 #include "object/tilemap.hpp"
-#include "io/ifile_stream.hpp"
+#include "physfs/ifile_streambuf.hpp"
 #include "supertux/collision.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/game_session.hpp"
@@ -60,6 +53,7 @@
 #include "util/file_system.hpp"
 #include "util/reader_collection.hpp"
 #include "util/reader_mapping.hpp"
+#include "util/writer.hpp"
 
 Sector* Sector::_current = 0;
 
@@ -89,8 +83,11 @@ Sector::Sector(Level* parent) :
   effect(0)
 {
   PlayerStatus* player_status;
-  player_status = GameSession::current()->get_savegame().get_player_status();
-
+  if (Editor::is_active()) {
+    player_status = Editor::current()->m_savegame->get_player_status();
+  } else {
+    player_status = GameSession::current()->get_savegame().get_player_status();
+  }
   if (!player_status) {
     log_warning << "Player status is not initialized." << std::endl;
   }
@@ -284,9 +281,10 @@ Sector::activate(const Vector& player_pos)
   //Run default.nut just before init script
   //Check to see if it's in a levelset (info file)
   std::string basedir = FileSystem::dirname(get_level()->filename);
-  if(!FileSystem::find(basedir + "/info").empty()) {
+  if(PHYSFS_exists((basedir + "/info").c_str())) {
     try {
-      IFileStream in(basedir + "/default.nut");
+      IFileStreambuf ins(basedir + "/default.nut");
+      std::istream in(&ins);
       run_script(in, "default.nut");
     } catch(std::exception& ) {
       // doesn't exist or erroneous; do nothing
@@ -294,7 +292,7 @@ Sector::activate(const Vector& player_pos)
   }
 
   // Run init script
-  if(!init_script.empty()) {
+  if(!init_script.empty() && !Editor::is_active()) {
     std::istringstream in(init_script);
     run_script(in, "init-script");
   }
@@ -966,6 +964,12 @@ const float MAX_SPEED = 16.0f;
 void
 Sector::handle_collisions()
 {
+
+  if (Editor::is_active()) {
+    return;
+    //Oběcts in editor shouldn't collide.
+  }
+
   using namespace collision;
 
   // calculate destination positions of the objects
@@ -973,7 +977,7 @@ Sector::handle_collisions()
     Vector mov = moving_object->get_movement();
 
     // make sure movement is never faster than MAX_SPEED. Norm is pretty fat, so two addl. checks are done before.
-    if (((mov.x > MAX_SPEED * (std::numbers::sqrt2_v<float> / 2)) || (mov.y > MAX_SPEED * (std::numbers::sqrt2_v<float> / 2))) && (mov.norm() > MAX_SPEED)) {
+    if (((mov.x > MAX_SPEED * M_SQRT1_2) || (mov.y > MAX_SPEED * M_SQRT1_2)) && (mov.norm() > MAX_SPEED)) {
       moving_object->movement = mov.unit() * MAX_SPEED;
       //log_debug << "Temporarily reduced object's speed of " << mov.norm() << " to " << moving_object->movement.norm() << "." << std::endl;
     }
@@ -1280,6 +1284,34 @@ Sector::get_height() const
   return height;
 }
 
+Size
+Sector::get_editor_size() const
+{
+  // Find the solid tilemap with the greatest surface
+  size_t max_surface = 0;
+  Size size;
+  for(const auto& solids: solid_tilemaps) {
+    size_t surface = solids->get_width() * solids->get_height();
+    if (surface > max_surface) {
+      max_surface = surface;
+      size = solids->get_size();
+    }
+  }
+
+  return size;
+}
+
+void
+Sector::resize_sector(Size& old_size, Size& new_size)
+{
+  for(const auto& object : gameobjects) {
+    auto tilemap = dynamic_cast<TileMap*>(object.get());
+    if (tilemap && tilemap->get_size() == old_size) {
+      tilemap->resize(new_size);
+    }
+  }
+}
+
 void
 Sector::change_solid_tiles(uint32_t old_tile_id, uint32_t new_tile_id)
 {
@@ -1384,6 +1416,44 @@ void Sector::play_looping_sounds()
   for(const auto& object : gameobjects) {
     object->play_looping_sounds();
   }
+}
+
+void
+Sector::save(Writer &writer)
+{
+  writer.start_list("sector", false);
+
+  writer.write("name", name, false);
+  writer.write("ambient-light", ambient_light.toVector());
+
+  if (init_script.size()) {
+    writer.write("init-script", init_script,false);
+  }
+  if (music.size()) {
+    writer.write("music", music, false);
+  }
+
+  if (!Editor::is_active() || !Editor::current()->get_worldmap_mode()) {
+    writer.write("gravity", gravity);
+  }
+
+  // saving spawnpoints
+  /*for(auto i = spawnpoints.begin(); i != spawnpoints.end(); ++i) {
+    std::shared_ptr<SpawnPoint> spawny = *i;
+    spawny->save(writer);
+  }*/
+  // Do not save spawnpoints since we have spawnpoint markers.
+
+  // saving oběcts (not really)
+  for(auto& obj : gameobjects) {
+    if (obj->do_save()) {
+      writer.start_list(obj->get_class());
+      obj->save(writer);
+      writer.end_list(obj->get_class());
+    }
+  }
+
+  writer.end_list("sector");
 }
 
 /* vim: set sw=2 sts=2 et : */

@@ -1,6 +1,3 @@
-// src/badguy/spidermite.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -28,6 +25,14 @@ static const float MOVE_SPEED = -100.0f;
 
 SpiderMite::SpiderMite(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/spidermite/spidermite.sprite"),
+  mode(),
+  timer()
+{
+  physic.enable_gravity(false);
+}
+
+SpiderMite::SpiderMite(const Vector& pos) :
+  BadGuy(pos, "images/creatures/spidermite/spidermite.sprite"),
   mode(),
   timer()
 {

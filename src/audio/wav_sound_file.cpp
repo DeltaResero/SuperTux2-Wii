@@ -1,6 +1,3 @@
-// src/audio/wav_sound_file.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,52 +18,37 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <assert.h>
 #include <algorithm>
-#include <bit>
-#include <utility>
 
 #include "audio/sound_error.hpp"
-#include "util/file_system.hpp"
 #include "util/log.hpp"
 
-/** WAVE stores its integers little endian whatever the host is, so assemble
-    them a byte at a time rather than reading over the type. */
-static inline uint32_t read32LE(std::istream& file)
+static inline uint32_t read32LE(PHYSFS_file* file)
 {
-  unsigned char b[4];
-  if(!file.read(reinterpret_cast<char*>(b), sizeof(b)))
+  uint32_t result;
+  if(PHYSFS_readULE32(file, &result) == 0)
     throw SoundError("file too short");
 
-  return static_cast<uint32_t>(b[0])
-    | (static_cast<uint32_t>(b[1]) << 8)
-    | (static_cast<uint32_t>(b[2]) << 16)
-    | (static_cast<uint32_t>(b[3]) << 24);
+  return result;
 }
 
-static inline uint16_t read16LE(std::istream& file)
+static inline uint16_t read16LE(PHYSFS_file* file)
 {
-  unsigned char b[2];
-  if(!file.read(reinterpret_cast<char*>(b), sizeof(b)))
+  uint16_t result;
+  if(PHYSFS_readULE16(file, &result) == 0)
     throw SoundError("file too short");
 
-  return static_cast<uint16_t>(static_cast<uint16_t>(b[0])
-                               | (static_cast<uint16_t>(b[1]) << 8));
+  return result;
 }
 
-WavSoundFile::WavSoundFile(const std::string& filename) :
-  file(),
+WavSoundFile::WavSoundFile(PHYSFS_file* file_) :
+  file(file_),
   datastart()
 {
-  const std::string path = FileSystem::find(filename);
-  if(path.empty())
-    throw SoundError("Couldn't open '" + filename + "': not found");
-
-  file.open(path, std::ios::in | std::ios::binary);
-  if(!file.is_open())
-    throw SoundError("Couldn't open '" + path + "'");
-
+  assert(file);
   char magic[4];
-  if(!file.read(magic, sizeof(magic)))
+  if(PHYSFS_readBytes(file, magic, sizeof(magic)) < static_cast<std::make_signed<size_t>::type>(sizeof(magic)))
     throw SoundError("Couldn't read file magic (not a wave file)");
   if(strncmp(magic, "RIFF", 4) != 0) {
     log_debug << "MAGIC: " << magic << std::endl;
@@ -76,7 +58,7 @@ WavSoundFile::WavSoundFile(const std::string& filename) :
   uint32_t wavelen = read32LE(file);
   (void) wavelen;
 
-  if(!file.read(magic, sizeof(magic)))
+  if(PHYSFS_readBytes(file, magic, sizeof(magic)) < static_cast<std::make_signed<size_t>::type>(sizeof(magic)))
     throw SoundError("Couldn't read chunk header (not a wav file?)");
   if(strncmp(magic, "WAVE", 4) != 0)
     throw SoundError("file is not a valid RIFF/WAVE file");
@@ -86,7 +68,7 @@ WavSoundFile::WavSoundFile(const std::string& filename) :
 
   // search audio data format chunk
   do {
-    if(!file.read(chunkmagic, sizeof(chunkmagic)))
+    if(PHYSFS_readBytes(file, chunkmagic, sizeof(chunkmagic)) < static_cast<std::make_signed<size_t>::type>(sizeof(chunkmagic)))
       throw SoundError("EOF while searching format chunk");
     chunklen = read32LE(file);
 
@@ -96,7 +78,7 @@ WavSoundFile::WavSoundFile(const std::string& filename) :
     if(strncmp(chunkmagic, "fact", 4) == 0
        || strncmp(chunkmagic, "LIST", 4) == 0) {
       // skip chunk
-      if(!file.seekg(chunklen, std::ios::cur))
+      if(PHYSFS_seek(file, PHYSFS_tell(file) + chunklen) == 0)
         throw SoundError("EOF while searching fmt chunk");
     } else {
       throw SoundError("complex WAVE files not supported");
@@ -111,7 +93,7 @@ WavSoundFile::WavSoundFile(const std::string& filename) :
   if(encoding != 1)
     throw SoundError("only PCM encoding supported");
   channels = read16LE(file);
-  rate = static_cast<int>(read32LE(file));
+  rate = read32LE(file);
   uint32_t byterate = read32LE(file);
   (void) byterate;
   uint16_t blockalign = read16LE(file);
@@ -119,13 +101,13 @@ WavSoundFile::WavSoundFile(const std::string& filename) :
   bits_per_sample = read16LE(file);
 
   if(chunklen > 16) {
-    if(!file.seekg(chunklen - 16, std::ios::cur))
+    if(PHYSFS_seek(file, PHYSFS_tell(file) + (chunklen-16)) == 0)
       throw SoundError("EOF while reading rest of format chunk");
   }
 
   // set file offset to DATA chunk data
   do {
-    if(!file.read(chunkmagic, sizeof(chunkmagic)))
+    if(PHYSFS_readBytes(file, chunkmagic, sizeof(chunkmagic)) < static_cast<std::make_signed<size_t>::type>(sizeof(chunkmagic)))
       throw SoundError("EOF while searching data chunk");
     chunklen = read32LE(file);
 
@@ -133,50 +115,52 @@ WavSoundFile::WavSoundFile(const std::string& filename) :
       break;
 
     // skip chunk
-    if(!file.seekg(chunklen, std::ios::cur))
+    if(PHYSFS_seek(file, PHYSFS_tell(file) + chunklen) == 0)
       throw SoundError("EOF while searching fmt chunk");
   } while(true);
 
-  datastart = file.tellg();
+  datastart = PHYSFS_tell(file);
   size = static_cast<size_t> (chunklen);
 }
 
 WavSoundFile::~WavSoundFile()
 {
+  PHYSFS_close(file);
 }
 
 void
 WavSoundFile::reset()
 {
-  file.clear();
-  if(!file.seekg(datastart))
+  if(PHYSFS_seek(file, datastart) == 0)
     throw SoundError("Couldn't seek to data start");
 }
 
 size_t
 WavSoundFile::read(void* buffer, size_t buffer_size)
 {
-  const std::streampos end = datastart + static_cast<std::streamoff>(size);
-  const std::streampos cur = file.tellg();
+  PHYSFS_sint64 end = datastart + size;
+  PHYSFS_sint64 cur = PHYSFS_tell(file);
   if(cur >= end)
     return 0;
 
-  size_t readsize = std::min(static_cast<size_t>(end - cur), buffer_size);
-  if(!file.read(static_cast<char*>(buffer), static_cast<std::streamsize>(readsize)))
+  size_t readsize = std::min(static_cast<size_t> (end - cur), buffer_size);
+  if(PHYSFS_readBytes(file, buffer, readsize) != static_cast<std::make_signed<size_t>::type>(readsize))
     throw SoundError("read error while reading samples");
 
-  // Samples are little endian on disk, so 16 bit ones need swapping here.
-  if constexpr (std::endian::native == std::endian::big)
+#ifdef WORDS_BIGENDIAN
+  if (bits_per_sample != 16)
+    return readsize;
+  char *tmp = (char*)buffer;
+
+  for (size_t i = 0; i < readsize / 2; i++)
   {
-    if (bits_per_sample == 16)
-    {
-      char* tmp = static_cast<char*>(buffer);
-      for (size_t i = 0; i < readsize / 2; i++)
-      {
-        std::swap(tmp[2*i], tmp[2*i+1]);
-      }
-    }
+    char c     = tmp[2*i];
+    tmp[2*i]   = tmp[2*i+1];
+    tmp[2*i+1] = c;
   }
+
+  *(char *)buffer = *tmp;
+#endif
 
   return readsize;
 }

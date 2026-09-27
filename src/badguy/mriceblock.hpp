@@ -1,6 +1,3 @@
-// src/badguy/mriceblock.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_MRICEBLOCK_HPP
 #define HEADER_SUPERTUX_BADGUY_MRICEBLOCK_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 #include "object/portable.hpp"
 
@@ -30,6 +25,7 @@ class MrIceBlock : public WalkingBadguy,
 {
 public:
   MrIceBlock(const ReaderMapping& reader);
+  MrIceBlock(const Vector& pos, Direction d);
 
   void initialize();
   HitResponse collision(GameObject& object, const CollisionHit& hit);
@@ -52,7 +48,7 @@ public:
     return "mriceblock";
   }
   std::string get_display_name() const {
-    return "Mr. Ice Block";
+    return _("Mr. Ice Block");
   }
 
 protected:
@@ -86,7 +82,7 @@ public:
     return "smartblock";
   }
   std::string get_display_name() const {
-    return "Smart Block";
+    return _("Smart Block");
   }
 };
 

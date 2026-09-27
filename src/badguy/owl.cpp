@@ -1,6 +1,3 @@
-// src/badguy/owl.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
@@ -19,8 +16,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/owl.hpp"
-
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "object/anchor_point.hpp"
@@ -42,6 +37,20 @@ Owl::Owl(const ReaderMapping& reader) :
 {
   if ( !reader.get("carry", carried_obj_name)) carried_obj_name = "skydive";
   set_action (dir == LEFT ? "left" : "right", /* loops = */ -1);
+}
+
+Owl::Owl(const Vector& pos, Direction d) :
+  BadGuy(pos, d, "images/creatures/owl/owl.sprite", LAYER_OBJECTS + 1),
+  carried_obj_name("skydive"),
+  carried_object(NULL)
+{
+  set_action (dir == LEFT ? "left" : "right", /* loops = */ -1);
+}
+
+void
+Owl::save(Writer& writer) {
+  BadGuy::save(writer);
+  writer.write("carry", carried_obj_name);
 }
 
 void
@@ -209,6 +218,13 @@ Owl::ignite() {
     carried_object = NULL;
   }
   BadGuy::ignite();
+}
+
+void
+Owl::after_editor_set()
+{
+  BadGuy::after_editor_set();
+  sprite->set_action(dir == LEFT ? "left" : "right");
 }
 
 /* vim: set sw=2 sts=2 et fdm=marker : */

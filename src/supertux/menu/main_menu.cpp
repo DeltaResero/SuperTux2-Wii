@@ -1,6 +1,3 @@
-// src/supertux/menu/main_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,18 +16,15 @@
 
 #include "supertux/menu/main_menu.hpp"
 
-#include <functional>
-#include <memory>
-#include <string>
-#include <utility>
-
 #include "audio/sound_manager.hpp"
+#include "editor/editor.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/fadeout.hpp"
 #include "supertux/game_manager.hpp"
 #include "supertux/globals.hpp"
+#include "supertux/menu/addon_menu.hpp"
 #include "supertux/menu/contrib_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/options_menu.hpp"
@@ -40,21 +34,24 @@
 #include "supertux/textscroller.hpp"
 #include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
+#include "util/gettext.hpp"
 
 MainMenu::MainMenu()
 {
-  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 35);
 
-  add_entry(MNID_STARTGAME, "Start Game");
-  add_submenu("Options", MenuStorage::OPTIONS_MENU);
-  add_entry(MNID_CREDITS, "Credits");
-  add_entry(MNID_QUITMAINMENU, "Quit");
+  add_entry(MNID_STARTGAME, _("Start Game"));
+  add_entry(MNID_ADDONS, _("Add-ons"));
+  add_submenu(_("Options"), MenuStorage::OPTIONS_MENU);
+  add_entry(MNID_LEVELEDITOR, _("Level Editor"));
+  add_entry(MNID_CREDITS, _("Credits"));
+  add_entry(MNID_QUITMAINMENU, _("Quit"));
 }
 
 void
 MainMenu::on_window_resize()
 {
-  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
+  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + 35);
 }
 
 void
@@ -68,10 +65,27 @@ MainMenu::menu_action(MenuItem* item)
       MenuManager::instance().push_menu(MenuStorage::WORLDSET_MENU);
       break;
 
+    case MNID_ADDONS:
+      // Add-ons Menu
+      MenuManager::instance().push_menu(MenuStorage::ADDON_MENU);
+      break;
+
+
     case MNID_CREDITS:
       MenuManager::instance().clear_menu_stack();
-      ScreenManager::current()->push_screen(std::unique_ptr<Screen>(new TextScroller("credits.txt")),
+      ScreenManager::current()->push_screen(std::unique_ptr<Screen>(new TextScroller("credits.stxt")),
                                             std::unique_ptr<ScreenFade>(new FadeOut(0.5)));
+      break;
+
+    case MNID_LEVELEDITOR:
+      {
+        MenuManager::instance().clear_menu_stack();
+        std::unique_ptr<Screen> screen(new Editor());
+        std::unique_ptr<FadeOut> fade(new FadeOut(0.5));
+        SoundManager::current()->stop_music(0.5);
+        ScreenManager::current()->push_screen(move(screen),move(fade));
+        //Editor::current()->setup();
+      }
       break;
 
     case MNID_QUITMAINMENU:
@@ -86,9 +100,9 @@ MainMenu::menu_action(MenuItem* item)
       {
         // confirmation dialog
         std::unique_ptr<Dialog> dialog(new Dialog);
-        dialog->set_text("Do you really want to quit SuperTux?");
-        dialog->add_cancel_button("Cancel");
-        dialog->add_default_button("Quit SuperTux", [] {
+        dialog->set_text(_("Do you really want to quit SuperTux?"));
+        dialog->add_cancel_button(_("Cancel"));
+        dialog->add_default_button(_("Quit SuperTux"), [] {
             MenuManager::instance().clear_menu_stack();
             ScreenManager::current()->quit(std::unique_ptr<ScreenFade>(new FadeOut(0.25)));
             SoundManager::current()->stop_music(0.25);

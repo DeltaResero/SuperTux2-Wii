@@ -1,6 +1,3 @@
-// src/worldmap/teleporter.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Teleporter Worldmap Tile
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -29,7 +26,6 @@ namespace worldmap {
 Teleporter::Teleporter(const ReaderMapping& lisp) :
   pos(),
   sprite(),
-  sprite_name(),
   worldmap(),
   spawnpoint(),
   automatic(false),
@@ -38,8 +34,9 @@ Teleporter::Teleporter(const ReaderMapping& lisp) :
   lisp.get("x", pos.x);
   lisp.get("y", pos.y);
 
-  if (lisp.get("sprite", sprite_name)) {
-    sprite = SpriteManager::current()->create(sprite_name);
+  std::string spritefile = "";
+  if (lisp.get("sprite", spritefile)) {
+    sprite = SpriteManager::current()->create(spritefile);
   }
 
   if(!lisp.get("worldmap", worldmap)) {
@@ -65,19 +62,6 @@ Teleporter::draw(DrawingContext& context)
 void
 Teleporter::update(float )
 {
-}
-
-void
-Teleporter::release_artwork()
-{
-  sprite.reset();
-}
-
-void
-Teleporter::reacquire_artwork()
-{
-  if(!sprite_name.empty())
-    sprite = SpriteManager::current()->create(sprite_name);
 }
 
 } // namespace worldmap

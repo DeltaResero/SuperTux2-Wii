@@ -1,6 +1,3 @@
-// src/sprite/sprite_data.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,8 +19,6 @@
 
 #include <map>
 #include <vector>
-#include <memory>
-#include <string>
 
 #include "video/surface.hpp"
 
@@ -60,11 +55,6 @@ private:
 
     /** Hitbox height */
     float hitbox_h;
-
-    /** Drawn at this size rather than the picture's own, when either is set.
-        Lets a picture be stored smaller than it is shown. */
-    float draw_w;
-    float draw_h;
 
     /** Drawing priority in queue */
     int z_order;

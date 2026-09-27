@@ -1,6 +1,3 @@
-// src/supertux/level_parser.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -17,15 +14,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "util/file_system.hpp"
 #include "supertux/level_parser.hpp"
 
 #include <sstream>
-#include <exception>
-#include <stdexcept>
-#include <utility>
 
-#include "io/ifile_stream.hpp"
+#include "physfs/ifile_streambuf.hpp"
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/sector_parser.hpp"
@@ -55,7 +48,7 @@ LevelParser::from_nothing(const std::string& basedir)
   do {
     num++;
     level_file = basedir + "/level" + std::to_string(num) + ".stl";
-  } while ( !FileSystem::find(level_file).empty() );
+  } while ( PHYSFS_exists(level_file.c_str()) );
   std::string level_name = "Level " + std::to_string(num);
   level_file = "level" + std::to_string(num) + ".stl";
 
@@ -71,12 +64,12 @@ LevelParser::from_nothing_worldmap(const std::string& basedir, const std::string
 
   // Find a free level filename
   std::string level_file = basedir + "/worldmap.stwm";
-  if (!FileSystem::find(level_file).empty()) {
+  if (PHYSFS_exists(level_file.c_str())) {
     int num = 0;
     do {
       num++;
       level_file = basedir + "/worldmap" + std::to_string(num) + ".stwm";
-    } while ( !FileSystem::find(level_file).empty() );
+    } while ( PHYSFS_exists(level_file.c_str()) );
     level_file = "worldmap" + std::to_string(num) + ".stwm";
   } else {
     level_file = "worldmap.stwm";
@@ -96,6 +89,7 @@ LevelParser::load(const std::string& filepath)
 {
   try {
     m_level.filename = filepath;
+    register_translation_directory(filepath);
     auto doc = ReaderDocument::parse(filepath);
     auto root = doc.get_root();
 

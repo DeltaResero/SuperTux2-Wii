@@ -1,6 +1,3 @@
-// src/object/lantern.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Lantern
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_LANTERN_HPP
 #define HEADER_SUPERTUX_OBJECT_LANTERN_HPP
-
-#include <string>
 
 #include "object/rock.hpp"
 
@@ -58,12 +53,15 @@ public:
     return "lantern";
   }
   std::string get_display_name() const {
-    return "Lantern";
+    return _("Lantern");
   }
+
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
 private:
   Color lightcolor;
-
+  SpritePtr lightsprite;
   void updateColor();
 
 private:

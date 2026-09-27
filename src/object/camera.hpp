@@ -1,6 +1,3 @@
-// src/object/camera.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -41,6 +38,7 @@ class Camera : public GameObject,
 public:
   Camera(Sector* sector, const std::string& name = std::string());
   virtual ~Camera();
+  virtual void save(Writer& writer);
 
   /// parse camera mode from lisp file
   void parse(const ReaderMapping& reader);
@@ -69,7 +67,7 @@ public:
    * to the position goal
    */
   void scroll_to(const Vector& goal, float scrolltime);
-  void move(const float dx, const float dy);
+  void move(const int dx, const int dy);
 
   void reload_config();
 
@@ -83,11 +81,19 @@ public:
    * get the coordinates of the point directly in the center of this camera
    */
   Vector get_center() const;
+  virtual bool do_save() const;
   std::string get_class() const {
     return "camera";
   }
   std::string get_display_name() const {
-    return "Camera";
+    return _("Camera");
+  }
+
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/camera.png";
   }
 
   Path* get_path() const;

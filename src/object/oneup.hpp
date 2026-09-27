@@ -1,6 +1,3 @@
-// src/object/oneup.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -28,6 +25,9 @@ class OneUp : public MovingSprite
 {
 public:
   OneUp(const Vector& pos, Direction direction = RIGHT);
+  virtual bool do_save() const {
+    return false;
+  }
 
   virtual void update(float elapsed_time);
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit);

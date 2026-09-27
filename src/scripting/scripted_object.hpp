@@ -1,6 +1,3 @@
-// src/scripting/scripted_object.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,16 +17,17 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_SCRIPTED_OBJECT_HPP
 #define HEADER_SUPERTUX_SCRIPTING_SCRIPTED_OBJECT_HPP
 
+#ifndef SCRIPTING_API
 #include <string>
 
 class ScriptedObject;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class ScriptedObject : public ssq::ExposableClass
+class ScriptedObject
 {
+#ifndef SCRIPTING_API
 private:
   ::ScriptedObject* m_parent;
 
@@ -40,6 +38,7 @@ public:
 private:
   ScriptedObject(const ScriptedObject&) = delete;
   ScriptedObject& operator=(const ScriptedObject&) = delete;
+#endif
 
 public:
   void set_action(const std::string& animation);

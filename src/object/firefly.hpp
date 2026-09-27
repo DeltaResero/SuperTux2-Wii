@@ -1,6 +1,3 @@
-// src/object/firefly.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_FIREFLY_HPP
 #define HEADER_SUPERTUX_OBJECT_FIREFLY_HPP
 
-#include <string>
-
 #include "object/moving_sprite.hpp"
 
 /**
@@ -38,16 +33,13 @@ public:
     return "firefly";
   }
   std::string get_display_name() const {
-    return "Reset point";
+    return _("Reset point");
   }
 
 private:
   bool activated;
   Vector initial_position; /**< position as in level file. This is where Tux will have to respawn, as the level is reset every time */
   void reactivate();
-
-  /** where Tux's head goes so his feet land at the bell's foot */
-  Vector reset_point() const;
 };
 
 #endif

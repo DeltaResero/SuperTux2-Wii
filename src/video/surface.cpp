@@ -1,6 +1,3 @@
-// src/video/surface.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,7 +19,6 @@
 #include <config.h>
 
 #include <SDL.h>
-#include <algorithm>
 
 #include "video/texture.hpp"
 #include "video/video_system.hpp"
@@ -41,55 +37,10 @@ Surface::create(const std::string& file, const Rect& rect)
 
 Surface::Surface(const std::string& file) :
   texture(TextureManager::current()->get(file)),
-  cells(),
-  surface_data(),
-  rect(),
-  flipx(false)
-{
-  if(texture)
-  {
-    rect = Rect(0, 0, Size(static_cast<int>(texture->get_image_width()),
-                           static_cast<int>(texture->get_image_height())));
-    surface_data = VideoSystem::current()->new_surface_data(*this);
-    return;
-  }
-
-  /* Nothing came back, so the picture is larger than this device will take
-     in one piece and is held as the pieces it cuts into instead. Each of
-     those is an ordinary Surface over its own part of the file, so nothing
-     below this point needs to know, and the size reported stays the size of
-     the whole picture. */
-  int width = 0;
-  int height = 0;
-  for(const auto& cell_rect : TextureManager::current()->get_cells(file))
-  {
-    cells.push_back(Cell{SurfacePtr(new Surface(file, cell_rect)),
-                         cell_rect.left,
-                         cell_rect.top});
-
-    width  = std::max(width, cell_rect.right);
-    height = std::max(height, cell_rect.bottom);
-  }
-  rect = Rect(0, 0, Size(width, height));
-
-  /* The pieces are cut from one decoded copy, so it is wanted until the
-     last of them has been taken and not after. */
-  TextureManager::current()->release_image(file);
-}
-
-SurfacePtr
-Surface::create(TexturePtr texture)
-{
-  return SurfacePtr(new Surface(texture));
-}
-
-Surface::Surface(TexturePtr texture_) :
-  texture(texture_),
-  cells(),
   surface_data(),
   rect(0, 0,
-      Size(static_cast<int>(texture->get_image_width()),
-           static_cast<int>(texture->get_image_height()))),
+      Size(texture->get_image_width(),
+           texture->get_image_height())),
   flipx(false)
 {
   surface_data = VideoSystem::current()->new_surface_data(*this);
@@ -97,7 +48,6 @@ Surface::Surface(TexturePtr texture_) :
 
 Surface::Surface(const std::string& file, const Rect& rect_) :
   texture(TextureManager::current()->get(file, rect_)),
-  cells(),
   surface_data(),
   rect(0, 0, Size(rect_.get_width(), rect_.get_height())),
   flipx(false)
@@ -107,25 +57,16 @@ Surface::Surface(const std::string& file, const Rect& rect_) :
 
 Surface::Surface(const Surface& rhs) :
   texture(rhs.texture),
-  cells(rhs.cells),
   surface_data(),
   rect(rhs.rect),
   flipx(false)
 {
-  /* A picture held as pieces has no texture of its own for the renderer to
-     describe, and the pieces carry their own. */
-  if(!is_split())
-  {
-    surface_data = VideoSystem::current()->new_surface_data(*this);
-  }
+  surface_data = VideoSystem::current()->new_surface_data(*this);
 }
 
 Surface::~Surface()
 {
-  if(surface_data)
-  {
-    VideoSystem::current()->free_surface_data(surface_data);
-  }
+  VideoSystem::current()->free_surface_data(surface_data);
 }
 
 SurfacePtr
@@ -146,7 +87,7 @@ bool Surface::get_flipx() const
   return flipx;
 }
 
-const TexturePtr&
+TexturePtr
 Surface::get_texture() const
 {
   return texture;
@@ -156,18 +97,6 @@ SurfaceData*
 Surface::get_surface_data() const
 {
   return surface_data;
-}
-
-bool
-Surface::is_split() const
-{
-  return !cells.empty();
-}
-
-const std::vector<Surface::Cell>&
-Surface::get_cells() const
-{
-  return cells;
 }
 
 int

@@ -1,6 +1,3 @@
-// src/object/coin.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,31 +17,36 @@
 #ifndef HEADER_SUPERTUX_OBJECT_COIN_HPP
 #define HEADER_SUPERTUX_OBJECT_COIN_HPP
 
-#include <memory>
-#include <string>
-
 #include "object/moving_sprite.hpp"
 #include "supertux/physic.hpp"
 
 class Path;
 class PathWalker;
+class TileMap;
 
 class Coin : public MovingSprite
 {
 public:
   Coin(const Vector& pos);
+  Coin(const Vector& pos, TileMap* tilemap);
   Coin(const ReaderMapping& reader);
 
   HitResponse collision(GameObject& other, const CollisionHit& hit);
 
   void collect();
   virtual void update(float elapsed_time);
+  virtual void save(Writer& writer);
   std::string get_class() const {
     return "coin";
   }
   std::string get_display_name() const {
-    return "Coin";
+    return _("Coin");
   }
+
+  ObjectSettings get_settings();
+  void after_editor_set();
+
+  virtual void move_to(const Vector& pos);
 
   Path* get_path() const {
     return path.get();
@@ -53,6 +55,9 @@ public:
 private:
   std::shared_ptr<Path> path;
   std::shared_ptr<PathWalker> walker;
+  Vector offset;
+  bool from_tilemap;
+  bool add_path;
   Physic physic;
 };
 
@@ -68,6 +73,9 @@ public:
   virtual std::string get_class() const {
     return "heavycoin";
   }
+
+  ObjectSettings get_settings();
+  void after_editor_set();
 
 private:
   Physic physic;

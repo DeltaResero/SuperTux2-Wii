@@ -1,6 +1,3 @@
-// src/badguy/crystallo.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Crystallo
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_CRYSTALLO_HPP
 #define HEADER_SUPERTUX_BADGUY_CRYSTALLO_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 /*
@@ -31,11 +26,13 @@ class Crystallo : public WalkingBadguy
 {
 public:
   Crystallo(const ReaderMapping& reader);
+  Crystallo(const Vector& pos, Direction d);
+  ObjectSettings get_settings();
   std::string get_class() const {
     return "crystallo";
   }
   std::string get_display_name() const {
-    return "Crystallo";
+    return _("Crystallo");
   }
 
   void active_update(float elapsed_time);

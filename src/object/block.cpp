@@ -1,6 +1,3 @@
-// src/object/block.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -17,10 +14,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <physfs.h>
 
-#include <memory>
-
-#include "util/file_system.hpp"
 #include "object/block.hpp"
 
 #include "audio/sound_manager.hpp"
@@ -70,7 +65,7 @@ Block::Block(const ReaderMapping& lisp, const std::string& sprite_file) :
 
   std::string sf;
   lisp.get("sprite", sf);
-  if (sf.empty() || FileSystem::find(sf).empty()) {
+  if (sf.empty() || !PHYSFS_exists(sf.c_str())) {
     sf = sprite_file;
   }
   sprite = SpriteManager::current()->create(sf);
@@ -129,14 +124,6 @@ Block::collision(GameObject& other, const CollisionHit& )
   }
 
   return FORCE_MOVE;
-}
-
-bool
-Block::is_spent() const
-{
-  /* The same test the bonus block makes on itself: once it has been hit it
-     wears the empty picture, and there is nothing left in it to go for. */
-  return sprite->get_action() == "empty";
 }
 
 void
@@ -209,6 +196,20 @@ Block::break_me()
     std::make_shared<BrokenBrick>(sprite->clone(), get_pos() + Vector(16, 16),
                                   Vector(150, -300)));
   remove_me();
+}
+
+ObjectSettings Block::get_settings()
+{
+  ObjectSettings result = MovingObject::get_settings();
+  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite");
+  spr.select.push_back(".sprite");
+  result.options.push_back(spr);
+  return result;
+}
+
+void Block::after_editor_set()
+{
+  sprite = SpriteManager::current()->create(sprite_name);
 }
 
 /* EOF */

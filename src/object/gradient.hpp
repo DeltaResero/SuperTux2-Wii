@@ -1,6 +1,3 @@
-// src/object/gradient.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_GRADIENT_HPP
 #define HEADER_SUPERTUX_OBJECT_GRADIENT_HPP
 
-#include <string>
-
 #include "scripting/exposed_object.hpp"
 #include "scripting/gradient.hpp"
 #include "supertux/game_object.hpp"
@@ -36,6 +31,8 @@ public:
   Gradient();
   Gradient(const ReaderMapping& reader);
   virtual ~Gradient();
+  virtual bool do_save() const;
+  virtual void save(Writer& writer);
 
   void set_gradient(Color top, Color bottom);
 
@@ -59,11 +56,17 @@ public:
   }
 
   std::string get_display_name() const {
-    return "Gradient";
+    return _("Gradient");
   }
 
   int get_layer() const
   { return layer; }
+
+  virtual ObjectSettings get_settings();
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/gradient.png";
+  }
 
 private:
   int layer;

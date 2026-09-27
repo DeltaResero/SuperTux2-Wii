@@ -1,6 +1,3 @@
-// src/badguy/spidermite.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,14 +17,13 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SPIDERMITE_HPP
 #define HEADER_SUPERTUX_BADGUY_SPIDERMITE_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class SpiderMite : public BadGuy
 {
 public:
   SpiderMite(const ReaderMapping& reader);
+  SpiderMite(const Vector& pos);
 
   void initialize();
   void active_update(float elapsed_time);
@@ -40,7 +36,7 @@ public:
     return "spidermite";
   }
   std::string get_display_name() const {
-    return "Spider mite";
+    return _("Spider mite");
   }
 
 protected:

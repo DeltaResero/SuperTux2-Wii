@@ -1,7 +1,0 @@
-(supertux-sprite
-    (action
-      (name "default")
-      (hitbox 285.5 69)
-      (images "lightcone.png")
-    )
-)

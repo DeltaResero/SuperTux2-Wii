@@ -1,6 +1,3 @@
-// src/trigger/door.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_TRIGGER_DOOR_HPP
 #define HEADER_SUPERTUX_TRIGGER_DOOR_HPP
 
-#include <string>
-
 #include "supertux/timer.hpp"
 #include "trigger/trigger_base.hpp"
 
@@ -37,6 +32,8 @@ public:
   std::string get_class() const {
     return "door";
   }
+
+  virtual ObjectSettings get_settings();
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);

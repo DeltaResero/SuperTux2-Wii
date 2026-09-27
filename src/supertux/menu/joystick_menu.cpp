@@ -1,6 +1,3 @@
-// src/supertux/menu/joystick_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>,
 //           2007,2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -21,12 +18,11 @@
 #include "supertux/menu/joystick_menu.hpp"
 
 #include <sstream>
-#include <memory>
 
 #include "control/joystick_manager.hpp"
 #include "gui/item_controlfield.hpp"
 #include "supertux/gameconfig.hpp"
-#include "supertux/globals.hpp"
+#include "util/gettext.hpp"
 
 namespace {
 
@@ -43,7 +39,6 @@ JoystickMenu::JoystickMenu(InputManager& input_manager) :
   m_joysticks_available(false),
   m_auto_joystick_cfg(!m_input_manager.use_game_controller())
 {
-  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
   recreate_menu();
 }
 
@@ -54,12 +49,12 @@ void
 JoystickMenu::recreate_menu()
 {
   clear();
-  add_label("Setup Joystick");
+  add_label(_("Setup Joystick"));
   add_hl();
 
-  add_toggle(MNID_AUTO_JOYSTICK_CFG, "Manual Configuration",
+  add_toggle(MNID_AUTO_JOYSTICK_CFG, _("Manual Configuration"),
              &m_auto_joystick_cfg)
-    ->set_help("Use manual configuration instead of SDL2's automatic GameController support");
+    ->set_help(_("Use manual configuration instead of SDL2's automatic GameController support"));
 
   if (m_input_manager.use_game_controller())
   {
@@ -71,42 +66,42 @@ JoystickMenu::recreate_menu()
     {
       m_joysticks_available = true;
 
-      add_controlfield(Controller::UP,          "Up");
-      add_controlfield(Controller::DOWN,        "Down");
-      add_controlfield(Controller::LEFT,        "Left");
-      add_controlfield(Controller::RIGHT,       "Right");
-      add_controlfield(Controller::JUMP,        "Jump");
-      add_controlfield(Controller::ACTION,      "Action");
-      add_controlfield(Controller::START,       "Pause/Menu");
-      add_controlfield(Controller::PEEK_LEFT,   "Peek Left");
-      add_controlfield(Controller::PEEK_RIGHT,  "Peek Right");
-      add_controlfield(Controller::PEEK_UP,     "Peek Up");
-      add_controlfield(Controller::PEEK_DOWN,   "Peek Down");
+      add_controlfield(Controller::UP,          _("Up"));
+      add_controlfield(Controller::DOWN,        _("Down"));
+      add_controlfield(Controller::LEFT,        _("Left"));
+      add_controlfield(Controller::RIGHT,       _("Right"));
+      add_controlfield(Controller::JUMP,        _("Jump"));
+      add_controlfield(Controller::ACTION,      _("Action"));
+      add_controlfield(Controller::START,       _("Pause/Menu"));
+      add_controlfield(Controller::PEEK_LEFT,   _("Peek Left"));
+      add_controlfield(Controller::PEEK_RIGHT,  _("Peek Right"));
+      add_controlfield(Controller::PEEK_UP,     _("Peek Up"));
+      add_controlfield(Controller::PEEK_DOWN,   _("Peek Down"));
       if (g_config->developer_mode) {
-        add_controlfield(Controller::CONSOLE, "Console");
+        add_controlfield(Controller::CONSOLE, _("Console"));
       }
       if (g_config->developer_mode) {
-        add_controlfield(Controller::CHEAT_MENU, "Cheat Menu");
+        add_controlfield(Controller::CHEAT_MENU, _("Cheat Menu"));
       }
       add_hl();
-      add_inactive("The following feature is deprecated.");
+      add_inactive(_("The following feature is deprecated."));
       // l10n: Continuation of string "The following feature is deprecated."
-      add_inactive("It will be removed from the next release");
+      add_inactive(_("It will be removed from the next release"));
       // l10n: Continuation of string "It will be removed from the next release"
-      add_inactive("of SuperTux.");
-      add_toggle(MNID_JUMP_WITH_UP, "Jump with Up", &g_config->joystick_config.jump_with_up_joy);
+      add_inactive(_("of SuperTux."));
+      add_toggle(MNID_JUMP_WITH_UP, _("Jump with Up"), &g_config->joystick_config.jump_with_up_joy);
     }
     else
     {
       m_joysticks_available = false;
 
-      add_inactive("No Joysticks found");
-      add_entry(MNID_SCAN_JOYSTICKS, "Scan for Joysticks");
+      add_inactive(_("No Joysticks found"));
+      add_entry(MNID_SCAN_JOYSTICKS, _("Scan for Joysticks"));
     }
   }
 
   add_hl();
-  add_back("Back");
+  add_back(_("Back"));
   refresh();
 }
 
@@ -115,7 +110,7 @@ JoystickMenu::get_button_name(int button) const
 {
   if(button < 0)
   {
-    return "None";
+    return _("None");
   }
   else
   {
@@ -134,7 +129,7 @@ JoystickMenu::menu_action(MenuItem* item)
     if (!micf) {
       return;
     }
-    micf->change_input("Press Button");
+    micf->change_input(_("Press Button"));
     m_input_manager.joystick_manager->bind_next_event_to(static_cast<Controller::Control>(item->id));
   }
   else if (item->id == MNID_AUTO_JOYSTICK_CFG)
@@ -171,21 +166,21 @@ JoystickMenu::refresh_menu_item(Controller::Control id)
   {
     std::ostringstream name;
 
-    name << "Axis ";
+    name << _("Axis ");
 
     if (axis < 0)
-      name << "-";
+      name << _("-");
     else
-      name << "+";
+      name << _("+");
 
     if (abs(axis) == 1)
-      name << "X";
+      name << _("X");
     else if (abs(axis) == 2)
-      name << "Y";
+      name << _("Y");
     else if (abs(axis) == 3)
-      name << "X2";
+      name << _("X2");
     else if (abs(axis) == 4)
-      name << "Y2";
+      name << _("Y2");
     else
       name << abs(axis);
 
@@ -198,19 +193,19 @@ JoystickMenu::refresh_menu_item(Controller::Control id)
     switch (hat_dir)
     {
       case SDL_HAT_UP:
-        name = "Hat Up";
+        name = _("Hat Up");
         break;
 
       case SDL_HAT_DOWN:
-        name = "Hat Down";
+        name = _("Hat Down");
         break;
 
       case SDL_HAT_LEFT:
-        name = "Hat Left";
+        name = _("Hat Left");
         break;
 
       case SDL_HAT_RIGHT:
-        name = "Hat Right";
+        name = _("Hat Right");
         break;
 
       default:
@@ -222,7 +217,7 @@ JoystickMenu::refresh_menu_item(Controller::Control id)
   }
   else
   {
-    itemcf->change_input("None");
+    itemcf->change_input(_("None"));
   }
 }
 
@@ -251,14 +246,6 @@ JoystickMenu::refresh()
       refresh_menu_item(Controller::CHEAT_MENU);
     }
   }
-}
-
-void
-JoystickMenu::on_window_resize()
-{
-  /* Sat below the middle so that it clears the logo behind it, as the menu
-     it is opened from does. */
-  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
 }
 
 /* EOF */

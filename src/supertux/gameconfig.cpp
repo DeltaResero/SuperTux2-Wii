@@ -1,6 +1,3 @@
-// src/supertux/gameconfig.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,9 +17,10 @@
 #include "supertux/gameconfig.hpp"
 
 #include <stdexcept>
-#include <exception>
 
+#include "addon/addon_manager.hpp"
 #include "control/input_manager.hpp"
+#include "util/reader_collection.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
@@ -31,39 +29,33 @@
 
 Config::Config() :
   profile(1),
-#ifdef __wii__
-  fullscreen_size(640, 448),
-#else
   fullscreen_size(0, 0),
-#endif
   fullscreen_refresh_rate(0),
   window_size(1280, 800),
-  window_maximised(false),
   aspect_size(0, 0), // auto detect
   magnification(0.0f),
-#ifdef __wii__
-  /* Wii Homebrew has no window mode to fall back to. */
-  use_fullscreen(true),
-#else
   use_fullscreen(false),
-#endif
   video(VideoSystem::AUTO_VIDEO),
-  audio_backend(AudioBackend::Automatic),
-  vsync(1),
+  try_vsync(true),
   show_fps(false),
   show_player_pos(false),
   sound_enabled(true),
   music_enabled(true),
   random_seed(0), // set by time(), by default (unless in config)
   start_level(),
+  enable_script_debugger(false),
   start_demo(),
   record_demo(),
   tux_spawn_pos(),
+  edit_level(),
+  locale(),
   keyboard_config(),
   joystick_config(),
+  addons(),
   developer_mode(false),
   christmas_mode(false),
-  transitions_enabled(true)
+  transitions_enabled(true),
+  repository_url()
 {
 }
 
@@ -93,7 +85,9 @@ Config::load()
     }
   }
   config_lisp.get("transitions_enabled", transitions_enabled);
+  config_lisp.get("locale", locale);
   config_lisp.get("random_seed", random_seed);
+  config_lisp.get("repository_url", repository_url);
 
   ReaderMapping config_video_lisp;
   if(config_lisp.get("video", config_video_lisp))
@@ -102,20 +96,7 @@ Config::load()
     std::string video_string;
     config_video_lisp.get("video", video_string);
     video = VideoSystem::get_video_system(video_string);
-    /* This was on or off before it could also be adaptive. A file written by
-       an older build still says true or false there, and reading that as a
-       number throws, which would take the rest of the file down with it and
-       leave the player with nothing they had set. */
-    try
-    {
-      config_video_lisp.get("vsync", vsync);
-    }
-    catch(const std::exception&)
-    {
-      bool vsync_on = true;
-      config_video_lisp.get("vsync", vsync_on);
-      vsync = vsync_on ? 1 : 0;
-    }
+    config_video_lisp.get("vsync", try_vsync);
 
     config_video_lisp.get("fullscreen_width",  fullscreen_size.width);
     config_video_lisp.get("fullscreen_height", fullscreen_size.height);
@@ -123,7 +104,6 @@ Config::load()
 
     config_video_lisp.get("window_width",  window_size.width);
     config_video_lisp.get("window_height", window_size.height);
-    config_video_lisp.get("window_maximised", window_maximised);
 
     config_video_lisp.get("aspect_width",  aspect_size.width);
     config_video_lisp.get("aspect_height", aspect_size.height);
@@ -152,6 +132,30 @@ Config::load()
       joystick_config.read(joystick_lisp);
     }
   }
+
+  ReaderCollection config_addons_lisp;
+  if (config_lisp.get("addons", config_addons_lisp))
+  {
+    for(auto const& addon_node : config_addons_lisp.get_objects())
+    {
+      if (addon_node.get_name() == "addon")
+      {
+        auto addon = addon_node.get_mapping();
+
+        std::string id;
+        bool enabled = false;
+        if (addon.get("id", id) &&
+            addon.get("enabled", enabled))
+        {
+          addons.push_back({id, enabled});
+        }
+      }
+      else
+      {
+        log_warning << "Unknown token in config file: " << addon_node.get_name() << std::endl;
+      }
+    }
+  }
 }
 
 void
@@ -169,11 +173,13 @@ Config::save()
     writer.write("christmas", christmas_mode);
   }
   writer.write("transitions_enabled", transitions_enabled);
+  writer.write("locale", locale);
+  writer.write("repository_url", repository_url);
 
   writer.start_list("video");
   writer.write("fullscreen", use_fullscreen);
   writer.write("video", VideoSystem::get_video_string(video));
-  writer.write("vsync", vsync);
+  writer.write("vsync", try_vsync);
 
   writer.write("fullscreen_width",  fullscreen_size.width);
   writer.write("fullscreen_height", fullscreen_size.height);
@@ -181,7 +187,6 @@ Config::save()
 
   writer.write("window_width",  window_size.width);
   writer.write("window_height", window_size.height);
-  writer.write("window_maximised", window_maximised);
 
   writer.write("aspect_width",  aspect_size.width);
   writer.write("aspect_height", aspect_size.height);
@@ -206,6 +211,16 @@ Config::save()
     writer.end_list("joystick");
   }
   writer.end_list("control");
+
+  writer.start_list("addons");
+  for(const auto& addon : addons)
+  {
+    writer.start_list("addon");
+    writer.write("id", addon.id);
+    writer.write("enabled", addon.enabled);
+    writer.end_list("addon");
+  }
+  writer.end_list("addons");
 
   writer.end_list("supertux-config");
 }

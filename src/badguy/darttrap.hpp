@@ -1,6 +1,3 @@
-// src/badguy/darttrap.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  DartTrap - Shoots a Dart at regular intervals
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_DARTTRAP_HPP
 #define HEADER_SUPERTUX_BADGUY_DARTTRAP_HPP
 
-#include <string>
-
 /**
  * Badguy "DartTrap" - Shoots a Dart at regular intervals
  */
@@ -38,8 +33,11 @@ public:
     return "darttrap";
   }
   std::string get_display_name() const {
-    return "Dart trap";
+    return _("Dart trap");
   }
+
+  ObjectSettings get_settings();
+  void after_editor_set();
 
 protected:
   enum State {

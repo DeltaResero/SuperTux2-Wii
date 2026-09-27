@@ -1,6 +1,3 @@
-// src/object/scripted_object.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_SCRIPTED_OBJECT_HPP
 #define HEADER_SUPERTUX_OBJECT_SCRIPTED_OBJECT_HPP
-
-#include <string>
 
 #include "object/moving_sprite.hpp"
 #include "scripting/scripted_object.hpp"
@@ -62,8 +57,10 @@ public:
     return "scriptedobject";
   }
   std::string get_display_name() const {
-    return "Scripted object";
+    return _("Scripted object");
   }
+
+  virtual ObjectSettings get_settings();
 
 private:
   Physic physic;
@@ -72,6 +69,7 @@ private:
   bool visible;
   bool new_vel_set;
   Vector new_vel;
+  Vector new_size;
 };
 
 #endif

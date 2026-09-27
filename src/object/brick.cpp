@@ -1,6 +1,3 @@
-// src/object/brick.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,8 +16,6 @@
 
 #include "object/brick.hpp"
 
-#include <memory>
-
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "object/bouncy_coin.hpp"
@@ -33,6 +28,17 @@
 #include "supertux/constants.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
+
+Brick::Brick(const Vector& pos, int data, const std::string& spriteName)
+  : Block(SpriteManager::current()->create(spriteName)), breakable(false),
+    coin_counter(0)
+{
+  bbox.set_pos(pos);
+  if(data == 1)
+    coin_counter = 5;
+  else
+    breakable = true;
+}
 
 Brick::Brick(const ReaderMapping& lisp) :
   Block(lisp, "images/objects/bonus_block/brick.sprite"),
@@ -117,6 +123,16 @@ Brick::try_break(Player* player)
     }
     break_me();
   }
+}
+
+ObjectSettings
+Brick::get_settings() {
+  ObjectSettings result = Block::get_settings();
+
+  result.options.push_back(ObjectOption(MN_TOGGLE, _("Breakable"), &breakable,
+                                        "breakable"));
+
+  return result;
 }
 
 //IMPLEMENT_FACTORY(Brick, "brick");

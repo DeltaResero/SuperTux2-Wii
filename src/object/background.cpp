@@ -1,6 +1,3 @@
-// src/object/background.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -35,7 +32,6 @@
 Background::Background() :
   ExposedObject<Background, scripting::Background>(this),
   alignment(NO_ALIGNMENT),
-  fill_screen(false),
   layer(LAYER_BACKGROUND0),
   imagefile_top(),
   imagefile(),
@@ -56,7 +52,6 @@ Background::Background() :
 Background::Background(const ReaderMapping& reader) :
   ExposedObject<Background, scripting::Background>(this),
   alignment(NO_ALIGNMENT),
-  fill_screen(false),
   layer(LAYER_BACKGROUND0),
   imagefile_top(),
   imagefile(),
@@ -114,8 +109,6 @@ Background::Background(const ReaderMapping& reader) :
     }
   }
 
-  reader.get("fill-screen", fill_screen);
-
   if (!reader.get("scroll-offset-x", scroll_offset.x)) scroll_offset.x = 0;
   if (!reader.get("scroll-offset-y", scroll_offset.y)) scroll_offset.y = 0;
 
@@ -124,15 +117,10 @@ Background::Background(const ReaderMapping& reader) :
 
   layer = reader_get_layer (reader, /* default = */ LAYER_BACKGROUND0);
 
+  if (!reader.get("image", imagefile)) imagefile = "images/background/transparent_up.png";
   if (!reader.get("speed", speed)) speed = 0.5;
 
-  /* A background that names no picture of its own draws nothing, which is
-     what draw() already does when it has none. */
-  if (reader.get("image", imagefile))
-  {
-    set_image(imagefile, speed);
-  }
-
+  set_image(imagefile, speed);
   if (!reader.get("speed-y", speed_y))
   {
     speed_y = speed;
@@ -153,6 +141,69 @@ Background::Background(const ReaderMapping& reader) :
 
 Background::~Background()
 {
+}
+
+void
+Background::save(Writer& writer) {
+  GameObject::save(writer);
+  switch (alignment) {
+    case LEFT_ALIGNMENT:   writer.write("alignment", "left",   false); break;
+    case RIGHT_ALIGNMENT:  writer.write("alignment", "right",  false); break;
+    case TOP_ALIGNMENT:    writer.write("alignment", "top",    false); break;
+    case BOTTOM_ALIGNMENT: writer.write("alignment", "bottom", false); break;
+    case NO_ALIGNMENT: break;
+  }
+
+  if (speed_y != speed) {
+    writer.write("speed_y", speed_y);
+  }
+}
+
+ObjectSettings
+Background::get_settings() {
+  ObjectSettings result = GameObject::get_settings();
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &layer, "z-pos"));
+  ObjectOption align(MN_STRINGSELECT, _("Alignment"), &alignment);
+  align.select.push_back(_("none"));
+  align.select.push_back(_("left"));
+  align.select.push_back(_("right"));
+  align.select.push_back(_("top"));
+  align.select.push_back(_("bottom"));
+  result.options.push_back(align);
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll offset x"),
+                                         &scroll_offset.x, "scroll-offset-x"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll offset y"),
+                                         &scroll_offset.y, "scroll-offset-y"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll speed x"),
+                                         &scroll_speed.x, "scroll-speed-x"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Scroll speed y"),
+                                         &scroll_speed.y, "scroll-speed-y"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed x"), &speed, "speed"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed y"), &speed_y));
+
+  ObjectOption img(MN_FILE, _("Top image"), &imagefile_top, "image-top", true, false);
+  img.select.push_back(".png");
+  img.select.push_back(".jpg");
+  img.select.push_back(".gif");
+  img.select.push_back(".bmp");
+  result.options.push_back(img);
+  ObjectOption img2(MN_FILE, _("Image"), &imagefile, "image");
+  img2.select = img.select;
+  ObjectOption img3(MN_FILE, _("Bottom image"), &imagefile_bottom, "image-bottom", true, false);
+  img3.select = img.select;
+  result.options.push_back(img2);
+  result.options.push_back(img3);
+
+  result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
+  return result;
+}
+
+void
+Background::after_editor_set()
+{
+  image_top = Surface::create(imagefile_top);
+  image = Surface::create(imagefile);
+  image_bottom = Surface::create(imagefile_bottom);
 }
 
 void
@@ -203,17 +254,6 @@ Background::draw_image(DrawingContext& context, const Vector& pos_)
   Sizef screen(SCREEN_WIDTH, SCREEN_HEIGHT);
   Sizef parallax_image_size = (1.0f - speed) * screen + level * speed;
   Rectf cliprect = context.get_cliprect();
-
-  if (fill_screen)
-  {
-    /* A pixel over the edge on each side, so no rounding can leave a gap. */
-    context.draw_surface(image,
-                         context.get_translation() - Vector(1.0f, 1.0f),
-                         Sizef(static_cast<float>(SCREEN_WIDTH)  + 2.0f,
-                               static_cast<float>(SCREEN_HEIGHT) + 2.0f),
-                         0.0f, Color(1.0f, 1.0f, 1.0f), Blend(), layer);
-    return;
-  }
 
   int start_x = static_cast<int>(floorf((cliprect.get_left()  - (pos_.x - image->get_width() /2.0f)) / image->get_width()));
   int end_x   = static_cast<int>(ceilf((cliprect.get_right()  - (pos_.x + image->get_width() /2.0f)) / image->get_width()))+1;

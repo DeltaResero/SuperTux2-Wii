@@ -1,6 +1,3 @@
-// src/object/camera.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,22 +15,20 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/camera.hpp"
-#include <numbers>
 
 #include <math.h>
-#include <cmath>
-#include <exception>
-#include <stdexcept>
+#include <physfs.h>
 
+#include "editor/editor.hpp"
 #include "object/path_walker.hpp"
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"
-#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
+#include "util/writer.hpp"
 
 /* this is the fractional distance toward the peek
    position to move each frame; lower is slower,
@@ -95,7 +90,7 @@ public:
   {
     auto doc = ReaderDocument::parse(filename);
     auto root = doc.get_root();
-    if(root.get_name() != "camera-config")
+    if(root.get_name() == "camera-config")
     {
       throw std::runtime_error("file is not a camera config file.");
     }
@@ -121,6 +116,52 @@ public:
     }
   }
 };
+
+void
+Camera::save(Writer& writer){
+  GameObject::save(writer);
+  if (defaultmode == AUTOSCROLL && !autoscroll_path->is_valid()) {
+    defaultmode = NORMAL;
+  }
+  switch (defaultmode) {
+    case NORMAL: writer.write("mode", "normal", false); break;
+    case MANUAL: writer.write("mode", "manual", false); break;
+    case AUTOSCROLL:
+      writer.write("mode", "autoscroll", false);
+      autoscroll_path->save(writer);
+    case SCROLLTO: break;
+  }
+}
+
+ObjectSettings
+Camera::get_settings() {
+  ObjectSettings result = GameObject::get_settings();
+
+  ObjectOption moo(MN_STRINGSELECT, _("Mode"), &defaultmode);
+  moo.select.push_back(_("normal"));
+  moo.select.push_back(_("manual"));
+  result.options.push_back(moo);
+
+  if (autoscroll_walker.get() && autoscroll_path->is_valid()) {
+    result.options.push_back( Path::get_mode_option(&autoscroll_path->mode) );
+  }
+
+  return result;
+}
+
+void
+Camera::after_editor_set() {
+  if (autoscroll_walker.get() && autoscroll_path->is_valid()) {
+    if (defaultmode != AUTOSCROLL) {
+      autoscroll_path->nodes.clear();
+    }
+  } else {
+    if (defaultmode == AUTOSCROLL) {
+      autoscroll_path.reset(new Path(Vector(0,0)));
+      autoscroll_walker.reset(new PathWalker(autoscroll_path.get()));
+    }
+  }
+}
 
 Camera::Camera(Sector* newsector, const std::string& name_) :
   ExposedObject<Camera, scripting::Camera>(this),
@@ -213,7 +254,7 @@ Camera::shake(float time, float x, float y)
   shaketimer.start(time);
   shakedepth_x = x;
   shakedepth_y = y;
-  shakespeed = std::numbers::pi_v<float>/2 / time;
+  shakespeed = M_PI/2 / time;
 }
 
 void
@@ -252,7 +293,7 @@ Camera::update(float elapsed_time)
 void
 Camera::reload_config()
 {
-  if(!FileSystem::find("camera.cfg").empty()) {
+  if(PHYSFS_exists("camera.cfg")) {
     try {
       config->load("camera.cfg");
       log_info << "Loaded camera.cfg." << std::endl;
@@ -632,7 +673,7 @@ Camera::get_center() const {
 }
 
 void
-Camera::move(const float dx, const float dy) {
+Camera::move(const int dx, const int dy) {
   translation.x += dx;
   translation.y += dy;
 }
@@ -643,4 +684,8 @@ Camera::get_path() const {
   return autoscroll_path.get();
 }
 
+bool
+Camera::do_save() const {
+  return !Editor::is_active() || !Editor::current()->get_worldmap_mode();
+}
 /* EOF */

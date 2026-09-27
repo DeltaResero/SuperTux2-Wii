@@ -1,6 +1,3 @@
-// tests/sizef_test.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -17,29 +14,27 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "st_assert.hpp"
+#include <gtest/gtest.h>
 
 #include "math/sizef.hpp"
 
-int main()
+TEST(SizefTest, sizef_test)
 {
   Sizef size(800, 600);
 
-  ST_ASSERT_EQ(Sizef(800, 600), size);
-  ST_ASSERT_EQ(Sizef(1600, 1200), size * 2);
-  ST_ASSERT_EQ(Sizef(400, 300), size / 2);
-  ST_ASSERT_EQ(Sizef(1000, 900), size + Sizef(200, 300));
+  ASSERT_EQ(Sizef(800, 600), size);
+  ASSERT_EQ(Sizef(1600, 1200), size * 2);
+  ASSERT_EQ(Sizef(400, 300), size / 2);
+  ASSERT_EQ(Sizef(1000, 900), size + Sizef(200, 300));
 
   size *= 2;
-  ST_ASSERT_EQ(Sizef(1600, 1200), size);
+  ASSERT_EQ(Sizef(1600, 1200), size);
 
   size /= 2;
-  ST_ASSERT_EQ(Sizef(800, 600), size);
+  ASSERT_EQ(Sizef(800, 600), size);
 
   size += size;
-  ST_ASSERT_EQ(Sizef(1600, 1200), size);
-
-  return 0;
+  ASSERT_EQ(Sizef(1600, 1200), size);
 }
 
 /* EOF */

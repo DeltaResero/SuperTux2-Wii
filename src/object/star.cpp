@@ -1,6 +1,3 @@
-// src/object/star.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -17,13 +14,12 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <memory>
-#include <string>
-
 #include "math/random_generator.hpp"
 #include "object/player.hpp"
 #include "object/sprite_particle.hpp"
 #include "object/star.hpp"
+#include "sprite/sprite.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 
@@ -34,9 +30,13 @@ static const float JUMPSTAR_SPEED = -300;
 Star::Star(const Vector& pos, Direction direction) :
   MovingSprite(pos, "images/powerups/star/star.sprite", LAYER_OBJECTS, COLGROUP_MOVING),
   physic(),
-  light(0.0f,0.0f,0.0f)
+  light(0.0f,0.0f,0.0f),
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
 {
   physic.set_velocity((direction == LEFT) ? -STAR_SPEED : STAR_SPEED, INITIALJUMP);
+  //set light for glow effect
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(0.4f, 0.4f, 0.4f));
 }
 
 void
@@ -77,7 +77,10 @@ Star::draw(DrawingContext& context){
   context.get_light( bbox.get_middle(), &light );
   if (light.red + light.green + light.blue < 3.0){
     MovingSprite::draw(context);
-    context.draw_light(bbox.get_middle(), LIGHT_SMALL, Color(0.4f, 0.4f, 0.4f));
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    lightsprite->draw(context, bbox.get_middle(), 0);
+    context.pop_target();
   }
 }
 

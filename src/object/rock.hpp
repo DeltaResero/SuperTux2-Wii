@@ -1,6 +1,3 @@
-// src/object/rock.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_ROCK_HPP
 #define HEADER_SUPERTUX_OBJECT_ROCK_HPP
-
-#include <string>
 
 #include "object/moving_sprite.hpp"
 #include "object/portable.hpp"
@@ -44,7 +39,7 @@ public:
     return "rock";
   }
   std::string get_display_name() const {
-    return "Rock";
+    return _("Rock");
   }
 
 protected:

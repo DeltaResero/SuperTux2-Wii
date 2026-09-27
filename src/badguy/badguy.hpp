@@ -1,6 +1,3 @@
-// src/badguy/badguy.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,7 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 
-#include <string>
-
+#include "editor/object_option.hpp"
 #include "gui/menu_action.hpp"
 #include "object/moving_sprite.hpp"
 #include "supertux/direction.hpp"
@@ -36,11 +32,11 @@ class BadGuy : public MovingSprite
 {
 public:
   BadGuy(const Vector& pos, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         LightSize light_size = LIGHT_MEDIUM);
+         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
   BadGuy(const Vector& pos, Direction direction, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         LightSize light_size = LIGHT_MEDIUM);
+         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
   BadGuy(const ReaderMapping& reader, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         LightSize light_size = LIGHT_MEDIUM);
+         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
 
   /** Called when the badguy is drawn. The default implementation
       simply draws the badguy sprite on screen */
@@ -50,12 +46,20 @@ public:
       state and calls active_update and inactive_update */
   virtual void update(float elapsed_time) override;
 
+  virtual void save(Writer& writer) override;
   virtual std::string get_class() const override {
     return "badguy";
   }
 
   virtual std::string get_display_name() const override {
-    return "Badguy";
+    return _("Badguy");
+  }
+
+  virtual ObjectSettings get_settings() override {
+    ObjectSettings result = MovingSprite::get_settings();
+    result.options.push_back( dir_option(&dir) );
+    result.options.push_back( ObjectOption(MN_SCRIPT, _("Death script"), &dead_script));
+    return result;
   }
 
   /** Called when a collision with another object occurred. The
@@ -247,10 +251,7 @@ protected:
 
   float melting_time;
 
-  /** How big the glow is, and what colour. A badguy set alight keeps the
-      white it starts with. */
-  LightSize light_size;
-  Color lightcolor;
+  SpritePtr lightsprite;
   bool glowing;
 
 private:

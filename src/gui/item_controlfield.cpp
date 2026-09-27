@@ -1,6 +1,3 @@
-// src/gui/item_controlfield.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -37,7 +34,7 @@ ItemControlField::ItemControlField(const std::string& text_, const std::string& 
 }
 
 void
-ItemControlField::draw(DrawingContext& context, Vector pos, int menu_width, float value_width, bool active) {
+ItemControlField::draw(DrawingContext& context, Vector pos, int menu_width, bool active) {
   context.draw_text(Resources::normal_font, input,
                     Vector(pos.x + menu_width - 16, pos.y - int(Resources::normal_font->get_height()/2)),
                     ALIGN_RIGHT, LAYER_GUI, ColorScheme::Menu::field_color);

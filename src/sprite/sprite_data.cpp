@@ -1,6 +1,3 @@
-// src/sprite/sprite_data.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,7 +19,6 @@
 #include <algorithm>
 #include <stdexcept>
 #include <sstream>
-#include <utility>
 
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"
@@ -33,8 +29,6 @@ SpriteData::Action::Action() :
   y_offset(0),
   hitbox_w(0),
   hitbox_h(0),
-  draw_w(0),
-  draw_h(0),
   z_order(0),
   fps(10),
   surfaces()
@@ -95,15 +89,6 @@ SpriteData::parse_action(const ReaderMapping& lisp, const std::string& basedir)
         throw std::runtime_error("hitbox should specify 2/4 coordinates");
     }
   }
-  std::vector<float> draw_size;
-  if (lisp.get("draw-size", draw_size)) {
-    if (draw_size.size() != 2) {
-      throw std::runtime_error("draw-size should specify a width and a height");
-    }
-    action->draw_w = draw_size[0];
-    action->draw_h = draw_size[1];
-  }
-
   lisp.get("z-order", action->z_order);
   lisp.get("fps", action->fps);
 

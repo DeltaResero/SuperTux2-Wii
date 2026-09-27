@@ -1,6 +1,3 @@
-// src/video/sdl/sdl_texture.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -28,8 +25,6 @@
 #include "math/random_generator.hpp"
 
 #include <assert.h>
-#include <sstream>
-#include <stdexcept>
 
 #include <SDL.h>
 
@@ -47,12 +42,8 @@ SDLTexture::SDLTexture(SDL_Surface* image) :
     throw std::runtime_error(msg.str());
   }
 
-  SDL_SetTextureScaleMode(m_texture, SDL_ScaleModeLinear);
-
-  /* SDL states a surface's size as a signed number, though a surface never has
-     a negative side. Cross over once here rather than at every use. */
-  m_width = static_cast<unsigned int>(image->w);
-  m_height = static_cast<unsigned int>(image->h);
+  m_width = image->w;
+  m_height = image->h;
 }
 
 SDLTexture::~SDLTexture()

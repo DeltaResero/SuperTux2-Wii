@@ -1,6 +1,3 @@
-// src/badguy/skullyhop.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SkullyHop - A Hopping Skull
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -32,6 +29,14 @@ static const std::string SKULLYHOP_SOUND = "sounds/hop.ogg";
 
 SkullyHop::SkullyHop(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/skullyhop/skullyhop.sprite"),
+  recover_timer(),
+  state()
+{
+  SoundManager::current()->preload( SKULLYHOP_SOUND );
+}
+
+SkullyHop::SkullyHop(const Vector& pos, Direction d) :
+  BadGuy(pos, d, "images/creatures/skullyhop/skullyhop.sprite"),
   recover_timer(),
   state()
 {
@@ -160,6 +165,13 @@ bool
 SkullyHop::is_freezable() const
 {
   return true;
+}
+
+void
+SkullyHop::after_editor_set()
+{
+  BadGuy::after_editor_set();
+  sprite->set_action(dir == LEFT ? "standing-left" : "standing-right");
 }
 
 /* EOF */

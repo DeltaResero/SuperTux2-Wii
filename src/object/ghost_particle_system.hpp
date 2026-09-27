@@ -1,6 +1,3 @@
-// src/object/ghost_particle_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_GHOST_PARTICLE_SYSTEM_HPP
 
 #include <memory>
-#include <string>
 
 #include "object/particlesystem.hpp"
 #include "video/surface_ptr.hpp"
@@ -44,7 +40,11 @@ public:
     return "particles-ghosts";
   }
   std::string get_display_name() const {
-    return "Ghost particles";
+    return _("Ghost particles");
+  }
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/ghostparticles.png";
   }
 
 private:

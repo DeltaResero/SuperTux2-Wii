@@ -1,6 +1,3 @@
-// src/object/ambient_sound.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,12 +16,10 @@
 
 #include <limits>
 #include <math.h>
-#include <cmath>
-#include <exception>
-#include <stdexcept>
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
+#include "editor/editor.hpp"
 #include "object/ambient_sound.hpp"
 #include "object/camera.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -44,7 +39,8 @@ AmbientSound::AmbientSound(const ReaderMapping& lisp) :
   maximumvolume(),
   targetvolume(),
   currentvolume(),
-  volume_ptr()
+  volume_ptr(),
+  new_size()
 {
   group = COLGROUP_DISABLED;
 
@@ -65,8 +61,10 @@ AmbientSound::AmbientSound(const ReaderMapping& lisp) :
 
   // square all distances (saves us a sqrt later)
 
-  distance_bias*=distance_bias;
-  distance_factor*=distance_factor;
+  if (!Editor::is_active()) {
+    distance_bias*=distance_bias;
+    distance_factor*=distance_factor;
+  }
 
   // set default silence_distance
 
@@ -82,9 +80,67 @@ AmbientSound::AmbientSound(const ReaderMapping& lisp) :
   latency=0;
 }
 
+AmbientSound::AmbientSound(const Vector& pos, float factor, float bias, float vol, const std::string& file) :
+  ExposedObject<AmbientSound, scripting::AmbientSound>(this),
+  sample(file),
+  sound_source(),
+  latency(),
+  distance_factor(),
+  distance_bias(),
+  silence_distance(),
+  maximumvolume(),
+  targetvolume(),
+  currentvolume(),
+  volume_ptr(),
+  new_size()
+{
+  group = COLGROUP_DISABLED;
+
+  bbox.set_pos(pos);
+  bbox.set_size(0, 0);
+
+  distance_factor=factor*factor;
+  distance_bias=bias*bias;
+  maximumvolume=vol;
+
+  // set default silence_distance
+
+  if (distance_factor == 0)
+    silence_distance = std::numeric_limits<float>::max();
+  else
+    silence_distance = 1/distance_factor;
+
+  sound_source = 0; // not playing at the beginning
+  SoundManager::current()->preload(sample);
+  latency=0;
+}
+
 AmbientSound::~AmbientSound()
 {
   stop_playing();
+}
+
+ObjectSettings
+AmbientSound::get_settings() {
+  new_size.x = bbox.get_width();
+  new_size.y = bbox.get_height();
+  ObjectSettings result = MovingObject::get_settings();
+
+  ObjectOption smp(MN_FILE, _("Sound"), &sample, "sample");
+  smp.select.push_back(".wav");
+  smp.select.push_back(".ogg");
+  result.options.push_back(smp);
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Width"), &new_size.x, "width"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Height"), &new_size.y, "height"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Distance factor"), &distance_factor, "distance_factor"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Distance bias"), &distance_bias, "distance_bias"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Volume"), &maximumvolume, "volume"));
+  return result;
+}
+
+void
+AmbientSound::after_editor_set() {
+  bbox.set_size(new_size.x, new_size.y);
 }
 
 void
@@ -101,16 +157,13 @@ AmbientSound::stop_playing()
 void
 AmbientSound::start_playing()
 {
+  if (Editor::is_active()) return;
+
   try {
     sound_source = SoundManager::current()->create_sound_source(sample);
     if(!sound_source)
       throw std::runtime_error("file not found");
 
-    /* This class works out its own volume from the camera in update(), so the
-       sound rides on the listener and is left alone by the device. Without
-       this it sits at the world origin instead, and fades out as the level
-       goes on until the far end of any decent sized map is silent. */
-    sound_source->set_relative(true);
     sound_source->set_gain(0);
     sound_source->set_looping(true);
     currentvolume=targetvolume=1e-20f;
@@ -181,11 +234,13 @@ AmbientSound::update(float deltat)
   // latency=
 }
 
+#ifndef SCRIPTING_API
 void
 AmbientSound::set_pos(const Vector& pos)
 {
   MovingObject::set_pos(pos);
 }
+#endif
 
 void
 AmbientSound::set_pos(float x, float y)
@@ -214,6 +269,10 @@ AmbientSound::collision(GameObject& other, const CollisionHit& hit_)
 void
 AmbientSound::draw(DrawingContext& context)
 {
+  if (Editor::is_active()) {
+    context.draw_filled_rect(bbox, Color(0.0f, 0.0f, 1.0f, 0.6f),
+                             0.0f, LAYER_OBJECTS);
+  }
 }
 
 /* EOF */

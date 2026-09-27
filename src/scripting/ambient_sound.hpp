@@ -1,6 +1,3 @@
-// src/scripting/ambient_sound.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,14 +17,15 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_AMBIENT_SOUND_HPP
 #define HEADER_SUPERTUX_SCRIPTING_AMBIENT_SOUND_HPP
 
+#ifndef SCRIPTING_API
 class AmbientSound;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class AmbientSound : public ssq::ExposableClass
+class AmbientSound
 {
+#ifndef SCRIPTING_API
 private:
   ::AmbientSound* m_parent;
 
@@ -38,6 +36,7 @@ public:
 private:
   AmbientSound(const AmbientSound&) = delete;
   AmbientSound& operator=(const AmbientSound&) = delete;
+#endif
 
 public:
   void set_pos(float x, float y);

@@ -1,6 +1,3 @@
-// src/scripting/scripting.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -25,17 +22,20 @@
 #include <sqstdstring.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <vector>
-#include <exception>
-#include <stdexcept>
-#include <string>
 
-#include "io/ifile_stream.hpp"
+#include "physfs/ifile_stream.hpp"
 #include "scripting/squirrel_error.hpp"
-#include "scripting/supertux_api.hpp"
+#include "scripting/wrapper.hpp"
 #include "squirrel_util.hpp"
 #include "supertux/console.hpp"
 #include "util/log.hpp"
+
+#ifdef ENABLE_SQDBG
+#  include "../../external/squirrel/sqdbg/sqrdbg.h"
+namespace {
+HSQREMOTEDBG debugger = NULL;
+} // namespace
+#endif
 
 namespace {
 
@@ -44,26 +44,12 @@ __attribute__((__format__ (__printf__, 2, 0)))
 #endif
 void printfunc(HSQUIRRELVM, const char* fmt, ...)
 {
-  /* This is registered as both the print and the error handler, so a line can
-     be anything from a script's own message to a compiler error. Hold the
-     usual short one here and only go to the heap for one that does not fit. */
-  char line[256];
-
+  char buf[4096];
   va_list arglist;
   va_start(arglist, fmt);
-  va_list overflow;
-  va_copy(overflow, arglist);
-  const int length = vsnprintf(line, sizeof(line), fmt, arglist);
+  vsnprintf(buf, sizeof(buf), fmt, arglist);
+  ConsoleBuffer::output << "[SQUIRREL] " << (const char*) buf << std::flush;
   va_end(arglist);
-
-  if (length >= 0 && static_cast<size_t>(length) < sizeof(line)) {
-    ConsoleBuffer::output << "[SQUIRREL] " << line << std::flush;
-  } else if (length > 0) {
-    std::vector<char> rest(static_cast<size_t>(length) + 1);
-    vsnprintf(rest.data(), rest.size(), fmt, overflow);
-    ConsoleBuffer::output << "[SQUIRREL] " << rest.data() << std::flush;
-  }
-  va_end(overflow);
 }
 
 } // namespace
@@ -72,11 +58,26 @@ namespace scripting {
 
 HSQUIRRELVM global_vm = NULL;
 
-Scripting::Scripting()
+Scripting::Scripting(bool enable_debugger)
 {
   global_vm = sq_open(64);
   if(global_vm == NULL)
     throw std::runtime_error("Couldn't initialize squirrel vm");
+
+  if(enable_debugger) {
+#ifdef ENABLE_SQDBG
+    sq_enabledebuginfo(global_vm, SQTrue);
+    debugger = sq_rdbg_init(global_vm, 1234, SQFalse);
+    if(debugger == NULL)
+      throw SquirrelError(global_vm, "Couldn't initialize squirrel debugger");
+
+    sq_enabledebuginfo(global_vm, SQTrue);
+    log_info << "Waiting for debug client..." << std::endl;
+    if(SQ_FAILED(sq_rdbg_waitforconnections(debugger)))
+      throw SquirrelError(global_vm, "Waiting for debug clients failed");
+    log_info << "debug client connected." << std::endl;
+#endif
+  }
 
   sq_pushroottable(global_vm);
   if(SQ_FAILED(sqstd_register_bloblib(global_vm)))
@@ -93,7 +94,7 @@ Scripting::Scripting()
   sq_deleteslot(global_vm, -2, SQFalse);
 
   // register supertux API
-  register_supertux_api(global_vm);
+  register_supertux_wrapper(global_vm);
 
   sq_pop(global_vm, 1);
 
@@ -114,10 +115,26 @@ Scripting::Scripting()
 
 Scripting::~Scripting()
 {
+#ifdef ENABLE_SQDBG
+  if(debugger != NULL) {
+    sq_rdbg_shutdown(debugger);
+    debugger = NULL;
+  }
+#endif
+
   if (global_vm)
     sq_close(global_vm);
 
   global_vm = NULL;
+}
+
+void
+Scripting::update_debugger()
+{
+#ifdef ENABLE_SQDBG
+  if(debugger != NULL)
+    sq_rdbg_update(debugger);
+#endif
 }
 
 } // namespace scripting

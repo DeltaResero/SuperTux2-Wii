@@ -1,6 +1,3 @@
-// src/scripting/background.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2016 Hume2 <teratux.mail@gmail.com>
 //
@@ -17,9 +14,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "util/file_system.hpp"
 #include "scripting/background.hpp"
 
+#include <physfs.h>
 
 #include "object/background.hpp"
 
@@ -46,7 +43,7 @@ Background::set_image(const std::string& image)
   const std::string& default_dir = "images/background/";
   bool path_valid = true;
 
-  if(FileSystem::find(image).empty())
+  if(!PHYSFS_exists(image.c_str()))
     path_valid = false;
 
   m_parent->set_image(path_valid ? image : default_dir + image);
@@ -65,13 +62,13 @@ Background::set_images(const std::string& top_image, const std::string& middle_i
   const std::string& default_dir = "images/background/";
   bool top_image_valid = true, middle_image_valid = true, bottom_image_valid = true;
 
-  if(FileSystem::find(top_image).empty())
+  if(!PHYSFS_exists(top_image.c_str()))
     top_image_valid = false;
 
-  if(FileSystem::find(middle_image).empty())
+  if(!PHYSFS_exists(middle_image.c_str()))
     middle_image_valid = false;
 
-  if(FileSystem::find(bottom_image).empty())
+  if(!PHYSFS_exists(bottom_image.c_str()))
     bottom_image_valid = false;
 
   m_parent->set_images(top_image_valid ? top_image : default_dir + top_image,

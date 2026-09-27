@@ -1,8 +1,0 @@
-(supertux-sprite
-    (action
-      (name "default")
-      (hitbox 373 226.5)
-      (draw-size 746 453)
-      (images "light.png")
-    )
-)

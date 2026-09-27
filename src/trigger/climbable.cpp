@@ -1,6 +1,3 @@
-// src/trigger/climbable.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Climbable area
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -19,10 +16,12 @@
 
 #include "trigger/climbable.hpp"
 
+#include "editor/editor.hpp"
 #include "object/player.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/object_factory.hpp"
+#include "util/gettext.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
 
@@ -37,7 +36,8 @@ const float POSITION_FIX_AY = 50; // y-wise acceleration applied to player when 
 Climbable::Climbable(const ReaderMapping& reader) :
   climbed_by(0),
   activate_try_timer(),
-  message()
+  message(),
+  new_size()
 {
   reader.get("x", bbox.p1.x);
   reader.get("y", bbox.p1.y);
@@ -51,7 +51,8 @@ Climbable::Climbable(const ReaderMapping& reader) :
 Climbable::Climbable(const Rectf& area) :
   climbed_by(0),
   activate_try_timer(),
-  message()
+  message(),
+  new_size()
 {
   bbox = area;
 }
@@ -62,6 +63,23 @@ Climbable::~Climbable()
     climbed_by->stop_climbing(*this);
     climbed_by = 0;
   }
+}
+
+ObjectSettings
+Climbable::get_settings() {
+  new_size.x = bbox.get_width();
+  new_size.y = bbox.get_height();
+  ObjectSettings result(_("Climbable"));
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Name"), &name));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Width"), &new_size.x, "width"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Height"), &new_size.y, "height"));
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Message"), &message, "message"));
+  return result;
+}
+
+void
+Climbable::after_editor_set() {
+  bbox.set_size(new_size.x, new_size.y);
 }
 
 void
@@ -82,8 +100,12 @@ Climbable::draw(DrawingContext& context)
     context.push_transform();
     context.set_translation(Vector(0, 0));
     Vector pos = Vector(0, SCREEN_HEIGHT/2 - Resources::normal_font->get_height()/2);
-    context.draw_center_text(Resources::normal_font, message, pos, LAYER_HUD, Climbable::text_color);
+    context.draw_center_text(Resources::normal_font, _(message), pos, LAYER_HUD, Climbable::text_color);
     context.pop_transform();
+  }
+  if (Editor::is_active()) {
+    context.draw_filled_rect(bbox, Color(1.0f, 1.0f, 0.0f, 0.6f),
+                             0.0f, LAYER_OBJECTS);
   }
 }
 

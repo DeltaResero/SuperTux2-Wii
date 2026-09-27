@@ -1,6 +1,3 @@
-// src/object/water_drop.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/water_drop.hpp"
-
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"

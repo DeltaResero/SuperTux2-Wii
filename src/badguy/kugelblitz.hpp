@@ -1,6 +1,3 @@
-// src/badguy/kugelblitz.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_KUGELBLITZ_HPP
 #define HEADER_SUPERTUX_BADGUY_KUGELBLITZ_HPP
-
-#include <string>
 
 #include "badguy/badguy.hpp"
 
@@ -45,7 +40,7 @@ public:
     return "kugelblitz";
   }
   std::string get_display_name() const {
-    return "Kugelblitz";
+    return _("Kugelblitz");
   }
 
 private:
@@ -60,7 +55,7 @@ private:
   Timer lifetime;
   int direction;
   Color light;
-  Color lightcolor;
+  SpritePtr lightsprite;
 };
 
 #endif

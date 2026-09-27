@@ -1,6 +1,3 @@
-// src/scripting/camera.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,19 +17,19 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_CAMERA_HPP
 #define HEADER_SUPERTUX_SCRIPTING_CAMERA_HPP
 
-#include <string>
-
+#ifndef SCRIPTING_API
 class Camera;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class Camera : public ssq::ExposableClass
+class Camera
 {
 public:
+#ifndef SCRIPTING_API
   Camera(::Camera* camera);
   ~Camera();
+#endif
 
   void reload_config();
 
@@ -45,11 +42,13 @@ public:
   /** Scroll camera to position x,y in scrolltime seconds */
   void scroll_to(float x, float y, float scrolltime);
 
+#ifndef SCRIPTING_API
   ::Camera* camera;
 
 private:
   Camera(const Camera&);
   Camera& operator=(const Camera&);
+#endif
 };
 
 }

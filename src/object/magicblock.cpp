@@ -1,6 +1,3 @@
-// src/object/magicblock.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - MagicBlock
 //
 //  Magic Blocks are tile-like game objects that are sensitive to
@@ -24,8 +21,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/magicblock.hpp"
-
-#include <vector>
 
 #include "object/camera.hpp"
 #include "sprite/sprite.hpp"
@@ -86,6 +81,30 @@ MagicBlock::MagicBlock(const ReaderMapping& lisp) :
   solid_box = Rectf(bbox.p1.x + SHIFT_DELTA, bbox.p1.y + SHIFT_DELTA, bbox.p2.x - SHIFT_DELTA, bbox.p2.y - SHIFT_DELTA);
 }
 
+ObjectSettings
+MagicBlock::get_settings() {
+  ObjectSettings result = MovingSprite::get_settings();
+  result.options.push_back( ObjectOption(MN_COLOR, _("Colour"), &color, "color"));
+
+  return result;
+}
+
+void
+MagicBlock::after_editor_set() {
+  if(color.red == 0 && color.green == 0 && color.blue == 0) { //is it black?
+    black = true;
+    trigger_red = MIN_INTENSITY;
+    trigger_green = MIN_INTENSITY;
+    trigger_blue = MIN_INTENSITY;
+  } else {
+    black = false;
+    trigger_red = color.red;
+    trigger_green = color.green;
+    trigger_blue = color.blue;
+  }
+  sprite->set_color(color);
+}
+
 void
 MagicBlock::update(float elapsed_time)
 {
@@ -110,13 +129,10 @@ MagicBlock::update(float elapsed_time)
                    && light.blue >= trigger_blue);
   }
 
-  /* Only going dark waits. Turning solid a moment early costs nothing, while
-     turning passable a moment early drops whoever is standing on it, and
-     somebody falling onto a block that lights on the way down has no time to
-     spare for it. */
+  // overrule lighting_ok if switch_delay has not yet passed
   if (lighting_ok == is_solid) {
     switch_delay = SWITCH_DELAY;
-  } else if (is_solid) {
+  } else {
     if (switch_delay > 0) {
       lighting_ok = is_solid;
       switch_delay -= elapsed_time;

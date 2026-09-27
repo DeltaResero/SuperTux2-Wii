@@ -1,6 +1,3 @@
-// src/badguy/dart.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  Dart - Your average poison dart
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -19,9 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_DART_HPP
 #define HEADER_SUPERTUX_BADGUY_DART_HPP
-
-#include <memory>
-#include <string>
 
 #include "badguy/badguy.hpp"
 
@@ -52,13 +46,15 @@ public:
     return "dart";
   }
   std::string get_display_name() const {
-    return "Dart";
+    return _("Dart");
   }
 
   bool is_flammable() const;
 
   void stop_looping_sounds();
   void play_looping_sounds();
+
+  void after_editor_set();
 
 protected:
   const BadGuy* parent; /**< collisions with this BadGuy will be ignored */

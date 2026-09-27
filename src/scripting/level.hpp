@@ -1,6 +1,3 @@
-// src/scripting/level.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -30,6 +27,9 @@ void Level_spawn(const std::string& sector, const std::string& spawnpoint);
 void Level_flip_vertically();
 /** toggle pause */
 void Level_toggle_pause();
+
+/** Switch to and from edit mode */
+void Level_edit(bool edit_mode);
 }
 
 #endif

@@ -1,6 +1,3 @@
-// src/scripting/level.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -16,8 +13,6 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#include <string>
 
 #include "supertux/flip_level_transformer.hpp"
 #include "supertux/game_session.hpp"
@@ -54,6 +49,13 @@ Level_toggle_pause()
   if(GameSession::current() == NULL)
     return;
   GameSession::current()->toggle_pause();
+}
+
+void
+Level_edit(bool edit_mode)
+{
+  if(GameSession::current() == NULL) return;
+  GameSession::current()->set_editmode(edit_mode);
 }
 
 }

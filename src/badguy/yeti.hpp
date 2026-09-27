@@ -1,6 +1,3 @@
-// src/badguy/yeti.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Boss "Yeti"
 //  Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -22,7 +19,6 @@
 #define HEADER_SUPERTUX_BADGUY_YETI_HPP
 
 #include <memory>
-#include <string>
 
 #include "badguy/badguy.hpp"
 
@@ -45,8 +41,10 @@ public:
     return "yeti";
   }
   std::string get_display_name() const {
-    return "Yeti";
+    return _("Yeti");
   }
+
+  virtual ObjectSettings get_settings();
 
 private:
   void run();

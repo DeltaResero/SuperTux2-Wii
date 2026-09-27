@@ -1,6 +1,3 @@
-// src/video/font.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                     Ingo Ruhnke <grumbel@gmail.com>
@@ -27,10 +24,9 @@
 #include <string.h>
 #include <stdexcept>
 #include <SDL_image.h>
-#include <memory>
-#include <utility>
+#include <physfs.h>
 
-#include "io/sdl_file.hpp"
+#include "physfs/physfs_sdl.hpp"
 #include "supertux/screen.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
@@ -71,12 +67,22 @@ Font::Font(GlyphWidth glyph_width_,
   shadowsize(shadowsize_),
   border(0),
   rtl(false),
-  glyphs()
+  glyphs(65536)
 {
-  /* The same font is split into one file per writing system, the Latin one
-     named plainly and the rest carrying a prefix. Only the one asked for is
-     loaded; nothing here can produce a word in the others. */
-  loadFontFile(filename);
+  for(unsigned int i=0; i<65536;i++) glyphs[i].surface_idx = -1;
+
+  const std::string fontdir = FileSystem::dirname(filename);
+  const std::string fontname = FileSystem::basename(filename);
+
+  // scan for prefix-filename in addons search path
+  char **rc = PHYSFS_enumerateFiles(fontdir.c_str());
+  for (char **i = rc; *i != NULL; i++) {
+    std::string filename_(*i);
+    if( filename_.rfind(fontname) != std::string::npos ) {
+      loadFontFile(fontdir + filename_);
+    }
+  }
+  PHYSFS_freeList(rc);
 }
 
 void
@@ -182,7 +188,7 @@ Font::loadFontSurface(
   if( glyph_width_ == VARIABLE ) {
     //this does not work:
     // surface = ((SDL::Texture *)glyph_surface.get_texture())->get_texture();
-    surface = IMG_Load_RW(sdl_rwops_from_file("images/engine/fonts/"+glyphimage), 1);
+    surface = IMG_Load_RW(get_physfs_SDLRWops("images/engine/fonts/"+glyphimage), 1);
     if(surface == NULL) {
       std::ostringstream msg;
       msg << "Couldn't load image '" << glyphimage << "' :" << SDL_GetError();
@@ -196,12 +202,12 @@ Font::loadFontSurface(
       int y = row * (char_height + 2*border) + border;
       int x = col * (char_width + 2*border) + border;
       if( ++col == wrap ) { col=0; row++; }
-      if( *chr == 0x0020 && glyphs.find(0x20) != glyphs.end() ) continue;
+      if( *chr == 0x0020 && glyphs[0x20].surface_idx != -1) continue;
 
       Glyph glyph;
       glyph.surface_idx   = surface_idx;
 
-      if( glyph_width_ == FIXED || (*chr <= 255 && isdigit(static_cast<int>(*chr))) )
+      if( glyph_width_ == FIXED || (*chr <= 255 && isdigit(*chr)) )
       {
         glyph.rect    = Rectf(x, y, x + char_width, y + char_height);
         glyph.offset  = Vector(0, 0);
@@ -255,27 +261,6 @@ Font::~Font()
 {
 }
 
-const Font::Glyph*
-Font::find_glyph(uint32_t code) const
-{
-  auto it = glyphs.find(code);
-  if( it != glyphs.end() )
-    return &it->second;
-
-  /* Fall back on whatever the font keeps at the space position. In these
-     fonts that is a question mark in a box, not a blank, and it is what
-     shows wherever a character is missing. A real space never arrives here,
-     since it is measured and stepped over without being drawn, so the box
-     is only ever seen for characters the font has nothing for, which is
-     what it is there for. A font with no space at all leaves nothing to
-     fall back on. */
-  it = glyphs.find(0x20);
-  if( it != glyphs.end() )
-    return &it->second;
-
-  return nullptr;
-}
-
 float
 Font::get_text_width(const std::string& text) const
 {
@@ -291,9 +276,10 @@ Font::get_text_width(const std::string& text) const
     }
     else
     {
-      const Glyph* glyph = find_glyph(*it);
-      if( glyph )
-        curr_width += glyph->advance;
+      if( glyphs.at(*it).surface_idx != -1 )
+        curr_width += glyphs[*it].advance;
+      else
+        curr_width += glyphs[0x20].advance;
     }
   }
 
@@ -303,7 +289,7 @@ Font::get_text_width(const std::string& text) const
 float
 Font::get_text_height(const std::string& text) const
 {
-  int text_height = char_height;
+  std::string::size_type text_height = char_height;
 
   for(std::string::const_iterator it = text.begin(); it != text.end(); ++it)
   { // since UTF8 multibyte characters are decoded with values
@@ -333,11 +319,10 @@ Font::wrap_to_chars(const std::string& s, int line_length, std::string* overflow
 
   // if we can find a whitespace character to break at, return text up to this character
   int i = line_length;
-  while ((i > 0) && (s[static_cast<size_t>(i)] != ' ')) i--;
+  while ((i > 0) && (s[i] != ' ')) i--;
   if (i > 0) {
-    const size_t brk = static_cast<size_t>(i);
-    if (overflow) *overflow = s.substr(brk + 1);
-    return s.substr(0, brk);
+    if (overflow) *overflow = s.substr(i+1);
+    return s.substr(0, i);
   }
 
   // FIXME: wrap at line_length, taking care of multibyte characters
@@ -357,13 +342,12 @@ Font::wrap_to_width(const std::string& s_, float width, std::string* overflow)
   }
 
   // if we can find a whitespace character to break at, return text up to this character
-  for (int i = static_cast<int>(s.length())-1; i >= 0; i--) {
-    const size_t brk = static_cast<size_t>(i);
-    std::string s2 = s.substr(0, brk);
-    if (s[brk] != ' ') continue;
+  for (int i = s.length()-1; i >= 0; i--) {
+    std::string s2 = s.substr(0,i);
+    if (s[i] != ' ') continue;
     if (get_text_width(s2) <= width) {
-      if (overflow) *overflow = s.substr(brk + 1);
-      return s.substr(0, brk);
+      if (overflow) *overflow = s.substr(i+1);
+      return s.substr(0, i);
     }
   }
 
@@ -437,16 +421,15 @@ Font::draw_chars(Renderer *renderer, bool notshadow, const std::string& text,
     }
     else if(*it == ' ')
     {
-      const Glyph* space = find_glyph(0x20);
-      if( space )
-        p.x += space->advance;
+      p.x += glyphs[0x20].advance;
     }
     else
     {
-      const Glyph* found = find_glyph(*it);
-      if( !found )
-        continue;
-      const Glyph& glyph = *found;
+      Glyph glyph;
+      if( glyphs.at(*it).surface_idx != -1 )
+        glyph = glyphs[*it];
+      else
+        glyph = glyphs[0x20];
 
       DrawingRequest request;
 
@@ -458,8 +441,7 @@ Font::draw_chars(Renderer *renderer, bool notshadow, const std::string& text,
       SurfacePartRequest surfacepartrequest;
       surfacepartrequest.srcrect = glyph.rect;
       surfacepartrequest.dstsize = glyph.rect.get_size();
-      const size_t idx = static_cast<size_t>(glyph.surface_idx);
-      surfacepartrequest.surface = notshadow ? glyph_surfaces[idx].get() : shadow_surfaces[idx].get();
+      surfacepartrequest.surface = notshadow ? glyph_surfaces[glyph.surface_idx].get() : shadow_surfaces[glyph.surface_idx].get();
 
       request.request_data = &surfacepartrequest;
       renderer->draw_surface_part(request);

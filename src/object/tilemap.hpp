@@ -1,6 +1,3 @@
-// src/object/tilemap.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,9 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_TILEMAP_HPP
 
 #include <algorithm>
-#include <memory>
-#include <string>
-#include <vector>
 
 #include "object/path_walker.hpp"
 #include "scripting/exposed_object.hpp"
@@ -42,13 +36,16 @@ class TileMap : public GameObject,
                 public ExposedObject<TileMap, scripting::TileMap>
 {
 public:
-  TileMap(std::shared_ptr<const TileSet> tileset);
-  TileMap(std::shared_ptr<const TileSet> tileset, const ReaderMapping& reader);
+  TileMap(const TileSet *tileset);
+  TileMap(const TileSet *tileset, const ReaderMapping& reader);
   virtual ~TileMap();
 
+  virtual void save(Writer& writer);
   std::string get_display_name() const {
-    return "Tile map";
+    return _("Tile map");
   }
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
@@ -69,12 +66,13 @@ public:
    * existing map)
    */
   void resize(int newwidth, int newheight, int fill_id = 0);
+  void resize(Size newsize);
 
   size_t get_width() const
-  { return static_cast<size_t>(width); }
+  { return width; }
 
   size_t get_height() const
-  { return static_cast<size_t>(height); }
+  { return height; }
 
   Size get_size() const
   { return Size(width, height); }
@@ -158,14 +156,6 @@ public:
     return drawing_effect;
   }
 
-  /** Turn every other tile of a repeated straight path around, so a long run
-      of road isn't the same 32 pixel picture over and over. Only a worldmap
-      asks for this; a level's tiles are laid the way the author drew them. */
-  void set_alternate_straights(bool enable)
-  {
-    alternate_straights = enable;
-  }
-
   /**
    * Start fading the tilemap to opacity given by @c alpha.
    * Destination opacity will be reached after @c seconds seconds. Also influences solidity.
@@ -191,10 +181,17 @@ public:
   std::string get_class() const {
     return "tilemap";
   }
-  void set_tileset(std::shared_ptr<const TileSet> new_tileset);
+
+  bool editor_active;
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/tilemap.png";
+  }
+
+  void set_tileset(const TileSet* new_tileset);
 
 private:
-  std::shared_ptr<const TileSet> tileset;
+  const TileSet *tileset;
 
   typedef std::vector<uint32_t> Tiles;
   Tiles tiles;
@@ -207,11 +204,6 @@ private:
   bool effective_solid;
   void update_effective_solid();
 
-  /** Which way round to draw the piece at this square, so that a run of the
-      same straight alternates instead of repeating. NO_EFFECT for everything
-      else. */
-  DrawingEffect straight_turned(int x, int y) const;
-
   float speed_x;
   float speed_y;
   int width, height;
@@ -220,7 +212,6 @@ private:
   Vector movement; /**< The movement that happened last frame */
 
   DrawingEffect drawing_effect;
-  bool alternate_straights; /**< turn every other tile of a repeated straight path around */
   float alpha; /**< requested tilemap opacity */
   float current_alpha; /**< current tilemap opacity */
   float remaining_fade_time; /**< seconds until requested tilemap opacity is reached */
@@ -239,6 +230,9 @@ private:
 
   DrawingContext::Target draw_target; /**< set to LIGHTMAP to draw to lightmap */
 
+  int new_size_x;
+  int new_size_y;
+  bool add_path;
 
 private:
   TileMap(const TileMap&);

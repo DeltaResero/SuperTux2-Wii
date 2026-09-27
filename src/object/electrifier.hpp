@@ -1,6 +1,3 @@
-// src/object/electrifier.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -31,6 +28,9 @@ class Electrifier : public GameObject
 public:
   Electrifier(uint32_t oldtile, uint32_t newtile, float seconds);
   ~Electrifier();
+  virtual bool do_save() const {
+    return false;
+  }
 
 protected:
   virtual void update(float time);

@@ -1,6 +1,3 @@
-// src/supertux/player_status.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2003 Tobias Glaesser <tobi.web@gmx.de>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
@@ -21,7 +18,6 @@
 #include <algorithm>
 #include <math.h>
 #include <sstream>
-#include <cstdlib>
 
 #include "audio/sound_manager.hpp"
 #include "util/writer.hpp"

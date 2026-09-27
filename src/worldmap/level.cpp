@@ -1,6 +1,3 @@
-// src/worldmap/level.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -19,8 +16,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <config.h>
 
+#include <physfs.h>
 #include <stddef.h>
-#include <vector>
 
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -40,7 +37,6 @@ LevelTile::LevelTile(const std::string& basedir_, const ReaderMapping& lisp) :
   perfect(false),
   auto_play(false),
   sprite(),
-  sprite_name(),
   statistics(),
   target_time(),
   extro_script(),
@@ -52,9 +48,9 @@ LevelTile::LevelTile(const std::string& basedir_, const ReaderMapping& lisp) :
   lisp.get("y", pos.y);
   lisp.get("auto-play", auto_play);
 
-  sprite_name = "images/worldmap/common/leveldot.sprite";
-  lisp.get("sprite", sprite_name);
-  sprite = SpriteManager::current()->create(sprite_name);
+  std::string spritefile = "images/worldmap/common/leveldot.sprite";
+  lisp.get("sprite", spritefile);
+  sprite = SpriteManager::current()->create(spritefile);
 
   lisp.get("extro-script", extro_script);
 
@@ -66,7 +62,7 @@ LevelTile::LevelTile(const std::string& basedir_, const ReaderMapping& lisp) :
   if(basedir == "./")
     basedir = "";
 
-  if (FileSystem::find(basedir + name).empty())
+  if (!PHYSFS_exists((basedir + name).c_str()))
   {
     log_warning << "level file '" << name
                 << "' does not exist and will not be added to the worldmap" << std::endl;
@@ -90,25 +86,8 @@ LevelTile::update(float )
 }
 
 void
-LevelTile::release_artwork()
-{
-  sprite.reset();
-}
-
-void
-LevelTile::reacquire_artwork()
-{
-  sprite = SpriteManager::current()->create(sprite_name);
-  update_sprite_action();
-}
-
-void
 LevelTile::update_sprite_action()
 {
-  /* Winning sets the flags while the artwork is down; reacquire picks it up. */
-  if(!sprite)
-    return;
-
   if(!solved)
     sprite->set_action("default");
   else

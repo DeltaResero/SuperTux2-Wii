@@ -1,6 +1,3 @@
-// src/badguy/flyingsnowball.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,14 +17,13 @@
 #ifndef HEADER_SUPERTUX_BADGUY_FLYINGSNOWBALL_HPP
 #define HEADER_SUPERTUX_BADGUY_FLYINGSNOWBALL_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class FlyingSnowBall : public BadGuy
 {
 public:
   FlyingSnowBall(const ReaderMapping& reader);
+  FlyingSnowBall(const Vector& pos);
 
   void initialize();
   void activate();
@@ -37,7 +33,7 @@ public:
     return "flyingsnowball";
   }
   std::string get_display_name() const {
-    return "Flying snowball";
+    return _("Flying snowball");
   }
 
 protected:

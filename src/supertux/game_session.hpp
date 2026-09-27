@@ -1,6 +1,3 @@
-// src/supertux/game_session.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -23,8 +20,6 @@
 #include <memory>
 #include <vector>
 #include <squirrel.h>
-#include <iosfwd>
-#include <string>
 
 #include "math/vector.hpp"
 #include "object/endsequence.hpp"
@@ -92,6 +87,11 @@ public:
   bool is_active() const;
 
   /**
+   * Enters or leaves level editor mode
+   */
+  void set_editmode(bool edit_mode = true);
+
+  /**
    * Forces all Players to enter ghost mode
    */
   void force_ghost_mode();
@@ -147,6 +147,7 @@ private:
 
   float play_time; /**< total time in seconds that this session ran interactively */
 
+  bool edit_mode; /**< true if GameSession runs in level editor mode */
   bool levelintro_shown; /**< true if the LevelIntro screen was already shown */
 
   int coins_at_start; /** How many coins does the player have at the start */

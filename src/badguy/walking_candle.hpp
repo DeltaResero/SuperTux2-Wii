@@ -1,6 +1,3 @@
-// src/badguy/walking_candle.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_WALKING_CANDLE_HPP
 #define HEADER_SUPERTUX_BADGUY_WALKING_CANDLE_HPP
-
-#include <string>
 
 #include "badguy/walking_badguy.hpp"
 
@@ -41,11 +36,13 @@ public:
 
   void kill_fall() { };
 
+  ObjectSettings get_settings();
+  virtual void after_editor_set();
   std::string get_class() const {
     return "mrcandle";
   }
   std::string get_display_name() const {
-    return "Mr. Candle";
+    return _("Mr. Candle");
   }
 
 private:

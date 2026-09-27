@@ -1,6 +1,3 @@
-// src/supertux/screen_manager.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -48,6 +45,11 @@ public:
   void set_speed(float speed);
   float get_speed() const;
   bool has_pending_fadeout() const;
+
+  /**
+   * requests that a screenshot be taken after the next frame has been rendered
+   */
+  void take_screenshot();
 
   // push new screen on screen_stack
   void push_screen(std::unique_ptr<Screen> screen, std::unique_ptr<ScreenFade> fade = {});
@@ -114,6 +116,7 @@ private:
   float m_fps;
   std::unique_ptr<ScreenFade> m_screen_fade;
   std::vector<std::unique_ptr<Screen> > m_screen_stack;
+  bool m_screenshot_requested; /**< true if a screenshot should be taken after the next frame has been rendered */
 };
 
 #endif

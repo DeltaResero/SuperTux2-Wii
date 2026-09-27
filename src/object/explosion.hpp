@@ -1,6 +1,3 @@
-// src/object/explosion.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -- Explosion object
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -37,6 +34,9 @@ public:
   void update(float elapsed_time);
   void draw(DrawingContext& context);
   HitResponse collision(GameObject& other, const CollisionHit& hit);
+  virtual bool do_save() const {
+    return false;
+  }
 
   bool hurts() const
   {
@@ -73,7 +73,7 @@ private:
   bool push;
   State state;
   Color light;
-  Color lightcolor;
+  SpritePtr lightsprite;
 
 };
 

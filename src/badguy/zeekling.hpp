@@ -1,6 +1,3 @@
-// src/badguy/zeekling.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  Zeekling - flyer that swoops down when she spots the player
 //  Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -21,14 +18,13 @@
 #ifndef HEADER_SUPERTUX_BADGUY_ZEEKLING_HPP
 #define HEADER_SUPERTUX_BADGUY_ZEEKLING_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class Zeekling : public BadGuy
 {
 public:
   Zeekling(const ReaderMapping& reader);
+  Zeekling(const Vector& pos, Direction d);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);
@@ -41,7 +37,7 @@ public:
     return "zeekling";
   }
   std::string get_display_name() const {
-    return "Zeekling";
+    return _("Zeekling");
   }
 
 private:

@@ -1,6 +1,3 @@
-// src/object/spotlight.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/spotlight.hpp"
-
-#include <vector>
 
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -58,6 +53,17 @@ Spotlight::Spotlight(const ReaderMapping& lisp) :
 
 Spotlight::~Spotlight()
 {
+}
+
+ObjectSettings
+Spotlight::get_settings() {
+  ObjectSettings result = MovingObject::get_settings();
+  result.options.push_back( ObjectOption(MN_NUMFIELD, "x-pos", &bbox.p1.x, "x", false));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, "y-pos", &bbox.p1.y, "y", false));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Angle"), &angle, "angle"));
+  result.options.push_back( ObjectOption(MN_COLOR, _("Colour"), &color, "color"));
+
+  return result;
 }
 
 void

@@ -1,6 +1,3 @@
-// src/badguy/bomb.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,9 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BOMB_HPP
 #define HEADER_SUPERTUX_BADGUY_BOMB_HPP
 
-#include <memory>
-#include <string>
-
 #include "audio/sound_source.hpp"
 #include "badguy/badguy.hpp"
 #include "object/portable.hpp"
@@ -32,6 +26,9 @@ class Bomb : public BadGuy,
 {
 public:
   Bomb(const Vector& pos, Direction dir, std::string custom_sprite = "images/creatures/mr_bomb/bomb.sprite" );
+  virtual bool do_save() const {
+    return false;
+  }
 
   void collision_solid(const CollisionHit& hit);
   HitResponse collision_player(Player& player, const CollisionHit& hit);

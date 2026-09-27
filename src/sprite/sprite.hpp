@@ -1,6 +1,3 @@
-// src/sprite/sprite.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,10 +17,6 @@
 #ifndef HEADER_SUPERTUX_SPRITE_SPRITE_HPP
 #define HEADER_SUPERTUX_SPRITE_SPRITE_HPP
 
-#include <memory>
-#include <string>
-#include <vector>
-
 #include "sprite/sprite_data.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "video/drawing_context.hpp"
@@ -31,7 +24,7 @@
 class Sprite
 {
 public:
-  Sprite(std::shared_ptr<SpriteData> data);
+  Sprite(SpriteData& data);
   ~Sprite();
 
   SpritePtr clone() const;
@@ -66,7 +59,7 @@ public:
   { return action->surfaces.size(); }
   /** Get sprite's name */
   const std::string& get_name() const
-  { return data->name; }
+  { return data.name; }
   /** Get current action name */
   const std::string& get_action() const
   { return action->name; }
@@ -102,6 +95,12 @@ public:
   /** Get current frame */
   unsigned int get_frame() const
   { return frameidx; }
+  /** Set current frame */
+  void set_frame(int frame_)
+  {
+    this->frame = 0;
+    this->frameidx = frame_ % get_frames();
+  }
   SurfacePtr get_frame(unsigned int frame_) const
   {
     assert(frame_ < action->surfaces.size());
@@ -110,13 +109,13 @@ public:
 
   bool has_action (const std::string& name) const
   {
-    return (data->get_action(name) != NULL);
+    return (data.get_action(name) != NULL);
   }
 
 private:
   void update();
 
-  std::shared_ptr<SpriteData> data;
+  SpriteData& data;
 
   // between 0 and 1
   float frame;

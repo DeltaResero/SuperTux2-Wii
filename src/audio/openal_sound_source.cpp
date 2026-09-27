@@ -1,6 +1,3 @@
-// src/audio/openal_sound_source.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,22 +16,14 @@
 
 #include "audio/openal_sound_source.hpp"
 
-#include "audio/openal_device.hpp"
 #include "audio/sound_manager.hpp"
 
 OpenALSoundSource::OpenALSoundSource() :
   source()
 {
   alGenSources(1, &source);
-  OpenALDevice::check_al_error("Couldn't create audio source: ");
-
-  /* Give every source the ordinary fall off up front. A source that is never
-     placed sits on the listener, where the fall off leaves it alone, so this
-     costs nothing there. Without it a placed source that asks for neither
-     range would carry to the end of the level at full volume, which the
-     linear model does when it is handed no silence distance. */
-  alSourcef(source, AL_REFERENCE_DISTANCE, SoundManager::listener_setback());
-  alSourcef(source, AL_MAX_DISTANCE, SoundManager::placed_silence());
+  SoundManager::check_al_error("Couldn't create audio source: ");
+  set_reference_distance(128);
 }
 
 OpenALSoundSource::~OpenALSoundSource()
@@ -48,14 +37,14 @@ OpenALSoundSource::stop()
 {
   alSourceRewindv(1, &source); // Stops the source
   alSourcei(source, AL_BUFFER, AL_NONE);
-  OpenALDevice::check_al_error("Problem stopping audio source: ");
+  SoundManager::check_al_error("Problem stopping audio source: ");
 }
 
 void
 OpenALSoundSource::play()
 {
   alSourcePlay(source);
-  OpenALDevice::check_al_error("Couldn't start audio source: ");
+  SoundManager::check_al_error("Couldn't start audio source: ");
 }
 
 bool
@@ -70,7 +59,7 @@ void
 OpenALSoundSource::pause()
 {
   alSourcePause(source);
-  OpenALDevice::check_al_error("Couldn't pause audio source: ");
+  SoundManager::check_al_error("Couldn't pause audio source: ");
 }
 
 void
@@ -134,22 +123,9 @@ OpenALSoundSource::set_pitch(float pitch)
 }
 
 void
-OpenALSoundSource::set_placed_range()
+OpenALSoundSource::set_reference_distance(float distance)
 {
-  alSourcef(source, AL_GAIN, SoundManager::placed_level());
-  alSourcef(source, AL_REFERENCE_DISTANCE, SoundManager::listener_setback());
-  alSourcef(source, AL_MAX_DISTANCE, SoundManager::placed_silence());
-}
-
-void
-OpenALSoundSource::set_close_range(float level)
-{
-  /* Holds its level out as far as the listener stands, so standing on one
-     gives the whole close level rather than a fraction of it, then falls to
-     nothing over the distance it is meant to carry. */
-  alSourcef(source, AL_GAIN, SoundManager::close_level() * level);
-  alSourcef(source, AL_REFERENCE_DISTANCE, SoundManager::listener_setback());
-  alSourcef(source, AL_MAX_DISTANCE, SoundManager::close_silence());
+  alSourcef(source, AL_REFERENCE_DISTANCE, distance);
 }
 
 /* EOF */

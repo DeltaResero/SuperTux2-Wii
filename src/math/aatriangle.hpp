@@ -1,6 +1,3 @@
-// src/math/aatriangle.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -37,7 +34,7 @@ public:
    *    |  \             \ |        /  |       | /
    *    *---*              *       *---*       *
    *
-   * Deform flags:
+   * Deform flags: (see docs/aatriangletypes.png for details)
    */
   enum Direction {
     SOUTHWEST = 0,

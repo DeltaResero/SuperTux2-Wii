@@ -1,6 +1,3 @@
-// src/badguy/goldbomb.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux BadGuy GoldBomb - a bomb that throws up coins when exploding
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
@@ -127,7 +124,8 @@ GoldBomb::collision_squished(GameObject& object)
     ticking = SoundManager::current()->create_sound_source("sounds/fizz.wav");
     ticking->set_position(get_pos());
     ticking->set_looping(true);
-    ticking->set_close_range();
+    ticking->set_gain(2.0);
+    ticking->set_reference_distance(32);
     ticking->play();
   }
   return true;

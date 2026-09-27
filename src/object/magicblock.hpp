@@ -1,6 +1,3 @@
-// src/object/magicblock.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - MagicBlock
 //
 //  Magic Blocks are tile-like game objects that are sensitive to
@@ -27,8 +24,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_MAGICBLOCK_HPP
 #define HEADER_SUPERTUX_OBJECT_MAGICBLOCK_HPP
 
-#include <string>
-
 #include "object/moving_sprite.hpp"
 
 class MagicBlock: public MovingSprite
@@ -44,8 +39,11 @@ public:
     return "magicblock";
   }
   std::string get_display_name() const {
-    return "Magic block";
+    return _("Magic block");
   }
+
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
 private:
   bool is_solid;

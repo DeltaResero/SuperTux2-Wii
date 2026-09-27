@@ -1,6 +1,3 @@
-// src/object/torch.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_TORCH_HPP
 
 #include <memory>
-#include <string>
 
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/moving_object.hpp"
@@ -41,8 +37,11 @@ public:
     return "torch";
   }
   std::string get_display_name() const override {
-    return "Torch";
+    return _("Torch");
   }
+
+  ObjectSettings get_settings() override;
+  void after_editor_set() override;
 
 private:
   SpritePtr m_torch;

@@ -1,6 +1,3 @@
-// src/supertux/world.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -56,6 +53,7 @@ public:
   std::string get_worldmap_filename() const { return m_worldmap_filename; }
   std::string get_savegame_filename() const { return m_savegame_filename; }
 
+  void save(bool retry = false);
   void set_default_values();
 
 private:

@@ -1,6 +1,3 @@
-// src/badguy/totem.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - "Totem" Badguy
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -26,7 +23,6 @@
 #include "supertux/sector.hpp"
 
 #include <math.h>
-#include <vector>
 
 static const float JUMP_ON_SPEED_Y = -400;
 static const float JUMP_OFF_SPEED_Y = -500;

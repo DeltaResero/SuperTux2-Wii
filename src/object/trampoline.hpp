@@ -1,6 +1,3 @@
-// src/object/trampoline.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Trampoline
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_TRAMPOLINE_HPP
 #define HEADER_SUPERTUX_OBJECT_TRAMPOLINE_HPP
-
-#include <string>
 
 #include "object/rock.hpp"
 
@@ -42,8 +37,10 @@ public:
     return "trampoline";
   }
   std::string get_display_name() const {
-    return "Trampoline";
+    return _("Trampoline");
   }
+
+  virtual ObjectSettings get_settings();
 
 private:
   bool portable;

@@ -1,6 +1,3 @@
-// src/badguy/walkingleaf.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Walking Leaf
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //
@@ -24,6 +21,13 @@
 
 WalkingLeaf::WalkingLeaf(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/walkingleaf/walkingleaf.sprite", "left", "right")
+{
+  walk_speed = 60;
+  max_drop_height = 16;
+}
+
+WalkingLeaf::WalkingLeaf(const Vector& pos, Direction d)
+  : WalkingBadguy(pos, d, "images/creatures/walkingleaf/walkingleaf.sprite", "left", "right")
 {
   walk_speed = 60;
   max_drop_height = 16;

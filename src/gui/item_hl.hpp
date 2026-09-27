@@ -1,6 +1,3 @@
-// src/gui/item_hl.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -32,7 +29,7 @@ class ItemHorizontalLine : public MenuItem
     ItemHorizontalLine();
 
     /** Draws the menu item. */
-    virtual void draw(DrawingContext&, Vector pos, int menu_width, float value_width, bool active);
+    virtual void draw(DrawingContext&, Vector pos, int menu_width, bool active);
 
     /** Returns true when the menu item has no action and therefore can be skipped.
         Useful for labels and horizontal lines.*/

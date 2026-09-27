@@ -1,6 +1,3 @@
-// src/badguy/skydive.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BOMBFISH_HPP
 #define HEADER_SUPERTUX_BADGUY_BOMBFISH_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 #include "object/portable.hpp"
 
@@ -32,6 +27,7 @@ class SkyDive : public BadGuy, public Portable
 
   public:
     SkyDive(const ReaderMapping& reader);
+    SkyDive(const Vector& pos, Direction d);
 
     void collision_solid(const CollisionHit& hit);
     HitResponse collision_badguy(BadGuy& badguy, const CollisionHit& hit);
@@ -43,7 +39,7 @@ class SkyDive : public BadGuy, public Portable
       return "skydive";
     }
     std::string get_display_name() const {
-      return "Sky dive";
+      return _("Sky dive");
     }
 
   protected:

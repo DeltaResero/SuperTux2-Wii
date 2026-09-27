@@ -1,6 +1,3 @@
-// src/object/candle.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_CANDLE_HPP
 #define HEADER_SUPERTUX_OBJECT_CANDLE_HPP
-
-#include <string>
 
 #include "object/moving_sprite.hpp"
 #include "scripting/candle.hpp"
@@ -52,8 +47,11 @@ public:
     return "candle";
   }
   std::string get_display_name() const {
-    return "Candle";
+    return _("Candle");
   }
+
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
 private:
   bool burning; /**< true if candle is currently lighted */

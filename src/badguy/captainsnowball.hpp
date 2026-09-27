@@ -1,6 +1,3 @@
-// src/badguy/captainsnowball.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -20,14 +17,13 @@
 #ifndef HEADER_SUPERTUX_BADGUY_CAPTAINSNOWBALL_HPP
 #define HEADER_SUPERTUX_BADGUY_CAPTAINSNOWBALL_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 class CaptainSnowball : public WalkingBadguy
 {
 public:
   CaptainSnowball(const ReaderMapping& reader);
+  CaptainSnowball(const Vector& pos, Direction d);
 
   virtual void active_update(float elapsed_time);
   void collision_solid(const CollisionHit& hit);
@@ -37,7 +33,7 @@ public:
     return "captainsnowball";
   }
   std::string get_display_name() const {
-    return "Captain snowball";
+    return _("Captain snowball");
   }
 
 protected:

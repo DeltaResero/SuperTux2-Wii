@@ -1,6 +1,3 @@
-// src/video/sdl/sdl_lightmap.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -17,10 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <algorithm>
 #include <iostream>
-#include <sstream>
-#include <stdexcept>
 
 #include "video/sdl/sdl_lightmap.hpp"
 #include "video/sdl/sdl_surface_data.hpp"
@@ -51,13 +45,6 @@ SDLLightmap::SDLLightmap() :
     msg << "Couldn't create lightmap texture: " << SDL_GetError();
     throw std::runtime_error(msg.str());
   }
-
-  /* Said outright rather than left to the scale-quality hint, which the
-     environment is allowed to override. This texture is a fifth of the screen
-     and is magnified five times every frame; filtered nearest, every light in
-     the game turns into a sheet of five-pixel squares. The GL renderer states
-     GL_LINEAR on its lightmap the same way. */
-  SDL_SetTextureScaleMode(m_texture, SDL_ScaleModeLinear);
 }
 
 SDLLightmap::~SDLLightmap()
@@ -148,20 +135,14 @@ SDLLightmap::get_light(const DrawingRequest& request) const
   const auto getlightrequest
     = static_cast<GetLightRequest*>(request.request_data);
 
-  /* A position at the very top or the far right divides to one past the last
-     row or column, and a read from outside the texture returns nothing at
-     all, leaving whatever the last one left behind to be read as light. */
-  const int last_x = m_width / m_LIGHTMAP_DIV - 1;
-  const int last_y = m_height / m_LIGHTMAP_DIV - 1;
-
   SDL_Rect rect;
-  rect.x = std::min(static_cast<int>(request.pos.x / m_LIGHTMAP_DIV), last_x);
-  rect.y = std::min(static_cast<int>((m_height - request.pos.y) / m_LIGHTMAP_DIV), last_y);
+  rect.x = static_cast<int>(request.pos.x / m_LIGHTMAP_DIV);
+  rect.y = static_cast<int>((m_height - request.pos.y) / m_LIGHTMAP_DIV);
   rect.w = 1;
   rect.h = 1;
 
   SDL_SetRenderTarget(m_renderer, m_texture);
-  Uint8 pixel[4] = { 0, 0, 0, 0 };
+  Uint8 pixel[4];
   int ret = SDL_RenderReadPixels(m_renderer, &rect,
                                  SDL_PIXELFORMAT_RGB888,
                                  pixel,

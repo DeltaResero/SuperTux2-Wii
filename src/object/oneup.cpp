@@ -1,6 +1,3 @@
-// src/object/oneup.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/oneup.hpp"
-
-#include <string>
 #include "object/player.hpp"
 #include "supertux/sector.hpp"
 

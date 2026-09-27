@@ -1,6 +1,3 @@
-// tests/string_util_test.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -17,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "st_assert.hpp"
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <fstream>
@@ -26,7 +23,7 @@
 
 #include "util/string_util.hpp"
 
-int main()
+TEST(StringUtilTest, numeric_sort_test)
 {
   std::vector<std::string> unsorted_lst =
     {
@@ -76,9 +73,7 @@ int main()
 
   std::sort(unsorted_lst.begin(), unsorted_lst.end(), StringUtil::numeric_less);
 
-  ST_ASSERT_EQ(actual_lst, unsorted_lst);
-
-  return 0;
+  ASSERT_EQ(actual_lst, unsorted_lst);
 }
 
 /* EOF */

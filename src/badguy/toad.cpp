@@ -1,6 +1,3 @@
-// src/badguy/toad.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  Toad - A jumping toad
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -33,6 +30,14 @@ static const std::string HOP_SOUND = "sounds/hop.ogg";
 
 Toad::Toad(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/toad/toad.sprite"),
+  recover_timer(),
+  state()
+{
+  SoundManager::current()->preload(HOP_SOUND);
+}
+
+Toad::Toad(const Vector& pos, Direction d) :
+  BadGuy(pos, d, "images/creatures/toad/toad.sprite"),
   recover_timer(),
   state()
 {
@@ -171,6 +176,13 @@ bool
 Toad::is_freezable() const
 {
   return true;
+}
+
+void
+Toad::after_editor_set()
+{
+  BadGuy::after_editor_set();
+  sprite->set_action(dir == LEFT ? "idle-left" : "idle-right");
 }
 
 /* EOF */

@@ -1,6 +1,3 @@
-// src/supertux/menu/world_set_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Matthew <thebatmankiller3@gmail.com>
 //
@@ -19,10 +16,6 @@
 
 #include "supertux/menu/world_set_menu.hpp"
 
-#include <memory>
-#include <string>
-#include <utility>
-
 #include "audio/sound_manager.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"
@@ -30,6 +23,7 @@
 #include "supertux/fadeout.hpp"
 #include "supertux/game_manager.hpp"
 #include "supertux/globals.hpp"
+#include "supertux/menu/addon_menu.hpp"
 #include "supertux/menu/contrib_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/options_menu.hpp"
@@ -38,17 +32,16 @@
 #include "supertux/textscroller.hpp"
 #include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
+#include "util/gettext.hpp"
 
 WorldSetMenu::WorldSetMenu()
 {
-   set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
-
-   add_label("Start Game");
+   add_label(_("Start Game"));
    add_hl();
-   add_entry(WORLDSET_STORY, "Story Mode");
-   add_entry(WORLDSET_CONTRIB, "Contrib Levels");
+   add_entry(WORLDSET_STORY, _("Story Mode"));
+   add_entry(WORLDSET_CONTRIB, _("Contrib Levels"));
    add_hl();
-   add_back("Back");
+   add_back(_("Back"));
 }
 
 void WorldSetMenu::menu_action(MenuItem* item)
@@ -61,19 +54,9 @@ void WorldSetMenu::menu_action(MenuItem* item)
       GameManager::current()->start_worldmap(std::move(world));
       break;
     }
-
+    
     case WORLDSET_CONTRIB:
-        MenuManager::instance().push_menu(MenuStorage::CONTRIB_MENU);
-        break;
+	    MenuManager::instance().push_menu(MenuStorage::CONTRIB_MENU);    
+	    break;
   }
 }
-
-void
-WorldSetMenu::on_window_resize()
-{
-  /* Sat below the middle so that it clears the logo behind it, as the menu
-     it is opened from does. */
-  set_center_pos(SCREEN_WIDTH/2, SCREEN_HEIGHT/2 + BELOW_LOGO);
-}
-
-/* EOF */

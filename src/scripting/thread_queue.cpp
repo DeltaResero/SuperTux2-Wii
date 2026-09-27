@@ -1,6 +1,3 @@
-// src/scripting/thread_queue.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "scripting/thread_queue.hpp"
-
-#include <string>
 
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -84,7 +79,7 @@ ThreadQueue::wakeup()
     i--;
   }
 
-  threads.erase(threads.begin(), threads.begin() + static_cast<ptrdiff_t>(size_begin));
+  threads.erase(threads.begin(), threads.begin() + size_begin);
 }
 
 }

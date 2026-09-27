@@ -1,6 +1,3 @@
-// src/gui/item_label.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -36,7 +33,7 @@ ItemLabel::ItemLabel(const std::string& text_) :
 }
 
 void
-ItemLabel::draw(DrawingContext& context, Vector pos, int menu_width, float value_width, bool active) {
+ItemLabel::draw(DrawingContext& context, Vector pos, int menu_width, bool active) {
   context.draw_text(Resources::big_font, text,
                     Vector( pos.x + menu_width/2 , pos.y - int(Resources::big_font->get_height())/2 ),
                     ALIGN_CENTER, LAYER_GUI, get_color());

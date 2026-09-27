@@ -1,6 +1,3 @@
-// src/trigger/switch.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Switch Trigger
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -33,6 +30,9 @@ public:
   std::string get_class() const {
     return "switch";
   }
+
+  ObjectSettings get_settings();
+  void after_editor_set();
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);

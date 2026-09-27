@@ -1,6 +1,3 @@
-// src/scripting/functions.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,15 +17,20 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_FUNCTIONS_HPP
 #define HEADER_SUPERTUX_SCRIPTING_FUNCTIONS_HPP
 
+#ifndef SCRIPTING_API
 #include <squirrel.h>
 #include <string>
+
+#define __suspend
+#define __custom(x)
+#endif
 
 namespace scripting {
 
 /**
  * Display the value of the argument. This is useful for inspecting tables.
  */
-SQInteger display(HSQUIRRELVM vm);
+SQInteger display(HSQUIRRELVM vm) __custom("t.");
 
 /**
  * Displays contents of the current stack
@@ -38,12 +40,12 @@ void print_stacktrace(HSQUIRRELVM vm);
 /**
  * returns the currently running thread
  */
-SQInteger get_current_thread(HSQUIRRELVM vm);
+SQInteger get_current_thread(HSQUIRRELVM vm) __custom("t");
 
 /**
  * Should use christmas mode
  */
-SQInteger is_christmas(HSQUIRRELVM vm);
+SQInteger is_christmas(HSQUIRRELVM vm) __custom("t");
 
 /**
  * Display a text file and scrolls it over the screen (on next screenswitch)
@@ -63,12 +65,12 @@ void load_level(const std::string& filename);
 /**
  * Suspend the script execution for the specified number of seconds
  */
-SQInteger wait(HSQUIRRELVM vm, float seconds);
+void wait(HSQUIRRELVM vm, float seconds) __suspend;
 
 /**
  * Suspend the script execution until the current screen has been changed
  */
-SQInteger wait_for_screenswitch(HSQUIRRELVM vm);
+void wait_for_screenswitch(HSQUIRRELVM vm) __suspend;
 
 /**
  * Exits the currently running screen (force exit from worldmap or scrolling
@@ -92,6 +94,13 @@ void shrink_screen(float dest_x, float dest_y, float seconds);
  * anyway.
  */
 void abort_screenfade();
+
+/**
+ * Translate a text into the users language (by looking it up in the .po
+ * files)
+ */
+std::string translate(const std::string& text);
+std::string _(const std::string& text);
 
 /**
  * Load a script file and executes it. This is typically used to import
@@ -123,6 +132,11 @@ void debug_show_fps(bool enable);
  * enable/disable drawing of non-solid layers
  */
 void debug_draw_solids_only(bool enable);
+
+/**
+ * enable/disable drawing of editor images
+ */
+void debug_draw_editor_images(bool enable);
 
 /**
  * enable/disable worldmap ghost mode

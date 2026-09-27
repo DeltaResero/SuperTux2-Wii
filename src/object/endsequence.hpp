@@ -1,6 +1,3 @@
-// src/object/endsequence.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - End Sequence
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_ENDSEQUENCE_HPP
 #define HEADER_SUPERTUX_OBJECT_ENDSEQUENCE_HPP
 
-#include <memory>
-
 #include "control/codecontroller.hpp"
 #include "supertux/game_object.hpp"
 
@@ -39,6 +34,9 @@ public:
   void stop(); /**< stop playing EndSequence, mark it as done playing */
   bool is_tux_stopped() const; /**< returns true if Tux has reached his final position */
   bool is_done() const; /**< returns true if EndSequence has finished playing */
+  virtual bool do_save() const {
+    return false;
+  }
 
 protected:
   virtual void starting(); /**< called when EndSequence starts */

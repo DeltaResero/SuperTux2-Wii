@@ -1,6 +1,3 @@
-// src/object/weak_block.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Weak Block
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -20,8 +17,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_WEAK_BLOCK_HPP
 #define HEADER_SUPERTUX_OBJECT_WEAK_BLOCK_HPP
-
-#include <string>
 
 #include "object/moving_sprite.hpp"
 
@@ -43,8 +38,10 @@ public:
     return "weak_block";
   }
   std::string get_display_name() const {
-    return "Weak block";
+    return _("Weak block");
   }
+
+  virtual ObjectSettings get_settings();
 
 protected:
   /**
@@ -69,9 +66,7 @@ private:
   virtual HitResponse collision_bullet(Bullet& bullet, const CollisionHit& hit);
 
   Color light;
-  Color lightcolor;
-  Blend lightblend;
-  LightSize lightsize;
+  SpritePtr lightsprite;
 
 };
 

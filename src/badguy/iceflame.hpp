@@ -1,6 +1,3 @@
-// src/badguy/iceflame.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux badguy - Iceflame a flame-like enemy that can be killed with fireballs
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_ICEFLAME_HPP
 #define HEADER_SUPERTUX_BADGUY_ICEFLAME_HPP
 
-#include <string>
-
 #include "badguy/flame.hpp"
 
 class Iceflame : public Flame
@@ -40,7 +35,7 @@ public:
   }
 
   std::string get_display_name() const {
-    return "Ice flame";
+    return _("Ice flame");
   }
 };
 

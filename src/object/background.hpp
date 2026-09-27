@@ -1,6 +1,3 @@
-// src/object/background.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BACKGROUND_HPP
 #define HEADER_SUPERTUX_OBJECT_BACKGROUND_HPP
 
-#include <string>
-
 #include "scripting/background.hpp"
 #include "scripting/exposed_object.hpp"
 #include "supertux/game_object.hpp"
@@ -35,6 +30,7 @@ public:
   Background();
   Background(const ReaderMapping& reader);
   virtual ~Background();
+  virtual void save(Writer& writer);
 
   void set_image(const std::string& name);
   void set_image(const std::string& name, float bkgd_speed);
@@ -59,7 +55,13 @@ public:
   { return layer; }
 
   std::string get_display_name() const {
-    return "Background";
+    return _("Background");
+  }
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/background.png";
   }
 
 private:
@@ -75,9 +77,6 @@ private:
       screen, backgrounds with left, right, top, bottom alignment are
       only repeated in one direction and attached to the level edge */
   Alignment alignment;
-
-  /** Drawn once across the view instead of repeated at its own size. */
-  bool fill_screen;
 
   int layer;
   std::string imagefile_top;

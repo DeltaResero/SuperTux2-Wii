@@ -1,6 +1,3 @@
-// src/object/bullet.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -35,6 +32,9 @@ public:
   void draw(DrawingContext& context);
   void collision_solid(const CollisionHit& hit);
   HitResponse collision(GameObject& other, const CollisionHit& hit);
+  virtual bool do_save() const {
+    return false;
+  }
 
   /**
    * Makes bullet bounce off an object (that got hit).
@@ -53,7 +53,7 @@ private:
   int life_count;
   SpritePtr sprite;
   Color light;
-  Color lightcolor;
+  SpritePtr lightsprite;
   BonusType type;
 };
 

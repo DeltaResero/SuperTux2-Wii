@@ -1,6 +1,3 @@
-// src/object/pulsing_light.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Pulsing Light
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -18,9 +15,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/pulsing_light.hpp"
-#include <numbers>
 #include <math.h>
-#include <cmath>
 
 #include "math/random_generator.hpp"
 
@@ -55,7 +50,7 @@ PulsingLight::draw(DrawingContext& context)
 {
   Color old_color = color;
 
-  color.alpha *= min_alpha + ((max_alpha - min_alpha) * cos(2 * std::numbers::pi_v<float> * t / cycle_len));
+  color.alpha *= min_alpha + ((max_alpha - min_alpha) * cos(2 * M_PI * t / cycle_len));
   Light::draw(context);
 
   color = old_color;

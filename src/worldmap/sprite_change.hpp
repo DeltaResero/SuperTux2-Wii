@@ -1,6 +1,3 @@
-// src/worldmap/sprite_change.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -26,15 +23,13 @@
 
 #include "util/reader_fwd.hpp"
 #include "math/vector.hpp"
-#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 
 class Sprite;
 
 namespace worldmap {
 
-class SpriteChange : public GameObject,
-                     public ArtworkInterface
+class SpriteChange : public GameObject
 {
 public:
   SpriteChange(const ReaderMapping& lisp);
@@ -42,9 +37,6 @@ public:
 
   virtual void draw(DrawingContext& context);
   virtual void update(float elapsed_time);
-
-  virtual void release_artwork();
-  virtual void reacquire_artwork();
 
   /**
    * Activates the SpriteChange's stay action, if applicable

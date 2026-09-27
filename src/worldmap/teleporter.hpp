@@ -1,6 +1,3 @@
-// src/worldmap/teleporter.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Teleporter Worldmap Tile
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -24,7 +21,6 @@
 #include <string>
 
 #include "math/vector.hpp"
-#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 #include "util/reader_fwd.hpp"
 
@@ -32,8 +28,7 @@ class Sprite;
 
 namespace worldmap {
 
-class Teleporter : public GameObject,
-                   public ArtworkInterface
+class Teleporter : public GameObject
 {
 public:
   Teleporter(const ReaderMapping& lisp);
@@ -41,18 +36,12 @@ public:
   virtual void draw(DrawingContext& context);
   virtual void update(float elapsed_time);
 
-  virtual void release_artwork();
-  virtual void reacquire_artwork();
-
 public:
   /** Position (in tiles, not pixels) */
   Vector pos;
 
   /** Sprite to render, or 0 for no sprite */
   SpritePtr sprite;
-
-  /** Empty when the teleporter draws nothing */
-  std::string sprite_name;
 
   /** Worldmap filename (relative to data root) to teleport to. Leave empty to use current word */
   std::string worldmap;

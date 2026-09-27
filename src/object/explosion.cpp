@@ -1,6 +1,3 @@
-// src/object/explosion.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -- Explosion object
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -27,13 +24,11 @@
 #include "object/player.hpp"
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 
 #include <math.h>
-#include <memory>
-#include <string>
-#include <vector>
 
 Explosion::Explosion(const Vector& pos) :
   MovingSprite(pos, "images/objects/explosion/explosion.sprite", LAYER_OBJECTS+40, COLGROUP_MOVING),
@@ -41,11 +36,13 @@ Explosion::Explosion(const Vector& pos) :
   push(false),
   state(STATE_WAITING),
   light(0.0f,0.0f,0.0f),
-  lightcolor(0.6f, 0.6f, 0.6f)
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
 {
   SoundManager::current()->preload("sounds/explosion.wav");
   SoundManager::current()->preload("sounds/firecracker.ogg");
   set_pos(get_pos() - (bbox.get_middle() - get_pos()));
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
 }
 
 Explosion::Explosion(const ReaderMapping& reader) :
@@ -54,10 +51,12 @@ Explosion::Explosion(const ReaderMapping& reader) :
   push(false),
   state(STATE_WAITING),
   light(0.0f,0.0f,0.0f),
-  lightcolor(0.6f, 0.6f, 0.6f)
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
 {
   SoundManager::current()->preload("sounds/explosion.wav");
   SoundManager::current()->preload("sounds/firecracker.ogg");
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
 }
 
 void
@@ -136,7 +135,10 @@ Explosion::draw(DrawingContext& context)
   //Explosions produce light (if ambient light is not maxed)
   context.get_light( bbox.get_middle(), &light);
   if (light.red + light.green + light.blue < 3.0){
-    context.draw_light(bbox.get_middle(), LIGHT_LARGE, lightcolor);
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    lightsprite->draw(context, bbox.get_middle(), 0);
+    context.pop_target();
   }
 }
 

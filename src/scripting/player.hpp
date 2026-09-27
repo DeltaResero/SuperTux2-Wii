@@ -1,6 +1,3 @@
-// src/scripting/player.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,16 +17,17 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_PLAYER_HPP
 #define HEADER_SUPERTUX_SCRIPTING_PLAYER_HPP
 
+#ifndef SCRIPTING_API
 #include <string>
 
 class Player;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class Player : public ssq::ExposableClass
+class Player
 {
+#ifndef SCRIPTING_API
 private:
   ::Player* m_parent;
 
@@ -40,6 +38,7 @@ public:
 private:
   Player(const Player&) = delete;
   Player& operator=(const Player&) = delete;
+#endif
 
 public:
   /**

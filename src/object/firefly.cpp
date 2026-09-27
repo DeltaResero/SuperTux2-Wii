@@ -1,6 +1,3 @@
-// src/object/firefly.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,11 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/firefly.hpp"
-#include <numbers>
 
 #include <math.h>
-#include <cmath>
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
@@ -32,13 +26,6 @@
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
-
-/* A reset point is where Tux's head goes. The sector lowers a small Tux by
-   the difference between the two heights, so either size lands feet first on
-   the same spot, and putting that spot at the bell's foot is what stands him
-   on the ground beside it. A bell hung clear of the ground already reads
-   right and must be left alone, or he arrives inside whatever is overhead. */
-static const float RESET_POINT_GROUND_REACH = 16.0f;
 
 Firefly::Firefly(const ReaderMapping& lisp) :
    MovingSprite(lisp, "images/objects/resetpoints/default-resetpoint.sprite", LAYER_TILES, COLGROUP_TOUCHABLE),
@@ -69,12 +56,6 @@ Firefly::Firefly(const ReaderMapping& lisp) :
     }
 }
 
-Vector
-Firefly::reset_point() const
-{
-  return Vector(initial_position.x, bbox.get_bottom() - BIG_TUX_HEIGHT);
-}
-
 void
 Firefly::reactivate()
 {
@@ -82,8 +63,7 @@ Firefly::reactivate()
     return;
   }
   if(!GameSession::current()->get_reset_point_sectorname().empty() &&
-     (GameSession::current()->get_reset_point_pos() == initial_position ||
-      GameSession::current()->get_reset_point_pos() == reset_point())) {
+     GameSession::current()->get_reset_point_pos() == initial_position) {
     // TODO: && GameSession::current()->get_reset_point_sectorname() ==  <sector this firefly is in>
     // GameSession::current()->get_current_sector()->get_name() is not yet initialized.
     // Worst case a resetpoint in a different sector at the same position as the real
@@ -107,7 +87,7 @@ Firefly::collision(GameObject& other, const CollisionHit& )
     // TODO: provide convenience function in MovingSprite or MovingObject?
     for (int i = 0; i < 5; i++) {
       Vector ppos = bbox.get_middle();
-      float angle = graphicsRandom.randf(-(std::numbers::pi_v<float> / 2), (std::numbers::pi_v<float> / 2));
+      float angle = graphicsRandom.randf(-M_PI_2, M_PI_2);
       float velocity = graphicsRandom.randf(450, 900);
       float vx = sin(angle)*velocity;
       float vy = -cos(angle)*velocity;
@@ -124,11 +104,8 @@ Firefly::collision(GameObject& other, const CollisionHit& )
     }
 
     sprite->set_action("ringing");
-    const Rectf underfoot(bbox.get_left(), bbox.get_bottom(),
-                          bbox.get_right(), bbox.get_bottom() + RESET_POINT_GROUND_REACH);
     GameSession::current()->set_reset_point(Sector::current()->get_name(),
-                                            Sector::current()->is_free_of_tiles(underfoot)
-                                            ? initial_position : reset_point());
+                                            initial_position);
   }
 
   return ABORT_MOVE;

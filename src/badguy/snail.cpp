@@ -1,6 +1,3 @@
-// src/badguy/snail.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Badguy "Snail"
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -34,6 +31,19 @@ const float SNAIL_KICK_SPEED_Y = -500; /**< y-velocity gained when kicked */
 
 Snail::Snail(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/snail/snail.sprite", "left", "right"),
+  state(STATE_NORMAL),
+  kicked_delay_timer(),
+  squishcount(0)
+{
+  walk_speed = 80;
+  max_drop_height = 600;
+  SoundManager::current()->preload("sounds/iceblock_bump.wav");
+  SoundManager::current()->preload("sounds/stomp.wav");
+  SoundManager::current()->preload("sounds/kick.wav");
+}
+
+Snail::Snail(const Vector& pos, Direction d) :
+  WalkingBadguy(pos, d, "images/creatures/snail/snail.sprite", "left", "right"),
   state(STATE_NORMAL),
   kicked_delay_timer(),
   squishcount(0)

@@ -1,6 +1,3 @@
-// src/worldmap/tux.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -21,8 +18,6 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_TUX_HPP
 #define HEADER_SUPERTUX_WORLDMAP_TUX_HPP
 
-#include <string>
-
 #include "worldmap/worldmap.hpp"
 
 class Sprite;
@@ -33,8 +28,7 @@ class SpecialTile;
 class SpriteChange;
 class WorldMap;
 
-class Tux : public GameObject,
-            public ArtworkInterface
+class Tux : public GameObject
 {
 public:
   Direction back_direction;
@@ -70,9 +64,6 @@ public:
   void setup(); /**< called prior to first update */
   void draw(DrawingContext& context);
   void update(float elapsed_time);
-
-  virtual void release_artwork();
-  virtual void reacquire_artwork();
 
   void set_direction(Direction dir);
 

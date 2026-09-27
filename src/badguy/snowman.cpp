@@ -1,6 +1,3 @@
-// src/badguy/snowman.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2010 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/snowman.hpp"
-
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/snowball.hpp"

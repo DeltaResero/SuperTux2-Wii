@@ -1,6 +1,3 @@
-// src/object/smoke_cloud.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -33,6 +30,9 @@ public:
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
+  virtual bool do_save() const {
+    return false;
+  }
 
 private:
   SpritePtr sprite;

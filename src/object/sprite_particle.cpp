@@ -1,6 +1,3 @@
-// src/object/sprite_particle.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -36,8 +33,7 @@ SpriteParticle::SpriteParticle(const std::string& sprite_name, const std::string
   acceleration(acceleration_),
   drawing_layer(drawing_layer_),
   light(0.0f,0.0f,0.0f),
-  lightcolor(1.0f, 1.0f, 1.0f),
-  lightblend(),
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-tiny.sprite")),
   glow(false)
 {
   sprite = SpriteManager::current()->create(sprite_name);
@@ -50,8 +46,8 @@ SpriteParticle::SpriteParticle(const std::string& sprite_name, const std::string
   if(sprite_name=="images/objects/particles/sparkle.sprite") {
     glow = true;
     if(action=="dark") {
-      lightblend = Blend(GL_SRC_ALPHA, GL_ONE);
-      lightcolor = Color(0.1f, 0.1f, 0.1f);
+      lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+      lightsprite->set_color(Color(0.1f, 0.1f, 0.1f));
     }
   }
 }
@@ -102,13 +98,8 @@ SpriteParticle::draw(DrawingContext& context)
       context.push_target();
       context.set_target(DrawingContext::LIGHTMAP);
       sprite->draw(context, position, drawing_layer);
+      lightsprite->draw(context, position + Vector(12,12), 0);
       context.pop_target();
-
-      /* A dark sparkle adds a dim glow. A bright one was never given a
-         colour or a blend of its own, so it lays plain white over whatever
-         is beneath it, and still does. */
-      context.draw_light(position + Vector(12,12), LIGHT_TINY, lightcolor,
-                         0, lightblend);
     }
   }
 

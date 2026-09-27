@@ -1,6 +1,3 @@
-// src/object/coin_explode.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  CoinExplode - several coins are hurled through the air
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -31,6 +28,9 @@ public:
   CoinExplode(const Vector& pos);
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
+  virtual bool do_save() const {
+    return false;
+  }
 
 private:
   Vector position;

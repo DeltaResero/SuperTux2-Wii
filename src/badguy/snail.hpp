@@ -1,6 +1,3 @@
-// src/badguy/snail.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Badguy "Snail"
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SNAIL_HPP
 #define HEADER_SUPERTUX_BADGUY_SNAIL_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 /**
@@ -31,6 +26,7 @@ class Snail : public WalkingBadguy
 {
 public:
   Snail(const ReaderMapping& reader);
+  Snail(const Vector& pos, Direction d);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);
@@ -45,7 +41,7 @@ public:
     return "snail";
   }
   std::string get_display_name() const {
-    return "Snail";
+    return _("Snail");
   }
 
 protected:

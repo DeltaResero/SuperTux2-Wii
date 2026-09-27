@@ -1,6 +1,3 @@
-// src/gui/item_hl.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -20,7 +17,6 @@
 #include "gui/item_hl.hpp"
 
 #include <stdio.h>
-#include <string>
 
 #include "math/vector.hpp"
 #include "supertux/resources.hpp"
@@ -36,7 +32,7 @@ ItemHorizontalLine::ItemHorizontalLine() :
 }
 
 void
-ItemHorizontalLine::draw(DrawingContext& context, Vector pos, int menu_width, float value_width, bool active) {
+ItemHorizontalLine::draw(DrawingContext& context, Vector pos, int menu_width, bool active) {
   // TODO
   /* Draw a horizontal line with a little 3d effect */
   context.draw_filled_rect(Vector(pos.x, pos.y - 6),

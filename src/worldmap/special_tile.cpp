@@ -1,6 +1,3 @@
-// src/worldmap/special_tile.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -30,7 +27,6 @@ namespace worldmap {
 SpecialTile::SpecialTile(const ReaderMapping& lisp) :
   pos(),
   sprite(),
-  sprite_name(),
   map_message(),
   passive_message(false),
   script(),
@@ -51,10 +47,11 @@ SpecialTile::SpecialTile(const ReaderMapping& lisp) :
   }
 
   if(!invisible) {
-    if(!lisp.get("sprite", sprite_name)) {
+    std::string spritefile = "";
+    if(!lisp.get("sprite", spritefile)) {
       log_warning << "No sprite specified for visible special tile." << std::endl;
     }
-    sprite = SpriteManager::current()->create(sprite_name);
+    sprite = SpriteManager::current()->create(spritefile);
   }
 
   if(!lisp.get("map-message", map_message)) {
@@ -103,19 +100,6 @@ SpecialTile::draw(DrawingContext& context)
 void
 SpecialTile::update(float )
 {
-}
-
-void
-SpecialTile::release_artwork()
-{
-  sprite.reset();
-}
-
-void
-SpecialTile::reacquire_artwork()
-{
-  if(!invisible)
-    sprite = SpriteManager::current()->create(sprite_name);
 }
 
 }

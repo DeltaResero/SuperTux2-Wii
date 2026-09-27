@@ -1,6 +1,3 @@
-// src/object/particlesystem.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -39,6 +36,16 @@ ParticleSystem::ParticleSystem(float max_particle_size_) :
   virtual_width = SCREEN_WIDTH + max_particle_size * 2;
   virtual_height = SCREEN_HEIGHT + max_particle_size *2;
   z_pos = LAYER_BACKGROUND1;
+}
+
+ObjectSettings
+ParticleSystem::get_settings() {
+  ObjectSettings result = GameObject::get_settings();
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &z_pos,
+                                         "z-pos"));
+
+  result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
+  return result;
 }
 
 void ParticleSystem::parse(const ReaderMapping& reader)

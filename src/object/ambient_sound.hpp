@@ -1,6 +1,3 @@
-// src/object/ambient_sound.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -42,9 +39,7 @@
 #ifndef HEADER_SUPERTUX_OBJECT_AMBIENT_SOUND_HPP
 #define HEADER_SUPERTUX_OBJECT_AMBIENT_SOUND_HPP
 
-#include <memory>
-#include <string>
-
+#include "math/vector.hpp"
 #include "supertux/moving_object.hpp"
 #include "scripting/ambient_sound.hpp"
 #include "scripting/exposed_object.hpp"
@@ -59,6 +54,7 @@ class AmbientSound : public MovingObject,
 {
 public:
   AmbientSound(const ReaderMapping& lisp);
+  AmbientSound(const Vector& pos, float factor, float bias, float vol, const std::string& file);
   ~AmbientSound();
 
   HitResponse collision(GameObject& other, const CollisionHit& hit_);
@@ -74,7 +70,9 @@ public:
    * @name Scriptable Methods
    * @{
    */
+#ifndef SCRIPTING_API
   void set_pos(const Vector& pos);
+#endif
   void set_pos(float x, float y);
   float get_pos_x() const;
   float get_pos_y() const;
@@ -85,8 +83,10 @@ public:
   void draw(DrawingContext& context);
 
   std::string get_display_name() const {
-    return "Ambient sound";
+    return _("Ambient sound");
   }
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
 protected:
   virtual void hit(Player& player);
@@ -110,6 +110,7 @@ private:
 
   float * volume_ptr; /// this will be used by the volume adjustment effect.
 
+  Vector new_size;
 
 private:
   AmbientSound(const AmbientSound&);

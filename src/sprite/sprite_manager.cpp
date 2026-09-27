@@ -1,6 +1,3 @@
-// src/sprite/sprite_manager.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #include "sprite/sprite_manager.hpp"
 
-#include <algorithm>
-
 #include "sprite/sprite.hpp"
 #include "util/file_system.hpp"
 #include "util/reader_document.hpp"
@@ -28,13 +23,10 @@
 
 #include <sstream>
 #include <stdexcept>
-#include <exception>
-#include <utility>
 
 
 SpriteManager::SpriteManager() :
-  sprites(),
-  held()
+  sprites()
 {
 }
 
@@ -46,45 +38,23 @@ SpritePtr
 SpriteManager::create(const std::string& name)
 {
   Sprites::iterator i = sprites.find(name);
-  std::shared_ptr<SpriteData> data;
-  if(i != sprites.end())
-    data = i->second.lock();
-
-  if(!data) {
+  SpriteData* data;
+  if(i == sprites.end()) {
     // try loading the spritefile
     data = load(name);
-    if(!data) {
+    if(data == NULL) {
       std::stringstream msg;
       msg << "Sprite '" << name << "' not found.";
       throw std::runtime_error(msg.str());
     }
-    sprites[name] = data;
-    held.push_back(data);
+  } else {
+    data = i->second.get();
   }
 
-  return SpritePtr(new Sprite(data));
+  return SpritePtr(new Sprite(*data));
 }
 
-void
-SpriteManager::release_unused()
-{
-  /* Let go first, so that anything whose only remaining claim was this list
-     goes now and hands its pictures back. */
-  held.clear();
-
-  std::erase_if(sprites, [](const Sprites::value_type& entry) {
-    return entry.second.expired();
-  });
-
-  /* Then take hold again of whatever is still in play, so the next scene
-     starts from the same footing this one did. */
-  for(const auto& entry : sprites) {
-    if(auto data = entry.second.lock())
-      held.push_back(std::move(data));
-  }
-}
-
-std::shared_ptr<SpriteData>
+SpriteData*
 SpriteManager::load(const std::string& filename)
 {
   ReaderDocument doc;
@@ -115,8 +85,11 @@ SpriteManager::load(const std::string& filename)
     msg << "'" << filename << "' is not a supertux-sprite file";
     throw std::runtime_error(msg.str());
   } else {
-    return std::make_shared<SpriteData>(root.get_mapping(),
-                                        FileSystem::dirname(filename));
+    std::unique_ptr<SpriteData> data (
+      new SpriteData(root.get_mapping(), FileSystem::dirname(filename)) );
+    sprites[filename] = std::move(data);
+
+    return sprites[filename].get();
   }
 }
 

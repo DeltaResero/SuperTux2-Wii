@@ -1,6 +1,3 @@
-// src/object/pneumatic_platform.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - PneumaticPlatform
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/pneumatic_platform.hpp"
-
-#include <memory>
 
 #include "object/player.hpp"
 #include "object/portable.hpp"
@@ -126,6 +121,18 @@ PneumaticPlatform::move_to(const Vector& pos) {
   }
   MovingObject::move_to(pos);
   start_y += shift.y;
+}
+
+void
+PneumaticPlatform::editor_delete() {
+  master->remove_me();
+  slave->remove_me();
+}
+
+void
+PneumaticPlatform::after_editor_set() {
+  MovingSprite::after_editor_set();
+  slave->change_sprite(sprite_name);
 }
 
 /* EOF */

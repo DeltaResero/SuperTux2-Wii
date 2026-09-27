@@ -1,6 +1,3 @@
-// src/scripting/floating_image.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,18 +17,17 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_FLOATING_IMAGE_HPP
 #define HEADER_SUPERTUX_SCRIPTING_FLOATING_IMAGE_HPP
 
+#ifndef SCRIPTING_API
 #include <memory>
-#include <string>
 
 #define HEADER_SUPERTUX_SCRIPTING_FLOATING_IMAGE_HPP
 
 class FloatingImage;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class FloatingImage : public ssq::ExposableClass
+class FloatingImage
 {
 public:
   FloatingImage(const std::string& spritefile);
@@ -51,8 +47,10 @@ public:
   void fade_in(float fadetime);
   void fade_out(float fadetime);
 
+#ifndef SCRIPTING_API
 private:
   std::shared_ptr<::FloatingImage> floating_image;
+#endif
 };
 
 }

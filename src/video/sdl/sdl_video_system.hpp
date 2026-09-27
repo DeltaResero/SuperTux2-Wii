@@ -1,6 +1,3 @@
-// src/video/sdl/sdl_video_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -23,7 +20,6 @@
 #include <memory>
 #include <SDL.h>
 
-#include "video/sdl/sdl_renderer.hpp"
 #include "video/video_system.hpp"
 
 class TextureManager;
@@ -31,12 +27,9 @@ class TextureManager;
 class SDLVideoSystem : public VideoSystem
 {
 private:
-  /** Held as the SDL renderer rather than the general one, since the vsync
-      setting is asked for through the SDL renderer it wraps. */
-  std::unique_ptr<SDLRenderer> m_renderer;
+  std::unique_ptr<Renderer> m_renderer;
   std::unique_ptr<Lightmap> m_lightmap;
   std::unique_ptr<TextureManager> m_texture_manager;
-  unsigned int m_max_texture_size;
 
 public:
   SDLVideoSystem();
@@ -44,15 +37,11 @@ public:
   Renderer& get_renderer() const override;
   Lightmap& get_lightmap() const override;
   TexturePtr new_texture(SDL_Surface *image) override;
-  unsigned int get_max_texture_size() const override;
   SurfaceData* new_surface_data(const Surface& surface) override;
   void free_surface_data(SurfaceData* surface_data) override;
 
   void apply_config() override;
   void resize(int w, int h) override;
-
-  void set_vsync(int mode) override;
-  int get_vsync() const override;
 
 private:
   SDLVideoSystem(const SDLVideoSystem&) = delete;

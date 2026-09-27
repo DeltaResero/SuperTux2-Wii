@@ -1,6 +1,3 @@
-// src/object/coin_rain.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -31,8 +28,11 @@ class CoinRain : public GameObject
 {
 public:
   CoinRain(const Vector& pos, bool emerge=false);
-virtual void update(float elapsed_time);
+  virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
+  virtual bool do_save() const {
+    return false;
+  }
 
 private:
   SpritePtr sprite;

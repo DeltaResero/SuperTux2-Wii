@@ -1,6 +1,3 @@
-// src/util/log.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux Debug Helper Functions
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
@@ -55,23 +52,19 @@ std::ostream& log_info_f(const char* file, int line)
 
 std::ostream& log_warning_f(const char* file, int line)
 {
-#ifdef ENABLE_CONSOLE
   if(g_config && g_config->developer_mode &&
      Console::current() && !Console::current()->hasFocus()) {
     Console::current()->open();
   }
-#endif
   return (log_generic_f ("[WARNING]", file, line));
 }
 
 std::ostream& log_fatal_f(const char* file, int line)
 {
-#ifdef ENABLE_CONSOLE
   if(g_config && g_config->developer_mode &&
      Console::current() && !Console::current()->hasFocus()) {
     Console::current()->open();
   }
-#endif
   return (log_generic_f ("[FATAL]", file, line));
 }
 
@@ -86,6 +79,22 @@ std::ostream& operator<<(std::ostream& out, const Rectf& rect)
   out << "[" << rect.get_left() << "," << rect.get_top() << "   "
       << rect.get_right() << "," << rect.get_bottom() << "]";
   return out;
+}
+
+/* Callbacks used by tinygettext */
+void log_info_callback(const std::string& str)
+{
+    log_info << "\r\n[TINYGETTEXT] " << str << std::endl;
+}
+
+void log_warning_callback(const std::string& str)
+{
+    log_debug << "\r\n[TINYGETTEXT] " << str << std::endl;
+}
+
+void log_error_callback(const std::string& str)
+{
+    log_warning << "\r\n[TINYGETTEXT] " << str << std::endl;
 }
 
 /* EOF */

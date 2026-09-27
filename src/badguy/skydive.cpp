@@ -1,6 +1,3 @@
-// src/badguy/skydive.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
 //
@@ -19,8 +16,6 @@
 
 #include "badguy/skydive.hpp"
 
-#include <memory>
-
 #include "supertux/constants.hpp"
 #include "supertux/sector.hpp"
 #include "object/anchor_point.hpp"
@@ -29,6 +24,12 @@
 
 SkyDive::SkyDive(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/skydive/skydive.sprite"),
+  is_grabbed(false)
+{
+}
+
+SkyDive::SkyDive(const Vector& pos, Direction d) :
+  BadGuy(pos, d, "images/creatures/skydive/skydive.sprite"),
   is_grabbed(false)
 {
 }

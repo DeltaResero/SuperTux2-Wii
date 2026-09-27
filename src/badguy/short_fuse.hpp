@@ -1,6 +1,3 @@
-// src/badguy/short_fuse.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
@@ -21,8 +18,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SHORT_FUSE_HPP
 #define HEADER_SUPERTUX_BADGUY_SHORT_FUSE_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 class ShortFuse : public WalkingBadguy
@@ -33,7 +28,7 @@ public:
     return "short_fuse";
   }
   std::string get_display_name() const {
-    return "Short fuse";
+    return _("Short fuse");
   }
 
 protected:

@@ -1,6 +1,3 @@
-// src/badguy/igel.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Badguy "Igel"
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_IGEL_HPP
 #define HEADER_SUPERTUX_BADGUY_IGEL_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 /**
@@ -31,6 +26,7 @@ class Igel : public WalkingBadguy
 {
 public:
   Igel(const ReaderMapping& reader);
+  Igel(const Vector& pos, Direction d);
 
   HitResponse collision_bullet(Bullet& bullet, const CollisionHit& hit);
 
@@ -41,7 +37,7 @@ public:
     return "igel";
   }
   std::string get_display_name() const {
-    return "Igel";
+    return _("Igel");
   }
 
 protected:

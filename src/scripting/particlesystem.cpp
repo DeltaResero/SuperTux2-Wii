@@ -1,6 +1,3 @@
-// src/scripting/particlesystem.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2016 Tobias Markus <tobbi.bugs@gmail.com>
 //

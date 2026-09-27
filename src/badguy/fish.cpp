@@ -1,6 +1,3 @@
-// src/badguy/fish.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -28,6 +25,14 @@ static const float FISH_WAIT_TIME = 1;
 
 Fish::Fish(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/fish/fish.sprite", LAYER_TILES-1),
+  waiting(),
+  stop_y(0)
+{
+  physic.enable_gravity(true);
+}
+
+Fish::Fish(const Vector& pos) :
+  BadGuy(pos, "images/creatures/fish/fish.sprite", LAYER_TILES-1),
   waiting(),
   stop_y(0)
 {

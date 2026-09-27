@@ -1,6 +1,3 @@
-// src/scripting/serialize.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,8 +19,6 @@
 #include <iostream>
 #include <sexp/value.hpp>
 #include <sexp/util.hpp>
-#include <string>
-#include <vector>
 
 #include "util/log.hpp"
 #include "util/writer.hpp"
@@ -52,27 +47,27 @@ void load_squirrel_table(HSQUIRRELVM vm, SQInteger table_idx, const ReaderMappin
       continue;
     }
     // push the key
-    sq_pushstring(vm, key.c_str(), static_cast<SQInteger>(key.size()));
+    sq_pushstring(vm, key.c_str(), key.size());
 
     // push the value
     switch(value.get_type()) {
-      case sexp::Value::Type::ARRAY:
+      case sexp::Value::TYPE_ARRAY:
         sq_newtable(vm);
         load_squirrel_table(vm, sq_gettop(vm), ReaderMapping(lisp.get_doc(), &arr[i]));
         break;
-      case sexp::Value::Type::INTEGER:
+      case sexp::Value::TYPE_INTEGER:
         sq_pushinteger(vm, value.as_int());
         break;
-      case sexp::Value::Type::REAL:
+      case sexp::Value::TYPE_REAL:
         sq_pushfloat(vm, value.as_float());
         break;
-      case sexp::Value::Type::STRING:
+      case sexp::Value::TYPE_STRING:
         sq_pushstring(vm, value.as_string().c_str(), -1);
         break;
-      case sexp::Value::Type::BOOLEAN:
+      case sexp::Value::TYPE_BOOLEAN:
         sq_pushbool(vm, value.as_bool() ? SQTrue : SQFalse);
         break;
-      case sexp::Value::Type::SYMBOL:
+      case sexp::Value::TYPE_SYMBOL:
         std::cerr << "Unexpected symbol in lisp file...";
         sq_pushnull(vm);
         break;

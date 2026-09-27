@@ -1,6 +1,3 @@
-// src/object/lantern.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Lantern
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //
@@ -20,18 +17,19 @@
 #include "object/lantern.hpp"
 
 #include <algorithm>
-#include <vector>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/treewillowisp.hpp"
 #include "badguy/willowisp.hpp"
 #include "sprite/sprite.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "util/reader_mapping.hpp"
 
 Lantern::Lantern(const ReaderMapping& reader) :
   Rock(reader, "images/objects/lantern/lantern.sprite"),
-  lightcolor(1.0f, 1.0f, 1.0f)
+  lightcolor(1.0f, 1.0f, 1.0f),
+  lightsprite()
 {
   //get color from lisp
   std::vector<float> vColor;
@@ -40,16 +38,33 @@ Lantern::Lantern(const ReaderMapping& reader) :
   } else {
     lightcolor = Color(0, 0, 0);
   }
+  lightsprite = SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light.sprite");
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
   updateColor();
   SoundManager::current()->preload("sounds/willocatch.wav");
 }
 
 Lantern::Lantern(const Vector& pos) :
   Rock(pos, "images/objects/lantern/lantern.sprite"),
-  lightcolor(0.0f, 0.0f, 0.0f)
+  lightcolor(0.0f, 0.0f, 0.0f),
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light.sprite"))
 {
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
   updateColor();
   SoundManager::current()->preload("sounds/willocatch.wav");
+}
+
+ObjectSettings
+Lantern::get_settings() {
+  ObjectSettings result = Rock::get_settings();
+  result.options.push_back( ObjectOption(MN_COLOR, _("Colour"), &lightcolor, "color"));
+
+  return result;
+}
+
+void
+Lantern::after_editor_set() {
+  updateColor();
 }
 
 Lantern::~Lantern()
@@ -58,6 +73,7 @@ Lantern::~Lantern()
 
 void
 Lantern::updateColor(){
+  lightsprite->set_color(lightcolor);
   //Turn lantern off if light is black
   if(lightcolor.red == 0 && lightcolor.green == 0 && lightcolor.blue == 0){
     sprite->set_action("off");
@@ -73,7 +89,12 @@ Lantern::draw(DrawingContext& context){
   //Draw the Sprite.
   MovingSprite::draw(context);
   //Let there be light.
-  context.draw_light(bbox.get_middle(), LIGHT_NORMAL, lightcolor);
+  context.push_target();
+  context.set_target(DrawingContext::LIGHTMAP);
+
+  lightsprite->draw(context, bbox.get_middle(), 0);
+
+  context.pop_target();
 }
 
 HitResponse Lantern::collision(GameObject& other, const CollisionHit& hit) {
@@ -127,9 +148,6 @@ Lantern::is_open() const
   return ((grabbed) && lightcolor.red == 0 && lightcolor.green == 0 && lightcolor.blue == 0);
 }
 
-/** Colours add and clamp rather than replace, which is what makes a red lantern
-    dropped on a green candle come out yellow, and a primary meeting the secondary
-    it is missing from come out white. */
 void
 Lantern::add_color(Color c) {
   lightcolor.red   = std::min(1.0f, lightcolor.red   + c.red);

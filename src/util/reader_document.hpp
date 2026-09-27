@@ -1,6 +1,3 @@
-// src/util/reader_document.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -22,7 +19,6 @@
 
 #include <istream>
 #include <sexp/value.hpp>
-#include <string>
 
 #include "util/reader_object.hpp"
 

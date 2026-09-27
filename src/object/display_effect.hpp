@@ -1,6 +1,3 @@
-// src/object/display_effect.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_DISPLAY_EFFECT_HPP
 #define HEADER_SUPERTUX_OBJECT_DISPLAY_EFFECT_HPP
 
-#include <string>
-
 #include "supertux/game_object.hpp"
 #include "scripting/display_effect.hpp"
 #include "scripting/exposed_object.hpp"
@@ -35,6 +30,9 @@ public:
 
   void update(float elapsed_time);
   void draw(DrawingContext& context);
+  virtual bool do_save() const {
+    return false;
+  }
 
   /**
    * @name Scriptable Methods

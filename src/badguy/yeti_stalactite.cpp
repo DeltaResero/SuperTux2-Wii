@@ -1,6 +1,3 @@
-// src/badguy/yeti_stalactite.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,6 +16,7 @@
 
 #include "badguy/yeti_stalactite.hpp"
 
+#include "editor/editor.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/object_factory.hpp"
 
@@ -61,6 +59,11 @@ YetiStalactite::active_update(float elapsed_time)
 void
 YetiStalactite::update(float elapsed_time)
 {
+  if (Editor::is_active() && sprite->get_action() != "yeti-stalactite" &&
+      sprite->has_action("yeti-stalactite")) {
+    sprite->set_action("yeti-stalactite");
+  }
+
   // Respawn instead of removing once squished
   if(get_state() == STATE_SQUISHED && check_state_timer()) {
     set_state(STATE_ACTIVE);

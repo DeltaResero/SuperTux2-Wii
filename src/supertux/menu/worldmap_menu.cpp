@@ -1,6 +1,3 @@
-// src/supertux/menu/worldmap_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,23 +16,22 @@
 
 #include "supertux/menu/worldmap_menu.hpp"
 
-#include <string>
-
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/menu/options_menu.hpp"
 #include "supertux/screen_fade.hpp"
 #include "supertux/screen_manager.hpp"
+#include "util/gettext.hpp"
 
 WorldmapMenu::WorldmapMenu()
 {
-  add_label("Pause");
+  add_label(_("Pause"));
   add_hl();
-  add_entry(MNID_RETURNWORLDMAP, "Continue");
-  add_submenu("Options", MenuStorage::INGAME_OPTIONS_MENU);
+  add_entry(MNID_RETURNWORLDMAP, _("Continue"));
+  add_submenu(_("Options"), MenuStorage::INGAME_OPTIONS_MENU);
   add_hl();
-  add_entry(MNID_QUITWORLDMAP, "Leave World");
+  add_entry(MNID_QUITWORLDMAP, _("Leave World"));
 }
 
 void

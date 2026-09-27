@@ -1,6 +1,3 @@
-# mk/cmake/FindWindowsSDK.cmake
-# SPDX-License-Identifier: BSL-1.0
-#
 # - Find the Windows SDK aka Platform SDK
 #
 # Relevant Wikipedia article: http://en.wikipedia.org/wiki/Microsoft_Windows_SDK

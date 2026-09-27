@@ -1,6 +1,3 @@
-// src/object/unstable_tile.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Unstable Tile
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -22,8 +19,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_UNSTABLE_TILE_HPP
 #define HEADER_SUPERTUX_OBJECT_UNSTABLE_TILE_HPP
 
-#include <string>
-
 #include "object/moving_sprite.hpp"
 #include "supertux/physic.hpp"
 
@@ -41,7 +36,7 @@ public:
     return "unstable_tile";
   }
   std::string get_display_name() const {
-    return "Unstable tile";
+    return _("Unstable tile");
   }
 
 private:

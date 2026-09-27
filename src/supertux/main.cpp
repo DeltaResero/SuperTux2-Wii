@@ -1,6 +1,3 @@
-// src/supertux/main.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,27 +17,31 @@
 #include "supertux/main.hpp"
 
 #include <config.h>
+#include <version.h>
 
 #include <SDL_image.h>
+#include <boost/filesystem.hpp>
+#include <boost/format.hpp>
+#include <boost/optional.hpp>
 #include <array>
 #include <iostream>
-#include <optional>
+#include <physfs.h>
 #include <stdio.h>
-#include <exception>
-#include <memory>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <utility>
-#include <vector>
+#include <tinygettext/log.hpp>
+extern "C" {
+#include <findlocale.h>
+}
 
+#include "addon/addon_manager.hpp"
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
+#include "editor/editor.hpp"
 #include "gui/menu_manager.hpp"
 #include "math/random_generator.hpp"
 #include "object/player.hpp"
-#include "io/ifile_stream.hpp"
-#include "io/sdl_file.hpp"
+#include "physfs/ifile_stream.hpp"
+#include "physfs/physfs_file_system.hpp"
+#include "physfs/physfs_sdl.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "scripting/scripting.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -57,7 +58,7 @@
 #include "supertux/title_screen.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
-#include "util/wii.hpp"
+#include "util/gettext.hpp"
 #include "video/drawing_context.hpp"
 #include "video/lightmap.hpp"
 #include "video/renderer.hpp"
@@ -94,24 +95,59 @@ public:
   }
 };
 
-class FileSystemSubsystem
+void
+Main::init_tinygettext()
+{
+  g_dictionary_manager.reset(new tinygettext::DictionaryManager(std::unique_ptr<tinygettext::FileSystem>(new PhysFSFileSystem), "UTF-8"));
+
+  tinygettext::Log::set_log_info_callback(log_info_callback);
+  tinygettext::Log::set_log_warning_callback(log_warning_callback);
+  tinygettext::Log::set_log_error_callback(log_error_callback);
+
+  g_dictionary_manager->add_directory("locale");
+
+  // Config setting "locale" overrides language detection
+  if (!g_config->locale.empty())
+  {
+    g_dictionary_manager->set_language(tinygettext::Language::from_name(g_config->locale));
+  }
+  else
+  {
+    FL_Locale *locale;
+    FL_FindLocale(&locale);
+    tinygettext::Language language = tinygettext::Language::from_spec( locale->lang?locale->lang:"", locale->country?locale->country:"", locale->variant?locale->variant:"");
+    FL_FreeLocale(&locale);
+    g_dictionary_manager->set_language(language);
+  }
+}
+
+class PhysfsSubsystem
 {
 private:
-  std::optional<std::string> m_forced_datadir;
-  std::optional<std::string> m_forced_userdir;
+  boost::optional<std::string> m_forced_datadir;
+  boost::optional<std::string> m_forced_userdir;
 
 public:
-  FileSystemSubsystem(const char* argv0,
-                  std::optional<std::string> forced_datadir,
-                  std::optional<std::string> forced_userdir) :
+  PhysfsSubsystem(const char* argv0,
+                  boost::optional<std::string> forced_datadir,
+                  boost::optional<std::string> forced_userdir) :
     m_forced_datadir(forced_datadir),
     m_forced_userdir(forced_userdir)
   {
-    (void) argv0;
-    FileSystem::clear_search_paths();
+    if (!PHYSFS_init(argv0))
+    {
+      std::stringstream msg;
+      msg << "Couldn't initialize physfs: " << PHYSFS_getLastError();
+      throw std::runtime_error(msg.str());
+    }
+    else
+    {
+      // allow symbolic links
+      PHYSFS_permitSymbolicLinks(1);
 
-    find_userdir();
-    find_datadir();
+      find_userdir();
+      find_datadir();
+    }
   }
 
   void find_datadir()
@@ -125,12 +161,6 @@ public:
     {
       datadir = env_datadir;
     }
-#ifdef __wii__
-    else
-    {
-      datadir = Wii::get_data_dir();
-    }
-#else
     else
     {
       // check if we run from source dir
@@ -138,11 +168,11 @@ public:
       std::string basepath = basepath_c ? basepath_c : "./";
       SDL_free(basepath_c);
 
-      if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.txt")))
+      if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.stxt")))
       {
         datadir = BUILD_DATA_DIR;
         // Add config dir for supplemental files
-        FileSystem::add_search_path(BUILD_CONFIG_DATA_DIR);
+        PHYSFS_mount(BUILD_CONFIG_DATA_DIR, NULL, 1);
       }
       else
       {
@@ -152,15 +182,10 @@ public:
         datadir = FileSystem::join(datadir, INSTALL_SUBDIR_SHARE);
       }
     }
-#endif
 
-    if (!FileSystem::is_directory(datadir))
+    if (!PHYSFS_mount(datadir.c_str(), NULL, 1))
     {
-      log_warning << "Couldn't add '" << datadir << "' to the search path: not a directory" << std::endl;
-    }
-    else
-    {
-      FileSystem::add_search_path(datadir);
+      log_warning << "Couldn't add '" << datadir << "' to physfs searchpath: " << PHYSFS_getLastError() << std::endl;
     }
   }
 
@@ -177,44 +202,88 @@ public:
     }
     else
     {
-#ifdef __wii__
-        /* Saves go inside the installation, not the folder SDL would name. */
-        userdir = Wii::get_user_dir();
+		userdir = PHYSFS_getPrefDir("SuperTux","supertux2");
+    }
+	//Kept for backwards-compatability only, hence the silence
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+	std::string physfs_userdir = PHYSFS_getUserDir();
+#pragma GCC diagnostic pop
+
+#ifdef _WIN32
+	std::string olduserdir = FileSystem::join(physfs_userdir, PACKAGE_NAME);
 #else
-        char* prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
-        userdir = prefpath ? prefpath : std::string();
-        SDL_free(prefpath);
+	std::string olduserdir = FileSystem::join(physfs_userdir, "." PACKAGE_NAME);
 #endif
-    }
-    if (!FileSystem::is_directory(userdir))
-    {
-        FileSystem::mkdir(userdir);
-        log_info << "Created SuperTux userdir: " << userdir << std::endl;
-    }
+	if (FileSystem::is_directory(olduserdir)) {
+	  boost::filesystem::path olduserpath(olduserdir);
+	  boost::filesystem::path userpath(userdir);
+	  
+	  boost::filesystem::directory_iterator end_itr;
+
+	  bool success = true;
+
+	  // cycle through the directory
+	  for (boost::filesystem::directory_iterator itr(olduserpath); itr != end_itr; ++itr) {
+		try
+		{
+		  boost::filesystem::rename(itr->path().string().c_str(), userpath / itr->path().filename());
+		}
+		catch (const boost::filesystem::filesystem_error& err)
+		{
+		  success = false;
+		  log_warning << "Failed to move contents of config directory: " << err.what();
+		}
+	  }
+	  if (success) {
+	    try
+		{
+		  boost::filesystem::remove_all(olduserpath);
+		}
+		catch (const boost::filesystem::filesystem_error& err)
+		{
+		  success = false;
+		  log_warning << "Failed to remove old config directory: " << err.what();
+		}
+	  }
+	  if (success) {
+	    log_info << "Moved old config dir " << olduserdir << " to " << userdir << std::endl;
+	  }
+	}
 
     if (!FileSystem::is_directory(userdir))
     {
-      throw std::runtime_error("Failed to use userdir directory '" + userdir + "'");
+	  FileSystem::mkdir(userdir);
+	  log_info << "Created SuperTux userdir: " << userdir << std::endl;  
     }
 
-    FileSystem::set_write_dir(userdir);
-    // Prepended: a file in the userdir shadows the one shipped in the datadir.
-    FileSystem::add_search_path(userdir, /* prepend = */ true);
+    if (!PHYSFS_setWriteDir(userdir.c_str()))
+    {
+      std::ostringstream msg;
+      msg << "Failed to use userdir directory '"
+          <<  userdir << "': " << PHYSFS_getLastError();
+      throw std::runtime_error(msg.str());
+    }
+
+    PHYSFS_mount(userdir.c_str(), NULL, 0);
   }
 
   void print_search_path()
   {
-    log_info << "WriteDir: " << FileSystem::get_write_dir() << std::endl;
-    log_info << "SearchPath:" << std::endl;
-    for(const auto& path : FileSystem::get_search_paths())
+    const char* writedir = PHYSFS_getWriteDir();
+    log_info << "PhysfsWriteDir: " << (writedir ? writedir : "(null)") << std::endl;
+    log_info << "PhysfsSearchPath:" << std::endl;
+    char** searchpath = PHYSFS_getSearchPath();
+    for(char** i = searchpath; *i != NULL; ++i)
     {
-      log_info << "  " << path << std::endl;
+      log_info << "  " << *i << std::endl;
     }
+    PHYSFS_freeList(searchpath);
   }
 
-  ~FileSystemSubsystem()
+  ~PhysfsSubsystem()
   {
-    FileSystem::clear_search_paths();
+    PHYSFS_deinit();
   }
 };
 
@@ -223,13 +292,6 @@ class SDLSubsystem
 public:
   SDLSubsystem()
   {
-    /* Wayland has no way for a program to hand the compositor its own icon, so
-       the compositor looks this name up among the installed desktop entries and
-       takes the icon from there. Without it SDL falls back to the name of the
-       executable, which would find an upstream SuperTux entry on a machine that
-       has one. Set before SDL_Init, which is when it is read. */
-    SDL_SetHint("SDL_APP_ID", "supertux2-wii");
-
     if(SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) < 0)
     {
       std::stringstream msg;
@@ -251,10 +313,8 @@ Main::init_video()
 {
   SDL_SetWindowTitle(VideoSystem::current()->get_renderer().get_window(), PACKAGE_NAME " " PACKAGE_VERSION);
 
-#ifndef __wii__
-  /* Decoding a 256x256 image for use as a window icon. */
   const char* icon_fname = "images/engine/icons/supertux-256x256.png";
-  SDL_Surface* icon = IMG_Load_RW(sdl_rwops_from_file(icon_fname), true);
+  SDL_Surface* icon = IMG_Load_RW(get_physfs_SDLRWops(icon_fname), true);
   if (!icon)
   {
     log_warning << "Couldn't load icon '" << icon_fname << "': " << SDL_GetError() << std::endl;
@@ -264,7 +324,6 @@ Main::init_video()
     SDL_SetWindowIcon(VideoSystem::current()->get_renderer().get_window(), icon);
     SDL_FreeSurface(icon);
   }
-#endif
   SDL_ShowCursor(0);
 
   log_info << (g_config->use_fullscreen?"fullscreen ":"window ")
@@ -310,17 +369,18 @@ Main::launch_game()
   sound_manager.enable_sound(g_config->sound_enabled);
   sound_manager.enable_music(g_config->music_enabled);
 
-#ifdef ENABLE_CONSOLE
   Console console(console_buffer);
-#endif
 
   timelog("scripting");
-  scripting::Scripting scripting;
+  scripting::Scripting scripting(g_config->enable_script_debugger);
 
   timelog("resources");
   TileManager tile_manager;
   SpriteManager sprite_manager;
   Resources resources;
+
+  timelog("addons");
+  AddonManager addon_manager("addons", g_config->addons);
 
   timelog(0);
 
@@ -330,8 +390,8 @@ Main::launch_game()
   ScreenManager screen_manager;
 
   if(!g_config->start_level.empty()) {
-    // A real path on the command line, not a search-path-relative name, so
-    // put its directory on the search path and open it by basename.
+    // we have a normal path specified at commandline, not a physfs path.
+    // So we simply mount that path here...
     std::string dir = FileSystem::dirname(g_config->start_level);
     std::string filename = FileSystem::basename(g_config->start_level);
     std::string fileProtocol = "file://";
@@ -340,7 +400,7 @@ Main::launch_game()
       dir = dir.replace(position, fileProtocol.length(), "");
     }
     log_debug << "Adding dir: " << dir << std::endl;
-    FileSystem::add_search_path(dir);
+    PHYSFS_mount(dir.c_str(), NULL, true);
 
     if(g_config->start_level.size() > 4 &&
        g_config->start_level.compare(g_config->start_level.size() - 5, 5, ".stwm") == 0)
@@ -369,6 +429,20 @@ Main::launch_game()
     }
   } else {
     screen_manager.push_screen(std::unique_ptr<Screen>(new TitleScreen(*default_savegame)));
+
+    if (g_config->edit_level) {
+      if (PHYSFS_exists(g_config->edit_level->c_str())) {
+        std::unique_ptr<Editor> editor(new Editor());
+        editor->set_level(*(g_config->edit_level));
+        editor->setup();
+        editor->update(0);
+        screen_manager.push_screen(std::move(editor));
+        MenuManager::instance().clear_menu_stack();
+        sound_manager.stop_music(0.5);
+      } else {
+        log_warning << "Level " << *(g_config->edit_level) << " doesn't exist." << std::endl;
+      }
+    }
   }
 
   screen_manager.run(context);
@@ -378,11 +452,13 @@ int
 Main::run(int argc, char** argv)
 {
 #ifdef WIN32
-  std::string prefpath = SDL_GetPrefPath(nullptr, "supertux2-wii");
-  freopen((prefpath + "/console.out").c_str(), "a", stdout);
-  freopen((prefpath + "/console.err").c_str(), "a", stderr);
+	//SDL is used instead of PHYSFS because both create the same path in app data
+	//However, PHYSFS is not yet initizlized, and this should be run before anything is initialized
+	std::string prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
+	freopen((prefpath + "/console.out").c_str(), "a", stdout);
+	freopen((prefpath + "/console.err").c_str(), "a", stderr);
 #endif
-
+ 
   int result = 0;
 
   try
@@ -400,13 +476,15 @@ Main::run(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    FileSystemSubsystem filesystem_subsystem(argv[0], args.datadir, args.userdir);
-    filesystem_subsystem.print_search_path();
+    PhysfsSubsystem physfs_subsystem(argv[0], args.datadir, args.userdir);
+    physfs_subsystem.print_search_path();
 
     timelog("config");
     ConfigSubsystem config_subsystem;
     args.merge_into(*g_config);
 
+    timelog("tinygettext");
+    init_tinygettext();
 
     switch (args.get_action())
     {
@@ -437,6 +515,8 @@ Main::run(int argc, char** argv)
     log_fatal << "Unexpected exception" << std::endl;
     result = 1;
   }
+
+  g_dictionary_manager.reset();
 
   return result;
 }

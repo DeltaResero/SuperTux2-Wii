@@ -1,6 +1,3 @@
-// src/supertux/menu/joystick_menu.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>,
 //                2007 Ingo Ruhnke <grumbel@gmail.com>
@@ -21,8 +18,6 @@
 #ifndef HEADER_SUPERTUX_CONTROL_JOYSTICK_MENU_HPP
 #define HEADER_SUPERTUX_CONTROL_JOYSTICK_MENU_HPP
 
-#include <string>
-
 #include "control/input_manager.hpp"
 #include "gui/menu_item.hpp"
 
@@ -37,8 +32,6 @@ public:
 
   std::string get_button_name(int button) const;
   void menu_action(MenuItem* item) override;
-
-  void on_window_resize() override;
 
 private:
   void recreate_menu();

@@ -1,6 +1,3 @@
-// src/object/scripted_object.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -37,7 +34,8 @@ ScriptedObject::ScriptedObject(const ReaderMapping& lisp) :
   physic_enabled(),
   visible(),
   new_vel_set(false),
-  new_vel()
+  new_vel(),
+  new_size()
 {
   if (!lisp.get("name", name)) name = "";
   if(name.empty()) {
@@ -54,6 +52,19 @@ ScriptedObject::ScriptedObject(const ReaderMapping& lisp) :
   } else {
     set_group( COLGROUP_DISABLED );
   }
+}
+ObjectSettings
+ScriptedObject::get_settings() {
+  new_size.x = bbox.get_width();
+  new_size.y = bbox.get_height();
+  ObjectSettings result = MovingSprite::get_settings();
+  result.options.push_back( ObjectOption(MN_NUMFIELD, "width", &new_size.x, "width", false));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, "height", &new_size.y, "height", false));
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Solid"), &solid, "solid"));
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Enabled physics"), &physic_enabled, "physic-enabled"));
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Visible"), &visible, "visible"));
+
+  return result;
 }
 
 void
@@ -125,13 +136,13 @@ ScriptedObject::is_solid() const
 bool
 ScriptedObject::gravity_enabled() const
 {
-  return physic.gravity_enabled();
+	return physic.gravity_enabled();
 }
 
 void
 ScriptedObject::enable_gravity(bool f)
 {
-  physic.enable_gravity(f);
+	physic.enable_gravity(f);
 }
 
 void

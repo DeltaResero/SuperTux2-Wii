@@ -1,6 +1,3 @@
-// src/object/level_time.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,8 +18,6 @@
 
 #include <algorithm>
 #include <math.h>
-#include <cmath>
-#include <sstream>
 
 #include "object/player.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -50,6 +45,15 @@ LevelTime::LevelTime(const ReaderMapping& reader) :
     remove_me();
   }
   time_surface = Surface::create("images/engine/hud/time-0.png");
+}
+
+ObjectSettings
+LevelTime::get_settings() {
+  ObjectSettings result = GameObject::get_settings();
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Time"), &time_left, "time"));
+
+  result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
+  return result;
 }
 
 void

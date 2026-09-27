@@ -1,6 +1,3 @@
-// src/supertux/object_factory.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2004 Ricardo Cruz <rick2@aeiou.pt>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
@@ -20,7 +17,6 @@
 
 #include <sstream>
 #include <stdexcept>
-#include <utility>
 
 #include "math/vector.hpp"
 #include "util/reader_document.hpp"
@@ -30,6 +26,8 @@
 #include "supertux/tile_manager.hpp"
 
 #include "badguy/angrystone.hpp"
+#include "badguy/badguy.hpp"
+#include "badguy/bomb.hpp"
 #include "badguy/skydive.hpp"
 #include "badguy/bouncing_snowball.hpp"
 #include "badguy/captainsnowball.hpp"
@@ -58,6 +56,7 @@
 #include "badguy/owl.hpp"
 #include "badguy/plant.hpp"
 #include "badguy/poisonivy.hpp"
+#include "badguy/root.hpp"
 #include "badguy/short_fuse.hpp"
 #include "badguy/skullyhop.hpp"
 #include "badguy/smartball.hpp"
@@ -72,6 +71,7 @@
 #include "badguy/toad.hpp"
 #include "badguy/totem.hpp"
 #include "badguy/treewillowisp.hpp"
+#include "badguy/walking_badguy.hpp"
 #include "badguy/walking_candle.hpp"
 #include "badguy/walkingleaf.hpp"
 #include "badguy/willowisp.hpp"
@@ -79,23 +79,44 @@
 #include "badguy/yeti_stalactite.hpp"
 #include "badguy/zeekling.hpp"
 
+#include "editor/spawnpoint_marker.hpp"
+#include "editor/worldmap_objects.hpp"
+
 #include "object/ambient_sound.hpp"
+#include "object/anchor_point.hpp"
 #include "object/background.hpp"
 #include "object/bicycle_platform.hpp"
 #include "object/block.hpp"
 #include "object/bonus_block.hpp"
+#include "object/bouncy_coin.hpp"
 #include "object/brick.hpp"
+#include "object/broken_brick.hpp"
+#include "object/bullet.hpp"
 #include "object/camera.hpp"
 #include "object/candle.hpp"
 #include "object/torch.hpp"
 #include "object/cloud_particle_system.hpp"
 #include "object/coin.hpp"
+#include "object/coin_explode.hpp"
+#include "object/coin_rain.hpp"
 #include "object/comet_particle_system.hpp"
 #include "object/decal.hpp"
+#include "object/display_effect.hpp"
+#include "object/electrifier.hpp"
+#include "object/endsequence_fireworks.hpp"
+#include "object/endsequence.hpp"
+#include "object/endsequence_walkleft.hpp"
+#include "object/endsequence_walkright.hpp"
 #include "object/explosion.hpp"
+#include "object/falling_coin.hpp"
 #include "object/firefly.hpp"
+#include "object/fireworks.hpp"
+#include "object/floating_image.hpp"
+#include "object/floating_text.hpp"
+#include "object/flower.hpp"
 #include "object/ghost_particle_system.hpp"
 #include "object/gradient.hpp"
+#include "object/growup.hpp"
 #include "object/hurting_platform.hpp"
 #include "object/icecrusher.hpp"
 #include "object/infoblock.hpp"
@@ -104,21 +125,35 @@
 #include "object/ispy.hpp"
 #include "object/lantern.hpp"
 #include "object/level_time.hpp"
+#include "object/light.hpp"
 #include "object/magicblock.hpp"
+#include "object/moving_sprite.hpp"
+#include "object/oneup.hpp"
+#include "object/particles.hpp"
+#include "object/particlesystem.hpp"
 #include "object/particlesystem_interactive.hpp"
 #include "object/path.hpp"
+#include "object/path_walker.hpp"
 #include "object/platform.hpp"
 #include "object/player.hpp"
 #include "object/pneumatic_platform.hpp"
+#include "object/portable.hpp"
 #include "object/powerup.hpp"
+#include "object/pulsing_light.hpp"
 #include "object/pushbutton.hpp"
 #include "object/rain_particle_system.hpp"
+#include "object/rainsplash.hpp"
 #include "object/rock.hpp"
 #include "object/rusty_trampoline.hpp"
 #include "object/scripted_object.hpp"
 #include "object/skull_tile.hpp"
+#include "object/smoke_cloud.hpp"
 #include "object/snow_particle_system.hpp"
+#include "object/specialriser.hpp"
 #include "object/spotlight.hpp"
+#include "object/sprite_particle.hpp"
+#include "object/star.hpp"
+#include "object/text_object.hpp"
 #include "object/thunderstorm.hpp"
 #include "object/tilemap.hpp"
 #include "object/trampoline.hpp"
@@ -257,6 +292,16 @@ ObjectFactory::init_factories()
   add_factory<SecretAreaTrigger>("secretarea");
   add_factory<SequenceTrigger>("sequencetrigger");
   add_factory<Switch>("switch");
+
+  // editor stuff
+  add_factory<SpawnPointMarker>("spawnpoint");
+
+  // worldmap editor objects
+  add_factory<worldmap_editor::LevelDot>("level");
+  add_factory<worldmap_editor::SpecialTile>("special-tile");
+  add_factory<worldmap_editor::SpriteChange>("sprite-change");
+  add_factory<worldmap_editor::Teleporter>("teleporter");
+  add_factory<worldmap_editor::WorldmapSpawnPoint>("worldmap-spawnpoint");
 
   add_factory("tilemap", [](const ReaderMapping& reader) {
       auto tileset = TileManager::current()->get_tileset(Level::current()->get_tileset());

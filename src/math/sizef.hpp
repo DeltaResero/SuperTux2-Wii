@@ -1,6 +1,3 @@
-// src/math/sizef.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -42,6 +39,11 @@ public:
   Sizef(float width_, float height_) :
     width(width_),
     height(height_)
+  {}
+
+  Sizef(const Sizef& rhs) :
+    width(rhs.width),
+    height(rhs.height)
   {}
 
   Sizef(const Size& rhs);

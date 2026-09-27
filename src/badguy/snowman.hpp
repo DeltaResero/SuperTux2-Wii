@@ -1,6 +1,3 @@
-// src/badguy/snowman.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2010 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,19 +17,18 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SNOWMAN_HPP
 #define HEADER_SUPERTUX_BADGUY_SNOWMAN_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 class Snowman : public WalkingBadguy
 {
 public:
   Snowman(const ReaderMapping& reader);
+  Snowman(const Vector& pos, Direction d);
   std::string get_class() const {
     return "snowman";
   }
   std::string get_display_name() const {
-    return "Snowman";
+    return _("Snowman");
   }
 
 protected:

@@ -1,6 +1,3 @@
-// src/badguy/walking_badguy.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - WalkingBadguy
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_WALKING_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_WALKING_BADGUY_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class Timer;
@@ -37,19 +32,19 @@ public:
                 const std::string& walk_left_action,
                 const std::string& walk_right_action,
                 int layer = LAYER_OBJECTS,
-                LightSize light_size = LIGHT_MEDIUM);
+                const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
   WalkingBadguy(const Vector& pos, Direction direction,
                 const std::string& sprite_name,
                 const std::string& walk_left_action,
                 const std::string& walk_right_action,
                 int layer = LAYER_OBJECTS,
-                LightSize light_size = LIGHT_MEDIUM);
+                const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
   WalkingBadguy(const ReaderMapping& reader,
                 const std::string& sprite_name,
                 const std::string& walk_left_action,
                 const std::string& walk_right_action,
                 int layer = LAYER_OBJECTS,
-                LightSize light_size = LIGHT_MEDIUM);
+                const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
 
   void initialize();
   void active_update(float elapsed_time);
@@ -76,6 +71,8 @@ public:
   {
     return BadGuy::is_active();
   }
+
+  void after_editor_set();
 
 protected:
   void turn_around();

@@ -1,6 +1,3 @@
-// src/util/writer.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,7 +16,7 @@
 
 #include "util/writer.hpp"
 
-#include "io/ofile_stream.hpp"
+#include "physfs/ofile_stream.hpp"
 #include "util/log.hpp"
 
 Writer::Writer(const std::string& filename) :

@@ -1,6 +1,3 @@
-// src/trigger/secretarea_trigger.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_TRIGGER_SECRETAREA_TRIGGER_HPP
 #define HEADER_SUPERTUX_TRIGGER_SECRETAREA_TRIGGER_HPP
-
-#include <string>
 
 #include "trigger/trigger_base.hpp"
 
@@ -42,6 +37,9 @@ public:
     return "secretarea";
   }
 
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
+
   void event(Player& player, EventType type);
   void draw(DrawingContext& context);
   std::string get_fade_tilemap_name() const;
@@ -52,6 +50,7 @@ private:
   std::string message; /**< message to display, default "You found a secret area!" */
   std::string fade_tilemap; /**< tilemap to fade away when trigger is activated, or empty if you don't care */
   std::string script; /**< optional script to run when trigger is activated */
+  Vector new_size;
 };
 
 #endif

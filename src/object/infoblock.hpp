@@ -1,6 +1,3 @@
-// src/object/infoblock.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,8 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_INFOBLOCK_HPP
 
 #include <memory>
-#include <string>
-#include <vector>
 
 #include "object/block.hpp"
 #include "supertux/textscroller.hpp"
@@ -43,8 +38,10 @@ public:
     return "infoblock";
   }
   std::string get_display_name() const {
-    return "Info block";
+    return _("Info block");
   }
+
+  virtual ObjectSettings get_settings();
 
 protected:
   virtual void hit(Player& player);
@@ -52,12 +49,9 @@ protected:
   Player* get_nearest_player() const;
 
 protected:
-  /** How many of the lines starting at the given one sit side by side on a
-      single row. Words always stand alone, so the answer is one for them;
-      pictures share a row until the next one will not fit. */
-  size_t row_length(size_t first) const;
-
   std::string message;
+  //AmbientSound* ringing;
+  //bool stopped;
   float shown_pct; /**< Value in the range of 0..1, depending on how much of the infobox is currently shown */
   float dest_pct; /**< With each call to update(), shown_pct will slowly transition to this value */
   std::vector<std::unique_ptr<InfoBoxLine> > lines; /**< lines of text (or images) to display */

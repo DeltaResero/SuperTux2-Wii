@@ -1,6 +1,3 @@
-// src/supertux/sector.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -23,13 +20,10 @@
 #include <list>
 #include <squirrel.h>
 #include <stdint.h>
-#include <iosfwd>
-#include <memory>
-#include <string>
-#include <vector>
 
 #include "supertux/direction.hpp"
 #include "supertux/game_object_ptr.hpp"
+#include "util/writer.hpp"
 #include "video/color.hpp"
 #include "object/anchor_point.hpp"
 
@@ -85,6 +79,7 @@ public:
 
   void draw(DrawingContext& context);
 
+  void save(Writer &writer);
 
   /// stops all looping sounds in whole sector.
   void stop_looping_sounds();
@@ -170,14 +165,6 @@ public:
   std::vector<Player*> get_players() const {
     return std::vector<Player*>(1, this->player);
   }
-
-  /** The bullets currently in the sector. Kept in step with the object list
-      as objects are added and removed, so it always holds exactly the
-      bullets that are in play. */
-  const std::vector<Bullet*>& get_bullets() const {
-    return bullets;
-  }
-
   Player *get_nearest_player (const Vector& pos) const;
   Player *get_nearest_player (const Rectf& pos) const
   {
@@ -199,6 +186,16 @@ public:
    * returns the height (in px) of a sector)
    */
   float get_height() const;
+
+  /**
+   * returns the editor size (in tiles) of a sector
+   */
+  Size get_editor_size() const;
+
+  /**
+   * resize all tilemaps with given size
+   */
+  void resize_sector(Size& old_size, Size& new_size);
 
   /**
    * globally changes solid tilemaps' tile ids

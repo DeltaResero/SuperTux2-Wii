@@ -1,6 +1,3 @@
-// src/supertux/tile_set.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Matthias Braun <matze@braunis.de>
 //
@@ -19,18 +16,45 @@
 
 #include "supertux/tile_set.hpp"
 
-#include <utility>
-
+#include "editor/editor.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/tile_set_parser.hpp"
 #include "video/drawing_context.hpp"
 #include "video/surface.hpp"
 
+Tilegroup::Tilegroup() :
+  name(),
+  tiles()
+{
+  tiles.clear();
+}
+
+Tilegroup::~Tilegroup() {
+
+}
+
+/*
+  tiles(),
+  tiles_loaded(false),
+  tilegroups()
+{
+  tiles.resize(1, 0);
+  tiles[0] = new Tile();
+  tilegroups.clear();
+}
+
+TileSet::TileSet(const std::string& filename) :
+  tiles(),
+  tiles_loaded(true),
+  tilegroups()
+*/
 TileSet::TileSet() :
   m_tiles(1),
-  notile_surface(Surface::create("images/tiles/auxiliary/notile.png"))
+  notile_surface(Surface::create("images/tiles/auxiliary/notile.png")),
+  tilegroups()
 {
   m_tiles[0] = std::unique_ptr<Tile>(new Tile);
+  tilegroups.clear();
 }
 
 TileSet::TileSet(const std::string& filename) :
@@ -45,11 +69,11 @@ TileSet::TileSet(const std::string& filename) :
     int last = -1;
     for(int i = 0; i < int(m_tiles.size()); ++i)
     {
-      if (m_tiles[static_cast<size_t>(i)] == 0 && last == -1)
+      if (m_tiles[i] == 0 && last == -1)
       {
         last = i;
       }
-      else if (m_tiles[static_cast<size_t>(i)] && last != -1)
+      else if (m_tiles[i] && last != -1)
       {
         log_info << "Free Tile IDs (" << i - last << "): " << last << " - " << i-1 << std::endl;
         last = -1;
@@ -63,9 +87,9 @@ TileSet::TileSet(const std::string& filename) :
     log_debug << "Tileset in " << filename << std::endl;
     for(int i = 0; i < int(m_tiles.size()); ++i)
     {
-      if(m_tiles[static_cast<size_t>(i)] != 0)
+      if(m_tiles[i] != 0)
       {
-        m_tiles[static_cast<size_t>(i)]->print_debug(i);
+        m_tiles[i]->print_debug(i);
       }
     }
   }
@@ -73,15 +97,13 @@ TileSet::TileSet(const std::string& filename) :
 
 TileSet::~TileSet()
 {
-  /* A level's tileset would otherwise leave its sheets decoded for the run. */
-  release_images();
 }
 
 void
-TileSet::add_tile(uint32_t id, std::unique_ptr<Tile> tile)
+TileSet::add_tile(int id, std::unique_ptr<Tile> tile)
 {
-  if (id >= m_tiles.size()) {
-    m_tiles.resize(static_cast<size_t>(id) + 1);
+  if (id >= static_cast<int>(m_tiles.size())) {
+    m_tiles.resize(id + 1);
   }
 
   if (m_tiles[id] != 0) {
@@ -111,15 +133,6 @@ TileSet::get(const uint32_t id) const
 }
 
 void
-TileSet::release_images()
-{
-  for(const auto& tile : m_tiles) {
-    if(tile)
-      tile->release_images();
-  }
-}
-
-void
 TileSet::draw_tile(DrawingContext& context, uint32_t id, const Vector& pos,
                    int z_pos, Color color) const
 {
@@ -134,6 +147,10 @@ TileSet::draw_tile(DrawingContext& context, uint32_t id, const Vector& pos,
   if (tile) {
     tile->load_images();
     tile->draw(context, pos, z_pos, color);
+  } else if (Editor::is_active()) { // Draw a notile sign
+    context.draw_surface(notile_surface, pos, 0, color, Blend(), z_pos);
+    context.draw_text(Resources::small_font, std::to_string(id),
+                      pos + Vector(16, 16), ALIGN_CENTER, z_pos, color);
   }
 }
 

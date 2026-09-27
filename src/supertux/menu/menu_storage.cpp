@@ -1,6 +1,3 @@
-// src/supertux/menu/menu_storage.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,15 +17,25 @@
 #include "supertux/menu/menu_storage.hpp"
 
 #include "supertux/globals.hpp"
+#include "supertux/menu/addon_menu.hpp"
 #include "supertux/menu/cheat_menu.hpp"
 #include "supertux/menu/contrib_menu.hpp"
+#include "supertux/menu/editor_menu.hpp"
+#include "supertux/menu/editor_level_menu.hpp"
+#include "supertux/menu/editor_level_select_menu.hpp"
+#include "supertux/menu/editor_levelset_menu.hpp"
+#include "supertux/menu/editor_levelset_select_menu.hpp"
+#include "supertux/menu/editor_new_levelset_menu.hpp"
+#include "supertux/menu/editor_objectgroup_menu.hpp"
+#include "supertux/menu/editor_tilegroup_menu.hpp"
+#include "supertux/menu/editor_sector_menu.hpp"
+#include "supertux/menu/editor_sectors_menu.hpp"
 #include "supertux/menu/game_menu.hpp"
 #include "supertux/menu/joystick_menu.hpp"
 #include "supertux/menu/keyboard_menu.hpp"
+#include "supertux/menu/language_menu.hpp"
 #include "supertux/menu/main_menu.hpp"
 #include "supertux/menu/options_menu.hpp"
-#include "supertux/menu/refresh_rate_menu.hpp"
-#include "supertux/menu/resolution_menu.hpp"
 #include "supertux/menu/profile_menu.hpp"
 #include "supertux/menu/worldmap_menu.hpp"
 #include "supertux/menu/worldmap_cheat_menu.hpp"
@@ -62,14 +69,11 @@ MenuStorage::create(MenuId menu_id)
     case MAIN_MENU:
       return std::unique_ptr<Menu>(new MainMenu);
 
+    case LANGUAGE_MENU:
+      return std::unique_ptr<Menu>(new LanguageMenu);
+
     case OPTIONS_MENU:
       return std::unique_ptr<Menu>(new OptionsMenu(true));
-
-    case RESOLUTION_MENU:
-      return std::unique_ptr<Menu>(new ResolutionMenu);
-
-    case REFRESH_RATE_MENU:
-      return std::unique_ptr<Menu>(new RefreshRateMenu);
 
     case INGAME_OPTIONS_MENU:
       return std::unique_ptr<Menu>(new OptionsMenu(false));
@@ -97,12 +101,51 @@ MenuStorage::create(MenuId menu_id)
 
     case WORLDSET_MENU:
       return std::unique_ptr<Menu>(new WorldSetMenu);
-
+      
     case CONTRIB_MENU:
       return std::unique_ptr<Menu>(new ContribMenu);
 
     case CONTRIB_WORLD_MENU:
       return 0; //return new ContribWorldMenu();
+
+    case ADDON_MENU:
+      return std::unique_ptr<Menu>(new AddonMenu);
+
+    case LANGPACK_MENU:
+      return std::unique_ptr<Menu>(new AddonMenu(true));
+
+    case EDITOR_LEVELSET_SELECT_MENU:
+      return std::unique_ptr<Menu>(new EditorLevelsetSelectMenu);
+
+    case EDITOR_NEW_LEVELSET_MENU:
+      return std::unique_ptr<Menu>(new EditorNewLevelsetMenu);
+
+    case LANGPACK_AUTO_UPDATE_MENU:
+      return std::unique_ptr<Menu>(new AddonMenu(true, true));
+
+    case EDITOR_LEVEL_SELECT_MENU:
+      return std::unique_ptr<Menu>(new EditorLevelSelectMenu);
+
+    case EDITOR_MENU:
+      return std::unique_ptr<Menu>(new EditorMenu);
+
+    case EDITOR_TILEGROUP_MENU:
+      return std::unique_ptr<Menu>(new EditorTilegroupMenu);
+
+    case EDITOR_OBJECTGROUP_MENU:
+      return std::unique_ptr<Menu>(new EditorObjectgroupMenu);
+
+    case EDITOR_SECTORS_MENU:
+      return std::unique_ptr<Menu>(new EditorSectorsMenu);
+
+    case EDITOR_SECTOR_MENU:
+      return std::unique_ptr<Menu>(new EditorSectorMenu);
+
+    case EDITOR_LEVEL_MENU:
+      return std::unique_ptr<Menu>(new EditorLevelMenu);
+
+    case EDITOR_LEVELSET_MENU:
+      return std::unique_ptr<Menu>(new EditorLevelsetMenu);
 
     case NO_MENU:
       return std::unique_ptr<Menu>();

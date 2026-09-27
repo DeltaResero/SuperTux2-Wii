@@ -1,6 +1,3 @@
-// src/object/comet_particle_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_COMET_PARTICLE_SYSTEM_HPP
 
 #include <memory>
-#include <string>
 
 #include "object/particlesystem_interactive.hpp"
 #include "video/surface_ptr.hpp"
@@ -46,7 +42,7 @@ public:
     return "particles-comets";
   }
   std::string get_display_name() const {
-    return "Comet particles";
+    return _("Comet particles");
   }
 
 private:

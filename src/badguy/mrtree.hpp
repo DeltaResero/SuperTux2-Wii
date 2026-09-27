@@ -1,6 +1,3 @@
-// src/badguy/mrtree.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_MRTREE_HPP
 #define HEADER_SUPERTUX_BADGUY_MRTREE_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 class MrTree : public WalkingBadguy
@@ -34,7 +29,7 @@ public:
     return "mrtree";
   }
   std::string get_display_name() const {
-    return "Mr. Tree";
+    return _("Mr. Tree");
   }
 
 protected:

@@ -1,6 +1,3 @@
-// src/supertux/game_manager.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2013 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,8 +17,6 @@
 #include "supertux/game_manager.hpp"
 
 #include <sstream>
-#include <exception>
-#include <utility>
 
 #include "gui/menu_manager.hpp"
 #include "supertux/game_session.hpp"
@@ -89,6 +84,7 @@ GameManager::get_level_name(const std::string& filename) const
 {
   try
   {
+    register_translation_directory(filename);
     auto doc = ReaderDocument::parse(filename);
     auto root = doc.get_root();
 

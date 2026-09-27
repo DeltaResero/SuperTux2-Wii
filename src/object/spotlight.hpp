@@ -1,6 +1,3 @@
-// src/object/spotlight.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_SPOTLIGHT_HPP
 
 #include <memory>
-#include <string>
 
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/moving_object.hpp"
@@ -44,8 +40,10 @@ public:
     return "spotlight";
   }
   std::string get_display_name() const {
-    return "Spotlight";
+    return _("Spotlight");
   }
+
+  virtual ObjectSettings get_settings();
 
 private:
   float   angle;

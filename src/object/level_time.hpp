@@ -1,6 +1,3 @@
-// src/object/level_time.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_LEVEL_TIME_HPP
 
 #include <memory>
-#include <string>
 
 #include "scripting/exposed_object.hpp"
 #include "scripting/level_time.hpp"
@@ -73,7 +69,13 @@ public:
     return "leveltime";
   }
   std::string get_display_name() const {
-    return "Level time";
+    return _("Level time");
+  }
+
+  virtual ObjectSettings get_settings();
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/clock.png";
   }
 
 private:

@@ -1,6 +1,3 @@
-// src/object/cloud_particle_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_CLOUD_PARTICLE_SYTEM_HPP
 
 #include <memory>
-#include <string>
 
 #include "object/particlesystem.hpp"
 #include "video/surface_ptr.hpp"
@@ -44,7 +40,11 @@ public:
     return "particles-clouds";
   }
   std::string get_display_name() const {
-    return "Cloud particles";
+    return _("Cloud particles");
+  }
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/clouds.png";
   }
 
 private:

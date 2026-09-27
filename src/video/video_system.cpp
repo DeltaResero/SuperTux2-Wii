@@ -1,6 +1,3 @@
-// src/video/video_system.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 
 #include <config.h>
 #include <stdexcept>
-#include <exception>
 
 #include "util/log.hpp"
 #include "video/sdl/sdl_video_system.hpp"

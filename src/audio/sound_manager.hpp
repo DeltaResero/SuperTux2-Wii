@@ -1,6 +1,3 @@
-// src/audio/sound_manager.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,16 +17,21 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SOUND_MANAGER_HPP
 #define HEADER_SUPERTUX_AUDIO_SOUND_MANAGER_HPP
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include <al.h>
+#include <alc.h>
+
 #include "math/vector.hpp"
 #include "util/currenton.hpp"
 
-class AudioDevice;
 class SoundFile;
 class SoundSource;
+class StreamSoundSource;
+class OpenALSoundSource;
 
 class SoundManager : public Currenton<SoundManager>
 {
@@ -57,15 +59,6 @@ public:
   /// preloads a sound, so that you don't get a lag later when playing it
   void preload(const std::string& name);
 
-  /** The figures the fall off is built from, kept here so they all sit in
-      one file. A sound holds its level out as far as the listener stands
-      back, then fades to nothing by the matching silence distance. */
-  static float listener_setback();
-  static float placed_level();
-  static float placed_silence();
-  static float close_level();
-  static float close_silence();
-
   void set_listener_position(const Vector& position);
   void set_listener_velocity(const Vector& velocity);
   void set_listener_orientation(const Vector& at, const Vector& up);
@@ -83,29 +76,49 @@ public:
   bool is_music_enabled() const { return music_enabled; }
   bool is_sound_enabled() const { return sound_enabled; }
 
-  bool is_audio_enabled() const;
+  bool is_audio_enabled() const {
+    return device != 0 && context != 0;
+  }
   std::string get_current_music() const {
     return current_music;
   }
   void update();
 
-  /** Ask to be updated every frame. For a source the caller holds itself,
-      which is therefore not in the list of sources this manages. */
-  void register_for_update( SoundSource* source );
-  void remove_from_update( SoundSource* source );
+  /*
+   * Tell soundmanager to call update() for stream_sound_source.
+   */
+  void register_for_update( StreamSoundSource* sss );
+  /*
+   * Unsubscribe from updates for stream_sound_source.
+   */
+  void remove_from_update( StreamSoundSource* sss );
 
 private:
-  /** The hardware and the library that drives it. Never null once built, but
-      ask is_open() before expecting anything of it. */
-  std::unique_ptr<AudioDevice> m_device;
+  friend class OpenALSoundSource;
+  friend class StreamSoundSource;
 
+  /** creates a new sound source, might throw exceptions, never returns NULL */
+  std::unique_ptr<OpenALSoundSource> intern_create_sound_source(const std::string& filename);
+  static ALuint load_file_into_buffer(SoundFile& file);
+  static ALenum get_sample_format(const SoundFile& file);
+
+  static void print_openal_version();
+  void check_alc_error(const char* message) const;
+  static void check_al_error(const char* message);
+
+  ALCdevice* device;
+  ALCcontext* context;
   bool sound_enabled;
 
-  typedef std::vector<std::unique_ptr<SoundSource> > SoundSources;
+  typedef std::map<std::string, ALuint> SoundBuffers;
+  SoundBuffers buffers;
+  typedef std::vector<std::unique_ptr<OpenALSoundSource> > SoundSources;
   SoundSources sources;
 
-  typedef std::vector<SoundSource*> UpdateList;
-  UpdateList update_list;
+  typedef std::vector<StreamSoundSource*> StreamSoundSources;
+  StreamSoundSources update_list;
+
+  std::unique_ptr<StreamSoundSource> music_source;
 
   bool music_enabled;
   std::string current_music;

@@ -1,6 +1,3 @@
-// src/object/icecrusher.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  IceCrusher - A block to stand on, which can drop down to crush the player
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_ICECRUSHER_HPP
 #define HEADER_SUPERTUX_OBJECT_ICECRUSHER_HPP
-
-#include <string>
 
 #include "object/moving_sprite.hpp"
 #include "supertux/physic.hpp"
@@ -44,7 +39,7 @@ public:
     return "icecrusher";
   }
   std::string get_display_name() const {
-    return "Ice crusher";
+    return _("Ice crusher");
   }
 
 #if 0

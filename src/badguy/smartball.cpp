@@ -1,6 +1,3 @@
-// src/badguy/smartball.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Smart Snowball
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -26,6 +23,13 @@
 
 SmartBall::SmartBall(const ReaderMapping& reader)
   : WalkingBadguy(reader, "images/creatures/snowball/smart-snowball.sprite", "left", "right")
+{
+  walk_speed = 80;
+  max_drop_height = 16;
+}
+
+SmartBall::SmartBall(const Vector& pos, Direction d)
+  : WalkingBadguy(pos, d, "images/creatures/snowball/smart-snowball.sprite", "left", "right")
 {
   walk_speed = 80;
   max_drop_height = 16;

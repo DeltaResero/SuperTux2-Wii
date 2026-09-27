@@ -1,6 +1,3 @@
-// src/scripting/squirrel_util.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -306,7 +303,7 @@ void store_int(HSQUIRRELVM vm, const char* name, int val)
 void store_string(HSQUIRRELVM vm, const char* name, const std::string& val)
 {
   sq_pushstring(vm, name, -1);
-  sq_pushstring(vm, val.c_str(), static_cast<SQInteger>(val.length()));
+  sq_pushstring(vm, val.c_str(), val.length());
   if(SQ_FAILED(sq_createslot(vm, -3)))
     throw scripting::SquirrelError(vm, "Couldn't add float value to table");
 }

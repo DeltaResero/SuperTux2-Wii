@@ -1,6 +1,3 @@
-// src/badguy/livefire.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux badguy - walking flame that glows
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -19,8 +16,6 @@
 
 #include "badguy/livefire.hpp"
 
-#include <memory>
-
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"
 #include "object/sprite_particle.hpp"
@@ -35,7 +30,7 @@ LiveFire::LiveFire(const ReaderMapping& reader) :
 {
   walk_speed = 80;
   max_drop_height = 20;
-  lightcolor = Color(1.0f, 1.0f, 1.0f);
+  lightsprite->set_color(Color(1.0f, 1.0f, 1.0f));
   glowing = true;
 }
 
@@ -136,7 +131,8 @@ LiveFire::kill_fall()
   physic.set_velocity_y(0);
   physic.set_acceleration_y(0);
   physic.enable_gravity(false);
-    lightcolor = Color(1.0f, 0.9f, 0.8f);
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(1.0f, 0.9f, 0.8f));
   set_group(COLGROUP_DISABLED);
 
   // start dead-script

@@ -1,6 +1,3 @@
-// src/badguy/ghosttree.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Boss "GhostTree"
 //  Copyright (C) 2007 Matthias Braun <matze@braunis.de>
 //
@@ -19,10 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_GHOSTTREE_HPP
 #define HEADER_SUPERTUX_BADGUY_GHOSTTREE_HPP
-
-#include <memory>
-#include <string>
-#include <vector>
 
 #include "badguy/badguy.hpp"
 
@@ -52,7 +45,7 @@ public:
     return "ghosttree";
   }
   std::string get_display_name() const {
-    return "Ghost tree";
+    return _("Ghost tree");
   }
 
 private:

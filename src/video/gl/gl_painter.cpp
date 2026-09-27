@@ -1,6 +1,3 @@
-// src/video/gl/gl_painter.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -18,13 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "video/gl/gl_painter.hpp"
-#include <numbers>
 
 #include <algorithm>
-#include <cmath>
-#include <memory>
-#include <utility>
-#include <vector>
 
 #include "video/drawing_request.hpp"
 #include "video/gl/gl_surface_data.hpp"
@@ -33,20 +25,6 @@
 GLuint GLPainter::s_last_texture = static_cast<GLuint>(-1);
 
 namespace {
-
-/** As SDLPainter's whole_pixels(). A fractional edge loses the picture's
-    last row or column to the pixel centre it falls short of. */
-void whole_pixels(float& left, float& top, float& right, float& bottom,
-                  const Vector& scale)
-{
-  if (scale.x <= 0.0f || scale.y <= 0.0f)
-    return;
-
-  left   = std::floor(left   * scale.x) / scale.x;
-  top    = std::floor(top    * scale.y) / scale.y;
-  right  = std::floor(right  * scale.x) / scale.x;
-  bottom = std::floor(bottom * scale.y) / scale.y;
-}
 
 inline void intern_draw(float left, float top, float right, float bottom,
                         float uv_left, float uv_top,
@@ -89,8 +67,8 @@ inline void intern_draw(float left, float top, float right, float bottom,
     float center_x = (left + right) / 2;
     float center_y = (top + bottom) / 2;
 
-    float sa = sinf(angle/180.0f*std::numbers::pi_v<float>);
-    float ca = cosf(angle/180.0f*std::numbers::pi_v<float>);
+    float sa = sinf(angle/180.0f*M_PI);
+    float ca = cosf(angle/180.0f*M_PI);
 
     left  -= center_x;
     right -= center_x;
@@ -125,11 +103,9 @@ inline void intern_draw(float left, float top, float right, float bottom,
 } // namespace
 
 void
-GLPainter::draw_surface(const DrawingRequest& request, const Vector& scale)
+GLPainter::draw_surface(const DrawingRequest& request)
 {
-  const SurfaceRequest* surfacerequest
-    = static_cast<const SurfaceRequest*>(request.request_data);
-  const Surface* surface = surfacerequest->surface;
+  const Surface* surface = static_cast<const SurfaceRequest*>(request.request_data)->surface;
   if(surface == NULL)
   {
     return;
@@ -150,14 +126,9 @@ GLPainter::draw_surface(const DrawingRequest& request, const Vector& scale)
     s_last_texture = th;
     glBindTexture(GL_TEXTURE_2D, th);
   }
-
-  float left   = request.pos.x;
-  float top    = request.pos.y;
-  float right  = request.pos.x + surfacerequest->dstsize.width;
-  float bottom = request.pos.y + surfacerequest->dstsize.height;
-  whole_pixels(left, top, right, bottom, scale);
-
-  intern_draw(left, top, right, bottom,
+  intern_draw(request.pos.x, request.pos.y,
+              request.pos.x + surface->get_width(),
+              request.pos.y + surface->get_height(),
               surface_data->get_uv_left(),
               surface_data->get_uv_top(),
               surface_data->get_uv_right(),
@@ -170,7 +141,7 @@ GLPainter::draw_surface(const DrawingRequest& request, const Vector& scale)
 }
 
 void
-GLPainter::draw_surface_part(const DrawingRequest& request, const Vector& scale)
+GLPainter::draw_surface_part(const DrawingRequest& request)
 {
   const SurfacePartRequest* surfacepartrequest
     = static_cast<SurfacePartRequest*>(request.request_data);
@@ -191,22 +162,17 @@ GLPainter::draw_surface_part(const DrawingRequest& request, const Vector& scale)
     s_last_texture = th;
     glBindTexture(GL_TEXTURE_2D, th);
   }
-
-  float left   = request.pos.x;
-  float top    = request.pos.y;
-  float right  = request.pos.x + surfacepartrequest->dstsize.width;
-  float bottom = request.pos.y + surfacepartrequest->dstsize.height;
-  whole_pixels(left, top, right, bottom, scale);
-
-  intern_draw(left, top, right, bottom,
+  intern_draw(request.pos.x, request.pos.y,
+              request.pos.x + surfacepartrequest->dstsize.width,
+              request.pos.y + surfacepartrequest->dstsize.height,
               uv_left,
               uv_top,
               uv_right,
               uv_bottom,
-              request.angle,
+              0.0,
               request.alpha,
               request.color,
-              request.blend,
+              Blend(),
               request.drawing_effect);
 }
 
@@ -232,19 +198,26 @@ GLPainter::draw_gradient(const DrawingRequest& request)
   };
   glVertexPointer(2, GL_FLOAT, 0, vertices);
 
-  /* The array has to outlive the branch that fills it, because glColorPointer
-     only records where it is and nothing reads it until glDrawArrays below. */
-  const bool vertical = (direction == VERTICAL || direction == VERTICAL_SECTOR);
-  const Color& second = vertical ? top : bottom;
-  const Color& fourth = vertical ? bottom : top;
-
+if(direction == VERTICAL || direction == VERTICAL_SECTOR)
+{
   float colors[] = {
-    top.red,    top.green,    top.blue,    top.alpha,
-    second.red, second.green, second.blue, second.alpha,
+    top.red, top.green, top.blue, top.alpha,
+    top.red, top.green, top.blue, top.alpha,
     bottom.red, bottom.green, bottom.blue, bottom.alpha,
-    fourth.red, fourth.green, fourth.blue, fourth.alpha,
+    bottom.red, bottom.green, bottom.blue, bottom.alpha,
   };
   glColorPointer(4, GL_FLOAT, 0, colors);
+}
+else
+{
+  float colors[] = {
+    top.red, top.green, top.blue, top.alpha,
+    bottom.red, bottom.green, bottom.blue, bottom.alpha,
+    bottom.red, bottom.green, bottom.blue, bottom.alpha,
+    top.red, top.green, top.blue, top.alpha,
+  };
+  glColorPointer(4, GL_FLOAT, 0, colors);
+}
 
   glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
@@ -281,14 +254,14 @@ GLPainter::draw_filled_rect(const DrawingRequest& request)
                 request.pos.x + fillrectrequest->size.x - radius,
                 request.pos.y + fillrectrequest->size.y - radius);
 
-    const int n = 8;
-    size_t p = 0;
-    std::vector<float> vertices(static_cast<size_t>((n+1) * 4 * 2));
+    int n = 8;
+    int p = 0;
+    std::vector<float> vertices((n+1) * 4 * 2);
 
     for(int i = 0; i <= n; ++i)
     {
-      float x = sinf(i * (std::numbers::pi_v<float>/2) / n) * radius;
-      float y = cosf(i * (std::numbers::pi_v<float>/2) / n) * radius;
+      float x = sinf(i * (M_PI/2) / n) * radius;
+      float y = cosf(i * (M_PI/2) / n) * radius;
 
       vertices[p++] = irect.get_left() - x;
       vertices[p++] = irect.get_top()  - y;
@@ -299,8 +272,8 @@ GLPainter::draw_filled_rect(const DrawingRequest& request)
 
     for(int i = 0; i <= n; ++i)
     {
-      float x = cosf(i * (std::numbers::pi_v<float>/2) / n) * radius;
-      float y = sinf(i * (std::numbers::pi_v<float>/2) / n) * radius;
+      float x = cosf(i * (M_PI/2) / n) * radius;
+      float y = sinf(i * (M_PI/2) / n) * radius;
 
       vertices[p++] = irect.get_left()   - x;
       vertices[p++] = irect.get_bottom() + y;
@@ -377,11 +350,11 @@ GLPainter::draw_inverse_ellipse(const DrawingRequest& request)
 
   for(int i = 0; i < slices; ++i)
   {
-    float ex1 = sinf(std::numbers::pi_v<float>/2 / slices * i) * w;
-    float ey1 = cosf(std::numbers::pi_v<float>/2 / slices * i) * h;
+    float ex1 = sinf(M_PI/2 / slices * i) * w;
+    float ey1 = cosf(M_PI/2 / slices * i) * h;
 
-    float ex2 = sinf(std::numbers::pi_v<float>/2 / slices * (i+1)) * w;
-    float ey2 = cosf(std::numbers::pi_v<float>/2 / slices * (i+1)) * h;
+    float ex2 = sinf(M_PI/2 / slices * (i+1)) * w;
+    float ey2 = cosf(M_PI/2 / slices * (i+1)) * h;
 
     // Bottom/Right
     vertices[p++] = SCREEN_WIDTH; vertices[p++] = SCREEN_HEIGHT;

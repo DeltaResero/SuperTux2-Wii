@@ -1,6 +1,3 @@
-// src/supertux/sequence.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2016 Hume2 <teratux.mail@gmail.com>
 //

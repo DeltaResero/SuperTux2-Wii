@@ -1,6 +1,3 @@
-// src/badguy/stumpy.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,7 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/stumpy.hpp"
-#include <numbers>
 
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
@@ -28,15 +24,13 @@
 #include "supertux/sector.hpp"
 
 #include <math.h>
-#include <cmath>
-#include <memory>
 
 static const float STUMPY_SPEED = 120;
 static const float INVINCIBLE_TIME = 1;
 
 Stumpy::Stumpy(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/mr_tree/stumpy.sprite","left","right", LAYER_OBJECTS,
-                LIGHT_LARGE),
+                "images/objects/lightmap_light/lightmap_light-large.sprite"),
   mystate(STATE_NORMAL),
   invincible_timer()
 {
@@ -109,7 +103,7 @@ Stumpy::collision_squished(GameObject& object)
     // TODO: provide convenience function in MovingSprite or MovingObject?
     for (int i = 0; i < 25; i++) {
       Vector ppos = bbox.get_middle();
-      float angle = graphicsRandom.randf(-(std::numbers::pi_v<float> / 2), (std::numbers::pi_v<float> / 2));
+      float angle = graphicsRandom.randf(-M_PI_2, M_PI_2);
       float velocity = graphicsRandom.randf(45, 90);
       float vx = sin(angle)*velocity;
       float vy = -cos(angle)*velocity;

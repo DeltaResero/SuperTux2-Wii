@@ -1,6 +1,3 @@
-// src/object/rainsplash.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -31,6 +28,9 @@ class RainSplash : public GameObject
 public:
   RainSplash(const Vector& pos, bool vertical);
   ~RainSplash();
+  virtual bool do_save() const {
+    return false;
+  }
 
 protected:
   virtual void hit(Player& );

@@ -1,6 +1,3 @@
-// src/supertux/info_box_line.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -171,12 +168,6 @@ InfoBoxLine::draw(DrawingContext& context, const Rectf& bbox, int layer)
       context.draw_text(font, text, Vector((bbox.p1.x + bbox.p2.x) / 2, position.y), ALIGN_CENTER, layer, color);
       break;
   }
-}
-
-float
-InfoBoxLine::get_image_width() const
-{
-  return image ? static_cast<float>(image->get_width()) : 0.0f;
 }
 
 float

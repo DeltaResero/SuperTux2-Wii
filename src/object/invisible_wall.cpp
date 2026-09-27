@@ -1,6 +1,3 @@
-// src/object/invisible_wall.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,6 +16,8 @@
 
 #include "object/invisible_wall.hpp"
 
+#include "editor/editor.hpp"
+#include "util/gettext.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
 
@@ -37,6 +36,23 @@ InvisibleWall::InvisibleWall(const ReaderMapping& lisp):
   group = COLGROUP_STATIC;
 }
 
+ObjectSettings
+InvisibleWall::get_settings() {
+  width = bbox.get_width();
+  height = bbox.get_height();
+
+  ObjectSettings result = MovingObject::get_settings();
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Width"), &width, "width"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Height"), &height, "height"));
+
+  return result;
+}
+
+void
+InvisibleWall::after_editor_set() {
+  bbox.set_size(width, height);
+}
+
 HitResponse
 InvisibleWall::collision(GameObject& , const CollisionHit& )
 {
@@ -46,6 +62,10 @@ InvisibleWall::collision(GameObject& , const CollisionHit& )
 void
 InvisibleWall::draw(DrawingContext& context)
 {
+  if (Editor::is_active()) {
+    context.draw_filled_rect(bbox, Color(0.0f, 0.0f, 0.0f, 0.6f),
+                             0.0f, LAYER_OBJECTS);
+  }
 }
 
 void

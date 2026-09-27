@@ -1,6 +1,3 @@
-// src/scripting/squirrel_util.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,10 +19,9 @@
 
 #include <sstream>
 #include <vector>
-#include <string>
 
 #include "scripting/squirrel_error.hpp"
-#include "scripting/supertux_api.hpp"
+#include "scripting/wrapper.hpp"
 
 namespace scripting {
 
@@ -64,7 +60,7 @@ void expose_object(HSQUIRRELVM v, SQInteger table_idx, T* object,
 static inline void unexpose_object(HSQUIRRELVM v, SQInteger table_idx,
                                    const std::string& name)
 {
-  sq_pushstring(v, name.c_str(), static_cast<SQInteger>(name.length()));
+  sq_pushstring(v, name.c_str(), name.length());
 
   if(table_idx < 0)
     table_idx -= 1;

@@ -1,6 +1,3 @@
-// src/object/invisible_block.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,11 +15,21 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "audio/sound_manager.hpp"
+#include "editor/editor.hpp"
 #include "object/invisible_block.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/constants.hpp"
+
+InvisibleBlock::InvisibleBlock(const Vector& pos) :
+   Block(SpriteManager::current()->create("images/objects/bonus_block/invisibleblock.sprite")),
+   visible(false)
+{
+  bbox.set_pos(pos);
+  SoundManager::current()->preload("sounds/brick.wav");
+  sprite->set_action("default-editor");
+}
 
 InvisibleBlock::InvisibleBlock(const ReaderMapping& lisp) :
    Block(lisp, "images/objects/bonus_block/invisibleblock.sprite"),
@@ -34,7 +41,7 @@ InvisibleBlock::InvisibleBlock(const ReaderMapping& lisp) :
 void
 InvisibleBlock::draw(DrawingContext& context)
 {
-  if(visible)
+  if(visible || Editor::is_active())
     sprite->draw(context, get_pos(), LAYER_OBJECTS);
 }
 

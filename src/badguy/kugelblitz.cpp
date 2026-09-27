@@ -1,6 +1,3 @@
-// src/badguy/kugelblitz.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,7 +17,6 @@
 #include "badguy/kugelblitz.hpp"
 
 #include <math.h>
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
@@ -28,6 +24,7 @@
 #include "object/electrifier.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
@@ -46,13 +43,15 @@ Kugelblitz::Kugelblitz(const ReaderMapping& reader) :
   lifetime(),
   direction(),
   light(0.0f,0.0f,0.0f),
-  lightcolor(0.2f, 0.1f, 0.0f)
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light.sprite"))
 {
   start_position.x = bbox.p1.x;
   sprite->set_action("falling");
   physic.enable_gravity(false);
   countMe = false;
 
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(0.2f, 0.1f, 0.0f));
 
   SoundManager::current()->preload("sounds/lightning.wav");
 }
@@ -162,9 +161,8 @@ Kugelblitz::draw(DrawingContext& context)
     context.push_target();
     context.set_target(DrawingContext::LIGHTMAP);
     sprite->draw(context, get_pos(), layer);
+    lightsprite->draw(context, bbox.get_middle(), 0);
     context.pop_target();
-
-    context.draw_light(bbox.get_middle(), LIGHT_NORMAL, lightcolor);
   }
 }
 

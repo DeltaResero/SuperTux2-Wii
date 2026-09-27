@@ -1,6 +1,3 @@
-// src/badguy/iceflame.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux badguy - Iceflame a flame-like enemy that can be killed with fireballs
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -18,10 +15,8 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/iceflame.hpp"
-#include <numbers>
 
 #include <math.h>
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
@@ -35,7 +30,7 @@
 Iceflame::Iceflame(const ReaderMapping& reader) :
   Flame(reader)
 {
-  lightcolor = Color(0.00f, 0.13f, 0.18f);
+  lightsprite->set_color(Color(0.00f, 0.13f, 0.18f));
   sprite = SpriteManager::current()->create("images/creatures/flame/iceflame.sprite");
 }
 
@@ -43,7 +38,7 @@ void
 Iceflame::active_update(float elapsed_time)
 {
   Flame::active_update(elapsed_time);
-  sprite->set_angle(angle * 360.0f / (2*std::numbers::pi_v<float>) * 3);
+  sprite->set_angle(angle * 360.0f / (2*M_PI) * 3);
 }
 
 void

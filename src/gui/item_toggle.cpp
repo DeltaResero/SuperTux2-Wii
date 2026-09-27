@@ -1,6 +1,3 @@
-// src/gui/item_toggle.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -38,7 +35,7 @@ ItemToggle::ItemToggle(const std::string& text_, bool* toggled_, int _id) :
 }
 
 void
-ItemToggle::draw(DrawingContext& context, Vector pos, int menu_width, float value_width, bool active) {
+ItemToggle::draw(DrawingContext& context, Vector pos, int menu_width, bool active) {
   context.draw_text(Resources::normal_font, text,
                     Vector(pos.x + 16, pos.y - (Resources::normal_font->get_height()/2)),
                     ALIGN_LEFT, LAYER_GUI, active ? ColorScheme::Menu::active_color : get_color());

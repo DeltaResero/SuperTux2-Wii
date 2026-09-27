@@ -1,6 +1,3 @@
-// src/gui/menu_manager.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,7 +17,6 @@
 #include "gui/menu_manager.hpp"
 
 #include <assert.h>
-#include <utility>
 
 #include "control/input_manager.hpp"
 #include "gui/dialog.hpp"
@@ -31,6 +27,7 @@
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/timer.hpp"
+#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "video/drawing_context.hpp"
 

@@ -1,6 +1,3 @@
-// src/scripting/functions.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,14 +16,11 @@
 
 #include "scripting/functions.hpp"
 
-#include <memory>
-#include <stdexcept>
-
 #include "audio/sound_manager.hpp"
 #include "math/random_generator.hpp"
 #include "object/camera.hpp"
 #include "object/player.hpp"
-#include "io/ifile_stream.hpp"
+#include "physfs/ifile_stream.hpp"
 #include "supertux/fadeout.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/gameconfig.hpp"
@@ -37,6 +31,7 @@
 #include "supertux/textscroller.hpp"
 #include "supertux/tile.hpp"
 #include "supertux/world.hpp"
+#include "util/gettext.hpp"
 #include "video/renderer.hpp"
 #include "video/video_system.hpp"
 #include "worldmap/tux.hpp"
@@ -69,16 +64,14 @@ SQInteger is_christmas(HSQUIRRELVM vm)
     return g_config->christmas_mode;
 }
 
-SQInteger wait(HSQUIRRELVM vm, float seconds)
+void wait(HSQUIRRELVM vm, float seconds)
 {
   TimeScheduler::instance->schedule_thread(vm, game_time + seconds);
-  return sq_suspendvm(vm);
 }
 
-SQInteger wait_for_screenswitch(HSQUIRRELVM vm)
+void wait_for_screenswitch(HSQUIRRELVM vm)
 {
   ScreenManager::current()->m_waiting_threads.add(vm);
-  return sq_suspendvm(vm);
 }
 
 void exit_screen()
@@ -99,6 +92,16 @@ void shrink_screen(float dest_x, float dest_y, float seconds)
 void abort_screenfade()
 {
   ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>());
+}
+
+std::string translate(const std::string& text)
+{
+  return g_dictionary_manager->get_dictionary().translate(text);
+}
+
+std::string _(const std::string& text)
+{
+  return translate(text);
 }
 
 void display_text_file(const std::string& filename)
@@ -161,6 +164,11 @@ void debug_show_fps(bool enable)
 void debug_draw_solids_only(bool enable)
 {
   ::Sector::draw_solids_only = enable;
+}
+
+void debug_draw_editor_images(bool enable)
+{
+  Tile::draw_editor_images = enable;
 }
 
 void debug_worldmap_ghost(bool enable)

@@ -1,6 +1,3 @@
-// src/object/invisible_block.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,20 +17,19 @@
 #ifndef HEADER_SUPERTUX_OBJECT_INVISIBLE_BLOCK_HPP
 #define HEADER_SUPERTUX_OBJECT_INVISIBLE_BLOCK_HPP
 
-#include <string>
-
 #include "object/block.hpp"
 #include "util/reader_fwd.hpp"
 
 class InvisibleBlock : public Block
 {
 public:
+  InvisibleBlock(const Vector& pos);
   InvisibleBlock(const ReaderMapping& lisp);
   std::string get_class() const {
     return "invisible_block";
   }
   std::string get_display_name() const {
-    return "Invisible block";
+    return _("Invisible block");
   }
 
   virtual void draw(DrawingContext& context);

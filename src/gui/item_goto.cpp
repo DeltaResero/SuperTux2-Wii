@@ -1,6 +1,3 @@
-// src/gui/item_goto.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -19,7 +16,6 @@
 
 #include "gui/item_goto.hpp"
 
-#include <assert.h>
 #include <stdio.h>
 
 #include "gui/menu.hpp"

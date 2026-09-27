@@ -1,6 +1,3 @@
-// src/supertux/player_status.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2003 Tobias Glaesser <tobi.web@gmx.de>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
@@ -22,7 +19,6 @@
 #define HEADER_SUPERTUX_SUPERTUX_PLAYER_STATUS_HPP
 
 #include <memory>
-#include <string>
 
 #include "video/color.hpp"
 #include "video/surface_ptr.hpp"

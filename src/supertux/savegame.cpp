@@ -1,6 +1,3 @@
-// src/supertux/savegame.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -21,17 +18,14 @@
 #include "supertux/savegame.hpp"
 
 #include <algorithm>
-#include <exception>
-#include <sstream>
-#include <stdexcept>
 
-#include "io/ifile_stream.hpp"
+#include "physfs/ifile_streambuf.hpp"
+#include "physfs/physfs_file_system.hpp"
 #include "scripting/scripting.hpp"
 #include "scripting/serialize.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/player_status.hpp"
 #include "util/file_system.hpp"
-
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -137,13 +131,13 @@ Savegame::load()
 
   clear_state_table();
 
-  if(FileSystem::find(m_filename).empty())
+  if(!PHYSFS_exists(m_filename.c_str()))
   {
     log_info << m_filename << " doesn't exist, not loading state" << std::endl;
   }
   else
   {
-    if(FileSystem::is_directory(FileSystem::find(m_filename)))
+    if(PhysFSFileSystem::is_directory(m_filename))
     {
       log_info << m_filename << " is a directory, not loading state" << std::endl;
       return;
@@ -236,18 +230,18 @@ Savegame::save()
 
   { // make sure the savegame directory exists
     std::string dirname = FileSystem::dirname(m_filename);
-    if(FileSystem::find(dirname).empty())
+    if(!PHYSFS_exists(dirname.c_str()))
     {
-      const std::string path = FileSystem::write_path(dirname);
-      if(path.empty())
+      if(!PHYSFS_mkdir(dirname.c_str()))
       {
-        throw std::runtime_error("Couldn't work out where to keep savegames '" +
-                                 dirname + "'");
+        std::ostringstream msg;
+        msg << "Couldn't create directory for savegames '"
+            << dirname << "': " <<PHYSFS_getLastError();
+        throw std::runtime_error(msg.str());
       }
-      FileSystem::mkdir(path);
     }
 
-    if(!FileSystem::is_directory(FileSystem::find(dirname)))
+    if(!PhysFSFileSystem::is_directory(dirname))
     {
       std::ostringstream msg;
       msg << "Savegame path '" << dirname << "' is not a directory";

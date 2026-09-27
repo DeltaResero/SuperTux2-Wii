@@ -1,6 +1,3 @@
-// src/worldmap/level.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -26,7 +23,6 @@
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
-#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 #include "supertux/statistics.hpp"
 #include "video/color.hpp"
@@ -36,8 +32,7 @@ class Sprite;
 
 namespace worldmap {
 
-class LevelTile : public GameObject,
-                  public ArtworkInterface
+class LevelTile : public GameObject
 {
 public:
   LevelTile(const std::string& basedir, const ReaderMapping& lisp);
@@ -45,9 +40,6 @@ public:
 
   virtual void draw(DrawingContext& context);
   virtual void update(float elapsed_time);
-
-  virtual void release_artwork();
-  virtual void reacquire_artwork();
 
   void set_solved(bool v);
   void set_perfect(bool v);
@@ -62,9 +54,6 @@ public:
   bool auto_play; /**< true if Tux should automatically enter this level if it's unfinished */
 
   SpritePtr sprite;
-
-  /** Kept so the sprite can be fetched again */
-  std::string sprite_name;
 
   /** Statistics for level tiles */
   Statistics statistics;

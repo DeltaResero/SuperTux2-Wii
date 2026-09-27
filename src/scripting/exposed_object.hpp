@@ -1,6 +1,3 @@
-// src/scripting/exposed_object.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -- ExposedObject class
 //  Copyright (C) 2016 Tobias Markus <tobbi.bugs@googlemail.com>
 //
@@ -104,5 +101,3 @@ private:
 };
 
 #endif
-
-/* EOF */

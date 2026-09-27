@@ -1,6 +1,3 @@
-// src/worldmap/direction.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,6 +16,7 @@
 
 #include "direction.hpp"
 
+#include "editor/object_settings.hpp"
 #include "util/log.hpp"
 
 namespace worldmap {
@@ -76,6 +74,17 @@ string_to_direction(const std::string& directory)
     log_warning << "unknown direction: \"" << directory << "\"" << std::endl;
     return D_NONE;
   }
+}
+
+ObjectOption
+dir_option(Direction *dir) {
+  ObjectOption result(MN_STRINGSELECT, _("Direction"), dir);
+  result.select.push_back(_("none"));
+  result.select.push_back(_("west"));
+  result.select.push_back(_("east"));
+  result.select.push_back(_("north"));
+  result.select.push_back(_("south"));
+  return result;
 }
 
 } // namespace worldmap

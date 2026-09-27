@@ -1,6 +1,3 @@
-// src/badguy/spiky.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SPIKY_HPP
 #define HEADER_SUPERTUX_BADGUY_SPIKY_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 class Spiky : public WalkingBadguy
@@ -35,7 +30,7 @@ public:
     return "spiky";
   }
   std::string get_display_name() const {
-    return "Spiky";
+    return _("Spiky");
   }
 
 private:

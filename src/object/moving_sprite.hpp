@@ -1,6 +1,3 @@
-// src/object/moving_sprite.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - MovingSprite Base Class
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_MOVING_SPRITE_HPP
 #define HEADER_SUPERTUX_OBJECT_MOVING_SPRITE_HPP
-
-#include <string>
 
 #include "object/anchor_point.hpp"
 #include "supertux/moving_object.hpp"
@@ -58,6 +53,9 @@ public:
   virtual std::string get_class() const override {
     return "moving-sprite";
   }
+
+  virtual ObjectSettings get_settings() override;
+  virtual void after_editor_set() override;
 
   std::string get_sprite_name() const;
   void change_sprite(const std::string& new_sprite_name);

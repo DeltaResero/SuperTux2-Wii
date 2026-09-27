@@ -1,6 +1,3 @@
-// src/main.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,25 +17,10 @@
 #include "SDL.h"
 
 #include "supertux/main.hpp"
-#ifdef __wii__
-#include "util/wii.hpp"
-#endif
 
 int main(int argc, char** argv)
 {
-#ifdef __wii__
-  Wii::take_power_buttons();
-  Wii::fit_overscan();
-#endif
-
-  int result = Main().run(argc, argv);
-
-#ifdef __wii__
-  // Main has saved the config by now.
-  Wii::power_off_if_requested();
-#endif
-
-  return result;
+  return Main().run(argc, argv);
 }
 
 /* EOF */

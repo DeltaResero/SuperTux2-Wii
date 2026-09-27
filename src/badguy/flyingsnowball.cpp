@@ -1,6 +1,3 @@
-// src/badguy/flyingsnowball.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #include "badguy/flyingsnowball.hpp"
 
-#include <memory>
-
 #include "math/random_generator.hpp"
 #include "object/sprite_particle.hpp"
 #include "object/player.hpp"
@@ -34,6 +29,14 @@ const float PUFF_INTERVAL_MAX = 8.0f; /**< spawn new puff of smoke at least that
 
 FlyingSnowBall::FlyingSnowBall(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/flying_snowball/flying_snowball.sprite"),
+  normal_propeller_speed(),
+  puff_timer()
+{
+  physic.enable_gravity(true);
+}
+
+FlyingSnowBall::FlyingSnowBall(const Vector& pos) :
+  BadGuy(pos, "images/creatures/flying_snowball/flying_snowball.sprite"),
   normal_propeller_speed(),
   puff_timer()
 {

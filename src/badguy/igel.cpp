@@ -1,6 +1,3 @@
-// src/badguy/igel.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Badguy "Igel"
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "badguy/igel.hpp"
-
-#include <vector>
 #include "object/bullet.hpp"
 #include "supertux/sector.hpp"
 
@@ -35,6 +30,14 @@ const float RANGE_OF_VISION = 256; /**< range in px at which we can see bullets 
 
 Igel::Igel(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/igel/igel.sprite", "walking-left", "walking-right"),
+  turn_recover_timer()
+{
+  walk_speed = IGEL_SPEED;
+  max_drop_height = 16;
+}
+
+Igel::Igel(const Vector& pos, Direction d) :
+  WalkingBadguy(pos, d, "images/creatures/igel/igel.sprite", "walking-left", "walking-right"),
   turn_recover_timer()
 {
   walk_speed = IGEL_SPEED;
@@ -74,7 +77,9 @@ Igel::active_update(float elapsed_time)
 
   // check if we see a fire bullet
   auto sector = Sector::current();
-  for (const auto* bullet : sector->get_bullets()) {
+  for (const auto& object : sector->gameobjects) {
+    auto bullet = reinterpret_cast<Bullet*>(object.get());
+    if (!bullet) continue;
     if (bullet->get_type() != FIRE_BONUS) continue;
     if (can_see(*bullet)) wants_to_flee = true;
   }

@@ -1,6 +1,3 @@
-// src/audio/openal_sound_source.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -45,11 +42,10 @@ public:
   virtual void set_pitch(float pitch);
   virtual void set_position(const Vector& position);
   virtual void set_velocity(const Vector& position);
-  virtual void set_placed_range();
-  virtual void set_close_range(float level = 1.0f);
+  virtual void set_reference_distance(float distance);
 
 protected:
-  friend class OpenALDevice;
+  friend class SoundManager;
 
   ALuint source;
 

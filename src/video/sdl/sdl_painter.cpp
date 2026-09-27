@@ -1,6 +1,3 @@
-// src/video/sdl/sdl_painter.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -21,14 +18,7 @@
 
 #include "SDL.h"
 
-#include <cmath>
-#include <algorithm>
-#include <memory>
-#include <vector>
-
 #include "math/rectf.hpp"
-#include "math/sizef.hpp"
-#include "math/vector.hpp"
 #include "util/log.hpp"
 #include "video/drawing_request.hpp"
 #include "video/sdl/sdl_texture.hpp"
@@ -64,94 +54,19 @@ SDL_BlendMode blend2sdl(const Blend& blend)
   }
 }
 
-/** Put a rectangle of fractions onto whole pixels.
-
-    The scale goes on first, so the rounding lands on the pixels that get
-    drawn rather than on the smaller grid the game draws in.
-
-    Rounding a position and a size on their own lets two pictures meant to
-    meet fall out of step, because the size is rounded without regard to
-    where the picture starts. Rounding both edges and taking the size from
-    the difference means anything ending where the next thing begins still
-    does so afterwards.
-
-    Rounding down rather than towards zero matters for the same reason: a
-    background scrolled off the left of the screen has a negative left edge
-    and a positive right one, and truncation moves those two in opposite
-    directions. */
-SDL_Rect whole_pixels(const Vector& pos, const Sizef& size,
-                      float scale_x, float scale_y)
-{
-  const int left = static_cast<int>(std::floor(pos.x * scale_x));
-  const int top  = static_cast<int>(std::floor(pos.y * scale_y));
-
-  SDL_Rect rect;
-  rect.x = left;
-  rect.y = top;
-  rect.w = static_cast<int>(std::floor((pos.x + size.width)  * scale_x)) - left;
-  rect.h = static_cast<int>(std::floor((pos.y + size.height) * scale_y)) - top;
-  return rect;
-}
-
-/** Copy a texture, working around a scale set on the renderer.
-
-    Filled shapes honour a renderer scale, but a copy made into a render
-    target while one is set does not arrive, and SDL reports no error for it.
-    So the scale is taken off, applied to the destination by hand, and put
-    back for whatever draws next. With no scale set this is a plain copy. */
-void render_copy(SDL_Renderer* renderer, SDL_Texture* texture,
-                 const SDL_Rect* src_rect,
-                 const Vector& pos, const Sizef& size,
-                 double angle, SDL_RendererFlip flip)
-{
-  float scale_x = 1.0f;
-  float scale_y = 1.0f;
-  SDL_RenderGetScale(renderer, &scale_x, &scale_y);
-
-  if(scale_x == 1.0f && scale_y == 1.0f)
-  {
-    const SDL_Rect dst_rect = whole_pixels(pos, size, 1.0f, 1.0f);
-    SDL_RenderCopyEx(renderer, texture, src_rect, &dst_rect, angle, NULL, flip);
-    return;
-  }
-
-  if(SDL_GetRenderTarget(renderer) != NULL)
-  {
-    /* A copy into a render target keeps its fractions. The lightmap is a
-       fifth of the screen, so one whole pixel of it is five on the screen,
-       enough to move a light in steps as it travels. */
-    const SDL_FRect scaled = {
-      pos.x * scale_x,
-      pos.y * scale_y,
-      size.width * scale_x,
-      size.height * scale_y
-    };
-
-    SDL_RenderSetScale(renderer, 1.0f, 1.0f);
-    SDL_RenderCopyExF(renderer, texture, src_rect, &scaled, angle, NULL, flip);
-    SDL_RenderSetScale(renderer, scale_x, scale_y);
-    return;
-  }
-
-  const SDL_Rect dst_rect = whole_pixels(pos, size, scale_x, scale_y);
-
-  SDL_RenderSetScale(renderer, 1.0f, 1.0f);
-  SDL_RenderCopyEx(renderer, texture, src_rect, &dst_rect, angle, NULL, flip);
-  SDL_RenderSetScale(renderer, scale_x, scale_y);
-}
-
 } // namespace
 
 void
 SDLPainter::draw_surface(SDL_Renderer* renderer, const DrawingRequest& request)
 {
-  const auto surfacerequest = static_cast<const SurfaceRequest*>(request.request_data);
-  const auto surface = surfacerequest->surface;
+  const auto surface = static_cast<const SurfaceRequest*>(request.request_data)->surface;
   std::shared_ptr<SDLTexture> sdltexture = std::dynamic_pointer_cast<SDLTexture>(surface->get_texture());
-  if(!sdltexture)
-  {
-    return;
-  }
+
+  SDL_Rect dst_rect;
+  dst_rect.x = request.pos.x;
+  dst_rect.y = request.pos.y;
+  dst_rect.w = sdltexture->get_image_width();
+  dst_rect.h = sdltexture->get_image_height();
 
   Uint8 r = static_cast<Uint8>(request.color.red * 255);
   Uint8 g = static_cast<Uint8>(request.color.green * 255);
@@ -172,27 +87,29 @@ SDLPainter::draw_surface(SDL_Renderer* renderer, const DrawingRequest& request)
     flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_VERTICAL);
   }
 
-  render_copy(renderer, sdltexture->get_texture(), NULL,
-              request.pos, surfacerequest->dstsize, request.angle, flip);
+  SDL_RenderCopyEx(renderer, sdltexture->get_texture(), NULL, &dst_rect, request.angle, NULL, flip);
 }
 
 void
 SDLPainter::draw_surface_part(SDL_Renderer* renderer, const DrawingRequest& request)
 {
+  //FIXME: support parameters request.blend
   const auto surface = static_cast<const SurfacePartRequest*>(request.request_data);
   const auto surfacepartrequest = static_cast<SurfacePartRequest*>(request.request_data);
 
   std::shared_ptr<SDLTexture> sdltexture = std::dynamic_pointer_cast<SDLTexture>(surface->surface->get_texture());
-  if(!sdltexture)
-  {
-    return;
-  }
 
   SDL_Rect src_rect;
   src_rect.x = surfacepartrequest->srcrect.p1.x;
   src_rect.y = surfacepartrequest->srcrect.p1.y;
   src_rect.w = surfacepartrequest->srcrect.get_width();
   src_rect.h = surfacepartrequest->srcrect.get_height();
+
+  SDL_Rect dst_rect;
+  dst_rect.x = request.pos.x;
+  dst_rect.y = request.pos.y;
+  dst_rect.w = surfacepartrequest->dstsize.width;
+  dst_rect.h = surfacepartrequest->dstsize.height;
 
   Uint8 r = static_cast<Uint8>(request.color.red * 255);
   Uint8 g = static_cast<Uint8>(request.color.green * 255);
@@ -213,8 +130,7 @@ SDLPainter::draw_surface_part(SDL_Renderer* renderer, const DrawingRequest& requ
     flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_VERTICAL);
   }
 
-  render_copy(renderer, sdltexture->get_texture(), &src_rect,
-              request.pos, surfacepartrequest->dstsize, request.angle, flip);
+  SDL_RenderCopyEx(renderer, sdltexture->get_texture(), &src_rect, &dst_rect, request.angle, NULL, flip);
 }
 
 void
@@ -300,7 +216,7 @@ SDLPainter::draw_filled_rect(SDL_Renderer* renderer, const DrawingRequest& reque
 
     // rounded top and bottom parts
     std::vector<SDL_Rect> rects;
-    rects.reserve(static_cast<size_t>(2*slices + 1));
+    rects.reserve(2*slices + 1);
     for(int i = 0; i < slices; ++i)
     {
       float p = (static_cast<float>(i) + 0.5f) / static_cast<float>(slices);

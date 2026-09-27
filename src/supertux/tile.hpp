@@ -1,6 +1,3 @@
-// src/supertux/tile.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2004 Tobias Glaesser <tobi.web@gmx.de>
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
@@ -24,7 +21,6 @@
 
 #include <vector>
 #include <stdint.h>
-#include <string>
 
 #include "math/rectf.hpp"
 #include "video/color.hpp"
@@ -35,6 +31,7 @@ class DrawingContext;
 class Tile
 {
 public:
+  static bool draw_editor_images;
   /// bitset for tile attributes
   enum {
     /** solid tile that is indestructible by Tux */
@@ -54,9 +51,6 @@ public:
     FULLBOX   = 0x0020, //Marked for removal, DO NOT USE!
     /** Tile is a coin */
     COIN      = 0x0040, //Marked for removal, DO NOT USE!
-    /** turn every other tile of a repeated run around, so a picture whose
-     * edges do not match itself still joins up. Drawing only. */
-    ALTERNATE = 0x0080,
 
     /* interesting flags (the following are passed to gameobjects) */
     FIRST_INTERESTING_FLAG = 0x0100,
@@ -110,6 +104,8 @@ public:
 private:
   std::vector<ImageSpec> imagespecs;
   std::vector<SurfacePtr>  images;
+  std::vector<ImageSpec> editor_imagespecs;
+  std::vector<SurfacePtr>  editor_images;
 
   /// tile attributes
   uint32_t attributes;
@@ -124,7 +120,7 @@ private:
 
 public:
   Tile();
-  Tile(const std::vector<ImageSpec>& images,
+  Tile(const std::vector<ImageSpec>& images, const std::vector<ImageSpec>& editor_images,
        uint32_t attributes, uint32_t data, float fps, std::string obj_name = "",
        std::string obj_data = "");
   ~Tile();
@@ -132,10 +128,7 @@ public:
   /** load Surfaces, if not already loaded */
   void load_images();
 
-  /** Drop the Surfaces; load_images() fetches them again when next drawn */
-  void release_images();
-
-  const SurfacePtr& get_current_image() const;
+  SurfacePtr get_current_image() const;
 
   /** Draw a tile on the screen */
   void draw(DrawingContext& context, const Vector& pos, int z_pos, Color color = Color(1, 1, 1)) const;

@@ -1,6 +1,3 @@
-// src/worldmap/worldmap.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -25,11 +22,10 @@
 #include <assert.h>
 #include <fstream>
 #include <iostream>
+#include <physfs.h>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-
-#include <sexp/lexer.hpp>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
@@ -39,7 +35,7 @@
 #include "object/background.hpp"
 #include "object/decal.hpp"
 #include "object/tilemap.hpp"
-#include "io/ifile_stream.hpp"
+#include "physfs/ifile_streambuf.hpp"
 #include "scripting/scripting.hpp"
 #include "scripting/squirrel_error.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -64,6 +60,7 @@
 #include "supertux/tile_set.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
+#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "util/reader.hpp"
 #include "util/reader_collection.hpp"
@@ -108,7 +105,6 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   ambient_light( 1.0f, 1.0f, 1.0f, 1.0f ),
   force_spawnpoint(force_spawnpoint_),
   in_level(false),
-  artwork_released(false),
   pan_pos(),
   panning(false)
 {
@@ -136,11 +132,10 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   sq_addref(global_vm, &worldmap_table);
   sq_pop(global_vm, 1);
 
+  SoundManager::current()->preload("sounds/warp.wav");
+
   // load worldmap objects
   load(filename);
-
-  if(!teleporters.empty())
-    SoundManager::current()->preload("sounds/warp.wav");
 }
 
 WorldMap::~WorldMap()
@@ -206,30 +201,6 @@ WorldMap::try_unexpose(const GameObjectPtr& object)
 }
 
 void
-WorldMap::release_artwork()
-{
-  for(const auto& object : game_objects) {
-    auto artwork = dynamic_cast<ArtworkInterface*>(object.get());
-    if(artwork != NULL)
-      artwork->release_artwork();
-  }
-
-  /* No matching fetch: a tile reloads itself the next time it's drawn. */
-  if(tileset)
-    tileset->release_images();
-}
-
-void
-WorldMap::reacquire_artwork()
-{
-  for(const auto& object : game_objects) {
-    auto artwork = dynamic_cast<ArtworkInterface*>(object.get());
-    if(artwork != NULL)
-      artwork->reacquire_artwork();
-  }
-}
-
-void
 WorldMap::move_to_spawnpoint(const std::string& spawnpoint, bool pan)
 {
   for(const auto& sp : spawn_points) {
@@ -266,6 +237,7 @@ WorldMap::load(const std::string& filename)
   levels_path = FileSystem::dirname(map_filename);
 
   try {
+    register_translation_directory(map_filename);
     auto doc = ReaderDocument::parse(map_filename);
     auto root = doc.get_root();
 
@@ -296,9 +268,7 @@ WorldMap::load(const std::string& filename)
       auto iter = sector.get_iter();
       while(iter.next()) {
         if(iter.get_key() == "tilemap") {
-          auto tilemap = std::make_shared<TileMap>(tileset, iter.as_mapping());
-          tilemap->set_alternate_straights(true);
-          add_object(tilemap);
+          add_object(std::make_shared<TileMap>(tileset, iter.as_mapping()));
         } else if(iter.get_key() == "background") {
           add_object(std::make_shared<Background>(iter.as_mapping()));
         } else if(iter.get_key() == "music") {
@@ -361,47 +331,22 @@ void
 WorldMap::load_level_information(LevelTile& level)
 {
   /** get special_tile's title */
-  level.title = "<no title>";
+  level.title = _("<no title>");
   level.target_time = 0.0f;
 
   try {
     std::string filename = levels_path + level.get_name();
     if(levels_path == "./")
       filename = level.get_name();
-
-    /* Both keys sit in the header, so read tokens until the sector starts
-       and leave the rest of the file unread. */
-    IFileStream in(filename);
-    sexp::Lexer lexer(in);
-
-    if(lexer.get_next_token() != sexp::Lexer::TOKEN_OPEN_PAREN ||
-       lexer.get_next_token() != sexp::Lexer::TOKEN_SYMBOL ||
-       lexer.get_string() != "supertux-level") {
+    register_translation_directory(filename);
+    auto doc = ReaderDocument::parse(filename);
+    auto root = doc.get_root();
+    if(root.get_name() != "supertux-level") {
       return;
-    }
-
-    bool have_title = false, have_target_time = false;
-    while(!have_title || !have_target_time) {
-      auto token = lexer.get_next_token();
-      if(token == sexp::Lexer::TOKEN_EOF)
-        break;
-      if(token != sexp::Lexer::TOKEN_SYMBOL)
-        continue;
-
-      const std::string key = lexer.get_string();
-      if(key == "sector")
-        break;
-      if(key == "name" &&
-         lexer.get_next_token() == sexp::Lexer::TOKEN_STRING) {
-        level.title = lexer.get_string();
-        have_title = true;
-      } else if(key == "target-time") {
-        auto value = lexer.get_next_token();
-        if(value == sexp::Lexer::TOKEN_REAL || value == sexp::Lexer::TOKEN_INTEGER) {
-          level.target_time = std::stof(lexer.get_string());
-          have_target_time = true;
-        }
-      }
+    } else {
+      auto level_lisp = root.get_mapping();
+      level_lisp.get("name", level.title);
+      level_lisp.get("target-time", level.target_time);
     }
   } catch(std::exception& e) {
     log_warning << "Problem when reading level information: " << e.what() << std::endl;
@@ -503,14 +448,17 @@ WorldMap::finished_level(Level* gamelevel)
   }
 
   bool old_level_state = level->solved;
-  level->set_solved(true);
+  level->solved = true;
+  level->sprite->set_action("solved");
 
   // deal with statistics
   level->statistics.merge(gamelevel->stats);
   calculate_total_stats();
 
   if(level->statistics.completed(level->statistics, level->target_time)) {
-    level->set_perfect(true);
+    level->perfect = true;
+    if(level->sprite->has_action("perfect"))
+      level->sprite->set_action("perfect");
   }
 
   save_state();
@@ -587,15 +535,6 @@ WorldMap::clamp_camera_position(Vector& c) const
 void
 WorldMap::update(float delta)
 {
-  // The menu ignores the pause key, so it closes the worldmap menu here.
-  if (!in_level && MenuManager::instance().is_active() &&
-      !MenuManager::instance().has_dialog() &&
-      InputManager::current()->get_controller()->pressed(Controller::START))
-  {
-    MenuManager::instance().clear_menu_stack();
-    return;
-  }
-
   if (!in_level && !MenuManager::instance().is_active())
   {
     // update GameObjects
@@ -723,6 +662,8 @@ WorldMap::update(float delta)
                                     level_->pos.y*32 +  8 - camera_offset.y);
           std::string levelfile = levels_path + level_->get_name();
 
+          // update state and savegame
+          save_state();
           ScreenManager::current()->push_screen(std::unique_ptr<Screen>(new GameSession(levelfile, m_savegame, &level_->statistics)),
                                                 std::unique_ptr<ScreenFade>(new ShrinkFade(shrinkpos, 1.0f)));
           in_level = true;
@@ -915,13 +856,6 @@ WorldMap::setup()
   ScreenManager::current()->set_screen_fade(std::unique_ptr<ScreenFade>(new FadeIn(1)));
 
   current_ = this;
-
-  /* Before load_state, which asks each dot to show the right picture. */
-  if(artwork_released) {
-    reacquire_artwork();
-    artwork_released = false;
-  }
-
   load_state();
 
   // if force_spawnpoint was set, move Tux there, then clear force_spawnpoint
@@ -942,20 +876,13 @@ WorldMap::setup()
     throw SquirrelError(global_vm, "Couldn't set worldmap in roottable");
   sq_pop(global_vm, 1);
 
-  /* Run default.nut just before init script. Most worldmaps have none, so a
-     missing file is not a fault and is not worth saying anything about. One
-     that is there and will not run is a fault, and it used to be discarded
-     here together with the reason, leaving whatever the script was meant to
-     define missing for the rest of the map with nothing to say why. */
-  const std::string default_script = levels_path + "default.nut";
-  if(!FileSystem::find(default_script).empty()) {
-    try {
-      IFileStream in(default_script);
-      run_script(in, "WorldMap::default.nut");
-    } catch(const std::exception& e) {
-      log_warning << "Couldn't run " << default_script << ": "
-                  << e.what() << std::endl;
-    }
+  //Run default.nut just before init script
+  try {
+    IFileStreambuf ins(levels_path + "default.nut");
+    std::istream in(&ins);
+    run_script(in, "WorldMap::default.nut");
+  } catch(std::exception& ) {
+    // doesn't exist or erroneous; do nothing
   }
 
   if(!init_script.empty()) {
@@ -979,10 +906,6 @@ WorldMap::leave()
   if(SQ_FAILED(sq_deleteslot(global_vm, -2, SQFalse)))
     throw SquirrelError(global_vm, "Couldn't unset worldmap in roottable");
   sq_pop(global_vm, 1);
-
-  /* Only the artwork: a running level points into the dot it started from. */
-  release_artwork();
-  artwork_released = true;
 }
 
 void
@@ -1009,13 +932,13 @@ WorldMap::save_state()
     get_table_entry(vm, "state");
     get_or_create_table_entry(vm, "worlds");
 
-    sq_pushstring(vm, map_filename.c_str(), static_cast<SQInteger>(map_filename.length()));
+    sq_pushstring(vm, map_filename.c_str(), map_filename.length());
     if(SQ_FAILED(sq_deleteslot(vm, -2, SQFalse)))
     {
     }
 
     // construct new table for this worldmap
-    sq_pushstring(vm, map_filename.c_str(), static_cast<SQInteger>(map_filename.length()));
+    sq_pushstring(vm, map_filename.c_str(), map_filename.length());
     sq_newtable(vm);
 
     // store tux

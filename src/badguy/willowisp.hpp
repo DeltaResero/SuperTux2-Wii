@@ -1,6 +1,3 @@
-// src/badguy/willowisp.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - "Will-O-Wisp" Badguy
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,9 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_WILLOWISP_HPP
 #define HEADER_SUPERTUX_BADGUY_WILLOWISP_HPP
 
-#include <memory>
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class Path;
@@ -37,6 +31,7 @@ class WillOWisp : public BadGuy,
 {
 public:
   WillOWisp(const ReaderMapping& reader);
+  virtual void save(Writer& writer);
 
   void activate();
   void deactivate();
@@ -63,8 +58,11 @@ public:
     return "willowisp";
   }
   std::string get_display_name() const {
-    return "Will 'o' wisp";
+    return _("Will 'o' wisp");
   }
+
+  virtual ObjectSettings get_settings();
+  virtual void move_to(const Vector& pos);
 
   Path* get_path() const {
     return path.get();

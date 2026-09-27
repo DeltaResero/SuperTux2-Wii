@@ -1,6 +1,3 @@
-// src/object/ghost_particle_system.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -21,12 +18,10 @@
 
 #include <algorithm>
 #include <math.h>
-#include <memory>
-#include <utility>
-#include <vector>
 
 #include "math/random_generator.hpp"
 #include "supertux/globals.hpp"
+#include "util/gettext.hpp"
 #include "util/reader.hpp"
 #include "video/drawing_context.hpp"
 

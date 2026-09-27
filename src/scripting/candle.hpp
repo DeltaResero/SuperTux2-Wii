@@ -1,6 +1,3 @@
-// src/scripting/candle.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,26 +17,30 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_CANDLE_HPP
 #define HEADER_SUPERTUX_SCRIPTING_CANDLE_HPP
 
+#ifndef SCRIPTING_API
 class Candle;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class Candle : public ssq::ExposableClass
+class Candle
 {
 public:
+#ifndef SCRIPTING_API
   Candle(::Candle* candle);
   ~Candle();
+#endif
 
   bool get_burning() const; /**< returns true if candle is lighted */
   void set_burning(bool burning); /**< true: light candle, false: extinguish candle */
 
+#ifndef SCRIPTING_API
   ::Candle* candle;
 
 private:
   Candle(const Candle&);
   Candle& operator=(const Candle&);
+#endif
 };
 
 }

@@ -1,6 +1,3 @@
-// src/object/coin_explode.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  CoinExplode - several coins are hurled through the air
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/coin_explode.hpp"
-
-#include <memory>
 
 #include "math/random_generator.hpp"
 #include "object/coin.hpp"

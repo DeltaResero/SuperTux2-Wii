@@ -1,6 +1,3 @@
-// src/badguy/badguy.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -24,6 +21,7 @@
 #include "object/camera.hpp"
 #include "math/random_generator.hpp"
 #include "object/broken_brick.hpp"
+#include "editor/editor.hpp"
 #include "object/bullet.hpp"
 #include "object/particles.hpp"
 #include "object/sprite_particle.hpp"
@@ -37,7 +35,6 @@
 
 #include <math.h>
 #include <sstream>
-#include <memory>
 
 static const float SQUISH_TIME = 2;
 static const float GEAR_TIME = 2;
@@ -47,7 +44,7 @@ static const float X_OFFSCREEN_DISTANCE = 1280;
 static const float Y_OFFSCREEN_DISTANCE = 800;
 
 BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
-               LightSize light_size_) :
+               const std::string& light_sprite_name) :
   MovingSprite(pos, sprite_name_, layer_, COLGROUP_DISABLED),
   physic(),
   countMe(true),
@@ -60,8 +57,7 @@ BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
   in_water(false),
   dead_script(),
   melting_time(0),
-  light_size(light_size_),
-  lightcolor(1.0f, 1.0f, 1.0f),
+  lightsprite(SpriteManager::current()->create(light_sprite_name)),
   glowing(false),
   state(STATE_INIT),
   is_active_flag(),
@@ -78,10 +74,11 @@ BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
   SoundManager::current()->preload("sounds/fire.ogg");
 
   dir = (start_dir == AUTO) ? LEFT : start_dir;
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 }
 
 BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite_name_, int layer_,
-               LightSize light_size_) :
+               const std::string& light_sprite_name) :
   MovingSprite(pos, sprite_name_, layer_, COLGROUP_DISABLED),
   physic(),
   countMe(true),
@@ -94,8 +91,7 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   in_water(false),
   dead_script(),
   melting_time(0),
-  light_size(light_size_),
-  lightcolor(1.0f, 1.0f, 1.0f),
+  lightsprite(SpriteManager::current()->create(light_sprite_name)),
   glowing(false),
   state(STATE_INIT),
   is_active_flag(),
@@ -112,10 +108,11 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   SoundManager::current()->preload("sounds/fire.ogg");
 
   dir = (start_dir == AUTO) ? LEFT : start_dir;
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 }
 
 BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int layer_,
-               LightSize light_size_) :
+               const std::string& light_sprite_name) :
   MovingSprite(reader, sprite_name_, layer_, COLGROUP_DISABLED),
   physic(),
   countMe(true),
@@ -128,8 +125,7 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   in_water(false),
   dead_script(),
   melting_time(0),
-  light_size(light_size_),
-  lightcolor(1.0f, 1.0f, 1.0f),
+  lightsprite(SpriteManager::current()->create(light_sprite_name)),
   glowing(false),
   state(STATE_INIT),
   is_active_flag(),
@@ -153,6 +149,7 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   SoundManager::current()->preload("sounds/fire.ogg");
 
   dir = (start_dir == AUTO) ? LEFT : start_dir;
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 }
 
 void
@@ -172,7 +169,10 @@ BadGuy::draw(DrawingContext& context)
   }
 
   if (glowing) {
-    context.draw_light(bbox.get_middle(), light_size, lightcolor);
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    lightsprite->draw(context, bbox.get_middle(), 0);
+    context.pop_target();
   }
 }
 
@@ -203,6 +203,9 @@ BadGuy::update(float elapsed_time)
   switch(state) {
     case STATE_ACTIVE:
       is_active_flag = true;
+      if (Editor::is_active()) {
+        break;
+      }
       active_update(elapsed_time);
       break;
     case STATE_INIT:
@@ -266,6 +269,15 @@ BadGuy::update(float elapsed_time)
   }
 
   on_ground_flag = false;
+}
+
+void
+BadGuy::save(Writer& writer) {
+  MovingSprite::save(writer);
+  writer.write("direction", dir_to_string(dir), false);
+  if(!dead_script.empty()) {
+    writer.write("dead-script", dead_script, false);
+  }
 }
 
 Direction
@@ -594,22 +606,17 @@ BadGuy::set_state(State state_)
 bool
 BadGuy::is_offscreen() const
 {
-  // The camera stops at the top of the level, so a badguy on screen can be an
-  // unbounded distance below Tux once he rises past it.
-  auto camera_ = Sector::current()->camera;
-  if (camera_) {
-    Vector cam_dist = camera_->get_center() - bbox.get_middle();
-    if ((fabsf(cam_dist.x) <= X_OFFSCREEN_DISTANCE) && (fabsf(cam_dist.y) <= Y_OFFSCREEN_DISTANCE)) {
-      return false;
-    }
+  Vector dist;
+  if (Editor::is_active()) {
+    auto cam = Sector::current()->camera;
+    dist = cam->get_center() - bbox.get_middle();
   }
-
   auto player = get_nearest_player();
   if (!player)
     return false;
-
-  Vector dist = player->get_bbox().get_middle() - bbox.get_middle();
-
+  if(!Editor::is_active()) {
+    dist = player->get_bbox().get_middle() - bbox.get_middle();
+  }
   // In SuperTux 0.1.x, Badguys were activated when Tux<->Badguy center distance was approx. <= ~668px
   // This doesn't work for wide-screen monitors which give us a virt. res. of approx. 1066px x 600px
   if ((fabsf(dist.x) <= X_OFFSCREEN_DISTANCE) && (fabsf(dist.y) <= Y_OFFSCREEN_DISTANCE)) {

@@ -1,6 +1,3 @@
-// src/object/flower.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -17,8 +14,6 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <string>
-
 #include "audio/sound_manager.hpp"
 #include "object/flower.hpp"
 #include "object/player.hpp"
@@ -30,29 +25,30 @@ Flower::Flower(BonusType _type) :
   sprite(),
   drawing_effect(NO_EFFECT),
   light(1.0f,1.0f,1.0f),
-  lightcolor(0.0f, 0.0f, 0.0f)
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
 {
   bbox.set_size(32, 32);
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
 
   if(type == FIRE_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/fireflower/fireflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightcolor = Color(0.3f, 0.0f, 0.0f);
+    lightsprite->set_color(Color(0.3f, 0.0f, 0.0f));
   }
   else if(type == ICE_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/iceflower/iceflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightcolor = Color(0.0f, 0.1f, 0.2f);
+    lightsprite->set_color(Color(0.0f, 0.1f, 0.2f));
   }
   else if(type == AIR_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/airflower/airflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightcolor = Color(0.15f, 0.0f, 0.15f);
+    lightsprite->set_color(Color(0.15f, 0.0f, 0.15f));
   }
   else if(type == EARTH_BONUS) {
     sprite = SpriteManager::current()->create("images/powerups/earthflower/earthflower.sprite");
     SoundManager::current()->preload("sounds/fire-flower.wav");
-    lightcolor = Color(0.0f, 0.3f, 0.0f);
+    lightsprite->set_color(Color(0.0f, 0.3f, 0.0f));
   } else {
     assert(false);
   }
@@ -77,7 +73,10 @@ Flower::draw(DrawingContext& context)
   //Draw the light when dark
   context.get_light( bbox.get_middle(), &light );
   if (light.red + light.green + light.blue < 3.0){
-    context.draw_light(bbox.get_middle(), LIGHT_SMALL, lightcolor);
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    lightsprite->draw(context, bbox.get_middle(), 0);
+    context.pop_target();
   }
 }
 

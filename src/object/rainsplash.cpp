@@ -1,6 +1,3 @@
-// src/object/rainsplash.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/rainsplash.hpp"
-
-#include <string>
 
 RainSplash::RainSplash(const Vector& pos, bool vertical) :
   sprite(),

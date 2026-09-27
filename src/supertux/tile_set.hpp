@@ -1,6 +1,3 @@
-// src/supertux/tile_set.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Matthias Braun <matze@braunis.de>
 //
@@ -22,8 +19,6 @@
 
 #include <stdint.h>
 #include <string>
-#include <memory>
-#include <vector>
 
 #include "supertux/tile.hpp"
 #include "util/log.hpp"
@@ -32,6 +27,14 @@
 
 class DrawingContext;
 class Tile;
+
+class Tilegroup{
+  public:
+    Tilegroup();
+    ~Tilegroup();
+    std::string name;
+    std::vector<int> tiles;
+};
 
 class TileSet
 {
@@ -44,17 +47,16 @@ public:
   TileSet();
   ~TileSet();
 
+  std::vector<Tilegroup> tilegroups;
+
   void merge(const TileSet *tileset, uint32_t start, uint32_t end,
              uint32_t offset);
-  void add_tile(uint32_t id, std::unique_ptr<Tile> tile);
+  void add_tile(int id, std::unique_ptr<Tile> tile);
 
   void draw_tile(DrawingContext& context, uint32_t id, const Vector& pos,
                  int z_pos, Color color = Color(1, 1, 1)) const;
 
   const Tile* get(const uint32_t id) const;
-
-  /** Drop every tile's pictures. They come back on the next draw. */
-  void release_images();
 
   uint32_t get_max_tileid() const
   {

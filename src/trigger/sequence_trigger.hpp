@@ -1,6 +1,3 @@
-// src/trigger/sequence_trigger.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_TRIGGER_SEQUENCE_TRIGGER_HPP
 #define HEADER_SUPERTUX_TRIGGER_SEQUENCE_TRIGGER_HPP
 
-#include <string>
-
 #include "supertux/sequence.hpp"
 #include "trigger/trigger_base.hpp"
 
@@ -32,10 +27,15 @@ class SequenceTrigger : public TriggerBase
 {
 public:
   SequenceTrigger(const ReaderMapping& reader);
+  SequenceTrigger(const Vector& pos, const std::string& sequence_name);
   ~SequenceTrigger();
+  virtual void save(Writer& writer);
   std::string get_class() const {
     return "sequencetrigger";
   }
+
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
   void event(Player& player, EventType type);
   void draw(DrawingContext& context);
@@ -45,6 +45,7 @@ public:
 private:
   EventType triggerevent;
   Sequence sequence;
+  Vector new_size;
 };
 
 #endif

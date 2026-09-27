@@ -1,6 +1,3 @@
-// src/object/ispy.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Ispy
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_ISPY_HPP
 #define HEADER_SUPERTUX_OBJECT_ISPY_HPP
 
-#include <string>
-
 #include "object/moving_sprite.hpp"
 #include "supertux/direction.hpp"
 
@@ -32,6 +27,7 @@ class Ispy : public MovingSprite
 {
 public:
   Ispy(const ReaderMapping& lisp);
+  virtual void save(Writer& writer);
 
   HitResponse collision(GameObject& other, const CollisionHit& hit);
 
@@ -40,8 +36,11 @@ public:
     return "ispy";
   }
   std::string get_display_name() const {
-    return "Ispy";
+    return _("Ispy");
   }
+
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
 
 private:
   enum IspyState {

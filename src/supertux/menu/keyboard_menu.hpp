@@ -1,6 +1,3 @@
-// src/supertux/menu/keyboard_menu.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>,
 //                2007 Ingo Ruhnke <grumbel@gmail.com>
@@ -21,8 +18,6 @@
 #ifndef HEADER_SUPERTUX_CONTROL_KEYBOARD_MENU_HPP
 #define HEADER_SUPERTUX_CONTROL_KEYBOARD_MENU_HPP
 
-#include <string>
-
 #include "control/input_manager.hpp"
 #include "gui/menu_item.hpp"
 
@@ -38,8 +33,6 @@ public:
   void refresh() override;
   std::string get_key_name(SDL_Keycode key) const;
   void menu_action(MenuItem* item) override;
-
-  void on_window_resize() override;
 
 private:
   KeyboardMenu(const KeyboardMenu&);

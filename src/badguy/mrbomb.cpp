@@ -1,6 +1,3 @@
-// src/badguy/mrbomb.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -16,8 +13,6 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/bomb.hpp"
@@ -54,6 +49,16 @@ MrBomb::MrBomb(const ReaderMapping& reader) :
 }
 
 /* MrBomb created by a dispenser always gets default sprite atm.*/
+MrBomb::MrBomb(const Vector& pos, Direction d) :
+  WalkingBadguy(pos, d, "images/creatures/mr_bomb/mr_bomb.sprite", "left", "right"),
+  grabbed()
+{
+  walk_speed = 80;
+  max_drop_height = 16;
+  grabbed = false;
+  SoundManager::current()->preload("sounds/explosion.wav");
+}
+
 HitResponse
 MrBomb::collision(GameObject& object, const CollisionHit& hit)
 {
@@ -95,16 +100,6 @@ MrBomb::active_update(float elapsed_time)
   WalkingBadguy::active_update(elapsed_time);
 }
 
-/* This file hands make_shared both a Bomb and an Explosion, so when the
-   shared_ptr below is destroyed the compiler guesses the release might be the
-   Bomb one and warns that destroying a Bomb there would run past the end of
-   the smaller Explosion block. The guess is guarded by a check on the type
-   that can never pass, and the warning arrives from inside <memory> rather
-   than from here, so this is the only place it can be answered. Take the
-   pragma off and rebuild if either object stops being made here. */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-
 void
 MrBomb::kill_fall()
 {
@@ -116,8 +111,6 @@ MrBomb::kill_fall()
 
   run_dead_script();
 }
-
-#pragma GCC diagnostic pop
 
 void
 MrBomb::ignite()

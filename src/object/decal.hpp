@@ -1,6 +1,3 @@
-// src/object/decal.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Decal
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //
@@ -20,28 +17,18 @@
 #ifndef HEADER_SUPERTUX_OBJECT_DECAL_HPP
 #define HEADER_SUPERTUX_OBJECT_DECAL_HPP
 
-#include <string>
-
-#include "math/sizef.hpp"
 #include "object/moving_sprite.hpp"
-#include "supertux/artwork_interface.hpp"
 
 class ReaderMapping;
 
 /**
  * A decorative image, perhaps part of the terrain
  */
-class Decal : public MovingSprite,
-              public ArtworkInterface
+class Decal : public MovingSprite
 {
 public:
   Decal(const ReaderMapping& reader);
   virtual ~Decal();
-
-  virtual void release_artwork();
-  virtual void reacquire_artwork();
-
-  virtual void draw(DrawingContext& context) override;
 
   virtual HitResponse collision(GameObject& , const CollisionHit& ) {
     return FORCE_MOVE;
@@ -50,15 +37,14 @@ public:
     return "decal";
   }
   std::string get_display_name() const {
-    return "Decal";
+    return _("Decal");
   }
+
+  virtual ObjectSettings get_settings();
 
 private:
   std::string default_action;
   bool solid;
-
-  /** Drawn at this size rather than the picture's own, when given. */
-  Sizef size;
 };
 
 #endif /*SUPERTUX_DECAL_H*/

@@ -1,6 +1,3 @@
-// src/object/text_object.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_TEXT_OBJECT_HPP
 #define HEADER_SUPERTUX_OBJECT_TEXT_OBJECT_HPP
 
-#include <string>
-
 #include "object/anchor_point.hpp"
 #include "scripting/exposed_object.hpp"
 #include "scripting/text.hpp"
@@ -37,6 +32,9 @@ class TextObject : public GameObject,
 public:
   TextObject(const std::string& name = std::string());
   virtual ~TextObject();
+  virtual bool do_save() const {
+    return false;
+  }
 
   void set_text(const std::string& text);
   void set_font(const std::string& name);

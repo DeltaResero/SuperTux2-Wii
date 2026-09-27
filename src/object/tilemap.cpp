@@ -1,6 +1,3 @@
-// src/object/tilemap.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,9 +17,9 @@
 #include "object/tilemap.hpp"
 
 #include <math.h>
-#include <stdexcept>
-#include <utility>
 
+#include "editor/editor.hpp"
+#include "object/tilemap.hpp"
 #include "scripting/squirrel_util.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/level.hpp"
@@ -34,9 +31,10 @@
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 
-TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
+TileMap::TileMap(const TileSet *new_tileset) :
   ExposedObject<TileMap, scripting::TileMap>(this),
-  tileset(std::move(new_tileset)),
+  editor_active(true),
+  tileset(new_tileset),
   tiles(),
   real_solid(false),
   effective_solid(false),
@@ -48,7 +46,6 @@ TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
   offset(Vector(0,0)),
   movement(0,0),
   drawing_effect(NO_EFFECT),
-  alternate_straights(false),
   alpha(1.0),
   current_alpha(1.0),
   remaining_fade_time(0),
@@ -57,13 +54,17 @@ TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
   remaining_tint_fade_time(0),
   path(),
   walker(),
-  draw_target(DrawingContext::NORMAL)
+  draw_target(DrawingContext::NORMAL),
+  new_size_x(0),
+  new_size_y(0),
+  add_path(false)
 {
 }
 
-TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& reader) :
+TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
   ExposedObject<TileMap, scripting::TileMap>(this),
-  tileset(std::move(tileset_)),
+  editor_active(true),
+  tileset(tileset_),
   tiles(),
   real_solid(false),
   effective_solid(false),
@@ -75,7 +76,6 @@ TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& r
   offset(Vector(0,0)),
   movement(Vector(0,0)),
   drawing_effect(NO_EFFECT),
-  alternate_straights(false),
   alpha(1.0),
   current_alpha(1.0),
   remaining_fade_time(0),
@@ -84,7 +84,10 @@ TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& r
   remaining_tint_fade_time(0),
   path(),
   walker(),
-  draw_target(DrawingContext::NORMAL)
+  draw_target(DrawingContext::NORMAL),
+  new_size_x(0),
+  new_size_y(0),
+  add_path(false)
 {
   assert(tileset);
 
@@ -139,6 +142,7 @@ TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& r
     height = 0;
     tiles.clear();
     resize(Sector::current()->get_width()/32, Sector::current()->get_height()/32);
+    editor_active = false;
   } else {
     if(!reader.get("tiles", tiles))
       throw std::runtime_error("No tiles in tilemap.");
@@ -174,6 +178,82 @@ void TileMap::float_channel(float target, float &current, float remaining_time, 
   float amt = (target - current) / (remaining_time / elapsed_time);
   if (amt > 0) current = std::min(current + amt, target);
   if (amt < 0) current = std::max(current + amt, target);
+}
+
+void
+TileMap::save(Writer& writer) {
+  GameObject::save(writer);
+  if (draw_target == LIGHTMAP) {
+    writer.write("draw-target", "lightmap", false);
+  } else {
+    writer.write("draw-target", "normal", false);
+  }
+  writer.write("width", width);
+  writer.write("height", height);
+  writer.write("speed", speed_x);
+  if(speed_y != speed_x) {
+    writer.write("speed-y", speed_y);
+  }
+  writer.write("solid", real_solid);
+  writer.write("z-pos", z_pos);
+  if(alpha != 1) {
+    writer.write("alpha", alpha);
+  }
+  writer.write("tint", tint.toVector());
+  if(path) {
+    path->save(writer);
+  }
+  writer.write("tiles", tiles);
+}
+
+ObjectSettings
+TileMap::get_settings() {
+  new_size_x = width;
+  new_size_y = height;
+  ObjectSettings result = GameObject::get_settings();
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("solid"), &real_solid));
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("width"), &new_size_x));
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("height"), &new_size_y));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("alpha"), &alpha));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed x"), &speed_x));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Speed y"), &speed_y));
+  result.options.push_back( ObjectOption(MN_COLOR, _("tint"), &tint));
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &z_pos));
+
+  ObjectOption draw_target_option(MN_STRINGSELECT, _("Draw target"), &draw_target);
+  draw_target_option.select.push_back(_("normal"));
+  draw_target_option.select.push_back(_("lightmap"));
+  result.options.push_back(draw_target_option);
+
+  add_path = walker.get() && path->is_valid();
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Following path"), &add_path));
+
+  if (walker.get() && path->is_valid()) {
+    result.options.push_back( Path::get_mode_option(&path->mode) );
+  }
+
+  if (!editor_active) {
+    result.options.push_back( ObjectOption(MN_REMOVE, "", NULL));
+  }
+  return result;
+}
+
+void
+TileMap::after_editor_set() {
+  if (new_size_x > 0 && new_size_y > 0) {
+    resize(new_size_x, new_size_y);
+  }
+
+  if (walker.get() && path->is_valid()) {
+    if (!add_path) {
+      path->nodes.clear();
+    }
+  } else {
+    if (add_path) {
+      path.reset(new Path(offset));
+      walker.reset(new PathWalker(path.get()));
+    }
+  }
 }
 
 void
@@ -218,48 +298,6 @@ TileMap::update(float elapsed_time)
   }
 }
 
-DrawingEffect
-TileMap::straight_turned(int x, int y) const
-{
-  const uint32_t id = get_tile_id(x, y);
-  if(id == 0) return NO_EFFECT;
-
-  const Tile* tile = tileset->get(id);
-  if(tile == NULL) return NO_EFFECT;
-
-  /* Count from the left end of the run rather than from the tilemap origin,
-     so a ledge turns the same way wherever the level author put it. */
-  if(tile->getAttributes() & Tile::ALTERNATE)
-  {
-    int start = x;
-    while(start > 0 && get_tile_id(start - 1, y) == id) --start;
-    return ((x - start) & 1) ? HORIZONTAL_FLIP : NO_EFFECT;
-  }
-
-  if(!alternate_straights) return NO_EFFECT;
-
-  /* A straight is the only piece a path lays end to end, so it is the only
-     one whose picture repeats. A turn, or the end of a bridge, is drawn the
-     way round it was meant to be. */
-  const int dirs = tile->getData() & Tile::WORLDMAP_DIR_MASK;
-
-  /* Turning a piece round is only right where the same piece carries on, so
-     a run of one is left alone and a bridge keeps its ends. */
-  if(dirs == (Tile::WORLDMAP_EAST | Tile::WORLDMAP_WEST))
-  {
-    if(get_tile_id(x - 1, y) != id && get_tile_id(x + 1, y) != id) return NO_EFFECT;
-    return (x & 1) ? HORIZONTAL_FLIP : NO_EFFECT;
-  }
-
-  if(dirs == (Tile::WORLDMAP_NORTH | Tile::WORLDMAP_SOUTH))
-  {
-    if(get_tile_id(x, y - 1) != id && get_tile_id(x, y + 1) != id) return NO_EFFECT;
-    return (y & 1) ? VERTICAL_FLIP : NO_EFFECT;
-  }
-
-  return NO_EFFECT;
-}
-
 void
 TileMap::draw(DrawingContext& context)
 {
@@ -274,8 +312,12 @@ TileMap::draw(DrawingContext& context)
 
   if(drawing_effect != 0) context.set_drawing_effect(drawing_effect);
 
-  if(current_alpha != 1.0) {
-    context.set_alpha(current_alpha);
+  if (editor_active) {
+    if(current_alpha != 1.0) {
+      context.set_alpha(current_alpha);
+    }
+  } else {
+    context.set_alpha(current_alpha/2);
   }
 
   /* Force the translation to be an integer so that the tiles appear sharper.
@@ -284,8 +326,9 @@ TileMap::draw(DrawingContext& context)
    * FIXME Force integer translation for all graphics, not just tilemaps. */
   float trans_x = roundf(context.get_translation().x);
   float trans_y = roundf(context.get_translation().y);
-  context.set_translation(Vector(int(trans_x * speed_x),
-                                 int(trans_y * speed_y)));
+  bool normal_speed = editor_active && Editor::is_active();
+  context.set_translation(Vector(int(trans_x * (normal_speed ? 1 : speed_x)),
+                                 int(trans_y * (normal_speed ? 1 : speed_y))));
 
   Rectf draw_rect = Rectf(context.get_translation(),
         context.get_translation() + Vector(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -304,12 +347,13 @@ TileMap::draw(DrawingContext& context)
         assert (index >= 0);
         assert (index < (width * height));
 
-        const DrawingEffect turn = straight_turned(tx, ty);
-        if(turn != NO_EFFECT) context.set_drawing_effect(drawing_effect ^ turn);
+        //uint32_t tile_id = tiles[index];
+        tileset->draw_tile(context, tiles[index], pos, z_pos, current_tint);
+        /*if (tiles[index] == 0) continue;
+        const Tile* tile = tileset->get(tiles[index]);
+        assert(tile != 0);
 
-        tileset->draw_tile(context, tiles[static_cast<size_t>(index)], pos, z_pos, current_tint);
-
-        if(turn != NO_EFFECT) context.set_drawing_effect(drawing_effect);
+        tile->draw(context, pos, z_pos, current_tint);*/
       } /* for (pos y) */
     } /* for (pos x) */
 
@@ -327,11 +371,11 @@ TileMap::draw(DrawingContext& context)
         assert (index >= 0);
         assert (index < (width * height));
 
-        if (tiles[static_cast<size_t>(index)] == 0) continue;
-        const Tile* tile = tileset->get(tiles[static_cast<size_t>(index)]);
+        if (tiles[index] == 0) continue;
+        const Tile* tile = tileset->get(tiles[index]);
         if (!tile) continue;
 
-        const SurfacePtr& image = tile->get_current_image();
+        SurfacePtr image = tile->get_current_image();
         if (image) {
           int h = image->get_height();
           if (h <= 32) continue;
@@ -348,11 +392,11 @@ TileMap::draw(DrawingContext& context)
         assert (index >= 0);
         assert (index < (width * height));
 
-        if (tiles[static_cast<size_t>(index)] == 0) continue;
-        const Tile* tile = tileset->get(tiles[static_cast<size_t>(index)]);
+        if (tiles[index] == 0) continue;
+        const Tile* tile = tileset->get(tiles[index]);
         if (!tile) continue;
 
-        const SurfacePtr& image = tile->get_current_image();
+        SurfacePtr image = tile->get_current_image();
         if (image) {
           int w = image->get_width();
           int h = image->get_height();
@@ -424,29 +468,33 @@ TileMap::resize(int new_width, int new_height, int fill_id)
     // remap tiles for new width
     for(int y = 0; y < height && y < new_height; ++y) {
       for(int x = 0; x < new_width; ++x) {
-        tiles[static_cast<size_t>(y * new_width + x)] = tiles[static_cast<size_t>(y * width + x)];
+        tiles[y * new_width + x] = tiles[y * width + x];
       }
     }
   }
 
-  tiles.resize(static_cast<size_t>(new_width * new_height), static_cast<uint32_t>(fill_id));
+  tiles.resize(new_width * new_height, fill_id);
 
   if(new_width > width) {
     // remap tiles
     for(int y = std::min(height, new_height)-1; y >= 0; --y) {
       for(int x = new_width-1; x >= 0; --x) {
         if(x >= width) {
-          tiles[static_cast<size_t>(y * new_width + x)] = static_cast<uint32_t>(fill_id);
+          tiles[y * new_width + x] = fill_id;
           continue;
         }
 
-        tiles[static_cast<size_t>(y * new_width + x)] = tiles[static_cast<size_t>(y * width + x)];
+        tiles[y * new_width + x] = tiles[y * width + x];
       }
     }
   }
 
   height = new_height;
   width = new_width;
+}
+
+void TileMap::resize(Size newsize) {
+  resize(newsize.width, newsize.height);
 }
 
 Rect
@@ -477,7 +525,7 @@ TileMap::get_tile_id(int x, int y) const
     return 0;
   }
 
-  return tiles[static_cast<size_t>(y*width + x)];
+  return tiles[y*width + x];
 }
 
 const Tile*
@@ -505,7 +553,7 @@ void
 TileMap::change(int x, int y, uint32_t newtile)
 {
   assert(x >= 0 && x < width && y >= 0 && y < height);
-  tiles[static_cast<size_t>(y*width + x)] = newtile;
+  tiles[y*width + x] = newtile;
 }
 
 void
@@ -572,9 +620,9 @@ TileMap::update_effective_solid()
 }
 
 void
-TileMap::set_tileset(std::shared_ptr<const TileSet> new_tileset)
+TileMap::set_tileset(const TileSet* new_tileset)
 {
-  tileset = std::move(new_tileset);
+  tileset = new_tileset;
 }
 
 /* EOF */

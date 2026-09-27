@@ -1,6 +1,3 @@
-// src/object/particles.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_PARTICLES_HPP
 
 #include <memory>
-#include <vector>
 
 #include "math/vector.hpp"
 #include "supertux/game_object.hpp"
@@ -40,6 +36,9 @@ public:
             const Vector& acceleration, int number, Color color,
             int size, float life_time, int drawing_layer);
   ~Particles();
+  virtual bool do_save() const {
+    return false;
+  }
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);

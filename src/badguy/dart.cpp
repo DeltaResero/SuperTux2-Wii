@@ -1,6 +1,3 @@
-// src/badguy/dart.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  Dart - Your average poison dart
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -81,7 +78,8 @@ Dart::activate()
   sound_source = SoundManager::current()->create_sound_source(DART_SOUND);
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
-  sound_source->set_close_range(0.5f);
+  sound_source->set_gain(1.0);
+  sound_source->set_reference_distance(32);
   sound_source->play();
 }
 
@@ -145,6 +143,13 @@ void Dart::play_looping_sounds()
   if (sound_source) {
     sound_source->play();
   }
+}
+
+void
+Dart::after_editor_set()
+{
+  BadGuy::after_editor_set();
+  sprite->set_action(dir == LEFT ? "flying-left" : "flying-right");
 }
 
 /* EOF */

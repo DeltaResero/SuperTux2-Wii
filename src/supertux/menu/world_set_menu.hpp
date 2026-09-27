@@ -1,6 +1,3 @@
-// src/supertux/menu/world_set_menu.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Matthew <thebatmankiller3@gmail.com>
 //
@@ -34,11 +31,7 @@ public:
   WorldSetMenu();
 
   void menu_action(MenuItem* item) override;
-
-  void on_window_resize() override;
 };
 
 
 #endif // WORLD_SET_MENU_HPP_INCLUDED
-
-/* EOF */

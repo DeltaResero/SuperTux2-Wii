@@ -1,6 +1,3 @@
-// src/object/path.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux Path
 //  Copyright (C) 2005 Philipp <balinor@pnxs.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -23,13 +20,15 @@
 
 #include <sstream>
 #include <stdexcept>
-#include <string>
 
+#include "editor/node_marker.hpp"
+#include "editor/object_option.hpp"
 #include "supertux/game_object.hpp"
 #include "supertux/game_object_ptr.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/log.hpp"
+#include "util/writer.hpp"
 
 Path::Path() :
   nodes(),
@@ -100,6 +99,30 @@ Path::read(const ReaderMapping& reader)
     throw std::runtime_error("Path with zero nodes");
 }
 
+void
+Path::save(Writer& writer) {
+  if (!is_valid()) return;
+
+  writer.start_list("path");
+
+  switch (mode) {
+    case ONE_SHOT:  writer.write("mode", "oneshot"  , false); break;
+    case PING_PONG: writer.write("mode", "pingpong" , false); break;
+    case CIRCULAR:  writer.write("mode", "circular" , false); break;
+    case UNORDERED: writer.write("mode", "unordered", false); break;
+  }
+
+  for(auto& nod : nodes) {
+    writer.start_list("node");
+    writer.write("x", nod.position.x);
+    writer.write("y", nod.position.y);
+    writer.write("time", nod.time);
+    writer.end_list("node");
+  }
+
+  writer.end_list("path");
+}
+
 Vector
 Path::get_base() const
 {
@@ -148,9 +171,29 @@ Path::move_by(const Vector& shift) {
   }
 }
 
+void
+Path::edit_path() {
+  int id = 0;
+  for(auto i = nodes.begin(); i != nodes.end(); ++i) {
+    GameObjectPtr marker;
+    marker = std::make_shared<NodeMarker>(this, i, id);
+    Sector::current()->add_object(marker);
+    id++;
+  }
+}
+
 bool
 Path::is_valid() const {
   return nodes.size();
 }
 
+ObjectOption
+Path::get_mode_option(WalkMode* mode_) {
+  ObjectOption result(MN_STRINGSELECT, _("Path Mode"), mode_);
+  result.select.push_back(_("one shot"));
+  result.select.push_back(_("ping pong"));
+  result.select.push_back(_("circular"));
+  result.select.push_back(_("unordered"));
+  return result;
+}
 /* EOF */

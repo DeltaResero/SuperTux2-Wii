@@ -1,6 +1,3 @@
-// src/badguy/flame.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,9 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_FLAME_HPP
 #define HEADER_SUPERTUX_BADGUY_FLAME_HPP
-
-#include <memory>
-#include <string>
 
 #include "badguy/badguy.hpp"
 
@@ -43,11 +37,12 @@ public:
   bool is_freezable() const;
   bool is_flammable() const;
 
+  ObjectSettings get_settings();
   virtual std::string get_class() const {
     return "flame";
   }
   std::string get_display_name() const {
-    return "Flame";
+    return _("Flame");
   }
 
   void stop_looping_sounds();

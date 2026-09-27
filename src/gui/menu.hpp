@@ -1,6 +1,3 @@
-// src/gui/menu.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,12 +19,12 @@
 
 #include <list>
 #include <memory>
-#include <string>
-#include <vector>
 #include <SDL.h>
 
 #include "math/vector.hpp"
+#include "video/color.hpp"
 
+class Color;
 class DrawingContext;
 class MenuItem;
 
@@ -49,6 +46,17 @@ public:
   MenuItem* add_controlfield(int id, const std::string& text,
                              const std::string& mapping = "");
   MenuItem* add_string_select(int id, const std::string& text, int* selected, const std::vector<std::string>& strings);
+  MenuItem* add_textfield(const std::string& text, std::string* input, int id = -1);
+  MenuItem* add_script(const std::string& text, std::string* script, int id = -1);
+  MenuItem* add_script_line(std::string* input, int id = -1);
+  MenuItem* add_intfield(const std::string& text, int* input, int id = -1);
+  MenuItem* add_numfield(const std::string& text, float* input, int id = -1);
+  MenuItem* add_badguy_select(const std::string& text, std::vector<std::string>* badguys, int id = -1);
+  MenuItem* add_file(const std::string& text, std::string* input, const std::vector<std::string>& extensions, int id = -1);
+
+  MenuItem* add_color(const std::string& text, Color* color, int id = -1);
+  MenuItem* add_colordisplay(Color* color, int id = -1);
+  MenuItem* add_colorchannel(float* input, Color channel, int id = -1);
 
   virtual void menu_action(MenuItem* item) = 0;
 
@@ -68,12 +76,13 @@ public:
 
   MenuItem& get_item(int index)
   {
-    return *(items[static_cast<size_t>(index)]);
+    return *(items[index]);
   }
 
   MenuItem& get_item_by_id(int id);
   const MenuItem& get_item_by_id(int id) const;
 
+  int get_active_item_id() const;
   void set_active_item(int id);
 
   void draw(DrawingContext& context);
@@ -85,25 +94,7 @@ public:
   float get_width() const;
   float get_height() const;
 
-
-  /** Width of the column the menu's settings show their values in, shared by
-      all of them so the arrows line up. */
-  float get_value_width() const;
-
   virtual void on_window_resize();
-
-  /** Whether this menu is placed together with the help box below it, as one
-      block, clear of the notice along the foot of the screen. Menus that fit
-      where they are say no and are left alone. */
-  virtual bool placed_with_help() const { return false; }
-
-  /** Puts the menu where it belongs. Call once the items are in, since the
-      help below it is measured from them. */
-  void place_on_screen();
-
-  /** How far below the middle a menu sits when it opens over the title
-      screen, where the logo takes the space above it. */
-  static constexpr float BELOW_LOGO = 35.0f;
 
 protected:
   MenuItem* add_item(std::unique_ptr<MenuItem> menu_item);
@@ -116,21 +107,7 @@ protected:
 private:
   void process_action(MenuAction menuaction);
   void check_controlfield_change_event(const SDL_Event& event);
-
-  /** Light whichever row the pointer is over, from a position in the view's
-      own units. */
-  void hover_at(const Vector& mouse_pos);
   void draw_item(DrawingContext& context, int index);
-
-  /** Whether active_item names a row that is there. It is -1 for a menu with
-      nothing selectable in it, which an empty menu always is. */
-  bool has_active_item() const
-  { return active_item >= 0 && active_item < static_cast<int>(items.size()); }
-
-  /** The row active_item names, which only means anything while
-      has_active_item() holds. */
-  MenuItem& active_row() const
-  { return *items[static_cast<size_t>(active_item)]; }
 
 private:
   // position of the menu (ie. center of the menu, not top/left)

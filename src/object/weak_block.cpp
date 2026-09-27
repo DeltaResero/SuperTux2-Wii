@@ -1,6 +1,3 @@
-// src/object/weak_block.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Weak Block
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -32,16 +29,12 @@
 #include "util/reader_mapping.hpp"
 
 #include <math.h>
-#include <memory>
-#include <vector>
 
 WeakBlock::WeakBlock(const ReaderMapping& lisp)
 : MovingSprite(lisp, "images/objects/weak_block/strawbox.sprite", LAYER_TILES, COLGROUP_STATIC), state(STATE_NORMAL),
   linked(true),
   light(0.0f,0.0f,0.0f),
-  lightcolor(1.0f, 1.0f, 1.0f),
-  lightblend(),
-  lightsize(LIGHT_SMALL)
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
 {
   sprite->set_action("normal");
   //Check if this weakblock destroys adjacent weakblocks
@@ -53,8 +46,8 @@ WeakBlock::WeakBlock(const ReaderMapping& lisp)
     }
   }
   if(sprite_name == "images/objects/weak_block/strawbox.sprite") {
-    lightblend = Blend(GL_SRC_ALPHA, GL_ONE);
-    lightcolor = Color(0.3f, 0.2f, 0.1f);
+    lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+    lightsprite->set_color(Color(0.3f, 0.2f, 0.1f));
   } else if(sprite_name == "images/objects/weak_block/meltbox.sprite")
     SoundManager::current()->preload("sounds/sizzle.ogg");
 }
@@ -83,9 +76,9 @@ WeakBlock::collision_bullet(Bullet& bullet, const CollisionHit& hit)
     default:
       log_debug << "unhandled state" << std::endl;
       break;
-  }
+	}
 
-  return FORCE_MOVE;
+	return FORCE_MOVE;
 }
 
 HitResponse
@@ -134,9 +127,9 @@ WeakBlock::update(float )
         // cause burn light to flicker randomly
         if (linked) {
           if(gameRandom.rand(10) >= 7) {
-            lightcolor = Color(0.2f + gameRandom.rand(20)/100.0f, 0.1f + gameRandom.rand(20)/100.0f, 0.1f);
+            lightsprite->set_color(Color(0.2f + gameRandom.rand(20)/100.0f, 0.1f + gameRandom.rand(20)/100.0f, 0.1f));
           } else
-            lightcolor = Color(0.3f, 0.2f, 0.1f);
+            lightsprite->set_color(Color(0.3f, 0.2f, 0.1f));
         }
 
         if (sprite->animation_done()) {
@@ -144,9 +137,9 @@ WeakBlock::update(float )
           sprite->set_action("disintegrating", 1);
           spreadHit();
           set_group(COLGROUP_DISABLED);
-          lightsize = LIGHT_TINY;
-          lightblend = Blend(GL_SRC_ALPHA, GL_ONE);
-          lightcolor = Color(0.3f, 0.2f, 0.1f);
+          lightsprite = SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-tiny.sprite");
+          lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+          lightsprite->set_color(Color(0.3f, 0.2f, 0.1f));
         }
         break;
 
@@ -172,9 +165,8 @@ WeakBlock::draw(DrawingContext& context)
       context.push_target();
       context.set_target(DrawingContext::LIGHTMAP);
       sprite->draw(context, get_pos(), LAYER_OBJECTS + 10);
+      lightsprite->draw(context, bbox.get_middle(), 0);
       context.pop_target();
-
-      context.draw_light(bbox.get_middle(), lightsize, lightcolor, 0, lightblend);
     }
   }
 }
@@ -209,6 +201,15 @@ WeakBlock::spreadHit()
       if ((dx <= 32.5) && (dy <= 32.5)) wb->startBurning();
     }
   }
+}
+
+ObjectSettings
+WeakBlock::get_settings() {
+  ObjectSettings result = MovingSprite::get_settings();
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Linked"), &linked,
+                                         "linked"));
+
+  return result;
 }
 
 /* EOF */

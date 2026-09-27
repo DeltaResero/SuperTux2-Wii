@@ -1,6 +1,3 @@
-// src/video/gl/gl_lightmap.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,16 +17,11 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GL_LIGHTMAP_HPP
 #define HEADER_SUPERTUX_VIDEO_GL_LIGHTMAP_HPP
 
-#include <config.h>
-#include <memory>
-#include <vector>
-
 #include "video/lightmap.hpp"
 
 struct DrawingRequest;
 
 class Texture;
-class GLTexture;
 
 class GLLightmap : public Lightmap
 {
@@ -50,15 +42,6 @@ public:
   void draw_triangle(const DrawingRequest& request) override;
 
 private:
-  /** Point drawing at the lightmap, and back at the screen afterwards. Which
-      of the two ways this happens is settled at build time, since a target
-      missing either call cannot compile the path that uses it. */
-  void bind_lightmap();
-  void unbind_lightmap();
-
-  /** Fetch the finished lightmap for the queries to be answered from. */
-  void read_back() const;
-
   static const int s_LIGHTMAP_DIV = 5;
 
   std::shared_ptr<GLTexture> m_lightmap;
@@ -66,17 +49,7 @@ private:
   int m_lightmap_height;
   float m_lightmap_uv_right;
   float m_lightmap_uv_bottom;
-  /** The viewport in use before the lightmap redefined it. Read through
-      glGetIntegerv, as OpenGX answers GL_VIEWPORT from nothing else. */
-  GLint m_old_viewport[4];
-  /** The finished lightmap, four bytes to a pixel, rows running bottom up.
-      Filled at most once a frame, and only if something asks about it. */
-  mutable std::vector<GLubyte> m_readback;
-  mutable bool m_readback_filled;
-#ifdef ENABLE_LIGHTMAP_FBO
-  /** Holds the lightmap texture as its colour attachment. */
-  GLuint m_framebuffer;
-#endif
+  GLfloat m_old_viewport[4]; //holds vieport before redefining in start_draw - returned from glGet
 
 private:
   GLLightmap(const GLLightmap&);

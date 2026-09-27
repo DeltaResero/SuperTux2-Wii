@@ -1,6 +1,3 @@
-// src/util/reader_object.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -22,7 +19,6 @@
 #include <assert.h>
 #include <sexp/value.hpp>
 #include <stdexcept>
-#include <vector>
 
 #include "util/reader_collection.hpp"
 #include "util/reader_error.hpp"

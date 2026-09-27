@@ -1,6 +1,3 @@
-// src/object/growup.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <math.h>
-#include <numbers>
-#include <string>
 
 #include "audio/sound_manager.hpp"
 #include "object/growup.hpp"
@@ -32,13 +27,16 @@ GrowUp::GrowUp(Direction direction) :
   physic(),
   light(0.0f,0.0f,0.0f),
   shadesprite(SpriteManager::current()->create("images/powerups/egg/egg.sprite")),
-  lightcolor(0.2f, 0.2f, 0.0f)
+  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
 {
   physic.enable_gravity(true);
   physic.set_velocity_x((direction == LEFT)?-100:100);
   SoundManager::current()->preload("sounds/grow.ogg");
   //shadow to remain in place as egg rolls
   shadesprite->set_action("shadow");
+  //set light for glow effect
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+  lightsprite->set_color(Color(0.2f, 0.2f, 0.0f));
 }
 
 void
@@ -52,7 +50,7 @@ GrowUp::draw(DrawingContext& context)
 {
   if(physic.get_velocity_x() != 0) {
     //Set Sprite rotation angle
-    sprite->set_angle(get_pos().x * 360.0f / (32.0f * std::numbers::pi_v<float>));
+    sprite->set_angle(get_pos().x * 360.0f / (32.0f * M_PI));
   }
   //Draw the Sprite.
   MovingSprite::draw(context);
@@ -61,7 +59,10 @@ GrowUp::draw(DrawingContext& context)
   //Draw the light when dark
   context.get_light( get_bbox().get_middle(), &light );
   if (light.red + light.green < 2.0){
-    context.draw_light(get_bbox().get_middle(), LIGHT_SMALL, lightcolor);
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    lightsprite->draw(context, get_bbox().get_middle(), 0);
+    context.pop_target();
   }
 }
 

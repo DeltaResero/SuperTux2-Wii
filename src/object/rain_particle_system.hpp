@@ -1,6 +1,3 @@
-// src/object/rain_particle_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_RAIN_PARTICLE_SYSTEM_HPP
 
 #include <memory>
-#include <string>
 
 #include "object/particlesystem_interactive.hpp"
 #include "video/surface_ptr.hpp"
@@ -42,7 +38,11 @@ public:
     return "particles-rain";
   }
   std::string get_display_name() const {
-    return "Rain particles";
+    return _("Rain particles");
+  }
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/rain.png";
   }
 
 private:

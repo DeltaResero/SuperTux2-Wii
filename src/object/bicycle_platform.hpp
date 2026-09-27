@@ -1,6 +1,3 @@
-// src/object/bicycle_platform.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - BicyclePlatform
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -20,9 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 
-#include <set>
-#include <string>
-
 #include "object/moving_sprite.hpp"
 
 /**
@@ -41,7 +35,7 @@ public:
     return "bicycle-platform";
   }
   std::string get_display_name() const {
-    return "Bicycle platform";
+    return _("Bicycle platform");
   }
 
   bool do_save() const {
@@ -49,6 +43,8 @@ public:
   }
 
   virtual void move_to(const Vector& pos);
+  virtual void editor_delete();
+  virtual void after_editor_set();
 
 protected:
   BicyclePlatform* master; /**< pointer to BicyclePlatform that does movement calculation */

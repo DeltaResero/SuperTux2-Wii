@@ -1,6 +1,3 @@
-// src/supertux/tile_set_parser.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Matthias Braun <matze@braunis.de>
 //                     Ingo Ruhnke <grumbel@gmail.com>
@@ -25,9 +22,8 @@
 #include <sexp/value.hpp>
 #include <sexp/util.hpp>
 #include <sexp/io.hpp>
-#include <memory>
-#include <utility>
 
+#include "editor/editor.hpp"
 #include "supertux/tile_set.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -59,6 +55,15 @@ TileSetParser::parse()
     {
       ReaderMapping tile_mapping = iter.as_mapping();
       parse_tile(tile_mapping);
+    }
+    else if (iter.get_key() == "tilegroup")
+    {
+      /* tilegroups are only interesting for the editor */
+      ReaderMapping reader = iter.as_mapping();
+      Tilegroup tilegroup;
+      reader.get("name", tilegroup.name);
+      reader.get("tiles", tilegroup.tiles);
+      m_tileset.tilegroups.push_back(tilegroup);
     }
     else if (iter.get_key() == "tiles")
     {
@@ -132,13 +137,19 @@ TileSetParser::parse_tile(const ReaderMapping& reader)
     attributes |= Tile::SOLID | Tile::SLOPE;
   }
 
+  std::vector<Tile::ImageSpec> editor_imagespecs;
+  ReaderMapping editor_images;
+  if(reader.get("editor-images", editor_images)) {
+    editor_imagespecs = parse_imagespecs(editor_images);
+  }
+
   std::vector<Tile::ImageSpec> imagespecs;
   ReaderMapping images;
   if(reader.get("images", images)) {
     imagespecs = parse_imagespecs(images);
   }
 
-  std::unique_ptr<Tile> tile(new Tile(imagespecs, attributes, data, fps,
+  std::unique_ptr<Tile> tile(new Tile(imagespecs, editor_imagespecs, attributes, data, fps,
                                       object_name, object_data));
   m_tileset.add_tile(id, std::move(tile));
 }
@@ -168,6 +179,12 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
   bool has_ids = reader.get("ids",        ids);
   bool has_attributes = reader.get("attributes", attributes);
   bool has_datas = reader.get("datas", datas);
+
+  std::vector<Tile::ImageSpec> editor_imagespecs;
+  ReaderMapping editor_images;
+  if(reader.get("editor-images", editor_images)) {
+    editor_imagespecs = parse_imagespecs(editor_images);
+  }
 
   std::vector<Tile::ImageSpec> imagespecs;
   ReaderMapping images;
@@ -244,7 +261,17 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
                                                           y + imagespecs[j].rect.get_top() + 32)));
         }
 
-        std::unique_ptr<Tile> tile(new Tile(tile_imagespecs,
+        std::vector<Tile::ImageSpec> tile_editor_imagespecs;
+        for(size_t j = 0; j < editor_imagespecs.size(); ++j)
+        {
+          tile_editor_imagespecs.push_back(Tile::ImageSpec(editor_imagespecs[j].file,
+                                                           Rectf(x + editor_imagespecs[j].rect.get_left(),
+                                                                 y + editor_imagespecs[j].rect.get_top(),
+                                                                 x + editor_imagespecs[j].rect.get_left() + 32,
+                                                                 y + editor_imagespecs[j].rect.get_top() + 32)));
+        }
+
+        std::unique_ptr<Tile> tile(new Tile(tile_imagespecs, tile_editor_imagespecs,
                                             (has_attributes ? attributes[i] : 0),
                                             (has_datas ? datas[i] : 0),
                                             fps));

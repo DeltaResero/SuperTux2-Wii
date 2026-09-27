@@ -1,6 +1,3 @@
-// src/scripting/gradient.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Sector scripting
 //  Copyright (C) 2016 Hume2 <teratux.mail@gmail.com>
 //
@@ -20,15 +17,16 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_GRADIENT_HPP
 #define HEADER_SUPERTUX_SCRIPTING_GRADIENT_HPP
 
+#ifndef SCRIPTING_API
 #include <string>
 class Gradient;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class Gradient : public ssq::ExposableClass
+class Gradient
 {
+#ifndef SCRIPTING_API
 private:
   ::Gradient* gradient;
 
@@ -39,6 +37,7 @@ public:
 private:
   Gradient(const Gradient&) = delete;
   Gradient& operator=(const Gradient&) = delete;
+#endif
 
 public:
   void set_direction(const std::string& direction);

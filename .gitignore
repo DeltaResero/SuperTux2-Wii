@@ -1,35 +1,16 @@
-# A pattern is added once the tree is able to produce the file, and is not
-# taken out again afterwards. A working directory outlives the code that
-# filled it, so a checkout or a bisect that crosses the commit which stopped
-# generating something will still be holding the leftovers.
-#
-# Nothing tracked may be matched here. Check with:
-#   git ls-files -i --exclude-standard -c
-
-# Build directories
-build*/
-
-# Binaries
+# Build Files
+build/
+build.*/
 supertux2
-supertux2.exe
-test_supertux2
+# Windows build files
+Debug/
+Release/
+tools/innosetup/Output
 
-# Left behind by configuring in the source directory
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-CTestTestfile.cmake
-install_manifest.txt
-/Makefile
+# Version file
+version.cmake
 
-# Generated from .in templates
-config.h
-
-# Source archives from makedist.sh
-supertux-*.tar.gz
-supertux-*.tar.bz2
-
-# Doxygen
+# Doxygen related files
 Doxyfile
 docs/doxygen/
 
@@ -37,21 +18,20 @@ docs/doxygen/
 CMakeLists.txt.user
 
 # Windows build dependencies
-Debug/
-Release/
 dependencies*/
-tools/innosetup/Output
 
-# Transifex client
+# Additional Repos/Translations
+supertux.*
 .tx/
+#translations
 
-# Useful customization files
+# Useful Customization Files
 data/levels/more/
 *.patch
 *.zip
 *.diff
 
-# Annoying OS generated files
+# Annoying OS Generated Files
 .DS_Store
 .DS_Store?
 ._*

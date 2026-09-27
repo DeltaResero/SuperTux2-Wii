@@ -1,6 +1,3 @@
-// src/badguy/owl.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
@@ -21,8 +18,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_OWL_HPP
 #define HEADER_SUPERTUX_BADGUY_OWL_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class Portable;
@@ -31,6 +26,8 @@ class Owl : public BadGuy
 {
 public:
   Owl(const ReaderMapping& reader);
+  Owl(const Vector& pos, Direction d);
+  virtual void save(Writer& writer);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);
@@ -44,8 +41,10 @@ public:
     return "owl";
   }
   std::string get_display_name() const {
-    return "Owl";
+    return _("Owl");
   }
+
+  void after_editor_set();
 
 protected:
   bool is_above_player() const;

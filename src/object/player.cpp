@@ -1,13 +1,10 @@
-// src/object/player.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
-//  This program is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
 //  This program is distributed in the hope that it will be useful,
 //  but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,13 +12,15 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "object/player.hpp"
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "control/input_manager.hpp"
+#include "editor/editor.hpp"
 #include "math/random_generator.hpp"
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
@@ -38,12 +37,6 @@
 #include "trigger/climbable.hpp"
 
 #include <math.h>
-#include <numbers>
-#include <algorithm>
-#include <cmath>
-#include <sstream>
-#include <stdexcept>
-#include <vector>
 
 //#define SWIMMING
 
@@ -52,9 +45,6 @@ static const float BUTTJUMP_MIN_VELOCITY_Y = 400.0f;
 static const float SHOOTING_TIME = .150f;
 static const float GLIDE_TIME_PER_FLOWER = 0.5f;
 static const float STONE_TIME_PER_FLOWER = 2.0f;
-/** how long up or down is held, standing still, before the camera looks
- * that way on its own */
-static const float PEEK_HOLD_TIME = 2.0f;
 
 /** number of idle stages, including standing */
 static const unsigned int IDLE_STAGE_COUNT = 5;
@@ -113,41 +103,12 @@ static const float JUMP_EARLY_APEX_FACTOR = 3.0;
 
 static const float JUMP_GRACE_TIME = 0.25f; /**< time before hitting the ground that the jump button may be pressed (and still trigger a jump) */
 
-/** Where the earth flower's headlamp throws its light. It is two glows added
-    together, which is how the pictures these numbers replace were drawn: a
-    long pool thrown out ahead, and a small round one around the lamp itself
-    so that Tux is lit rather than standing at the dim end of his own beam.
-
-    The pool lies along the ground ahead of him, stands on end when he ducks,
-    tips over when he backflips, and is wider and softer when he skids. Its
-    middle is given from Tux's top left corner, facing right; facing left is
-    the mirror of it. The round one always sits on Tux, so it needs neither an
-    angle nor a mirror. No pool at all means no light at all, which is what
-    the growing animation had. */
-struct Headlamp
-{
-  const char* action;
-  float x, y;
-  float width, height;
-  float angle;
-  LightCurve curve;
-  float lamp;
-  float lamp_alpha;
-};
-
-static const Headlamp HEADLAMPS[] = {
-  { "stand",    237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
-  { "walk",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
-  { "jump",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
-  { "kick",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
-  { "idle",     237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
-  { "buttjump", 237.0f,   -4.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
-  { "climbing", 231.0f,  -11.0f, 602.0f, 232.0f,   0.0f, LIGHT_WIDE, 140.0f, 0.45f },
-  { "duck",      25.0f,  250.0f, 618.0f, 225.0f,  90.0f, LIGHT_WIDE,  86.0f, 0.43f },
-  { "skid",     236.0f,   -7.0f, 674.0f, 322.0f,   0.0f, LIGHT_SOFT, 138.0f, 0.47f },
-  { "backflip", 181.0f,  138.0f, 611.0f, 228.0f,  44.5f, LIGHT_WIDE, 126.0f, 0.32f },
-  { "grow",       0.0f,    0.0f,   0.0f,   0.0f,   0.0f, LIGHT_SOFT,   0.0f, 0.00f }
-};
+/* Tux's collision rectangle */
+static const float TUX_WIDTH = 31.8f;
+static const float RUNNING_TUX_WIDTH = 34;
+static const float SMALL_TUX_HEIGHT = 30.8f;
+static const float BIG_TUX_HEIGHT = 62.8f;
+static const float DUCKED_TUX_HEIGHT = 31.8f;
 
 bool no_water = true;
 }
@@ -166,8 +127,6 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   backflip_direction(0),
   peekingX(AUTO),
   peekingY(AUTO),
-  peek_hold_timer(),
-  peek_held(false),
   ability_time(),
   stone(false),
   swimming(false),
@@ -176,9 +135,7 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   jump_early_apex(false),
   on_ice(false),
   ice_this_frame(false),
-  headlamp_shape(-1),
-  headlamp_mirrored(false),
-  light_angle(0.0f),
+  lightsprite(SpriteManager::current()->create("images/creatures/tux/light.sprite")),
   powersprite(SpriteManager::current()->create("images/creatures/tux/powerups.sprite")),
   dir(RIGHT),
   old_dir(dir),
@@ -203,11 +160,11 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
   physic(),
   visible(true),
   grabbed_object(NULL),
-  grabbed_object_remove_listener(new GrabListener(*this)),
   sprite(),
   airarrow(),
   floor_normal(),
   ghost_mode(false),
+  edit_mode(false),
   unduck_hurt_timer(),
   idle_timer(),
   idle_stage(0),
@@ -239,99 +196,15 @@ Player::Player(PlayerStatus* _player_status, const std::string& name_) :
 
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
+  lightsprite->set_angle(0.0f);
+  lightsprite->set_blend(Blend(GL_SRC_ALPHA, GL_ONE));
+
   physic.reset();
-}
-
-void
-Player::set_headlamp_action(const std::string& action)
-{
-  /* What Tux is doing names the shape, and which way he faces only mirrors
-     it. An action with no shape of its own -- turning to stone, or dying --
-     leaves the last one where it was, as the picture used to. */
-  std::string shape = action;
-  bool mirrored = false;
-
-  if(shape.size() > 5 && shape.compare(shape.size() - 5, 5, "-left") == 0)
-  {
-    mirrored = true;
-    shape.erase(shape.size() - 5);
-  }
-  else if(shape.size() > 6 && shape.compare(shape.size() - 6, 6, "-right") == 0)
-  {
-    shape.erase(shape.size() - 6);
-  }
-
-  if(shape.compare(0, 6, "earth-") == 0)
-    shape.erase(0, 6);
-
-  for(size_t i = 0; i < sizeof(HEADLAMPS) / sizeof(HEADLAMPS[0]); ++i)
-  {
-    if(shape == HEADLAMPS[i].action)
-    {
-      headlamp_shape = static_cast<int>(i);
-      headlamp_mirrored = mirrored;
-      return;
-    }
-  }
-}
-
-void
-Player::draw_headlamp(DrawingContext& context) const
-{
-  if(headlamp_shape < 0)
-    return;
-
-  const Headlamp& lamp = HEADLAMPS[headlamp_shape];
-  if(lamp.width <= 0.0f)
-    return;
-
-  Vector offset(headlamp_mirrored ? TUX_WIDTH - lamp.x : lamp.x, lamp.y);
-  float angle = headlamp_mirrored ? -lamp.angle : lamp.angle;
-
-  /* A backflip swings the whole pool around Tux rather than spinning it where
-     it lies. The picture used to arrange that by sitting on a canvas padded
-     until Tux was at its middle. */
-  if(light_angle != 0.0f)
-  {
-    const Vector pivot = bbox.get_middle() - get_pos();
-    const float turn = light_angle * std::numbers::pi_v<float> / 180.0f;
-    const float ca = cosf(turn);
-    const float sa = sinf(turn);
-    const Vector arm = offset - pivot;
-
-    offset = pivot + Vector(arm.x * ca - arm.y * sa,
-                            arm.x * sa + arm.y * ca);
-    angle += light_angle;
-  }
-
-  context.draw_light(get_pos() + offset,
-                     Sizef(lamp.width, lamp.height), angle, lamp.curve,
-                     Color(1.0f, 1.0f, 1.0f));
-
-  /* The lamp itself, wide enough to reach back behind Tux and dim enough not
-     to wash him out. Without it he stands at the dim near end of his own beam
-     and cannot be seen, which is presumably why it was drawn in. It sits a
-     little below his middle, where the pictures put it, and follows him down
-     as he ducks. */
-  if(lamp.lamp <= 0.0f)
-    return;
-
-  context.draw_light(bbox.get_middle() + Vector(0.0f, 6.0f),
-                     Sizef(lamp.lamp, lamp.lamp), 0.0f, LIGHT_SOFT,
-                     Color(lamp.lamp_alpha, lamp.lamp_alpha, lamp.lamp_alpha));
-}
-
-void
-Player::set_light_angle(float angle)
-{
-  light_angle = angle;
 }
 
 Player::~Player()
 {
   if (climbing) stop_climbing(*climbing);
-  // the listener dies with us, so whatever is held has to forget it first
-  ungrab_object();
 }
 
 float
@@ -420,7 +293,7 @@ Player::trigger_sequence(Sequence seq)
   backflip_direction = 0;
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
-  set_light_angle(0.0f);
+  lightsprite->set_angle(0.0f);
   GameSession::current()->start_sequence(seq);
 }
 
@@ -476,7 +349,7 @@ Player::update(float elapsed_time)
         (player_status->bonus == FIRE_BONUS && g_config->christmas_mode)) {
       powersprite->set_angle(sprite->get_angle());
       if (player_status->bonus == EARTH_BONUS)
-        set_light_angle(sprite->get_angle());
+        lightsprite->set_angle(sprite->get_angle());
     }
   }
 
@@ -501,7 +374,7 @@ Player::update(float elapsed_time)
       if (!stone) {
         sprite->set_angle(0.0f);
         powersprite->set_angle(0.0f);
-        set_light_angle(0.0f);
+        lightsprite->set_angle(0.0f);
       }
 
       // if controls are currently deactivated, we take care of standing up ourselves
@@ -519,8 +392,9 @@ Player::update(float elapsed_time)
     position_grabbed_object();
   }
 
-  if(dying){
-    ungrab_object();
+  if(grabbed_object != NULL && dying){
+    grabbed_object->ungrab(*this, dir);
+    grabbed_object = NULL;
   }
 
   if(!ice_this_frame && on_ground())
@@ -923,26 +797,6 @@ Player::handle_input()
     }
   }
 
-  /* Holding a direction while stood still looks that way after a moment, so
-     a pad with no button left for it can still peek up and down. */
-  bool looking_still = !backflipping && !jumping && on_ground() &&
-                       physic.get_velocity_x() == 0 &&
-                       (controller->hold(Controller::UP) ||
-                        controller->hold(Controller::DOWN));
-
-  if(!looking_still) {
-    peek_hold_timer.stop();
-    if(peek_held) {
-      peekingY = AUTO;
-      peek_held = false;
-    }
-  } else if(peek_hold_timer.get_period() == 0) {
-    peek_hold_timer.start(PEEK_HOLD_TIME);
-  } else if(!peek_hold_timer.started()) {
-    peekingY = controller->hold(Controller::UP) ? UP : DOWN;
-    peek_held = true;
-  }
-
   /* Handle horizontal movement: */
   if (!backflipping && !stone) handle_horizontal_input();
 
@@ -988,7 +842,7 @@ Player::handle_input()
     ability_timer.stop();
     sprite->set_angle(0.0f);
     powersprite->set_angle(0.0f);
-    set_light_angle(0.0f);
+    lightsprite->set_angle(0.0f);
     stone = false;
     for (int i = 0; i < 8; i++)
     {
@@ -1035,7 +889,6 @@ Player::handle_input()
         } else {
           grabbed_object->ungrab(*this, dir);
         }
-        moving_object->del_remove_listener(grabbed_object_remove_listener.get());
         grabbed_object = NULL;
       }
     } else {
@@ -1049,7 +902,7 @@ Player::handle_input()
     backflip_direction = 0;
     sprite->set_angle(0.0f);
     powersprite->set_angle(0.0f);
-    set_light_angle(0.0f);
+    lightsprite->set_angle(0.0f);
   }
 }
 
@@ -1102,7 +955,6 @@ Player::try_grab()
       if(moving_object->get_bbox().contains(pos)) {
         if (climbing) stop_climbing(*climbing);
         grabbed_object = portable;
-        moving_object->add_remove_listener(grabbed_object_remove_listener.get());
         position_grabbed_object();
         break;
       }
@@ -1273,7 +1125,6 @@ Player::set_bonus(BonusType type, bool animate)
   if (type == EARTH_BONUS) player_status->max_earth_time++;
 
   player_status->bonus = type;
-
   return true;
 }
 
@@ -1302,6 +1153,10 @@ Player::kick()
 void
 Player::draw(DrawingContext& context)
 {
+  if (Editor::is_active()) {
+    return;
+  }
+
   if(!visible)
     return;
 
@@ -1410,7 +1265,7 @@ Player::draw(DrawingContext& context)
   /* Set Tux powerup sprite action */
   if (player_status->bonus == EARTH_BONUS) {
     powersprite->set_action(sprite->get_action());
-    set_headlamp_action(sprite->get_action());
+    lightsprite->set_action(sprite->get_action());
   } else if (player_status->bonus == AIR_BONUS) {
     powersprite->set_action(sprite->get_action());
   } else if (player_status->bonus == FIRE_BONUS && g_config->christmas_mode) {
@@ -1437,7 +1292,10 @@ Player::draw(DrawingContext& context)
     // draw hardhat
     powersprite->draw(context, get_pos() + shake_delta, LAYER_OBJECTS + 1);
     // light
-    draw_headlamp(context);
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    lightsprite->draw(context, get_pos(), 0);
+    context.pop_target();
     // give an indicator that stone form cannot be used for a while
     if (cooldown_timer.started() && graphicsRandom.rand(0, 4) == 0) {
       float px = graphicsRandom.randf(bbox.p1.x, bbox.p2.x);
@@ -1603,7 +1461,7 @@ Player::kill(bool completely)
 
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
-  set_light_angle(0.0f);
+  lightsprite->set_angle(0.0f);
 
   if(!completely && is_big()) {
     SoundManager::current()->play("sounds/hurt.wav");
@@ -1620,11 +1478,17 @@ Player::kill(bool completely)
       backflipping = false;
       sprite->set_angle(0.0f);
       powersprite->set_angle(0.0f);
-      set_light_angle(0.0f);
+      lightsprite->set_angle(0.0f);
       set_bonus(NO_BONUS, true);
     }
   } else {
     SoundManager::current()->play("sounds/kill.wav");
+
+    // do not die when in edit mode
+    if (edit_mode) {
+      set_ghost_mode(true);
+      return;
+    }
 
     if (player_status->coins >= 25 && !GameSession::current()->get_reset_point_sectorname().empty())
     {
@@ -1672,7 +1536,7 @@ Player::move(const Vector& vector)
   backflipping = false;
   sprite->set_angle(0.0f);
   powersprite->set_angle(0.0f);
-  set_light_angle(0.0f);
+  lightsprite->set_angle(0.0f);
   last_ground_y = vector.y;
   if (climbing) stop_climbing(*climbing);
 
@@ -1779,7 +1643,10 @@ Player::set_ghost_mode(bool enable)
 
   if (climbing) stop_climbing(*climbing);
 
-  ungrab_object();
+  if (grabbed_object) {
+    grabbed_object->ungrab(*this, dir);
+    grabbed_object = NULL;
+  }
 
   if (enable) {
     ghost_mode = true;
@@ -1792,6 +1659,12 @@ Player::set_ghost_mode(bool enable)
     physic.enable_gravity(true);
     log_debug << "You feel solid again." << std::endl;
   }
+}
+
+void
+Player::set_edit_mode(bool enable)
+{
+  edit_mode = enable;
 }
 
 void
@@ -1808,7 +1681,7 @@ Player::start_climbing(Climbable& climbable)
     backflip_direction = 0;
     sprite->set_angle(0.0f);
     powersprite->set_angle(0.0f);
-    set_light_angle(0.0f);
+    lightsprite->set_angle(0.0f);
     do_standup();
   }
 }
@@ -1820,7 +1693,10 @@ Player::stop_climbing(Climbable& /*climbable*/)
 
   climbing = 0;
 
-  ungrab_object();
+  if (grabbed_object) {
+    grabbed_object->ungrab(*this, dir);
+    grabbed_object = NULL;
+  }
 
   physic.enable_gravity(true);
   physic.set_velocity(0, 0);
@@ -1871,26 +1747,6 @@ Player::handle_input_climbing()
   }
   physic.set_velocity(vx, vy);
   physic.set_acceleration(0, 0);
-}
-
-void
-Player::ungrab_object(GameObject* gameobject)
-{
-  if (!grabbed_object)
-    return;
-
-  // A non-null argument means ~GameObject is calling us, so the object is going
-  // away and is already emptying the listener list itself. Unhooking from here
-  // would delete the entry the destructor is about to delete.
-  if (!gameobject) {
-    grabbed_object->ungrab(*this, dir);
-
-    auto go = dynamic_cast<GameObject*>(grabbed_object);
-    if (go && grabbed_object_remove_listener)
-      go->del_remove_listener(grabbed_object_remove_listener.get());
-  }
-
-  grabbed_object = NULL;
 }
 
 /* EOF */

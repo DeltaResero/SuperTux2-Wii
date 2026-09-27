@@ -1,6 +1,3 @@
-// src/badguy/goldbomb.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux BadGuy GoldBomb - a bomb that throws up coins when exploding
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
@@ -21,9 +18,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_GOLDBOMB_HPP
 #define HEADER_SUPERTUX_BADGUY_GOLDBOMB_HPP
-
-#include <memory>
-#include <string>
 
 #include "audio/sound_source.hpp"
 #include "badguy/walking_badguy.hpp"
@@ -54,7 +48,7 @@ public:
     return "goldbomb";
   }
   std::string get_display_name() const {
-    return "Golden bomb";
+    return _("Golden bomb");
   }
 
   void stop_looping_sounds();

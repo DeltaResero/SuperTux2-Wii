@@ -1,6 +1,3 @@
-// src/supertux/levelintro.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -- LevelIntro screen
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_SUPERTUX_LEVELINTRO_HPP
 #define HEADER_SUPERTUX_SUPERTUX_LEVELINTRO_HPP
-
-#include <string>
 
 #include "sprite/sprite.hpp"
 #include "supertux/level.hpp"

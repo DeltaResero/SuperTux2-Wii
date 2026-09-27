@@ -1,6 +1,3 @@
-// src/worldmap/tux.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux -  A Jump'n Run
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -17,9 +14,6 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#include <exception>
-#include <sstream>
 
 #include "control/input_manager.hpp"
 #include "scripting/squirrel_util.hpp"
@@ -59,20 +53,6 @@ Tux::Tux(WorldMap* worldmap_) :
 
 Tux::~Tux()
 {
-}
-
-void
-Tux::release_artwork()
-{
-  sprite.reset();
-}
-
-void
-Tux::reacquire_artwork()
-{
-  /* The savegame keeps which sprite he wears; draw() sets the action. */
-  sprite = SpriteManager::current()->create(
-    worldmap->get_savegame().get_player_status()->worldmap_sprite);
 }
 
 void

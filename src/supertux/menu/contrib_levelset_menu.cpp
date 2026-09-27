@@ -1,6 +1,3 @@
-// src/supertux/menu/contrib_levelset_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,8 +17,6 @@
 #include "supertux/menu/contrib_levelset_menu.hpp"
 
 #include <sstream>
-#include <string>
-#include <utility>
 
 #include "audio/sound_manager.hpp"
 #include "gui/menu_item.hpp"
@@ -34,6 +29,7 @@
 #include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
+#include "util/gettext.hpp"
 
 ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
   m_world(std::move(world)),
@@ -70,7 +66,7 @@ ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
   }
 
   add_hl();
-  add_back("Back");
+  add_back(_("Back"));
 }
 
 void

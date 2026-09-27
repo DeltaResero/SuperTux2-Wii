@@ -1,6 +1,3 @@
-// src/supertux/menu/main_menu.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -22,11 +19,14 @@
 
 #include "gui/menu.hpp"
 
+class AddonMenu;
 class WorldSetMenu;
 
 enum MainMenuIDs {
   MNID_STARTGAME,
+  MNID_ADDONS,
   MNID_OPTIONMENU,
+  MNID_LEVELEDITOR,
   MNID_CREDITS,
   MNID_QUITMAINMENU
 };
@@ -38,10 +38,6 @@ public:
 
   void on_window_resize() override;
   void menu_action(MenuItem* item) override;
-
-  /** Nothing stands behind this menu to go back to, so the key that means
-      "back" has nothing to do here. */
-  bool on_back_action() override { return false; }
 
 private:
   MainMenu(const MainMenu&);

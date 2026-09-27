@@ -1,6 +1,3 @@
-// src/gui/item_back.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Hume2 <teratux.mail@gmail.com>
 //
@@ -39,7 +36,7 @@ ItemBack::ItemBack(const std::string& text_, int _id) :
 }
 
 void
-ItemBack::draw(DrawingContext& context, Vector pos, int menu_width, float value_width, bool active) {
+ItemBack::draw(DrawingContext& context, Vector pos, int menu_width, bool active) {
   float text_width = Resources::normal_font->get_text_width(text);
   context.draw_text(Resources::normal_font, text,
                     Vector( pos.x + menu_width/2 , pos.y - int(Resources::normal_font->get_height()/2)),

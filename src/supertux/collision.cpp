@@ -1,6 +1,3 @@
-// src/supertux/collision.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,7 +17,6 @@
 #include "supertux/collision.hpp"
 
 #include <algorithm>
-#include <utility>
 
 #include "math/aatriangle.hpp"
 #include "math/rectf.hpp"

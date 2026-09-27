@@ -1,3 +1,0 @@
-true
-true
-TIME=0.065697

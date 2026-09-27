@@ -1,6 +1,3 @@
-// src/badguy/kamikazesnowball.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -20,14 +17,13 @@
 #ifndef HEADER_SUPERTUX_BADGUY_KAMIKAZESNOWBALL_HPP
 #define HEADER_SUPERTUX_BADGUY_KAMIKAZESNOWBALL_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class KamikazeSnowball : public BadGuy
 {
 public:
   KamikazeSnowball(const ReaderMapping& reader);
+  KamikazeSnowball(const Vector& pos, Direction d);
 
   void initialize();
   void collision_solid(const CollisionHit& hit);
@@ -35,8 +31,10 @@ public:
     return "kamikazesnowball";
   }
   virtual std::string get_display_name() const {
-    return "Kamikaze snowball";
+    return _("Kamikaze snowball");
   }
+
+  void after_editor_set();
 
 protected:
   bool collision_squished(GameObject& object);
@@ -55,7 +53,7 @@ class LeafShot : public KamikazeSnowball
       return "leafshot";
     }
     std::string get_display_name() const {
-      return "Leaf Shot";
+      return _("Leaf Shot");
     }
 };
 

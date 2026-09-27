@@ -1,6 +1,3 @@
-// src/audio/sound_file.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,7 +19,6 @@
 
 #include <iostream>
 #include <memory>
-#include <string>
 
 class SoundFile
 {
@@ -50,23 +46,6 @@ private:
   SoundFile(const SoundFile&) = delete;
   SoundFile& operator=(const SoundFile&) = delete;
 };
-
-/** What a .music wrapper says: which audio file to play and where it loops.
-    Kept apart from reading the audio itself because a device that hands the
-    file to a library rather than decoding it wants these figures and not the
-    samples. */
-struct MusicReference
-{
-  /** Path to the audio, already made relative to the search path. */
-  std::string file{};
-  /** Second to jump back to when the track reaches loop_at. */
-  float loop_begin = 0.0f;
-  /** Second at which to jump back, or negative for the end of the track. */
-  float loop_at = -1.0f;
-};
-
-/** Read a .music wrapper. Throws if the file is not one. */
-MusicReference load_music_reference(const std::string& filename);
 
 std::unique_ptr<SoundFile> load_sound_file(const std::string& filename);
 

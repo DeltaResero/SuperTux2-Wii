@@ -1,6 +1,3 @@
-// src/video/renderer.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -27,6 +24,7 @@
 #include <SDL_video.h>
 #include <assert.h>
 #include <stdint.h>
+#include <obstack.h>
 
 #include "math/rectf.hpp"
 #include "math/vector.hpp"
@@ -54,15 +52,11 @@ public:
   virtual void draw_inverse_ellipse(const DrawingRequest& request)= 0;
   virtual void draw_line(const DrawingRequest& request)= 0;
   virtual void draw_triangle(const DrawingRequest& request)= 0;
+  virtual void do_take_screenshot() = 0;
   virtual void flip() = 0;
   virtual void resize(int w, int h) = 0;
   virtual void apply_config() = 0;
   virtual Vector to_logical(int physical_x, int physical_y) const = 0;
-
-  /** Put the pointer at a place given in the view's own units. The inverse of
-      to_logical, so that whatever the pointer was over stays under it when the
-      view is rescaled beneath it. */
-  virtual void warp_pointer(const Vector& logical) = 0;
   virtual void set_gamma(float gamma) = 0;
   virtual SDL_Window* get_window() const = 0;
 };

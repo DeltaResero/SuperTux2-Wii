@@ -1,6 +1,3 @@
-// src/trigger/door.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,7 +17,6 @@
 #include "trigger/door.hpp"
 
 #include <sstream>
-#include <memory>
 
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"
@@ -32,6 +28,7 @@
 #include "supertux/screen_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "supertux/sector.hpp"
+#include "util/gettext.hpp"
 #include "util/reader_mapping.hpp"
 
 Door::Door(const ReaderMapping& reader) :
@@ -73,6 +70,15 @@ Door::Door(int x, int y, const std::string& sector, const std::string& spawnpoin
   bbox.set_size(sprite->get_current_hitbox_width(), sprite->get_current_hitbox_height());
 
   SoundManager::current()->preload("sounds/door.wav");
+}
+
+ObjectSettings
+Door::get_settings() {
+  ObjectSettings result(_("Door"));
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Name"), &name));
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Sector"), &target_sector, "sector"));
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Spawn point"), &target_spawnpoint, "spawnpoint"));
+  return result;
 }
 
 Door::~Door()

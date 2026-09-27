@@ -1,6 +1,3 @@
-// src/worldmap/sprite_change.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -67,19 +64,6 @@ SpriteChange::draw(DrawingContext& context)
 void
 SpriteChange::update(float )
 {
-}
-
-void
-SpriteChange::release_artwork()
-{
-  sprite.reset();
-}
-
-void
-SpriteChange::reacquire_artwork()
-{
-  /* draw() sets the action each frame, so only the sprite needs putting back. */
-  sprite = SpriteManager::current()->create(sprite_name);
 }
 
 bool

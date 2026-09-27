@@ -1,6 +1,3 @@
-// src/object/bonus_block.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -41,14 +38,28 @@
 #include "util/reader_mapping.hpp"
 
 #include <stdexcept>
-#include <sstream>
+#include <physfs.h>
+
+BonusBlock::BonusBlock(const Vector& pos, int data) :
+  Block(SpriteManager::current()->create("images/objects/bonus_block/bonusblock.sprite")),
+  contents(),
+  object(),
+  hit_counter(1),
+  script(),
+  lightsprite()
+{
+  bbox.set_pos(pos);
+  sprite->set_action("normal");
+  get_content_by_data(data);
+}
 
 BonusBlock::BonusBlock(const ReaderMapping& lisp) :
   Block(lisp, "images/objects/bonus_block/bonusblock.sprite"),
   contents(),
   object(0),
   hit_counter(1),
-  script()
+  script(),
+  lightsprite()
 {
   contents = CONTENT_COIN;
   auto iter = lisp.get_iter();
@@ -86,6 +97,7 @@ BonusBlock::BonusBlock(const ReaderMapping& lisp) :
     throw std::runtime_error("Need to specify content object for custom block");
   if(contents == CONTENT_LIGHT) {
     SoundManager::current()->preload("sounds/switch.ogg");
+    lightsprite = Surface::create("/images/objects/lightmap_light/bonusblock_light.png");
   }
 }
 
@@ -100,6 +112,7 @@ BonusBlock::get_content_by_data(int d)
     case 5: contents = CONTENT_ICEGROW; break;
     case 6: contents = CONTENT_LIGHT;
       SoundManager::current()->preload("sounds/switch.ogg");
+      lightsprite=Surface::create("/images/objects/lightmap_light/bonusblock_light.png");
       break;
     case 7: contents = CONTENT_TRAMPOLINE;
       //object = new Trampoline(get_pos(), false); //needed if this is to be moved to custom
@@ -127,6 +140,65 @@ BonusBlock::get_content_by_data(int d)
 BonusBlock::~BonusBlock()
 {
 }
+
+void
+BonusBlock::save(Writer& writer) {
+  Block::save(writer);
+  switch (contents) {
+    case CONTENT_COIN:       writer.write("contents", "coin"      , false); break;
+    case CONTENT_FIREGROW:   writer.write("contents", "firegrow"  , false); break;
+    case CONTENT_ICEGROW:    writer.write("contents", "icegrow"   , false); break;
+    case CONTENT_AIRGROW:    writer.write("contents", "airgrow"   , false); break;
+    case CONTENT_EARTHGROW:  writer.write("contents", "earthgrow" , false); break;
+    case CONTENT_STAR:       writer.write("contents", "star"      , false); break;
+    case CONTENT_1UP:        writer.write("contents", "1up"       , false); break;
+    case CONTENT_CUSTOM:
+      writer.write("contents", "custom"    , false);
+      if (object) {
+        writer.start_list(object->get_class());
+        object->save(writer);
+        writer.end_list(object->get_class());
+      }
+      break;
+    case CONTENT_SCRIPT:     writer.write("contents", "script"    , false); break;
+    case CONTENT_LIGHT:      writer.write("contents", "light"     , false); break;
+    case CONTENT_TRAMPOLINE: writer.write("contents", "trampoline", false); break;
+    case CONTENT_RAIN:       writer.write("contents", "rain"      , false); break;
+    case CONTENT_EXPLODE:    writer.write("contents", "explode"   , false); break;
+  }
+  if (script != "") {
+    writer.write("script", script, false);
+  }
+  if (hit_counter != 1) {
+    writer.write("count", hit_counter);
+  }
+}
+
+ObjectSettings
+BonusBlock::get_settings() {
+  ObjectSettings result = Block::get_settings();
+  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script));
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("Count"), &hit_counter));
+
+  ObjectOption coo(MN_STRINGSELECT, _("Content"), &contents);
+  coo.select.push_back(_("coin"));
+  coo.select.push_back(_("Growth (fire flower)"));
+  coo.select.push_back(_("Growth (ice flower)"));
+  coo.select.push_back(_("Growth (air flower)"));
+  coo.select.push_back(_("Growth (earth flower)"));
+  coo.select.push_back(_("star"));
+  coo.select.push_back(_("tux doll"));
+  coo.select.push_back(_("custom"));
+  coo.select.push_back(_("script"));
+  coo.select.push_back(_("light"));
+  coo.select.push_back(_("trampoline"));
+  coo.select.push_back(_("coin rain"));
+  coo.select.push_back(_("coin explosion"));
+  result.options.push_back(coo);
+
+  return result;
+}
+
 
 void
 BonusBlock::hit(Player & player)
@@ -443,10 +515,11 @@ BonusBlock::draw(DrawingContext& context){
   Block::draw(context);
   // then Draw the light if on.
   if(sprite->get_action() == "on") {
-    /* Alone among the lights, this one has always covered what is under it
-       rather than adding to it. Kept as it was. */
-    context.draw_light(bbox.get_middle(), LIGHT_NORMAL, Color(1.0f, 1.0f, 1.0f),
-                       10, Blend());
+    Vector pos = get_pos() + (bbox.get_size().as_vector() - lightsprite->get_size()) / 2;
+    context.push_target();
+    context.set_target(DrawingContext::LIGHTMAP);
+    context.draw_surface(lightsprite, pos, 10);
+    context.pop_target();
   }
 }
 

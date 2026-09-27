@@ -1,6 +1,3 @@
-// src/video/drawing_request.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -50,14 +47,10 @@ struct DrawingRequestData
 struct SurfaceRequest : public DrawingRequestData
 {
   SurfaceRequest() :
-    surface(),
-    dstsize()
+    surface()
   {}
 
   const Surface* surface;
-  /** How big to draw it, which is the surface's own size unless the caller
-      asked for something else. */
-  Sizef dstsize;
 
 private:
   SurfaceRequest(const SurfaceRequest&) = delete;

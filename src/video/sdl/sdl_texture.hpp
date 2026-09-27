@@ -1,6 +1,3 @@
-// src/video/sdl/sdl_texture.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -32,8 +29,8 @@ class SDLTexture : public Texture
 {
 protected:
   SDL_Texture* m_texture;
-  unsigned int m_width;
-  unsigned int m_height;
+  int m_width;
+  int m_height;
 
 public:
   SDLTexture(SDL_Surface* sdlsurface);

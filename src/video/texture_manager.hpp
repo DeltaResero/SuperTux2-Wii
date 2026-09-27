@@ -1,6 +1,3 @@
-// src/video/texture_manager.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -35,6 +32,7 @@
 #include "video/texture_ptr.hpp"
 
 class Texture;
+class GLTexture;
 class Rect;
 
 class TextureManager : public Currenton<TextureManager>
@@ -43,20 +41,16 @@ public:
   TextureManager();
   ~TextureManager();
 
-  /** The whole picture as one texture, or nothing at all when this device
-      will not take a texture that large. A caller handed nothing asks
-      get_cells() how the picture has to be broken up instead. */
   TexturePtr get(const std::string& filename);
   TexturePtr get(const std::string& filename, const Rect& rect);
 
-  /** The pieces a picture too large to take in one go has to be cut into,
-      in reading order. Only meaningful straight after get() has declined
-      the picture, since it answers from the copy that call left decoded. */
-  std::vector<Rect> get_cells(const std::string& filename);
+#ifdef HAVE_OPENGL
+  void register_texture(GLTexture* texture);
+  void remove_texture(GLTexture* texture);
 
-  /** Let go of the decoded copy of a picture. The pieces are cut from one
-      shared copy, so the last cut releases it. */
-  void release_image(const std::string& filename);
+  void save_textures();
+  void reload_textures();
+#endif
 
 private:
   friend class Texture;
@@ -79,12 +73,31 @@ private:
   TexturePtr create_image_texture_raw(const std::string& filename);
   TexturePtr create_image_texture_raw(const std::string& filename, const Rect& rect);
 
-  /** Decode a picture, or hand back the copy already decoded. Throws when
-      the file cannot be read. */
-  SDL_Surface* load_image(const std::string& filename);
-
   TexturePtr create_dummy_texture();
 
+#ifdef HAVE_OPENGL
+private:
+  typedef std::set<GLTexture*> Textures;
+  Textures m_textures;
+
+  struct SavedTexture
+  {
+    GLTexture* texture;
+    GLint width;
+    GLint height;
+    char* pixels;
+    GLint border;
+
+    GLint min_filter;
+    GLint mag_filter;
+    GLint wrap_s;
+    GLint wrap_t;
+  };
+  std::vector<SavedTexture> m_saved_textures;
+
+private:
+  void save_texture(GLTexture* texture);
+#endif
 };
 
 #endif

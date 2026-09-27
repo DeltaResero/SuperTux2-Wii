@@ -1,6 +1,3 @@
-// src/object/torch.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -85,6 +82,20 @@ Torch::collision(GameObject& other, const CollisionHit& )
     m_burning = true;
   }
   return ABORT_MOVE;
+}
+
+ObjectSettings Torch::get_settings()
+{
+  ObjectSettings result = MovingObject::get_settings();
+  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite");
+  spr.select.push_back(".sprite");
+  result.options.push_back(spr);
+  return result;
+}
+
+void Torch::after_editor_set()
+{
+  m_torch = SpriteManager::current()->create(sprite_name);
 }
 
 /* EOF */

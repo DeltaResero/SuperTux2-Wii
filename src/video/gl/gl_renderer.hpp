@@ -1,6 +1,3 @@
-// src/video/gl/gl_renderer.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_VIDEO_GL_RENDERER_HPP
 
 #include "math/size.hpp"
-#include "math/vector.hpp"
 #include "video/drawing_request.hpp"
 #include "video/renderer.hpp"
 
@@ -34,8 +30,7 @@ private:
   SDL_Window* m_window;
   SDL_GLContext m_glcontext;
   SDL_Rect m_viewport;
-  /** Screen pixels per logical unit. */
-  Vector m_scale;
+  Size m_desktop_size;
   bool m_fullscreen_active;
 
 public:
@@ -51,11 +46,11 @@ public:
   void draw_inverse_ellipse(const DrawingRequest& request) override;
   void draw_line(const DrawingRequest& request) override;
   void draw_triangle(const DrawingRequest& request) override;
+  void do_take_screenshot() override;
   void flip() override;
   void resize(int w, int h) override;
   void apply_config() override;
   Vector to_logical(int physical_x, int physical_y) const override;
-  void warp_pointer(const Vector& logical) override;
   void set_gamma(float gamma) override;
 
   SDL_Window* get_window() const override { return m_window; }

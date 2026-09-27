@@ -1,6 +1,3 @@
-// src/badguy/mole.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Mole Badguy
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,14 +17,13 @@
 #ifndef HEADER_SUPERTUX_BADGUY_MOLE_HPP
 #define HEADER_SUPERTUX_BADGUY_MOLE_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class Mole : public BadGuy
 {
 public:
   Mole(const ReaderMapping& );
+  Mole(const Vector& pos);
 
   void kill_fall();
   HitResponse collision_badguy(BadGuy& , const CollisionHit& );
@@ -44,7 +40,7 @@ public:
     return "mole";
   }
   std::string get_display_name() const {
-    return "Mole";
+    return _("Mole");
   }
 
 private:

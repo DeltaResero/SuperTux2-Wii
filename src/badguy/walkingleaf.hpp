@@ -1,6 +1,3 @@
-// src/badguy/walkingleaf.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Walking Leaf
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_WALKINGLEAF_HPP
 #define HEADER_SUPERTUX_BADGUY_WALKINGLEAF_HPP
 
-#include <string>
-
 #include "badguy/walking_badguy.hpp"
 
 /*
@@ -31,13 +26,14 @@ class WalkingLeaf : public WalkingBadguy
 {
 public:
   WalkingLeaf(const ReaderMapping& reader);
+  WalkingLeaf(const Vector& pos, Direction d);
 
   bool is_freezable() const;
   std::string get_class() const {
     return "walkingleaf";
   }
   std::string get_display_name() const {
-    return "Walking leaf";
+    return _("Walking leaf");
   }
 
 protected:

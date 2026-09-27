@@ -1,6 +1,3 @@
-// src/util/utf8_iterator.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                     Ingo Ruhnke <grumbel@gmail.com>

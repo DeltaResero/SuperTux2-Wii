@@ -1,6 +1,3 @@
-// src/object/candle.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -16,9 +13,6 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#include <memory>
-#include <vector>
 
 #include "math/random_generator.hpp"
 #include "object/candle.hpp"
@@ -62,6 +56,24 @@ Candle::Candle(const ReaderMapping& lisp)
     sprite->set_action("off");
   }
 
+}
+
+void
+Candle::after_editor_set() {
+  candle_light_1->set_color(lightcolor);
+  candle_light_2->set_color(lightcolor);
+
+  sprite->set_action(burning ? "on" : "off");
+}
+
+ObjectSettings
+Candle::get_settings() {
+  ObjectSettings result = MovingSprite::get_settings();
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Burning"), &burning, "burning"));
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Flicker"), &name, "flicker"));
+  result.options.push_back( ObjectOption(MN_COLOR, _("Colour"), &lightcolor, "color"));
+
+  return result;
 }
 
 void

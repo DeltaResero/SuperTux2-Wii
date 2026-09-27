@@ -1,6 +1,3 @@
-// src/control/keyboard_manager.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>,
 //                2007-2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -20,10 +17,6 @@
 
 #include "control/keyboard_manager.hpp"
 
-#include <map>
-#include <memory>
-#include <utility>
-
 #include "control/controller.hpp"
 #include "control/joystick_manager.hpp"
 #include "control/keyboard_config.hpp"
@@ -32,6 +25,7 @@
 #include "supertux/menu/joystick_menu.hpp"
 #include "supertux/menu/keyboard_menu.hpp"
 #include "supertux/menu/menu_storage.hpp"
+#include "util/writer.hpp"
 
 KeyboardManager::KeyboardManager(InputManager* parent,
                                  KeyboardConfig& keyboard_config) :
@@ -51,7 +45,6 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
 {
   KeyboardConfig::KeyMap::iterator key_mapping = m_keyboard_config.keymap.find(event.keysym.sym);
 
-#ifdef ENABLE_CONSOLE
   // if console key was pressed: toggle console
   if (key_mapping != m_keyboard_config.keymap.end() &&
       key_mapping->second == Controller::CONSOLE)
@@ -75,9 +68,7 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
     // if console is open: send key there
     process_console_key_event(event);
   }
-  else
-#endif
-  if (MenuManager::instance().is_active())
+  else if (MenuManager::instance().is_active())
   {
     // if menu mode: send key there
     process_menu_key_event(event);
@@ -102,17 +93,14 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
 void
 KeyboardManager::process_text_input_event(const SDL_TextInputEvent& event)
 {
-#ifdef ENABLE_CONSOLE
   if (!m_lock_text_input && Console::current()->hasFocus()) {
     for(int i = 0; event.text[i] != '\0'; ++i)
     {
       Console::current()->input(event.text[i]);
     }
   }
-#endif
 }
 
-#ifdef ENABLE_CONSOLE
 void
 KeyboardManager::process_console_key_event(const SDL_KeyboardEvent& event)
 {
@@ -160,7 +148,6 @@ KeyboardManager::process_console_key_event(const SDL_KeyboardEvent& event)
       break;
   }
 }
-#endif
 
 void
 KeyboardManager::process_menu_key_event(const SDL_KeyboardEvent& event)

@@ -1,6 +1,3 @@
-// src/badguy/bouncing_snowball.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -29,6 +26,11 @@ static const float BSNOWBALL_WALKSPEED = 80;
 
 BouncingSnowball::BouncingSnowball(const ReaderMapping& reader)
   : BadGuy(reader, "images/creatures/bouncing_snowball/bouncing_snowball.sprite")
+{
+}
+
+BouncingSnowball::BouncingSnowball(const Vector& pos, Direction d)
+  : BadGuy(pos, d, "images/creatures/bouncing_snowball/bouncing_snowball.sprite")
 {
 }
 
@@ -81,6 +83,13 @@ BouncingSnowball::collision_badguy(BadGuy& , const CollisionHit& hit)
 {
   collision_solid(hit);
   return CONTINUE;
+}
+
+void
+BouncingSnowball::after_editor_set()
+{
+  BadGuy::after_editor_set();
+  sprite->set_action(dir == LEFT ? "left" : "right");
 }
 
 /* EOF */

@@ -1,6 +1,3 @@
-// src/object/sprite_particle.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -21,8 +18,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SPRITE_PARTICLE_HPP
 #define HEADER_SUPERTUX_OBJECT_SPRITE_PARTICLE_HPP
 
-#include <string>
-
 #include "object/anchor_point.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -38,6 +33,9 @@ protected:
   virtual void hit(Player& player);
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
+  virtual bool do_save() const {
+    return false;
+  }
 
 private:
   SpritePtr sprite;
@@ -46,8 +44,7 @@ private:
   Vector acceleration;
   int drawing_layer;
   Color light;
-  Color lightcolor;
-  Blend lightblend;
+  SpritePtr lightsprite;
   bool glow;
 
 private:

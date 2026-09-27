@@ -1,6 +1,3 @@
-// src/badguy/darttrap.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  DartTrap - Shoots a Dart at regular intervals
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -16,8 +13,6 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#include <memory>
 
 #include "badguy/dart.hpp"
 #include "badguy/darttrap.hpp"
@@ -110,6 +105,27 @@ DartTrap::fire()
   SoundManager::current()->play("sounds/dartfire.wav", get_pos());
   Sector::current()->add_object(std::make_shared<Dart>(Vector(px, py), dir, this));
   state = IDLE;
+  sprite->set_action(dir == LEFT ? "idle-left" : "idle-right");
+}
+
+
+ObjectSettings
+DartTrap::get_settings() {
+  ObjectSettings result = BadGuy::get_settings();
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Initial delay"), &initial_delay,
+                                         "initial-delay"));
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Fire delay"), &fire_delay,
+                                         "fire-delay"));
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("Ammo"), &ammo,
+                                         "ammo"));
+
+  return result;
+}
+
+void
+DartTrap::after_editor_set()
+{
+  BadGuy::after_editor_set();
   sprite->set_action(dir == LEFT ? "idle-left" : "idle-right");
 }
 

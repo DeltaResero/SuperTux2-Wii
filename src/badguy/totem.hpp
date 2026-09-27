@@ -1,6 +1,3 @@
-// src/badguy/totem.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - "Totem" Badguy
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_TOTEM_HPP
 #define HEADER_SUPERTUX_BADGUY_TOTEM_HPP
-
-#include <string>
 
 #include "badguy/badguy.hpp"
 
@@ -43,7 +38,7 @@ public:
     return "totem";
   }
   std::string get_display_name() const {
-    return "Totem";
+    return _("Totem");
   }
 
 protected:

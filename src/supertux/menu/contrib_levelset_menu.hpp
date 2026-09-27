@@ -1,6 +1,3 @@
-// src/supertux/menu/contrib_levelset_menu.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_SUPERTUX_MENU_CONTRIB_WORLD_MENU_HPP
 #define HEADER_SUPERTUX_SUPERTUX_MENU_CONTRIB_WORLD_MENU_HPP
-
-#include <memory>
 
 #include "gui/menu.hpp"
 

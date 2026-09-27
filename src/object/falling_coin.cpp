@@ -1,6 +1,3 @@
-// src/object/falling_coin.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Ondrej Hosek <ondra.hosek@gmail.com>
 //
@@ -18,8 +15,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "object/falling_coin.hpp"
-
-#include <string>
 
 #include "sprite/sprite_manager.hpp"
 #include "supertux/globals.hpp"

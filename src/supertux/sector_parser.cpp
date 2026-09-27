@@ -1,6 +1,3 @@
-// src/supertux/sector_parser.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,14 +16,13 @@
 
 #include "supertux/sector_parser.hpp"
 
-#include <exception>
-#include <list>
-#include <vector>
-
 #include "supertux/sector.hpp"
 
 #include "audio/sound_manager.hpp"
 #include "badguy/jumpy.hpp"
+#include "editor/editor.hpp"
+#include "editor/spawnpoint_marker.hpp"
+#include "editor/worldmap_objects.hpp"
 #include "math/aatriangle.hpp"
 #include "object/background.hpp"
 #include "object/bonus_block.hpp"
@@ -50,7 +46,7 @@
 #include "object/snow_particle_system.hpp"
 #include "object/text_object.hpp"
 #include "object/tilemap.hpp"
-#include "io/ifile_stream.hpp"
+#include "physfs/ifile_streambuf.hpp"
 #include "supertux/collision.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/direction.hpp"
@@ -142,6 +138,12 @@ SectorParser::parse(const ReaderMapping& sector)
       if (!sp->name.empty() && sp->pos.x >= 0 && sp->pos.y >= 0) {
         m_sector.spawnpoints.push_back(sp);
       }
+      if (Editor::is_active()) {
+        GameObjectPtr object = parse_object("spawnpoint", iter.as_mapping());
+        if(object) {
+          m_sector.add_object(object);
+        }
+      }
     } else if(iter.get_key() == "init-script") {
       iter.get(m_sector.init_script);
     } else if(iter.get_key() == "ambient-light") {
@@ -177,7 +179,9 @@ SectorParser::parse(const ReaderMapping& sector)
     log_warning << "sector '" << m_sector.name << "' does not contain a solid tile layer." << std::endl;
   }
 
-  fix_old_tiles();
+  if (!Editor::is_active()) {
+    fix_old_tiles();
+  }
 
   if (!m_sector.camera) {
     log_warning << "sector '" << m_sector.name << "' does not contain a camera." << std::endl;
@@ -201,7 +205,7 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
     if (backgroundimage == "arctis2.jpg") backgroundimage = "arctis.jpg";
     if (backgroundimage == "ocean.png") backgroundimage = "ocean.jpg";
     backgroundimage = "images/background/" + backgroundimage;
-    if (FileSystem::find(backgroundimage).empty()) {
+    if (!PHYSFS_exists(backgroundimage.c_str())) {
       log_warning << "Background image \"" << backgroundimage << "\" not found. Ignoring." << std::endl;
       backgroundimage = "";
     }
@@ -349,8 +353,9 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
     log_warning << "sector '" << m_sector.name << "' does not contain a solid tile layer." << std::endl;
   }
 
-  fix_old_tiles();
-
+  if (!Editor::is_active()) {
+    fix_old_tiles();
+  }
   m_sector.update_game_objects();
 }
 
@@ -413,7 +418,8 @@ void
 SectorParser::create_sector()
 {
   auto tileset = TileManager::current()->get_tileset(m_sector.level->get_tileset());
-  {
+  bool worldmap = Editor::current() ? Editor::current()->get_worldmap_mode() : false;
+  if (!worldmap) {
     auto background = std::make_shared<Background>();
     background->set_images(DEFAULT_BG_TOP, DEFAULT_BG_MIDDLE, DEFAULT_BG_BOTTOM);
     background->set_speed(0.5);
@@ -433,7 +439,11 @@ SectorParser::create_sector()
   }
 
   auto intact = std::make_shared<TileMap>(tileset);
-  intact->resize(100, 35, 0);
+  if (worldmap) {
+    intact->resize(100, 100, 9);
+  } else {
+    intact->resize(100, 35, 0);
+  }
   intact->set_layer(0);
   intact->set_solid(true);
   m_sector.add_object(intact);
@@ -442,6 +452,14 @@ SectorParser::create_sector()
   spawn_point->name = "main";
   spawn_point->pos = Vector(64, 480);
   m_sector.spawnpoints.push_back(spawn_point);
+
+  if (worldmap) {
+    GameObjectPtr spawn_point_marker = std::make_shared<worldmap_editor::WorldmapSpawnPoint>("main", Vector(4, 4));
+    m_sector.add_object(spawn_point_marker);
+  } else {
+    GameObjectPtr spawn_point_marker = std::make_shared<SpawnPointMarker>( spawn_point.get() );
+    m_sector.add_object(spawn_point_marker);
+  }
 
   auto camera = std::make_shared<Camera>(&m_sector, "Camera");
   m_sector.add_object(camera);

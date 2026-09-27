@@ -1,6 +1,3 @@
-// src/object/pushbutton.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - PushButton running a script
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -46,6 +43,15 @@ PushButton::PushButton(const ReaderMapping& lisp) :
   if (!lisp.get("script", script)) {
     log_warning << "No script set for pushbutton." << std::endl;
   }
+}
+
+ObjectSettings
+PushButton::get_settings() {
+  ObjectSettings result = MovingSprite::get_settings();
+  result.options.push_back( ObjectOption(MN_SCRIPT, _("Script"), &script,
+                                         "script"));
+
+  return result;
 }
 
 void

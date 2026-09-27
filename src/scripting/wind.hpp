@@ -1,6 +1,3 @@
-// src/scripting/wind.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,17 +17,19 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_WIND_HPP
 #define HEADER_SUPERTUX_SCRIPTING_WIND_HPP
 
+#ifndef SCRIPTING_API
 class Wind;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class Wind : public ssq::ExposableClass
+class Wind
 {
 public:
+#ifndef SCRIPTING_API
   Wind(::Wind* wind);
   ~Wind();
+#endif
 
   /** Start wind */
   void start();
@@ -38,11 +37,13 @@ public:
   /** Stop wind */
   void stop();
 
+#ifndef SCRIPTING_API
   ::Wind* wind;
 
 private:
   Wind(const Wind&);
   Wind& operator=(const Wind&);
+#endif
 };
 
 } // namespace scripting

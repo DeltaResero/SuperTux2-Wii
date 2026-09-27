@@ -1,6 +1,3 @@
-// src/math/random_generator.cpp
-// SPDX-License-Identifier: BSD-3-Clause
-//
 // $Id$
 //
 // A strong random number generator
@@ -76,7 +73,7 @@ int RandomGenerator::srand(int x)    {
     printf("==== srand(%10d) (%10d) rand_max=%x =====\n",
            x, x0, RandomGenerator::rand_max);
 
-  RandomGenerator::srandom(static_cast<unsigned long>(x));
+  RandomGenerator::srandom(x);
   return x;                               // let caller know seed used
 }
 
@@ -350,7 +347,7 @@ void RandomGenerator::srandom(unsigned long x)
 {
   long i, lim;
 
-  state[0] = static_cast<long>(x);
+  state[0] = x;
   if (rand_type == TYPE_0)
     lim = NSHUFF;
   else

@@ -1,6 +1,3 @@
-// src/object/falling_coin.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Ondrej Hosek <ondra.hosek@gmail.com>
 //
@@ -32,6 +29,9 @@ public:
 
   void draw(DrawingContext& context);
   void update(float elapsed_time);
+  virtual bool do_save() const {
+    return false;
+  }
 
 private:
   Physic physic;

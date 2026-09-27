@@ -1,6 +1,3 @@
-// src/object/decal.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Decal
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #include "object/decal.hpp"
 
-#include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/object_factory.hpp"
 #include "util/reader.hpp"
 #include "util/reader_mapping.hpp"
@@ -28,17 +23,8 @@
 Decal::Decal(const ReaderMapping& reader) :
   MovingSprite(reader, "images/decal/explanations/billboard-fireflower.png", LAYER_OBJECTS, COLGROUP_DISABLED),
   default_action(),
-  solid(),
-  size()
+  solid()
 {
-  float width = 0.0f;
-  float height = 0.0f;
-  if (reader.get("width", width) && reader.get("height", height))
-  {
-    size = Sizef(width, height);
-    set_size(width, height);
-  }
-
   layer = reader_get_layer (reader, /* default = */ LAYER_OBJECTS);
 
   if (!reader.get("solid", solid)) solid = false;
@@ -48,37 +34,22 @@ Decal::Decal(const ReaderMapping& reader) :
     set_action(default_action, -1);
 }
 
+ObjectSettings
+Decal::get_settings() {
+  ObjectSettings result = MovingObject::get_settings();
+  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite");
+  spr.select.push_back(".png");
+  spr.select.push_back(".sprite");
+  result.options.push_back(spr);
+  result.options.push_back( ObjectOption(MN_TEXTFIELD, _("Action"), &default_action, "action"));
+  result.options.push_back( ObjectOption(MN_TOGGLE, _("Solid"), &solid, "solid"));
+  result.options.push_back( ObjectOption(MN_INTFIELD, _("Z-pos"), &layer, "z-pos"));
+
+  return result;
+}
+
 Decal::~Decal()
 {
-}
-
-void
-Decal::draw(DrawingContext& context)
-{
-  if (size.width <= 0.0f || size.height <= 0.0f)
-  {
-    MovingSprite::draw(context);
-    return;
-  }
-
-  const unsigned int frame = sprite->get_frame();
-  context.draw_surface(sprite->get_frame(frame), get_pos(), size,
-                       0.0f, Color(1.0f, 1.0f, 1.0f), Blend(), layer);
-}
-
-void
-Decal::release_artwork()
-{
-  sprite.reset();
-}
-
-void
-Decal::reacquire_artwork()
-{
-  sprite = SpriteManager::current()->create(sprite_name);
-  /* set_action also sizes the object, so mirror the constructor. */
-  if(!default_action.empty())
-    set_action(default_action, -1);
 }
 
 /* EOF */

@@ -1,6 +1,3 @@
-// src/supertux/textscroller.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2016 M. Teufel <mteufel@urandom.eu.org>
@@ -36,7 +33,6 @@
 
 #include <sstream>
 #include <stdexcept>
-#include <exception>
 
 static const float DEFAULT_SPEED = 20;
 static const float LEFT_BORDER = 50;
@@ -58,6 +54,7 @@ TextScroller::TextScroller(const std::string& filename) :
   std::string background_file;
 
   try {
+    register_translation_directory(filename);
     auto doc = ReaderDocument::parse(filename);
     auto root = doc.get_root();
 

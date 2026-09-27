@@ -1,6 +1,3 @@
-// src/video/font.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>,
 //                     Ingo Ruhnke <grumbel@gmail.com>
@@ -22,9 +19,7 @@
 #define HEADER_SUPERTUX_VIDEO_FONT_HPP
 
 #include <stdint.h>
-#include <map>
 #include <string>
-#include <vector>
 
 #include "math/rectf.hpp"
 #include "math/vector.hpp"
@@ -130,7 +125,7 @@ private:
     Glyph() :
       advance(),
       offset(),
-      surface_idx(-1),
+      surface_idx(),
       rect()
     {}
   };
@@ -145,12 +140,8 @@ private:
   int border;
   bool rtl;
 
-  /** The glyphs the font actually defines, by code point. Absent means the
-      font has nothing to draw for that character. */
-  std::map<uint32_t, Glyph> glyphs;
-
-  /** The glyph to stand in with, or null when the font has no space. */
-  const Glyph* find_glyph(uint32_t code) const;
+  /** 65536 of glyphs */
+  std::vector<Glyph> glyphs;
 };
 
 #endif

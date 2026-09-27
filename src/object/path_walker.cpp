@@ -1,6 +1,3 @@
-// src/object/path_walker.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -17,13 +14,15 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#include "editor/editor.hpp"
+#include "editor/object_option.hpp"
 #include "math/random_generator.hpp"
 #include "object/path_walker.hpp"
+#include "util/gettext.hpp"
 #include "util/log.hpp"
 
 #include <math.h>
 #include <assert.h>
-#include <vector>
 
 PathWalker::PathWalker(const Path* path_, bool running_) :
   path(path_),
@@ -47,6 +46,11 @@ Vector
 PathWalker::advance(float elapsed_time)
 {
   if (!path->is_valid()) return Vector(0, 0);
+  if (Editor::is_active()) {
+    Vector pos__ = path->nodes.begin()->position;
+//    log_warning << "x" << pos__.x << " y" << pos__.y << std::endl;
+    return pos__;
+  }
 
   if (!running) return path->nodes[current_node_nr].position;
 
@@ -82,6 +86,7 @@ Vector
 PathWalker::get_pos() const
 {
   if (!path->is_valid()) return Vector(0, 0);
+  if (Editor::is_active()) return path->nodes.begin()->position;
 
   const Path::Node* current_node = & (path->nodes[current_node_nr]);
   const Path::Node* next_node = & (path->nodes[next_node_nr]);
@@ -96,16 +101,11 @@ PathWalker::goto_node(int node_no)
 {
   if (path->mode == Path::UNORDERED && running) return;
   if (node_no == stop_at_node_nr) return;
-
-  /* A script names the node, so it can name one the path has not got. */
-  if (node_no < 0 || static_cast<size_t>(node_no) >= path->nodes.size())
-    return;
-
   running = true;
   stop_at_node_nr = node_no;
 
   if (path->mode == Path::UNORDERED) {
-    next_node_nr = static_cast<size_t>(node_no);
+    next_node_nr = node_no;
   }
 }
 
@@ -131,7 +131,7 @@ PathWalker::advance_node()
   if (static_cast<int>(current_node_nr) == stop_at_node_nr) running = false;
 
   if (path->mode == Path::UNORDERED) {
-    next_node_nr = static_cast<size_t>(gameRandom.rand(static_cast<int>(path->nodes.size())));
+    next_node_nr = gameRandom.rand( path->nodes.size() );
     return;
   }
 
@@ -189,6 +189,12 @@ PathWalker::goback_node()
   assert(false);
   next_node_nr = 0;
   walking_speed = 0;
+}
+
+ObjectOption
+PathWalker::get_running_option(bool* _running) {
+  ObjectOption result(MN_TOGGLE, _("Running"), _running);
+  return result;
 }
 
 /* EOF */

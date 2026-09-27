@@ -1,6 +1,3 @@
-// src/util/reader.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2015 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -28,6 +25,7 @@
 #include "util/reader_fwd.hpp"
 
 int reader_get_layer(const ReaderMapping& reader, int def);
+void register_translation_directory(const std::string& filename);
 
 #endif
 

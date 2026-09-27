@@ -1,6 +1,3 @@
-// src/supertux/flip_level_transformer.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -16,9 +13,6 @@
 //
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#include <memory>
-#include <vector>
 
 #include "badguy/badguy.hpp"
 #include "object/block.hpp"
@@ -81,7 +75,7 @@ DrawingEffect
 FlipLevelTransformer::transform_drawing_effect(DrawingEffect effect)
 {
   if (effect & VERTICAL_FLIP) {
-    return effect & ~static_cast<DrawingEffect>(VERTICAL_FLIP);
+    return effect & ~VERTICAL_FLIP;
   } else {
     return effect | VERTICAL_FLIP;
   }

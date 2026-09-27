@@ -1,6 +1,3 @@
-// src/badguy/dispenser.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,9 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_DISPENSER_HPP
 #define HEADER_SUPERTUX_BADGUY_DISPENSER_HPP
-
-#include <string>
-#include <vector>
 
 #include "badguy/badguy.hpp"
 
@@ -43,8 +37,25 @@ public:
     return "dispenser";
   }
   std::string get_display_name() const {
-    return "Dispenser";
+    return _("Dispenser");
   }
+  std::string get_type_string() const {
+    switch(type) {
+    case DT_DROPPER:
+      return "dropper";
+    case DT_ROCKETLAUNCHER:
+      return "rocketlauncher";
+    case DT_CANNON:
+      return "cannon";
+    case DT_POINT:
+      return "point";
+    default:
+      return "unknown";
+    }
+  }
+
+  ObjectSettings get_settings();
+  void after_editor_set();
 
 protected:
   bool collision_squished(GameObject& object);
@@ -72,6 +83,7 @@ private:
   } DispenserType;
 
   DispenserType type;
+  std::string type_str;
 };
 
 #endif

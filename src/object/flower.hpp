@@ -1,6 +1,3 @@
-// src/object/flower.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -29,6 +26,9 @@ class Flower : public MovingObject
 public:
   Flower(BonusType type);
   ~Flower();
+  virtual bool do_save() const {
+    return false;
+  }
 
   virtual void update(float elapsed_time);
   virtual void draw(DrawingContext& context);
@@ -43,7 +43,7 @@ private:
   Flower(const Flower&);
   Flower& operator=(const Flower&);
   Color light;
-  Color lightcolor;
+  SpritePtr lightsprite;
 
   friend class FlipLevelTransformer;
 };

@@ -1,6 +1,3 @@
-// src/supertux/menu/contrib_menu.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,13 +16,12 @@
 
 #include "supertux/menu/contrib_menu.hpp"
 
+#include <physfs.h>
 #include <sstream>
-#include <exception>
-#include <string>
-#include <utility>
 
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
+#include "physfs/physfs_file_system.hpp"
 #include "supertux/game_manager.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/levelset.hpp"
@@ -34,6 +30,7 @@
 #include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
+#include "util/gettext.hpp"
 
 ContribMenu::ContribMenu() :
   m_contrib_worlds()
@@ -41,16 +38,45 @@ ContribMenu::ContribMenu() :
   // Generating contrib levels list by making use of Level Subset
   std::vector<std::string> level_worlds;
 
-  for(const std::string& filename : FileSystem::enumerate("levels"))
+  std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
+    files(PHYSFS_enumerateFiles("levels"),
+          PHYSFS_freeList);
+  for(const char* const* filename = files.get(); *filename != 0; ++filename)
   {
-    std::string filepath = FileSystem::join("levels", filename);
-    if(FileSystem::is_directory(FileSystem::find(filepath)))
+    std::string filepath = FileSystem::join("levels", *filename);
+    if(PhysFSFileSystem::is_directory(filepath))
     {
       level_worlds.push_back(filepath);
     }
   }
 
-  add_label("Contrib Levels");
+  std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
+    addons(PHYSFS_enumerateFiles("custom"),
+          PHYSFS_freeList);
+  for(const char* const* addondir = addons.get(); *addondir != 0; ++addondir)
+  {
+    std::string addonpath = FileSystem::join("custom", *addondir);
+    if(PhysFSFileSystem::is_directory(addonpath))
+    {
+      std::string addonlevelpath = FileSystem::join(addonpath.c_str(), "levels");
+      if(PhysFSFileSystem::is_directory(addonlevelpath))
+      {
+        std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
+          addonfiles(PHYSFS_enumerateFiles(addonlevelpath.c_str()),
+                PHYSFS_freeList);
+        for(const char* const* filename = addonfiles.get(); *filename != 0; ++filename)
+        {
+          std::string filepath = FileSystem::join(addonlevelpath.c_str(), *filename);
+          if(PhysFSFileSystem::is_directory(filepath))
+          {
+            level_worlds.push_back(filepath);
+          }
+        }
+      }
+    }
+  }
+
+  add_label(_("Contrib Levels"));
   add_hl();
 
   int i = 0;
@@ -91,7 +117,7 @@ ContribMenu::ContribMenu() :
           title << "[" << world->get_title() << "]";
           if (level_count == 0)
           {
-            title << " " << "*NEW*";
+            title << " " << _("*NEW*");
           }
           else
           {
@@ -122,7 +148,7 @@ ContribMenu::ContribMenu() :
           title << world->get_title();
           if (level_count == 0)
           {
-            title << " " << "*NEW*";
+            title << " " << _("*NEW*");
           }
           else
           {
@@ -144,7 +170,7 @@ ContribMenu::ContribMenu() :
   }
 
   add_hl();
-  add_back("Back");
+  add_back(_("Back"));
 }
 
 ContribMenu::~ContribMenu()
@@ -159,7 +185,7 @@ ContribMenu::menu_action(MenuItem* item)
   {
     // reload the World so that we have something that we can safely
     // std::move() around without wreaking the ContribMenu
-    std::unique_ptr<World> world = World::load(m_contrib_worlds[static_cast<size_t>(index)]->get_basedir());
+    std::unique_ptr<World> world = World::load(m_contrib_worlds[index]->get_basedir());
     if (!world->is_levelset())
     {
       GameManager::current()->start_worldmap(std::move(world));

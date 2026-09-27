@@ -1,6 +1,3 @@
-// src/badguy/angrystone.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  AngryStone - A spiked block that charges towards the player
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_ANGRYSTONE_HPP
 #define HEADER_SUPERTUX_BADGUY_ANGRYSTONE_HPP
 
-#include <string>
-
 #include "badguy/badguy.hpp"
 
 class AngryStone : public BadGuy
@@ -39,7 +34,7 @@ public:
     return "angrystone";
   }
   std::string get_display_name() const {
-    return "Angry stone";
+    return _("Angry stone");
   }
 
 protected:

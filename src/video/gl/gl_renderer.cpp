@@ -1,6 +1,3 @@
-// src/video/gl/gl_renderer.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //	Updated by GiBy 2013 for SDL2 <giby_the_kid@yahoo.fr>
@@ -20,12 +17,9 @@
 
 #include "video/gl/gl_renderer.hpp"
 
-#include <cmath>
+#include <iomanip>
 #include <iostream>
-#include <memory>
-#include <sstream>
-#include <stdexcept>
-#include <string>
+#include <physfs.h>
 #include "SDL.h"
 
 #include "supertux/gameconfig.hpp"
@@ -45,13 +39,33 @@
 
 #define LIGHTMAP_DIV 5
 
+#ifdef GL_VERSION_ES_CM_1_0
+#  define glOrtho glOrthof
+#endif
+
 GLRenderer::GLRenderer() :
   m_window(),
   m_glcontext(),
   m_viewport(),
-  m_scale(),
+  m_desktop_size(0, 0),
   m_fullscreen_active(false)
 {
+  SDL_DisplayMode mode;
+  SDL_GetCurrentDisplayMode(0, &mode);
+  m_desktop_size = Size(mode.w, mode.h);
+
+  if(g_config->try_vsync) {
+    /* we want vsync for smooth scrolling */
+    if (SDL_GL_SetSwapInterval(-1) != 0)
+    {
+      log_info << "no support for late swap tearing vsync: " << SDL_GetError() << std::endl;
+      if (SDL_GL_SetSwapInterval(1))
+      {
+        log_info << "no support for vsync: " << SDL_GetError() << std::endl;
+      }
+    }
+  }
+
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
   SDL_GL_SetAttribute(SDL_GL_RED_SIZE,   5);
@@ -59,21 +73,6 @@ GLRenderer::GLRenderer() :
   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  5);
 
   apply_video_mode();
-
-  /* The swap interval belongs to a context, so asking for it before one
-     exists is refused. This has to come after the window is up. */
-  if(SDL_GL_SetSwapInterval(g_config->vsync) != 0)
-  {
-    log_info << "no support for vsync mode " << g_config->vsync << ": "
-             << SDL_GetError() << std::endl;
-
-    /* A driver that will not let a late frame through can usually still
-       wait for every one, which is the nearest thing to what was asked. */
-    if(g_config->vsync == -1 && SDL_GL_SetSwapInterval(1) == 0)
-    {
-      g_config->vsync = 1;
-    }
-  }
 
 #ifdef USE_GLBINDING
 
@@ -121,7 +120,8 @@ GLRenderer::GLRenderer() :
   // Init the projection matrix, viewport and stuff
   apply_config();
 
-#ifdef HAVE_GLEW
+#ifndef GL_VERSION_ES_CM_1_0
+  #ifndef USE_GLBINDING
   GLenum err = glewInit();
   if (GLEW_OK != err)
   {
@@ -131,8 +131,7 @@ GLRenderer::GLRenderer() :
   }
   log_info << "Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
   log_info << "GLEW_ARB_texture_non_power_of_two: " << static_cast<int>(GLEW_ARB_texture_non_power_of_two) << std::endl;
-#elif !defined(USE_GLBINDING)
-  log_info << "Using OpenGL with no extension loader" << std::endl;
+#  endif
 #endif
 }
 
@@ -140,6 +139,75 @@ GLRenderer::~GLRenderer()
 {
   SDL_GL_DeleteContext(m_glcontext);
   SDL_DestroyWindow(m_window);
+}
+
+void
+GLRenderer::do_take_screenshot()
+{
+  // [Christoph] TODO: Yes, this method also takes care of the actual disk I/O. Split it?
+
+  SDL_Surface *shot_surf;
+  // create surface to hold screenshot
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+  shot_surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0x00FF0000, 0x0000FF00, 0x000000FF, 0);
+#else
+  shot_surf = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+#endif
+  if (!shot_surf) {
+    log_warning << "Could not create RGB Surface to contain screenshot" << std::endl;
+    return;
+  }
+
+  // read pixels into array
+  char* pixels = new char[3 * SCREEN_WIDTH * SCREEN_HEIGHT];
+  if (!pixels) {
+    log_warning << "Could not allocate memory to store screenshot" << std::endl;
+    SDL_FreeSurface(shot_surf);
+    return;
+  }
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+  glReadPixels(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+
+  // copy array line-by-line
+  for (int i = 0; i < SCREEN_HEIGHT; i++) {
+    char* src = pixels + (3 * SCREEN_WIDTH * (SCREEN_HEIGHT - i - 1));
+    if(SDL_MUSTLOCK(shot_surf))
+    {
+      SDL_LockSurface(shot_surf);
+    }
+    char* dst = ((char*)shot_surf->pixels) + i * shot_surf->pitch;
+    memcpy(dst, src, 3 * SCREEN_WIDTH);
+    if(SDL_MUSTLOCK(shot_surf))
+    {
+      SDL_UnlockSurface(shot_surf);
+    }
+  }
+
+  // free array
+  delete[](pixels);
+
+  // save screenshot
+  static const std::string writeDir = PHYSFS_getWriteDir();
+  static const std::string dirSep = PHYSFS_getDirSeparator();
+  static const std::string baseName = "screenshot";
+  static const std::string fileExt = ".bmp";
+  std::string fullFilename;
+  for (int num = 0; num < 1000; num++) {
+    std::ostringstream oss;
+    oss << baseName;
+    oss << std::setw(3) << std::setfill('0') << num;
+    oss << fileExt;
+    std::string fileName = oss.str();
+    fullFilename = writeDir + dirSep + fileName;
+    if (!PHYSFS_exists(fileName.c_str())) {
+      SDL_SaveBMP(shot_surf, fullFilename.c_str());
+      log_info << "Wrote screenshot to \"" << fullFilename << "\"" << std::endl;
+      SDL_FreeSurface(shot_surf);
+      return;
+    }
+  }
+  log_warning << "Did not save screenshot, because all files up to \"" << fullFilename << "\" already existed" << std::endl;
+  SDL_FreeSurface(shot_surf);
 }
 
 void
@@ -152,12 +220,7 @@ GLRenderer::flip()
 void
 GLRenderer::resize(int w, int h)
 {
-  /* Neither fullscreen nor maximised is a size anybody chose, so neither is
-     kept. */
-  if (!g_config->use_fullscreen && !g_config->window_maximised)
-  {
-    g_config->window_size = Size(w, h);
-  }
+  g_config->window_size = Size(w, h);
 
   apply_config();
 }
@@ -167,42 +230,40 @@ GLRenderer::apply_config()
 {
   apply_video_mode();
 
-  /* Ask how big the window came out rather than working it back out from
-     the settings, since a window manager is free to hand back something
-     other than what was asked for. */
-  Size target_size;
-  SDL_GL_GetDrawableSize(m_window, &target_size.width, &target_size.height);
+  Size target_size = g_config->use_fullscreen ?
+    ((g_config->fullscreen_size == Size(0, 0)) ? m_desktop_size : g_config->fullscreen_size) :
+    g_config->window_size;
 
-  /* Zero means take the shape of the screen the game is on. */
-  float aspect_ratio = 0.0f;
+  float pixel_aspect_ratio = 1.0f;
   if (g_config->aspect_size != Size(0, 0))
   {
-    aspect_ratio = static_cast<float>(g_config->aspect_size.width) /
-                   static_cast<float>(g_config->aspect_size.height);
+    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
+                                                      g_config->aspect_size);
+  }
+  else if (g_config->use_fullscreen)
+  {
+    pixel_aspect_ratio = calculate_pixel_aspect_ratio(m_desktop_size,
+                                                      target_size);
   }
 
+  Size max_size(1280, 800);
+  Size min_size(640, 480);
+
+  Vector scale;
   Size logical_size;
-  calculate_viewport(target_size,
-                     aspect_ratio,
+  calculate_viewport(min_size, max_size, target_size,
+                     pixel_aspect_ratio,
                      g_config->magnification,
-                     m_scale,
+                     scale,
                      logical_size,
                      m_viewport);
 
   SCREEN_WIDTH = logical_size.width;
   SCREEN_HEIGHT = logical_size.height;
 
-  bool clear_buffers = (m_viewport.x != 0 || m_viewport.y != 0);
-#ifdef __wii__
-  /* OpenGX hands back whatever was in video memory, not a blank buffer. */
-  clear_buffers = true;
-#endif
-
-  if (clear_buffers)
+  if (m_viewport.x != 0 || m_viewport.y != 0)
   {
     // Clear both buffers so that we get a clean black border without junk
-    /* The lightmap leaves the clear colour set to its ambient one. */
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     SDL_GL_SwapWindow(m_window);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -230,38 +291,6 @@ GLRenderer::apply_video_mode()
     if (!g_config->use_fullscreen)
     {
       SDL_SetWindowFullscreen(m_window, 0);
-
-      /* Maximising a window that already is waits a full second and times out,
-         and asking for a size it already has is wasted too. */
-      const bool already_maximised =
-        (SDL_GetWindowFlags(m_window) & SDL_WINDOW_MAXIMIZED) != 0;
-
-      if (g_config->window_maximised)
-      {
-        if (!already_maximised)
-        {
-          SDL_MaximizeWindow(m_window);
-        }
-      }
-      else
-      {
-        if (already_maximised)
-        {
-          SDL_RestoreWindow(m_window);
-        }
-
-        /* Ask for the size the window is meant to be whenever it is not already
-           it. Dragging the window to a new size records that size, so this asks
-           for nothing in that case. */
-        Size current_size;
-        SDL_GetWindowSize(m_window, &current_size.width, &current_size.height);
-        if (current_size != g_config->window_size)
-        {
-          SDL_SetWindowSize(m_window,
-                            g_config->window_size.width,
-                            g_config->window_size.height);
-        }
-      }
     }
     else
     {
@@ -312,19 +341,14 @@ GLRenderer::apply_video_mode()
   }
   else
   {
-    Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+    int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
     Size size;
-
-
     if (g_config->use_fullscreen)
     {
       if (g_config->fullscreen_size == Size(0, 0))
       {
-        /* This mode covers the screen whatever size is asked for, so the
-           window is made at the size it should go back to when fullscreen is
-           turned off. That is the size SDL remembers for it. */
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        size = g_config->window_size;
+        size = m_desktop_size;
       }
       else
       {
@@ -351,12 +375,6 @@ GLRenderer::apply_video_mode()
     else
     {
       m_glcontext = SDL_GL_CreateContext(m_window);
-      if (!m_glcontext)
-      {
-        std::ostringstream msg;
-        msg << "Couldn't create OpenGL context: " << SDL_GetError();
-        throw std::runtime_error(msg.str());
-      }
 
       SCREEN_WIDTH = size.width;
       SCREEN_HEIGHT = size.height;
@@ -369,11 +387,6 @@ GLRenderer::apply_video_mode()
 void
 GLRenderer::start_draw()
 {
-#ifdef __wii__
-  /* SDL turns the depth test back on after every frame without telling
-     OpenGX, and this makes OpenGX send its own setting again. */
-  glDisable(GL_DEPTH_TEST);
-#endif
 }
 
 void
@@ -384,13 +397,13 @@ GLRenderer::end_draw()
 void
 GLRenderer::draw_surface(const DrawingRequest& request)
 {
-  GLPainter::draw_surface(request, m_scale);
+  GLPainter::draw_surface(request);
 }
 
 void
 GLRenderer::draw_surface_part(const DrawingRequest& request)
 {
-  GLPainter::draw_surface_part(request, m_scale);
+  GLPainter::draw_surface_part(request);
 }
 
 void
@@ -428,16 +441,6 @@ GLRenderer::to_logical(int physical_x, int physical_y) const
 {
   return Vector(static_cast<float>(physical_x - m_viewport.x) * SCREEN_WIDTH / m_viewport.w,
                 static_cast<float>(physical_y - m_viewport.y) * SCREEN_HEIGHT / m_viewport.h);
-}
-
-void
-GLRenderer::warp_pointer(const Vector& logical)
-{
-  /* Rounded, not truncated: truncation always loses the fraction in the same
-     direction, so a pointer put back over and over creeps one way. */
-  const int x = static_cast<int>(std::lround(logical.x * m_viewport.w / SCREEN_WIDTH)) + m_viewport.x;
-  const int y = static_cast<int>(std::lround(logical.y * m_viewport.h / SCREEN_HEIGHT)) + m_viewport.y;
-  SDL_WarpMouseInWindow(m_window, x, y);
 }
 
 void

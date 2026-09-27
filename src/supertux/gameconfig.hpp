@@ -1,6 +1,3 @@
-// src/supertux/gameconfig.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux=
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -24,12 +21,11 @@
 #include "control/keyboard_config.hpp"
 #include "math/size.hpp"
 #include "math/vector.hpp"
-#include "audio/audio_device.hpp"
 #include "video/video_system.hpp"
 
-#include <ctime>
-#include <optional>
-#include <string>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/format.hpp>
 
 class Config
 {
@@ -51,9 +47,6 @@ public:
   /** the width/height of the window managers window */
   Size window_size;
 
-  /** As large as the window manager makes it. No size is kept. */
-  bool window_maximised;
-
   /** the aspect ratio */
   Size aspect_size;
 
@@ -61,14 +54,7 @@ public:
 
   bool use_fullscreen;
   VideoSystem::Enum video;
-
-  /** Which sound backend to run when more than one was built in. */
-  AudioBackend audio_backend;
-
-  /** How long to wait for the screen before showing a frame. 1 waits for
-      every refresh, 0 does not wait at all, and -1 waits unless the frame
-      is already late, in which case it goes out anyway and may tear. */
-  int vsync;
+  bool try_vsync;
   bool show_fps;
   bool show_player_pos;
   bool sound_enabled;
@@ -79,25 +65,43 @@ public:
 
   /** this variable is set if supertux should start in a specific level */
   std::string start_level;
+  bool enable_script_debugger;
   std::string start_demo;
   std::string record_demo;
-
+  
   /** this variable is set if tux should spawn somewhere which isn't the "main" spawn point*/
-  std::optional<Vector> tux_spawn_pos;
+  boost::optional<Vector> tux_spawn_pos;
+
+  /** The level that should be launched in the editor*/
+  boost::optional<std::string> edit_level;
+
+  /** force SuperTux language to this locale, e.g. "de". A file
+      "data/locale/xx.po" must exist for this to work. An empty string
+      means autodetect. */
+  std::string locale;
 
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;
+
+  struct Addon
+  {
+    std::string id;
+    bool enabled;
+  };
+  std::vector<Addon> addons;
 
   bool developer_mode;
   bool christmas_mode;
   bool transitions_enabled;
 
+  std::string repository_url;
+
   bool is_christmas() const {
-    const std::time_t now = std::time(nullptr);
-    const std::tm* const today = std::localtime(&now);
-    // tm_mon counts from zero, so December is 11. The season opens on Saint
-    // Nicholas Day and runs to the end of the year.
-    return today != nullptr && today->tm_mon == 11 && today->tm_mday >= 6;
+    using namespace boost::gregorian;
+    using namespace boost::posix_time;
+    date today = second_clock::local_time().date();
+    date saint_nicholas_day(today.year(), Dec, 6);
+    return today >= saint_nicholas_day;
   }
 };
 

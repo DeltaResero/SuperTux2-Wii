@@ -1,6 +1,3 @@
-// src/scripting/scripting.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -32,8 +29,10 @@ class Scripting : public Currenton<Scripting>
 {
 private:
 public:
-  Scripting();
+  Scripting(bool enable_debugger);
   ~Scripting();
+
+  void update_debugger();
 
 private:
   Scripting(const Scripting&) = delete;

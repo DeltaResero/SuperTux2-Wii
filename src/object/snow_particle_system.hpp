@@ -1,6 +1,3 @@
-// src/object/snow_particle_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_SNOW_PARTICLE_SYSTEM_HPP
 #define HEADER_SUPERTUX_OBJECT_SNOW_PARTICLE_SYSTEM_HPP
-
-#include <string>
 
 #include "object/particlesystem.hpp"
 #include "supertux/timer.hpp"
@@ -43,7 +38,11 @@ public:
     return "particles-snow";
   }
   std::string get_display_name() const {
-    return "Snow particles";
+    return _("Snow particles");
+  }
+
+  virtual const std::string get_icon_path() const {
+    return "images/engine/editor/snow.png";
   }
 
 private:

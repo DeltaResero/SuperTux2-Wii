@@ -1,6 +1,3 @@
-// src/trigger/climbable.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Climbable area
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_TRIGGER_CLIMBABLE_HPP
 #define HEADER_SUPERTUX_TRIGGER_CLIMBABLE_HPP
-
-#include <string>
 
 #include "supertux/timer.hpp"
 #include "trigger/trigger_base.hpp"
@@ -41,6 +36,9 @@ public:
     return "climbable";
   }
 
+  virtual ObjectSettings get_settings();
+  virtual void after_editor_set();
+
   void event(Player& player, EventType type);
   void update(float elapsed_time);
   void draw(DrawingContext& context);
@@ -56,6 +54,7 @@ protected:
   std::string message;
 
 private:
+  Vector new_size;
 
   Climbable(const Climbable&);
   Climbable& operator=(const Climbable&);

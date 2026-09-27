@@ -1,6 +1,3 @@
-// src/control/joystick_manager.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //                2014 Ingo Ruhnke <grumbel@gmail.com>
@@ -46,8 +43,7 @@ private:
   int max_joyaxis;
   int max_joyhats;
 
-  /** Last hat position of each pad, as they are told apart by nothing else. */
-  std::map<SDL_JoystickID, Uint8> hat_state;
+  Uint8 hat_state;
 
   int wait_for_joystick;
 

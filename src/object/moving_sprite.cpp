@@ -1,6 +1,3 @@
-// src/object/moving_sprite.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - MovingSprite Base Class
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -21,10 +18,10 @@
 
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
-#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"
 
+#include <physfs.h>
 #include <stdexcept>
 
 MovingSprite::MovingSprite(const Vector& pos, const std::string& sprite_name_,
@@ -63,7 +60,7 @@ MovingSprite::MovingSprite(const ReaderMapping& reader, const std::string& sprit
   reader.get("sprite", this->sprite_name);
 
   //make the sprite go defaut when the sprite file is invalid
-  if (sprite_name.empty() || FileSystem::find(sprite_name).empty()) {
+  if (sprite_name.empty() || !PHYSFS_exists(sprite_name.c_str())) {
     sprite_name = sprite_name_;
   }
 
@@ -161,6 +158,22 @@ void MovingSprite::change_sprite(const std::string& new_sprite_name)
 {
   sprite_name = new_sprite_name;
   sprite = SpriteManager::current()->create(sprite_name);
+}
+
+ObjectSettings MovingSprite::get_settings()
+{
+  ObjectSettings result = MovingObject::get_settings();
+  ObjectOption spr(MN_FILE, _("Sprite"), &sprite_name, "sprite");
+  spr.select.push_back(".sprite");
+  result.options.push_back(spr);
+  return result;
+}
+
+void MovingSprite::after_editor_set()
+{
+  std::string current_action = sprite->get_action();
+  sprite = SpriteManager::current()->create(sprite_name);
+  sprite->set_action(current_action);
 }
 
 /* EOF */

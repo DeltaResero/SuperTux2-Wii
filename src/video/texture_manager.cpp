@@ -1,6 +1,3 @@
-// src/video/texture_manager.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,27 +17,30 @@
 #include "video/texture_manager.hpp"
 
 #include <SDL_image.h>
-#include <algorithm>
 #include <assert.h>
 #include <iostream>
-#include <limits>
 #include <sstream>
 #include <stdexcept>
-#include <exception>
-#include <utility>
 
 #include "math/rect.hpp"
-#include "io/sdl_file.hpp"
+#include "physfs/physfs_sdl.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "video/sdl_surface_ptr.hpp"
 #include "video/texture.hpp"
 #include "video/video_system.hpp"
 
+#ifdef HAVE_OPENGL
+#include "video/gl/gl_texture.hpp"
+#endif
 
 TextureManager::TextureManager() :
   m_image_textures()
   ,m_surfaces()
+#ifdef HAVE_OPENGL
+  ,m_textures(),
+  m_saved_textures()
+#endif
 {
 }
 
@@ -73,97 +73,12 @@ TextureManager::get(const std::string& _filename)
     texture = i->second.lock();
 
   if(!texture) {
-    /* Whether the device will take the picture whole has to be settled
-       before it is handed over, since hardware with a ceiling of its own
-       does not always refuse what is over it: the upload is accepted and
-       what comes back out is nothing. The decoded copy is left behind for
-       get_cells() and the cuts that follow it. */
-    try
-    {
-      SDL_Surface* image = load_image(filename);
-      const unsigned int limit = VideoSystem::current()->get_max_texture_size();
-      if(static_cast<unsigned int>(image->w) > limit ||
-         static_cast<unsigned int>(image->h) > limit)
-      {
-        return TexturePtr();
-      }
-    }
-    catch(const std::exception& err)
-    {
-      log_warning << "Couldn't load texture '" << filename << "' (now using dummy texture): "
-                  << err.what() << std::endl;
-      return create_dummy_texture();
-    }
-
     texture = create_image_texture(filename);
     texture->cache_filename = filename;
     m_image_textures[filename] = texture;
   }
 
   return texture;
-}
-
-std::vector<Rect>
-TextureManager::get_cells(const std::string& _filename)
-{
-  std::string filename = FileSystem::normalize(_filename);
-
-  std::vector<Rect> cells;
-  auto i = m_surfaces.find(filename);
-  if(i == m_surfaces.end())
-  {
-    return cells;
-  }
-
-  const int width = i->second->w;
-  const int height = i->second->h;
-  const int limit = static_cast<int>(std::min(VideoSystem::current()->get_max_texture_size(),
-                                              static_cast<unsigned int>(std::numeric_limits<int>::max())));
-
-  for(int top = 0; top < height; top += limit)
-  {
-    for(int left = 0; left < width; left += limit)
-    {
-      cells.push_back(Rect(left, top,
-                           std::min(left + limit, width),
-                           std::min(top + limit, height)));
-    }
-  }
-
-  return cells;
-}
-
-void
-TextureManager::release_image(const std::string& _filename)
-{
-  std::string filename = FileSystem::normalize(_filename);
-  auto i = m_surfaces.find(filename);
-  if(i != m_surfaces.end())
-  {
-    SDL_FreeSurface(i->second);
-    m_surfaces.erase(i);
-  }
-}
-
-SDL_Surface*
-TextureManager::load_image(const std::string& filename)
-{
-  auto i = m_surfaces.find(filename);
-  if(i != m_surfaces.end())
-  {
-    return i->second;
-  }
-
-  SDL_Surface* image = IMG_Load_RW(sdl_rwops_from_file(filename), 1);
-  if(!image)
-  {
-    std::ostringstream msg;
-    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
-    throw std::runtime_error(msg.str());
-  }
-
-  m_surfaces[filename] = image;
-  return image;
 }
 
 TexturePtr
@@ -199,6 +114,20 @@ TextureManager::reap_cache_entry(const std::string& filename)
   m_image_textures.erase(i);
 }
 
+#ifdef HAVE_OPENGL
+void
+TextureManager::register_texture(GLTexture* texture)
+{
+  m_textures.insert(texture);
+}
+
+void
+TextureManager::remove_texture(GLTexture* texture)
+{
+  m_textures.erase(texture);
+}
+#endif
+
 TexturePtr
 TextureManager::create_image_texture(const std::string& filename, const Rect& rect)
 {
@@ -216,7 +145,25 @@ TextureManager::create_image_texture(const std::string& filename, const Rect& re
 TexturePtr
 TextureManager::create_image_texture_raw(const std::string& filename, const Rect& rect)
 {
-  SDL_Surface* image = load_image(filename);
+  SDL_Surface *image = nullptr;
+
+  auto i = m_surfaces.find(filename);
+  if (i != m_surfaces.end())
+  {
+    image = i->second;
+  }
+  else
+  {
+    image = IMG_Load_RW(get_physfs_SDLRWops(filename), 1);
+    if (!image)
+    {
+      std::ostringstream msg;
+      msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
+      throw std::runtime_error(msg.str());
+    }
+
+    m_surfaces[filename] = image;
+  }
 
   auto format = image->format;
   if(format->Rmask == 0 && format->Gmask == 0 && format->Bmask == 0 && format->Amask == 0) {
@@ -259,13 +206,19 @@ TextureManager::create_image_texture(const std::string& filename)
 TexturePtr
 TextureManager::create_image_texture_raw(const std::string& filename)
 {
-  TexturePtr texture = VideoSystem::current()->new_texture(load_image(filename));
-
-  /* A picture taken whole is wanted by nothing else once it is on the
-     device, so the decoded copy goes rather than sitting in the cache for
-     the rest of the run. Pieces are the other way about and share theirs. */
-  release_image(filename);
-  return texture;
+  SDLSurfacePtr image(IMG_Load_RW(get_physfs_SDLRWops(filename), 1));
+  if (!image)
+  {
+    std::ostringstream msg;
+    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
+  else
+  {
+    TexturePtr texture = VideoSystem::current()->new_texture(image.get());
+    image.reset(NULL);
+    return texture;
+  }
 }
 
 TexturePtr
@@ -298,5 +251,116 @@ TextureManager::create_dummy_texture()
   }
 }
 
+#ifdef HAVE_OPENGL
+void
+TextureManager::save_textures()
+{
+#if defined(GL_PACK_ROW_LENGTH) || defined(USE_GLBINDING)
+  /* all this stuff is not support by OpenGL ES */
+  glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+  glPixelStorei(GL_PACK_IMAGE_HEIGHT, 0);
+  glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+  glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+  glPixelStorei(GL_PACK_SKIP_IMAGES, 0);
+#endif
+
+  glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
+  for(auto& texture : m_textures)
+  {
+    save_texture(texture);
+  }
+
+  for(auto& tex : m_image_textures)
+  {
+    auto texture = dynamic_cast<GLTexture*>(tex.second.lock().get());
+    if(texture == NULL)
+      continue;
+
+    save_texture(texture);
+  }
+}
+
+void
+TextureManager::save_texture(GLTexture* texture)
+{
+  SavedTexture saved_texture;
+  saved_texture.texture = texture;
+  glBindTexture(GL_TEXTURE_2D, texture->get_handle());
+
+  //this doesn't work with OpenGL ES (but we don't need it on the GP2X anyway)
+#ifndef GL_VERSION_ES_CM_1_0
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH,
+                           &saved_texture.width);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT,
+                           &saved_texture.height);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_BORDER,
+                           &saved_texture.border);
+  glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                      &saved_texture.min_filter);
+  glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                      &saved_texture.mag_filter);
+  glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                      &saved_texture.wrap_s);
+  glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                      &saved_texture.wrap_t);
+
+  size_t pixelssize = saved_texture.width * saved_texture.height * 4;
+  saved_texture.pixels = new char[pixelssize];
+
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                saved_texture.pixels);
+#endif
+
+  m_saved_textures.push_back(saved_texture);
+
+  glDeleteTextures(1, &(texture->get_handle()));
+  texture->set_handle(0);
+
+  assert_gl("retrieving texture for save");
+}
+
+void
+TextureManager::reload_textures()
+{
+#if defined(GL_UNPACK_ROW_LENGTH) || defined(USE_GLBINDING)
+  /* OpenGL ES doesn't support these */
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+  glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+  glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+  glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+  glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0);
+#endif
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  for(auto& saved_texture : m_saved_textures) {
+    GLuint handle;
+    glGenTextures(1, &handle);
+    assert_gl("creating texture handle");
+
+    glBindTexture(GL_TEXTURE_2D, handle);
+    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
+                 saved_texture.width, saved_texture.height,
+                 saved_texture.border, GL_RGBA,
+                 GL_UNSIGNED_BYTE, saved_texture.pixels);
+    delete[] saved_texture.pixels;
+    assert_gl("uploading texture pixel data");
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    saved_texture.min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                    saved_texture.mag_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                    saved_texture.wrap_s);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                    saved_texture.wrap_t);
+
+    assert_gl("setting texture_params");
+    saved_texture.texture->set_handle(handle);
+  }
+
+  m_saved_textures.clear();
+}
+#endif
 
 /* EOF */

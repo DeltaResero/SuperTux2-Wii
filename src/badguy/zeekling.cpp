@@ -1,6 +1,3 @@
-// src/badguy/zeekling.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  Zeekling - flyer that swoops down when she spots the player
 //  Copyright (C) 2005 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -29,6 +26,20 @@
 
 Zeekling::Zeekling(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/zeekling/zeekling.sprite"),
+  speed(),
+  diveRecoverTimer(),
+  state(),
+  last_player(0),
+  last_player_pos(),
+  last_self_pos()
+{
+  state = FLYING;
+  speed = gameRandom.rand(130, 171);
+  physic.enable_gravity(false);
+}
+
+Zeekling::Zeekling(const Vector& pos, Direction d) :
+  BadGuy(pos, d, "images/creatures/zeekling/zeekling.sprite"),
   speed(),
   diveRecoverTimer(),
   state(),

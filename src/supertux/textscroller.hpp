@@ -1,6 +1,3 @@
-// src/supertux/textscroller.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,8 +19,6 @@
 
 #include <map>
 #include <memory>
-#include <string>
-#include <vector>
 
 #include "supertux/screen.hpp"
 #include "video/color.hpp"

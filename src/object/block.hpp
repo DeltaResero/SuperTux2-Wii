@@ -1,6 +1,3 @@
-// src/object/block.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -21,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_BLOCK_HPP
 
 #include <memory>
-#include <string>
 
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/moving_object.hpp"
@@ -36,14 +32,12 @@ public:
   Block(const ReaderMapping& lisp, const std::string& sprite_file);
   ~Block();
 
-  /** Whether this block has already been hit for whatever it was holding. */
-  bool is_spent() const;
-
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual void update(float elapsed_time) override;
   virtual void draw(DrawingContext& context) override;
 
-protected:
+  virtual ObjectSettings get_settings() override;
+  virtual void after_editor_set() override;
 
 protected:
   friend class FlipLevelTransformer;

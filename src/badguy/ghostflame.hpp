@@ -1,6 +1,3 @@
-// src/badguy/ghostflame.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux badguy - Ghostflame a flame-like enemy that cannot be killed
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_BADGUY_GHOSTFLAME_HPP
 #define HEADER_SUPERTUX_BADGUY_GHOSTFLAME_HPP
 
-#include <string>
-
 #include "badguy/flame.hpp"
 
 class Ghostflame : public Flame
@@ -37,7 +32,7 @@ public:
   }
 
   std::string get_display_name() const {
-    return "Ghost flame";
+    return _("Ghost flame");
   }
 };
 

@@ -1,6 +1,3 @@
-// src/supertux/levelset.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2014 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -19,8 +16,10 @@
 
 #include "supertux/levelset.hpp"
 
+#include <physfs.h>
 #include <algorithm>
 
+#include "physfs/physfs_file_system.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/string_util.hpp"
@@ -42,33 +41,32 @@ Levelset::get_num_levels() const
 std::string
 Levelset::get_level_filename(int i) const
 {
-  return m_levels[static_cast<size_t>(i)];
+  return m_levels[i];
 }
 
 void
 Levelset::walk_directory(const std::string& directory, bool recursively)
 {
   bool is_basedir = (directory == m_basedir);
-  if (FileSystem::find(directory).empty())
+  char** files = PHYSFS_enumerateFiles(directory.c_str());
+  if (!files)
   {
     log_warning << "Couldn't read subset dir '" << directory << "'" << std::endl;
     return;
   }
 
-  const std::vector<std::string> files = FileSystem::enumerate(directory);
-
-  for(const auto& filename : files)
+  for(const char* const* filename = files; *filename != 0; ++filename)
   {
-    auto filepath = FileSystem::join(directory, filename);
-    if(FileSystem::is_directory(FileSystem::find(filepath)) && recursively)
+    auto filepath = FileSystem::join(directory.c_str(), *filename);
+    if(PhysFSFileSystem::is_directory(filepath) && recursively)
     {
       walk_directory(filepath, true);
     }
-    if(StringUtil::has_suffix(filename, ".stl"))
+    if(StringUtil::has_suffix(*filename, ".stl"))
     {
       if(is_basedir)
       {
-        m_levels.push_back(filename);
+        m_levels.push_back(*filename);
       }
       else
       {
@@ -78,6 +76,7 @@ Levelset::walk_directory(const std::string& directory, bool recursively)
       }
     }
   }
+  PHYSFS_freeList(files);
 }
 
 /* EOF */

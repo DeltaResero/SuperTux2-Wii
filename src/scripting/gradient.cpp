@@ -1,6 +1,3 @@
-// src/scripting/gradient.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2016 Hume2 <teratux.mail@gmail.com>
 //
@@ -19,6 +16,7 @@
 
 #include "scripting/gradient.hpp"
 
+#include <physfs.h>
 
 #include "object/gradient.hpp"
 
@@ -62,9 +60,7 @@ Gradient::get_direction() const
   if(direction == GradientDirection::VERTICAL_SECTOR)
     return "vertical_sector";
 
-  // Unreachable while the four cases above cover GradientDirection; matches
-  // the fallback the level reader applies to an unrecognised direction.
-  return "vertical";
+  return NULL;
 }
 
 void

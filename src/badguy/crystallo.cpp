@@ -1,6 +1,3 @@
-// src/badguy/crystallo.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Crystallo
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -34,6 +31,23 @@ Crystallo::Crystallo(const ReaderMapping& reader) :
   if ( !reader.get("radius", radius)) {
     radius = 100;
   }
+}
+
+Crystallo::Crystallo(const Vector& pos, Direction d) :
+  WalkingBadguy(pos, d, "images/creatures/crystallo/crystallo.sprite", "left", "right"),
+  radius()
+{
+  walk_speed = 80;
+  max_drop_height = 16;
+  radius = 100;
+}
+
+ObjectSettings
+Crystallo::get_settings() {
+  ObjectSettings result = WalkingBadguy::get_settings();
+  result.options.push_back( ObjectOption(MN_NUMFIELD, _("Radius"), &radius,
+                                         "radius"));
+  return result;
 }
 
 void

@@ -1,6 +1,3 @@
-// src/badguy/haywire.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
@@ -189,12 +186,12 @@ Haywire::start_exploding()
   ticking = SoundManager::current()->create_sound_source("sounds/fizz.wav");
   ticking->set_position(get_pos());
   ticking->set_looping(true);
-  ticking->set_close_range();
+  ticking->set_reference_distance(32);
   ticking->play();
   grunting = SoundManager::current()->create_sound_source("sounds/grunts.ogg");
   grunting->set_position(get_pos());
   grunting->set_looping(true);
-  grunting->set_close_range();
+  grunting->set_reference_distance(32);
   grunting->play();
 }
 

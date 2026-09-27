@@ -1,6 +1,3 @@
-// src/object/wind.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Wind
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_OBJECT_WIND_HPP
 #define HEADER_SUPERTUX_OBJECT_WIND_HPP
-
-#include <string>
 
 #include "scripting/exposed_object.hpp"
 #include "scripting/wind.hpp"
@@ -64,13 +59,16 @@ public:
     return "wind";
   }
   std::string get_display_name() const {
-    return "Wind";
+    return _("Wind");
   }
+
+  virtual ObjectSettings get_settings();
 
 private:
   bool blowing; /**< true if wind is currently switched on */
   Vector speed;
   float acceleration;
+  Vector new_size;
 
   float elapsed_time; /**< stores last elapsed_time gotten at update() */
 };

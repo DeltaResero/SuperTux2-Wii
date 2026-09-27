@@ -1,6 +1,3 @@
-// src/worldmap/worldmap.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
@@ -21,7 +18,6 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_WORLDMAP_HPP
 #define HEADER_SUPERTUX_WORLDMAP_WORLDMAP_HPP
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -85,7 +81,7 @@ private:
 
   Savegame& m_savegame;
 
-  std::shared_ptr<TileSet> tileset;
+  TileSet* tileset;
 
   static WorldMap* current_;
 
@@ -123,9 +119,6 @@ private:
 
   bool in_level;
 
-  /** So the first setup() after the constructor doesn't refetch */
-  bool artwork_released;
-
   /* variables to track panning to a spawn point */
   Vector pan_pos;
   bool panning;
@@ -138,11 +131,6 @@ public:
 
   void try_expose(const GameObjectPtr& object);
   void try_unexpose(const GameObjectPtr& object);
-
-  /** Called either side of a level, so the map isn't holding artwork
-      while something else is on screen. */
-  void release_artwork();
-  void reacquire_artwork();
 
   static WorldMap* current()
   { return current_; }

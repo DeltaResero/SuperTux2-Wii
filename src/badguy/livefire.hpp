@@ -1,6 +1,3 @@
-// src/badguy/livefire.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux badguy - walking flame that glows
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
@@ -19,8 +16,6 @@
 
 #ifndef HEADER_SUPERTUX_BADGUY_LiveFire_HPP
 #define HEADER_SUPERTUX_BADGUY_LiveFire_HPP
-
-#include <string>
 
 #include "badguy/walking_badguy.hpp"
 
@@ -42,7 +37,7 @@ public:
     return "livefire";
   }
   virtual std::string get_display_name() const override {
-    return "Live fire";
+    return _("Live fire");
   }
 
 private:
@@ -68,7 +63,7 @@ public:
     return "livefire_asleep";
   }
   std::string get_display_name() const {
-    return "Sleeping live fire";
+    return _("Sleeping live fire");
   }
 };
 
@@ -82,7 +77,7 @@ public:
     return "livefire_dormant";
   }
   std::string get_display_name() const {
-    return "Dormant live fire";
+    return _("Dormant live fire");
   }
 };
 

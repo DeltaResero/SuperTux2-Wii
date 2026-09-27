@@ -1,6 +1,3 @@
-// src/object/floating_image.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,8 +17,6 @@
 #ifndef HEADER_SUPERTUX_OBJECT_FLOATING_IMAGE_HPP
 #define HEADER_SUPERTUX_OBJECT_FLOATING_IMAGE_HPP
 
-#include <string>
-
 #include "object/anchor_point.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/game_object.hpp"
@@ -31,6 +26,9 @@ class FloatingImage : public GameObject
 public:
   FloatingImage(const std::string& sprite);
   virtual ~FloatingImage();
+  virtual bool do_save() const {
+    return false;
+  }
 
   void set_layer(int layer_) {
     this->layer = layer_;

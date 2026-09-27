@@ -1,6 +1,3 @@
-// src/supertux/direction.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Ryan Flegel <rflegel@gmail.com>
 //
@@ -21,6 +18,8 @@
 
 #include "supertux/direction.hpp"
 
+#include "editor/object_option.hpp"
+#include "util/gettext.hpp"
 
 std::ostream& operator<<(std::ostream& o, const Direction& dir)
 {
@@ -44,6 +43,17 @@ std::ostream& operator<<(std::ostream& o, const Direction& dir)
   }
 
   return o;
+}
+
+ObjectOption
+dir_option(Direction *dir) {
+  ObjectOption result(MN_STRINGSELECT, _("Direction"), dir);
+  result.select.push_back(_("auto"));
+  result.select.push_back(_("left"));
+  result.select.push_back(_("right"));
+  result.select.push_back(_("up"));
+  result.select.push_back(_("down"));
+  return result;
 }
 
 std::string dir_to_string(const Direction& dir) {

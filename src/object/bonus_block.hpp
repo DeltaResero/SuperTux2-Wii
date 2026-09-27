@@ -1,6 +1,3 @@
-// src/object/bonus_block.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2009 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -20,18 +17,17 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BONUS_BLOCK_HPP
 #define HEADER_SUPERTUX_OBJECT_BONUS_BLOCK_HPP
 
-#include <memory>
-#include <string>
-
 #include "object/block.hpp"
 #include "object/player.hpp"
 
 class BonusBlock : public Block
 {
 public:
+  BonusBlock(const Vector& pos, int data);
   BonusBlock(const ReaderMapping& lisp);
   virtual ~BonusBlock();
   HitResponse collision(GameObject& other, const CollisionHit& hit);
+  virtual void save(Writer& writer);
 
   void try_open(Player *player);
   void try_drop(Player *player);
@@ -39,7 +35,7 @@ public:
     return "bonusblock";
   }
   std::string get_display_name() const {
-    return "Bonus block";
+    return _("Bonus block");
   }
   enum Contents {
     CONTENT_COIN,
@@ -57,6 +53,8 @@ public:
     CONTENT_EXPLODE
   };
 
+  virtual ObjectSettings get_settings();
+
 protected:
   virtual void hit(Player& player);
 
@@ -70,7 +68,7 @@ private:
   BonusBlock(const BonusBlock&);
   BonusBlock& operator=(const BonusBlock&);
   std::string script;
-
+  SurfacePtr lightsprite;
   void get_content_by_data(int d);
   void raise_growup_bonus(Player* player, const BonusType& bonus, const Direction& dir);
   void drop_growup_bonus(const std::string& bonus_sprite_name, bool& countdown);

@@ -1,6 +1,3 @@
-// src/audio/sound_source.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -36,13 +33,6 @@ public:
   virtual void play() = 0;
   virtual void stop() = 0;
   virtual bool playing() const = 0;
-  virtual void pause() = 0;
-  virtual void resume() = 0;
-  virtual bool paused() const = 0;
-
-  /** Housekeeping between frames. Streaming sources refill here; the rest
-      have nothing to do. */
-  virtual void update() = 0;
 
   virtual void set_looping(bool looping) = 0;
   virtual void set_relative(bool relative) = 0;
@@ -51,14 +41,7 @@ public:
   virtual void set_pitch(float pitch) = 0;
   virtual void set_position(const Vector& position) = 0;
   virtual void set_velocity(const Vector& velocity) = 0;
-  /** Place this in the world. It holds its level nearby and reaches silence
-      at the distance the engine stops running the object that made it. */
-  virtual void set_placed_range() = 0;
-  /** Place this as a sound only meant to be heard from nearby, a ticking fuse
-      or a flame. It carries a short way and is silent well inside the view.
-      level scales it against other close sounds. Both of these settle the
-      gain, so call them before anything that sets it, not after. */
-  virtual void set_close_range(float level = 1.0f) = 0;
+  virtual void set_reference_distance(float distance) = 0;
 
 private:
   SoundSource(const SoundSource&) = delete;

@@ -1,6 +1,3 @@
-// src/supertux/game_manager.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2013 Ingo Ruhnke <grumbel@gmail.com>
 //
@@ -32,12 +29,6 @@ class GameManager : public Currenton<GameManager>
 private:
   std::unique_ptr<World> m_world;
   std::unique_ptr<Savegame> m_savegame;
-
-public:
-  /** The savegame of the world last started, or null if none has been. */
-  Savegame* get_savegame() const { return m_savegame.get(); }
-
-private:
 
 public:
   GameManager();

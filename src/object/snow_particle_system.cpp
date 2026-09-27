@@ -1,6 +1,3 @@
-// src/object/snow_particle_system.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -20,10 +17,6 @@
 #include "object/snow_particle_system.hpp"
 
 #include <math.h>
-#include <cmath>
-#include <memory>
-#include <utility>
-#include <vector>
 
 #include "math/random_generator.hpp"
 #include "supertux/globals.hpp"

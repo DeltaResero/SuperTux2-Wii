@@ -1,6 +1,3 @@
-// src/video/video_system.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -22,7 +19,6 @@
 
 #include <SDL.h>
 #include <string>
-#include <memory>
 
 #include "util/currenton.hpp"
 #include "video/texture_ptr.hpp"
@@ -54,24 +50,11 @@ public:
   virtual Renderer& get_renderer() const = 0;
   virtual Lightmap& get_lightmap() const = 0;
   virtual TexturePtr new_texture(SDL_Surface *image) = 0;
-
-  /** The longest a texture's side may be here. Hardware with a fixed ceiling
-      reports it so that a picture too large to upload can be recognised
-      before it is handed over, and where there is no ceiling this is the
-      largest number there is, so a caller only ever has to compare. */
-  virtual unsigned int get_max_texture_size() const = 0;
-
   virtual SurfaceData* new_surface_data(const Surface &surface) = 0;
   virtual void free_surface_data(SurfaceData* surface_data) = 0;
 
   virtual void apply_config() = 0;
   virtual void resize(int w, int h) = 0;
-
-  /** Ask for a wait of the given length before each frame is shown, and
-      report back what is actually in force. Not every driver can do every
-      mode, so the two need not agree. */
-  virtual void set_vsync(int mode) = 0;
-  virtual int get_vsync() const = 0;
 
 private:
   VideoSystem(const VideoSystem&) = delete;

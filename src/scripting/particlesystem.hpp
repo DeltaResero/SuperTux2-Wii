@@ -1,6 +1,3 @@
-// src/scripting/particlesystem.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux - Sector scripting
 //  Copyright (C) 2016 Tobias Markus <tobbi.bugs@gmail.com>
 //
@@ -20,26 +17,30 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_PARTICLESYSTEM_HPP
 #define HEADER_SUPERTUX_SCRIPTING_PARTICLESYSTEM_HPP
 
+#ifndef SCRIPTING_API
 class ParticleSystem;
-
-#include <simplesquirrel/exposable_class.hpp>
+#endif
 
 namespace scripting {
 
-class ParticleSystem : public ssq::ExposableClass
+class ParticleSystem
 {
 public:
+#ifndef SCRIPTING_API
   ParticleSystem(::ParticleSystem* parent);
   ~ParticleSystem();
+#endif
 
   void set_enabled(bool enable);
   bool get_enabled() const;
 
+#ifndef SCRIPTING_API
   ::ParticleSystem* particlesystem;
 
 private:
   ParticleSystem(const ParticleSystem&) = delete;
   ParticleSystem& operator=(const ParticleSystem&) = delete;
+#endif
 };
 
 }

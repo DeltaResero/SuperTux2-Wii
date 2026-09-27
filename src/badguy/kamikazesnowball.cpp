@@ -1,6 +1,3 @@
-// src/badguy/kamikazesnowball.cpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
@@ -36,6 +33,13 @@ namespace{
 
 KamikazeSnowball::KamikazeSnowball(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/snowball/kamikaze-snowball.sprite")
+{
+  SoundManager::current()->preload(SPLAT_SOUND);
+  set_action (dir == LEFT ? "left" : "right", /* loops = */ -1);
+}
+
+KamikazeSnowball::KamikazeSnowball(const Vector& pos, Direction d)
+  : BadGuy(pos, d, "images/creatures/snowball/kamikaze-snowball.sprite")
 {
   SoundManager::current()->preload(SPLAT_SOUND);
   set_action (dir == LEFT ? "left" : "right", /* loops = */ -1);
@@ -91,6 +95,13 @@ KamikazeSnowball::collision_player(Player& player, const CollisionHit& hit)
   }
 
   return ABORT_MOVE;
+}
+
+void
+KamikazeSnowball::after_editor_set()
+{
+  BadGuy::after_editor_set();
+  sprite->set_action(dir == LEFT ? "left" : "right");
 }
 
 LeafShot::LeafShot(const ReaderMapping& reader) :

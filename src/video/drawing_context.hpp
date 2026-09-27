@@ -1,6 +1,3 @@
-// src/video/drawing_context.hpp
-// SPDX-License-Identifier: GPL-3.0-or-later
-//
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
@@ -24,15 +21,13 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include <obstack.h>
 
 #include "math/rectf.hpp"
-#include "math/sizef.hpp"
 #include "math/vector.hpp"
-#include "util/arena.hpp"
 #include "video/color.hpp"
 #include "video/font.hpp"
 #include "video/font_ptr.hpp"
-#include "video/light_texture.hpp"
 #include "video/texture.hpp"
 
 struct DrawingRequest;
@@ -98,34 +93,16 @@ public:
   ~DrawingContext();
 
   /// Adds a drawing request for a surface into the request list.
-  void draw_surface(const SurfacePtr& surface, const Vector& position,
+  void draw_surface(SurfacePtr surface, const Vector& position,
                     int layer);
   /// Adds a drawing request for a surface into the request list.
-  void draw_surface(const SurfacePtr& surface, const Vector& position,
-                    float angle, const Color& color, const Blend& blend,
-                    int layer);
-  /// Adds a drawing request for a surface drawn at a size the caller picks
-  /// rather than the surface's own.
-  void draw_surface(const SurfacePtr& surface, const Vector& position,
-                    const Sizef& dstsize,
+  void draw_surface(SurfacePtr surface, const Vector& position,
                     float angle, const Color& color, const Blend& blend,
                     int layer);
   /// Adds a drawing request for part of a surface.
-  void draw_surface_part(const SurfacePtr& surface,
+  void draw_surface_part(SurfacePtr surface,
                          const Rectf& srcrect, const Rectf& dstrect,
                          int layer);
-  /// Puts a round glow on the lightmap, centred on the given point. Lights
-  /// add to one another rather than covering one another up, so two of them
-  /// overlapping is brighter than either alone. The bonus block is the one
-  /// caller that wants ordinary blending instead.
-  void draw_light(const Vector& center, LightSize size, const Color& color,
-                  int layer = 0,
-                  const Blend& blend = Blend(GL_SRC_ALPHA, GL_ONE));
-  /// Draws a light of any shape, turned by angle degrees about its middle.
-  void draw_light(const Vector& center, const Sizef& size, float angle,
-                  LightCurve curve, const Color& color,
-                  int layer = 0,
-                  const Blend& blend = Blend(GL_SRC_ALPHA, GL_ONE));
   /// Draws a text.
   void draw_text(FontPtr font, const std::string& text,
                  const Vector& position, FontAlignment alignment, int layer, Color color = Color(1.0,1.0,1.0));
@@ -184,6 +161,11 @@ public:
 
   void set_ambient_color( Color new_color );
 
+  /**
+   * requests that a screenshot be taken after the next frame has been rendered
+   */
+  void take_screenshot();
+
 private:
   typedef std::vector<DrawingRequest*> DrawingRequests;
 
@@ -212,26 +194,8 @@ private:
 
   void clear_drawing_requests(DrawingRequests& requests);
 
-  /** Put a picture held in pieces back together, one request per piece
-      laid where that piece belongs. Everything above this asks for a
-      picture and knows nothing about how it is stored. */
-  void draw_split_surface(const SurfacePtr& surface, const Vector& position,
-                          const Sizef& dstsize,
-                          float angle, const Color& color, const Blend& blend,
-                          int layer);
-
-  /** The same for a part of a picture: what the caller asked for is cut
-      again along the joins, and each piece keeps its share of where the
-      whole was going. */
-  void draw_split_surface_part(const SurfacePtr& surface,
-                               const Rectf& srcrect, const Rectf& dstrect,
-                               int layer);
-
 private:
   VideoSystem& video_system;
-
-  /// the glows every light is drawn from, built on first use
-  LightTexture light_texture;
 
   /// the transform stack
   std::vector<Transform> transformstack;
@@ -250,8 +214,10 @@ private:
   Target target;
   std::vector<Target> target_stack;
 
-  /* holds the memory of the drawing requests */
-  Arena arena;
+  /* obstack holding the memory of the drawing requests */
+  struct obstack obst;
+
+  bool screenshot_requested; /**< true if a screenshot should be taken after the next frame has been rendered */
 
 private:
   DrawingContext(const DrawingContext&);
