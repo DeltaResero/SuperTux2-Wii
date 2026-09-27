@@ -36,7 +36,7 @@ private:
   static Level* s_current;
 
 public:
-  Level(bool m_is_worldmap);
+  Level();
   ~Level();
 
   void add_sector(std::unique_ptr<Sector> sector);
@@ -56,13 +56,10 @@ public:
 
   void reactivate();
 
-  bool is_worldmap() const { return m_is_worldmap; }
-
 private:
   void load_old_format(const ReaderMapping& reader);
 
 public:
-  bool m_is_worldmap;
   std::string m_name;
   std::string m_author;
   std::string m_contact;

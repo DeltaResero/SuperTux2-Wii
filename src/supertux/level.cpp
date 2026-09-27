@@ -26,8 +26,7 @@
 
 Level* Level::s_current = nullptr;
 
-Level::Level(bool worldmap) :
-  m_is_worldmap(worldmap),
+Level::Level() :
   m_name("noname"),
   m_author("SuperTux Player"),
   m_contact(),

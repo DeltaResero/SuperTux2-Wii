@@ -24,7 +24,6 @@
 #include "gui/menu_manager.hpp"
 #include "gui/mousecursor.hpp"
 #include "object/player.hpp"
-#include "sdk/integration.hpp"
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "supertux/console.hpp"
 #include "supertux/constants.hpp"
@@ -185,9 +184,6 @@ ScreenManager::set_screen_fade(std::unique_ptr<ScreenFade> screen_fade)
 void
 ScreenManager::quit(std::unique_ptr<ScreenFade> screen_fade)
 {
-  Integration::close_all();
-
-
   if (g_config->transitions_enabled)
   {
     m_screen_fade = std::move(screen_fade);
@@ -508,10 +504,6 @@ ScreenManager::handle_screen_switch()
 
 void ScreenManager::loop_iter()
 {
-  // Useful if screens edit their status without switching screens
-  Integration::update_status_all(m_screen_stack.back()->get_status());
-  Integration::update_all();
-
   Uint32 ticks = SDL_GetTicks();
   elapsed_ticks += ticks - last_ticks;
   last_ticks = ticks;
@@ -588,8 +580,6 @@ void ScreenManager::loop_iter()
 void
 ScreenManager::run()
 {
-  Integration::init_all();
-
   handle_screen_switch();
   while (!m_screen_stack.empty()) {
     loop_iter();

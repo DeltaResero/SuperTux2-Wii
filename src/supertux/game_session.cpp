@@ -29,7 +29,6 @@
 #include "object/level_time.hpp"
 #include "object/music_object.hpp"
 #include "object/player.hpp"
-#include "sdk/integration.hpp"
 #include "supertux/fadetoblack.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/level.hpp"
@@ -119,7 +118,7 @@ GameSession::restart_level(bool after_death)
 
   try {
     m_old_level = std::move(m_level);
-    m_level = LevelParser::from_file(m_levelfile, false, false);
+    m_level = LevelParser::from_file(m_levelfile);
 
     if (!m_reset_sector.empty()) {
       m_currentsector = m_level->get_sector(m_reset_sector);
@@ -418,22 +417,6 @@ GameSession::update(float dt_sec, const Controller& controller)
 
     get_current_sector().get_player().kill(true);
   }
-}
-
-IntegrationStatus
-GameSession::get_status() const
-{
-  IntegrationStatus status;
-  status.m_details.push_back("Playing");
-  if (get_current_level().is_worldmap())
-  {
-    status.m_details.push_back("In worldmap: " + get_current_level().get_name());
-  }
-  else
-  {
-    status.m_details.push_back("In level: " + get_current_level().get_name());
-  }
-  return status;
 }
 
 void

@@ -22,7 +22,6 @@
 #include "supertux/menu/debug_menu.hpp"
 #include "supertux/menu/contrib_menu.hpp"
 #include "supertux/menu/game_menu.hpp"
-#include "supertux/menu/integrations_menu.hpp"
 #include "supertux/menu/joystick_menu.hpp"
 #include "supertux/menu/keyboard_menu.hpp"
 #include "supertux/menu/main_menu.hpp"
@@ -102,9 +101,6 @@ MenuStorage::create(MenuId menu_id)
 
     case CONTRIB_WORLD_MENU:
       return nullptr; //return new ContribWorldMenu();
-
-    case INTEGRATIONS_MENU:
-      return std::make_unique<IntegrationsMenu>();
 
     case NO_MENU:
       return std::unique_ptr<Menu>();
