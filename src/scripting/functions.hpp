@@ -65,14 +65,6 @@ void wait_for_screenswitch(HSQUIRRELVM vm) __suspend;
 /** Exits the currently running screen (force exit from worldmap or scrolling text for example) */
 void exit_screen();
 
-/** Translate a text into the users language (by looking it up in the .po files) */
-std::string translate(const std::string& text);
-std::string _(const std::string& text);
-
-std::string translate_plural(const std::string& text, const std::string&
-    text_plural, int num);
-std::string __(const std::string& text, const std::string& text_plural, int num);
-
 /** Load a script file and executes it. This is typically used to import functions from external files. */
 void import(HSQUIRRELVM v, const std::string& filename);
 

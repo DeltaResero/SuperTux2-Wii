@@ -5,7 +5,7 @@ function initialize()
   Effect.fade_in(1.5);
   Tux.walk(150);
   wait(3.5);
-  Text.set_text(_("Tux had reached the end of the castle."));
+  Text.set_text("Tux had reached the end of the castle.");
   Text.fade_in(1);
   wait(2.2);
   Tux.walk(100);
@@ -16,7 +16,7 @@ function initialize()
   wait(1.4);
   Text.fade_out(1);
   wait(2);
-  Text.set_text(_("But to his surprise all he could find was a letter."));
+  Text.set_text("But to his surprise all he could find was a letter.");
   Text.fade_in(1);
   wait(4);
   Text.fade_out(1);
@@ -25,17 +25,17 @@ function initialize()
   wait(0.35);
   Tux.walk(0);
   wait(1);
-  Text.set_text(_("A letter from Penny telling Tux that Nolok has taken her to a far forest."));
+  Text.set_text("A letter from Penny telling Tux that Nolok has taken her to a far forest.");
   Text.fade_in(1);
   wait(4);
   Text.fade_out(1);
   wait(2);
-  Text.set_text(_("Unsure about what Nolok was doing to her, Tux became worried about his beloved Penny."));
+  Text.set_text("Unsure about what Nolok was doing to her, Tux became worried about his beloved Penny.");
   Text.fade_in(1);
   wait(4);
   Text.fade_out(1);
   wait(3);
-  Text.set_text(_("Until suddenly..."));
+  Text.set_text("Until suddenly...");
   Text.fade_in(1);
   wait(4);
   Text.fade_out(1);

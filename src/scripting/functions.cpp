@@ -201,26 +201,6 @@ void exit_screen()
   ScreenManager::current()->pop_screen();
 }
 
-std::string translate(const std::string& text)
-{
-  return text;
-}
-
-std::string _(const std::string& text)
-{
-  return translate(text);
-}
-
-std::string translate_plural(const std::string& text, const std::string& text_plural, int num)
-{
-  return num == 1 ? text : text_plural;
-}
-
-std::string __(const std::string& text, const std::string& text_plural, int num)
-{
-  return translate_plural(text, text_plural, num);
-}
-
 void display_text_file(const std::string& filename)
 {
   ScreenManager::current()->push_screen(std::make_unique<TextScrollerScreen>(filename));
