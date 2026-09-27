@@ -142,10 +142,6 @@ line. Some common command line switches are:
 - `-DCMAKE_BUILD_TYPE=RELEASE`
   : Enables release mode and compiles some sanity checks out of the build.
 
-- `-DENABLE_DISCORD=ON`
-  : Enables compiling the Discord integration in SuperTux. You may re-disable
-  the integration later by replacing `ON` with `OFF`.
-
 
 #### Notes for GIT users
 

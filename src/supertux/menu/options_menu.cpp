@@ -415,9 +415,6 @@ OptionsMenu::OptionsMenu(bool complete) :
     .set_help("Automatically pause the game when the window loses focus");
   add_toggle(MNID_CUSTOM_CURSOR, "Use custom mouse cursor", &g_config->custom_mouse_cursor).set_help("Whether the game renders its own cursor or uses the system's cursor");
 
-  add_submenu("Integrations and presence", MenuStorage::INTEGRATIONS_MENU)
-      .set_help("Manage whether SuperTux should display the levels you play on your social media profiles (Discord)");
-
   add_hl();
   add_back("Back");
 }

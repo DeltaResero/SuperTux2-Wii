@@ -20,9 +20,6 @@
 
 #include <vector>
 
-#ifdef ENABLE_DISCORD
-#include "sdk/discord.hpp"
-#endif
 #include "util/log.hpp"
 
 std::vector<Integration*> Integration::sdks;
@@ -31,9 +28,6 @@ IntegrationStatus Integration::current_status;
 void
 Integration::setup()
 {
-#ifdef ENABLE_DISCORD
-  sdks.push_back(DiscordIntegration::getDriver());
-#endif
 }
 
 void

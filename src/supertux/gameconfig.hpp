@@ -92,10 +92,6 @@ public:
   bool pause_on_focusloss;
   bool custom_mouse_cursor;
 
-#ifdef ENABLE_DISCORD
-  bool enable_discord;
-#endif
-
   bool is_christmas() const {
     try
     {

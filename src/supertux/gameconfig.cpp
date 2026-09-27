@@ -57,9 +57,6 @@ Config::Config() :
   confirmation_dialog(false),
   pause_on_focusloss(true),
   custom_mouse_cursor(true)
-#ifdef ENABLE_DISCORD
-  , enable_discord(false)
-#endif
 {
 }
 
@@ -83,14 +80,6 @@ Config::load()
   config_mapping.get("confirmation_dialog", confirmation_dialog);
   config_mapping.get("pause_on_focusloss", pause_on_focusloss);
   config_mapping.get("custom_mouse_cursor", custom_mouse_cursor);
-
-  boost::optional<ReaderMapping> config_integrations_mapping;
-  if (config_mapping.get("integrations", config_integrations_mapping))
-  {
-#ifdef ENABLE_DISCORD
-    config_integrations_mapping->get("enable_discord", enable_discord);
-#endif
-  }
 
   if (is_christmas()) {
     config_mapping.get("christmas", christmas_mode, true);
@@ -174,14 +163,6 @@ Config::save()
   writer.write("confirmation_dialog", confirmation_dialog);
   writer.write("pause_on_focusloss", pause_on_focusloss);
   writer.write("custom_mouse_cursor", custom_mouse_cursor);
-
-  writer.start_list("integrations");
-  {
-#ifdef ENABLE_DISCORD
-    writer.write("enable_discord", enable_discord);
-#endif
-  }
-  writer.end_list("integrations");
 
   if (is_christmas()) {
     writer.write("christmas", christmas_mode);
