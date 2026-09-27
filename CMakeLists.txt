@@ -32,19 +32,15 @@
 #
 
 
+### CMake configuration
+
+# The upper bound of the range opts in to the current policy behaviour
+# without raising the version a builder has to have installed.
+cmake_minimum_required(VERSION 3.16...4.0)
+
 ## Project name to use as command prefix.
 
 project(SUPERTUX)
-
-
-### CMake configuration
-
-cmake_minimum_required(VERSION 3.1)
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-  cmake_policy(SET CMP0008 NEW)
-  cmake_policy(SET CMP0023 NEW)
-endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -160,7 +156,6 @@ endif()
 
 ## Add lots of dependencies to compiler switches
 
-set(Boost_ADDITIONAL_VERSIONS "1.41" "1.41.0")
 if(WIN32)
   option(ENABLE_BOOST_STATIC_LIBS "Use boost static libraries" ON)
 else(WIN32)
@@ -171,9 +166,7 @@ if(ENABLE_BOOST_STATIC_LIBS)
 else(ENABLE_BOOST_STATIC_LIBS)
   set(Boost_USE_STATIC_LIBS FALSE)
 endif(ENABLE_BOOST_STATIC_LIBS)
-find_package(Boost REQUIRED COMPONENTS filesystem system date_time locale)
-include_directories(SYSTEM ${Boost_INCLUDE_DIR})
-link_directories(${Boost_LIBRARY_DIRS})
+find_package(Boost REQUIRED COMPONENTS filesystem date_time locale)
 
 find_package(glm QUIET)
 if(glm_FOUND)
@@ -343,6 +336,7 @@ if(NOT USE_SYSTEM_PHYSFS)
     "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/physfs${CMAKE_LINK_LIBRARY_SUFFIX}"
     "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}"
     CMAKE_ARGS
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -501,6 +495,7 @@ ExternalProject_Add(squirrel
   "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}sqstdlib_static${CMAKE_STATIC_LIBRARY_SUFFIX}"
   "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}squirrel_static${CMAKE_STATIC_LIBRARY_SUFFIX}"
   CMAKE_ARGS
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
@@ -553,6 +548,7 @@ ExternalProject_Add(tinygettext
   BUILD_BYPRODUCTS "${TINYGETTEXT_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}tinygettext${CMAKE_STATIC_LIBRARY_SUFFIX}"
   LIST_SEPARATOR "|"
   CMAKE_ARGS
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
@@ -589,6 +585,7 @@ ExternalProject_Add(SDL_ttf
   SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/SDL_ttf/"
   BUILD_BYPRODUCTS "${SDL_TTF_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}SDL2_ttf${CMAKE_STATIC_LIBRARY_SUFFIX}"
   CMAKE_ARGS
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
@@ -766,7 +763,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
           "-Wint-in-bool-context "
           )
       endif()
-      if(Boost_VERSION LESS 106500)
+      if(Boost_VERSION VERSION_LESS 1.65)
         string(CONCAT SUPERTUX2_EXTRA_WARNING_FLAGS
           "${SUPERTUX2_EXTRA_WARNING_FLAGS} "
           "-Wno-implicit-fallthrough ")
@@ -996,7 +993,7 @@ else()
   link_libraries(-lopenal)
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
-target_link_libraries(supertux2_lib PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(supertux2_lib PUBLIC Boost::filesystem Boost::date_time Boost::locale)
 if(USE_SYSTEM_PHYSFS)
   target_link_libraries(supertux2_lib PUBLIC ${PHYSFS_LIBRARY})
 else()
@@ -1186,7 +1183,7 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 ## CPack/Installation-specific stuff
 
 include(InstallRequiredSystemLibraries)
-set(DIRS ${Boost_LIBRARY_DIRS} ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
+set(DIRS ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DISABLE_CPACK_BUNDLING)
   set(INFOPLIST_CFBUNDLEEXECUTABLE "SuperTux")
@@ -1288,7 +1285,6 @@ mark_as_advanced(
 
 mark_as_advanced(
   Boost_INCLUDE_DIR
-  Boost_LIBRARIES
   )
 
 mark_as_advanced(
