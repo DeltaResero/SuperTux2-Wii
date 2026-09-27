@@ -231,11 +231,7 @@ void open_path(const std::string& path)
 #elif defined(__EMSCRIPTEN__)
   emscripten_run_script(("window.supertux_download('" + path + "');").c_str());
 #else
-  #if defined(__APPLE__)
-  std::string cmd = "open \"" + path + "\"";
-  #else
   std::string cmd = "xdg-open \"" + path + "\"";
-  #endif
 
   int ret = system(cmd.c_str());
   if (ret < 0)

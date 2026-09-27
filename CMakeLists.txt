@@ -866,11 +866,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  add_definitions(-DMACOSX)
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-
 ## On Windows, add an icon
 
 if(WIN32)
@@ -996,11 +991,6 @@ if(USE_SYSTEM_PHYSFS)
 else()
   add_dependencies(supertux2_lib physfs)
   target_link_libraries(supertux2_lib PUBLIC physfs_lib)
-  if(APPLE)
-    target_link_libraries(supertux2_lib PUBLIC "-framework CoreFoundation")
-    target_link_libraries(supertux2_lib PUBLIC "-framework Foundation")
-    target_link_libraries(supertux2_lib PUBLIC "-framework IOKit")
-  endif()
 endif()
 
 if(HAVE_OPENGL)
@@ -1046,7 +1036,6 @@ endif()
 
 ## Install stuff
 
-option(DISABLE_CPACK_BUNDLING "Build an .app bundle without CPack" OFF)
 if(WIN32 AND NOT UNIX)
 
   set(INSTALL_SUBDIR_BIN "bin" CACHE STRING "Installation subdir for binaries")
@@ -1069,45 +1058,25 @@ if(WIN32 AND NOT UNIX)
   endif()
 
 else(WIN32 AND NOT UNIX)
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
+  set(INSTALL_SUBDIR_BIN "games" CACHE STRING "Installation subdir for binaries")
+  set(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
+  set(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
 
-    set(INFOPLIST_CFBUNDLEEXECUTABLE "supertux2")
+  if(UBUNTU_TOUCH)
+    set(LINUX_DESKTOP_ICON "assets/supertux-256x256.png")
+    # FIXME: The "install" folder is a folder managed by Clickable and shouldn't be hardcoded here
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "install/supertux2.desktop")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/supertux2.apparmor DESTINATION ".")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/install/manifest.json)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux-256x256.png DESTINATION "assets")
+  else(UBUNTU_TOUCH)
+    set(LINUX_DESKTOP_ICON "supertux2")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "supertux2.desktop")
+    install(FILES ${CMAKE_BINARY_DIR}/supertux2.desktop DESTINATION "share/applications")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
+  endif(UBUNTU_TOUCH)
 
-    set(INSTALL_SUBDIR_BIN "SuperTux.app/Contents/MacOS" CACHE STRING "Installation subdir for binaries")
-    set(INSTALL_SUBDIR_SHARE "SuperTux.app/Contents/Resources/data" CACHE STRING "Installation subdir for data")
-    set(INSTALL_SUBDIR_DOC "SuperTux.app/Contents/Resources" CACHE STRING "Installation subdir for docs")
-
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/info.plist.in ${CMAKE_BINARY_DIR}/tools/darwin/info.plist)
-    install(FILES ${CMAKE_BINARY_DIR}/tools/darwin/info.plist DESTINATION "SuperTux.app/Contents/")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/receipt DESTINATION "SuperTux.app/Contents/_MASReceipt/")
-
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.icns DESTINATION "SuperTux.app/Contents/Resources/")
-
-  else(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
-
-    set(INSTALL_SUBDIR_BIN "games" CACHE STRING "Installation subdir for binaries")
-    set(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
-    set(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
-
-    if(UBUNTU_TOUCH)
-      set(LINUX_DESKTOP_ICON "assets/supertux-256x256.png")
-      # FIXME: The "install" folder is a folder managed by Clickable and shouldn't be hardcoded here
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "install/supertux2.desktop")
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/supertux2.apparmor DESTINATION ".")
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/install/manifest.json)
-      set(APPS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/supertux2")
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux-256x256.png DESTINATION "assets")
-    else(UBUNTU_TOUCH)
-      set(LINUX_DESKTOP_ICON "supertux2")
-      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "supertux2.desktop")
-      install(FILES ${CMAKE_BINARY_DIR}/supertux2.desktop DESTINATION "share/applications")
-      set(APPS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${INSTALL_SUBDIR_BIN}/supertux2")
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
-    endif(UBUNTU_TOUCH)
-
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.svg DESTINATION "share/icons/hicolor/scalable/apps")
-
-  endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND DISABLE_CPACK_BUNDLING)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.svg DESTINATION "share/icons/hicolor/scalable/apps")
 endif(WIN32 AND NOT UNIX)
 
 if(UBUNTU_TOUCH)
@@ -1180,41 +1149,6 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 ## CPack/Installation-specific stuff
 
 include(InstallRequiredSystemLibraries)
-set(DIRS ${CMAKE_CURRENT_BINARY_DIR}/external/squirrel ${CMAKE_CURRENT_BINARY_DIR}/external/tinygettext)
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DISABLE_CPACK_BUNDLING)
-  set(INFOPLIST_CFBUNDLEEXECUTABLE "SuperTux")
-
-  find_package(png)
-  foreach (_file ${PNG_LIBRARIES})
-    get_filename_component(_resolvedFile "${_file}" REALPATH)
-    get_filename_component(_name "${_file}" NAME)
-    install(FILES ${_resolvedFile} DESTINATION "MacOS" RENAME ${_name})
-  endforeach()
-  find_package(jpeg)
-  foreach (_file ${JPEG_LIBRARIES})
-    get_filename_component(_resolvedFile "${_file}" REALPATH)
-    get_filename_component(_name "${_file}" NAME)
-    install(FILES ${_resolvedFile} DESTINATION "MacOS" RENAME ${_name})
-  endforeach()
-
-  install(CODE "
-       if(\"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/\" MATCHES \".*\\\\.app.*\")
-       include(BundleUtilities)
-       fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
-       endif()
-       ")
-
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/info.plist.in" "${CMAKE_BINARY_DIR}/tools/darwin/info.plist")
-
-  set(CPACK_BUNDLE_NAME "SuperTux")
-  set(CPACK_BUNDLE_PLIST "${CMAKE_BINARY_DIR}/tools/darwin/info.plist")
-  set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.icns")
-  set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/startup.sh")
-  set(CPACK_DMG_VOLUME_NAME "SuperTux ${SUPERTUX_VERSION_STRING}")
-  set(CPACK_DMG_DS_STORE_SETUP_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/dsstore_setup.scpt")
-  set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_CURRENT_SOURCE_DIR}/tools/darwin/background.png")
-endif()
 
 
 set(CPACK_PACKAGE_NAME "SuperTux")
@@ -1272,8 +1206,6 @@ mark_as_advanced(
   CMAKE_INSTALL_PREFIX
   EXECUTABLE_OUTPUT_PATH
   LIBRARY_OUTPUT_PATH
-  CMAKE_OSX_ARCHITECTURES
-  CMAKE_OSX_SYSROOT
   )
 
 mark_as_advanced(
