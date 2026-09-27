@@ -91,9 +91,6 @@ void debug_show_fps(bool enable);
 /** enable/disable drawing of non-solid layers */
 void debug_draw_solids_only(bool enable);
 
-/** enable/disable drawing of editor images */
-void debug_draw_editor_images(bool enable);
-
 /** enable/disable worldmap ghost mode */
 void debug_worldmap_ghost(bool enable);
 

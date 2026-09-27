@@ -130,19 +130,13 @@ TileSetParser::parse_tile(const ReaderMapping& reader)
     attributes |= Tile::SOLID | Tile::SLOPE;
   }
 
-  std::vector<SurfacePtr> editor_surfaces;
-  boost::optional<ReaderMapping> editor_images_mapping;
-  if (reader.get("editor-images", editor_images_mapping)) {
-    editor_surfaces = parse_imagespecs(*editor_images_mapping);
-  }
-
   std::vector<SurfacePtr> surfaces;
   boost::optional<ReaderMapping> images_mapping;
   if (reader.get("images", images_mapping)) {
     surfaces = parse_imagespecs(*images_mapping);
   }
 
-  auto tile = std::make_unique<Tile>(surfaces, editor_surfaces,
+  auto tile = std::make_unique<Tile>(surfaces,
                                      attributes, data, fps,
                                      object_name, object_data);
   m_tileset.add_tile(id, std::move(tile));
@@ -223,12 +217,6 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
   {
     if (shared_surface)
     {
-      std::vector<SurfacePtr> editor_surfaces;
-      boost::optional<ReaderMapping> editor_surfaces_mapping;
-      if (reader.get("editor-images", editor_surfaces_mapping)) {
-        editor_surfaces = parse_imagespecs(*editor_surfaces_mapping);
-      }
-
       std::vector<SurfacePtr> surfaces;
       boost::optional<ReaderMapping> surfaces_mapping;
       if (reader.get("image", surfaces_mapping) ||
@@ -250,15 +238,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
                 return surface->region(Rect(x, y, Size(32, 32)));
               });
 
-          std::vector<SurfacePtr> editor_regions;
-          editor_regions.reserve(editor_surfaces.size());
-          std::transform(editor_surfaces.begin(), editor_surfaces.end(), std::back_inserter(editor_regions),
-              [x, y] (const SurfacePtr& surface) { 
-                return surface->region(Rect(x, y, Size(32, 32)));
-              });
-
           auto tile = std::make_unique<Tile>(regions,
-                                             editor_regions,
                                              (has_attributes ? attributes[i] : 0),
                                              (has_datas ? datas[i] : 0),
                                              fps);
@@ -283,14 +263,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
             surfaces = parse_imagespecs(*surfaces_mapping, Rect(x, y, Size(32, 32)));
           }
 
-          std::vector<SurfacePtr> editor_surfaces;
-          boost::optional<ReaderMapping> editor_surfaces_mapping;
-          if (reader.get("editor-images", editor_surfaces_mapping)) {
-            editor_surfaces = parse_imagespecs(*editor_surfaces_mapping, Rect(x, y, Size(32, 32)));
-          }
-
           auto tile = std::make_unique<Tile>(surfaces,
-                                             editor_surfaces,
                                              (has_attributes ? attributes[i] : 0),
                                              (has_datas ? datas[i] : 0),
                                              fps);
