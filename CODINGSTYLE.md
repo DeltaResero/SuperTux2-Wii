@@ -202,8 +202,6 @@ Use the `//` syntax for regular comments, even multiline, don't use `/* */`.
 For Doxygen (code documentation), use the `/** */` syntax, don't use
 `/**<` and other styles of comments.
 
-For translator information, use the `// l10n:` syntax.
-
 Don't do `*` prefix decorations in comments, keep things simple and
 compact:
 
