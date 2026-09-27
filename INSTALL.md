@@ -56,7 +56,6 @@ distributions.
   - [GLEW](http://glew.sourceforge.net/) or
   - [glbinding](https://github.com/hpicgs/glbinding)
 * [Boost](http://www.boost.org) smart_ptr and format headers, along with date_time and filesystem libraries
-* [cURL](http://curl.haxx.se/libcurl/): for Add-on downloads
 * [libogg and libvorbis](https://www.xiph.org/)
 * [FreeType](https://www.freetype.org/)
 * [GLM](https://github.com/g-truc/glm)
@@ -65,7 +64,7 @@ distributions.
   to display Arabic
 
 **Note I:** for any of the above listed libraries (OpenGL, SDL2, SDL2_image,
-OpenAL, GLEW/glbinding, Boost, cURL, libogg and libvorbis), you should
+OpenAL, GLEW/glbinding, Boost, libogg and libvorbis), you should
 also have development headers installed. Debian-based distributions have `-devel`
 packages containing the mentioned headers, on Arch Linux these should be included
 in the library package.
@@ -83,7 +82,7 @@ For ease of use, here are some installation lines for some Linux distributions:
 
 - Ubuntu 18.04/20.04:
   ```
-  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libboost-all-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libraqm-dev libcurl4-openssl-dev libglew-dev libharfbuzz-dev libfribidi-dev libglm-dev zlib1g-dev
+  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libboost-all-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libraqm-dev libglew-dev libharfbuzz-dev libfribidi-dev libglm-dev zlib1g-dev
   ```
 
 ### Linux/UNIX using CMake

@@ -51,32 +51,6 @@ ContribMenu::ContribMenu() :
     }
   }
 
-  std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
-    addons(PHYSFS_enumerateFiles("custom"),
-          PHYSFS_freeList);
-  for (const char* const* addondir = addons.get(); *addondir != nullptr; ++addondir)
-  {
-    std::string addonpath = FileSystem::join("custom", *addondir);
-    if (physfsutil::is_directory(addonpath))
-    {
-      std::string addonlevelpath = FileSystem::join(addonpath.c_str(), "levels");
-      if (physfsutil::is_directory(addonlevelpath))
-      {
-        std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
-          addonfiles(PHYSFS_enumerateFiles(addonlevelpath.c_str()),
-                PHYSFS_freeList);
-        for (const char* const* filename = addonfiles.get(); *filename != nullptr; ++filename)
-        {
-          std::string filepath = FileSystem::join(addonlevelpath.c_str(), *filename);
-          if (physfsutil::is_directory(filepath))
-          {
-            level_worlds.push_back(filepath);
-          }
-        }
-      }
-    }
-  }
-
   add_label(_("Contrib Levels"));
   add_hl();
 

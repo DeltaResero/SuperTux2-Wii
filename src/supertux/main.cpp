@@ -34,7 +34,6 @@ extern "C" {
 #include <codecvt>
 #endif
 
-#include "addon/addon_manager.hpp"
 #include "audio/sound_manager.hpp"
 #include "gui/menu_manager.hpp"
 #include "math/random.hpp"
@@ -121,7 +120,6 @@ Main::Main() :
   m_tile_manager(),
   m_sprite_manager(),
   m_resources(),
-  m_addon_manager(),
   m_console(),
   m_game_manager(),
   m_screen_manager(),
@@ -402,9 +400,6 @@ Main::launch_game(const CommandLineArguments& args)
 
   s_timelog.log("integrations");
   Integration::setup();
-
-  s_timelog.log("addons");
-  m_addon_manager.reset(new AddonManager("addons", g_config->addons));
 
   m_console.reset(new Console(*m_console_buffer));
 

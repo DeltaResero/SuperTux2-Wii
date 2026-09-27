@@ -49,10 +49,6 @@ MainMenu::MainMenu()
                  static_cast<float>(SCREEN_HEIGHT) / 2.0f + 35.0f);
 
   add_entry(MNID_STARTGAME, _("Start Game"));
-  // TODO: Manage to build OpenSSL for Emscripten so we can build CURL so we can
-  //       build the add-ons so we can re-enable them.
-  //       Also see src/addon/downloader.*pp
-  add_entry(MNID_ADDONS, _("Add-ons"));
   add_submenu(_("Options"), MenuStorage::OPTIONS_MENU);
   add_entry(MNID_CREDITS, _("Credits"));
   add_entry(MNID_DONATE, _("Donate"));
@@ -77,11 +73,6 @@ MainMenu::menu_action(MenuItem& item)
     case MNID_STARTGAME:
       // World selection menu
       MenuManager::instance().push_menu(MenuStorage::WORLDSET_MENU);
-      break;
-
-    case MNID_ADDONS:
-      // Add-ons Menu
-      MenuManager::instance().push_menu(MenuStorage::ADDON_MENU);
       break;
 
      case MNID_CREDITS:
