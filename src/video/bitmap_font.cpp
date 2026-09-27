@@ -59,7 +59,6 @@ BitmapFont::BitmapFont(GlyphWidth glyph_width_,
   char_height(),
   shadowsize(shadowsize_),
   border(0),
-  rtl(false),
   glyphs(65536)
 {
   for (unsigned int i=0; i<65536;i++) glyphs[i].surface_idx = -1;
@@ -101,7 +100,6 @@ BitmapFont::loadFontFile(const std::string &filename)
   }
 
   config_l.get("glyph-border", border);
-  config_l.get("rtl", rtl);
 
   auto iter = config_l.get_iter();
   while (iter.next()) {
@@ -385,11 +383,11 @@ void
 BitmapFont::draw_text(Canvas& canvas, const std::string& text, const Vector& pos, int layer, Color color) const
 {
   if (shadowsize > 0)
-    draw_chars(canvas, false, rtl ? std::string(text.rbegin(), text.rend()) : text,
+    draw_chars(canvas, false, text,
                pos + Vector(static_cast<float>(shadowsize), static_cast<float>(shadowsize)), layer,
                Color(1,1,1));
 
-  draw_chars(canvas, true, rtl ? std::string(text.rbegin(), text.rend()) : text, pos, layer, color);
+  draw_chars(canvas, true, text, pos, layer, color);
 }
 
 void
