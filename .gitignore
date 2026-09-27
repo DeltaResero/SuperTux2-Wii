@@ -1,56 +1,60 @@
-# Build Files
-build/
-build.*/
-**/CMakeFiles/
-**/CMakeCache.txt
+# A pattern is added once the tree is able to produce the file, and is not
+# taken out again afterwards. A working directory outlives the code that
+# filled it, so a checkout or a bisect that crosses the commit which stopped
+# generating something will still be holding the leftovers.
+#
+# Nothing tracked may be matched here. Check with:
+#   git ls-files -i --exclude-standard -c
+
+# Build directories
+build*/
+
+# Binaries
 supertux2
+supertux2.exe
+test_supertux2
 
-# Ubuntu Touch (clickable) build files
-.clickable/
+# Left behind by configuring in the source directory
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+install_manifest.txt
+/Makefile
 
-# Tags file
-tags
-
-# Windows build files
-Debug/
-Release/
-tools/innosetup/Output
-
-# Nix flake build files
-/result
-
-# Version file
+# Generated from .in templates
+config.h
+version.h
 version.cmake
+data/levels/misc/menu.stl
 
-# Doxygen related files
+# Source archives from makedist.sh
+supertux-*.tar.gz
+supertux-*.tar.bz2
+
+# Doxygen
 Doxyfile
 docs/doxygen/
 
 # Qt Creator project file
 CMakeLists.txt.user
 
-# Visual Studio Code project files
-.vscode/
-language.settings.xml
-
-# Visual Studio project files
-*.vs/
-
 # Windows build dependencies
+Debug/
+Release/
 dependencies*/
+tools/innosetup/Output
 
-# Additional Repos/Translations
-supertux.*
+# Transifex client
 .tx/
-#translations
 
-# Useful Customization Files
+# Useful customization files
 data/levels/more/
 *.patch
 *.zip
 *.diff
 
-# Annoying OS Generated Files
+# Annoying OS generated files
 .DS_Store
 .DS_Store?
 ._*
