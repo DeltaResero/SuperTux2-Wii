@@ -19,10 +19,6 @@ Contrib levels are so old that they have no specific license, but they should be
 
 Test levels are created by SuperTux developers to test specific code and so are under the GPL.
 
-== Locale ==
-
-License should be included with them.
-
 == Music ==
 
 All files in data/music created by wansti and licensed under GPLv2+CC-by-sa, unless stated otherwise.
