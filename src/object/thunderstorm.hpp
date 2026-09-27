@@ -39,10 +39,6 @@ public:
   virtual std::string get_class() const override { return "thunderstorm"; }
   virtual std::string get_display_name() const override { return _("Thunderstorm"); }
 
-  virtual ObjectSettings get_settings() override;
-
-  virtual const std::string get_icon_path() const override { return "images/engine/editor/thunderstorm.png"; }
-
   /** @name Scriptable Methods
       @{ */
 

@@ -16,7 +16,6 @@
 
 #include "object/ispy.hpp"
 
-#include "editor/editor.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/sector.hpp"
 #include "util/log.hpp"
@@ -38,16 +37,12 @@ Ispy::Ispy(const ReaderMapping& reader) :
   if (reader.get("direction", dir_str)) {
     dir = string_to_dir(dir_str);
   } else {
-    if (!Editor::is_active()) {
-      dir = Direction::LEFT;
-    }
+    dir = Direction::LEFT;
   }
 
   reader.get("facing-down", m_facing_down, false);
-  if (!Editor::is_active()) {
-    if (m_facing_down) {
-      dir = Direction::DOWN;
-    }
+  if (m_facing_down) {
+    dir = Direction::DOWN;
   }
 
   if (dir == Direction::AUTO) {
@@ -55,27 +50,6 @@ Ispy::Ispy(const ReaderMapping& reader) :
   }
 
   // set initial sprite action
-  m_sprite->set_action((dir == Direction::DOWN) ? "idle-down" : ((dir == Direction::LEFT) ? "idle-left" : "idle-right"));
-}
-
-ObjectSettings
-Ispy::get_settings()
-{
-  ObjectSettings result = MovingSprite::get_settings();
-
-  result.add_bool(_("Facing Down"), &m_facing_down, "facing-down", false);
-  result.add_script(_("Script"), &script, "script");
-  result.add_direction(_("Direction"), &dir, Direction::AUTO, "direction");
-
-  result.reorder({"script", "facing-down", "direction", "x", "y"});
-
-  return result;
-}
-
-void
-Ispy::after_editor_set()
-{
-  MovingSprite::after_editor_set();
   m_sprite->set_action((dir == Direction::DOWN) ? "idle-down" : ((dir == Direction::LEFT) ? "idle-left" : "idle-right"));
 }
 

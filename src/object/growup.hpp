@@ -25,9 +25,6 @@ class GrowUp final : public MovingSprite
 {
 public:
   GrowUp(const Vector& pos, Direction direction = Direction::RIGHT);
-  virtual bool is_saveable() const override {
-    return false;
-  }
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;

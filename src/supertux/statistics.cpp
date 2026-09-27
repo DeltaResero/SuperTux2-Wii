@@ -432,12 +432,6 @@ Statistics::finish(float time)
 }
 
 void
-Statistics::invalidate()
-{
-  m_status = INVALID;
-}
-
-void
 Statistics::update(const Statistics& other)
 {
   if (other.m_status != FINAL) return;

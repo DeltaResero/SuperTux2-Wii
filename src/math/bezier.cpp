@@ -99,28 +99,4 @@ Bezier::get_point_by_length(const Vector& p1, const Vector& p2, const Vector& p3
   return get_point_at_length(p1, p2, p3, p4, get_length(p1, p2, p3, p4) * t);
 }
 
-void
-Bezier::draw_curve(DrawingContext& context, const Vector& p1, const Vector& p2,
-                   const Vector& p3, const Vector& p4, int steps, Color color,
-                   int layer)
-{
-  // Save ourselves some processing time in common special cases
-  if (p1 == p2 && p3 == p4)
-  {
-    context.color().draw_line(p1, p4, color, layer);
-    return;
-  }
-
-  for (int i = 0; i < steps; i += 1)
-  {
-    float f1 = static_cast<float>(i) / static_cast<float>(steps),
-          f2 = static_cast<float>(i + 1) / static_cast<float>(steps);
-
-    context.color().draw_line(get_point(p1, p2, p3, p4, f1),
-                              get_point(p1, p2, p3, p4, f2),
-                              color,
-                              layer);
-  }
-}
-
 /* EOF */

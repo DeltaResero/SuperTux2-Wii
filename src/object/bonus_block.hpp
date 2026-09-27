@@ -55,8 +55,6 @@ public:
   virtual std::string get_class() const override { return "bonusblock"; }
   virtual std::string get_display_name() const override { return _("Bonus Block"); }
 
-  virtual ObjectSettings get_settings() override;
-
   Content get_contents() const { return m_contents; }
   int get_hit_counter() const { return m_hit_counter; }
 
@@ -78,7 +76,6 @@ private:
   int m_hit_counter;
   std::string m_script;
   SurfacePtr m_lightsprite;
-  sexp::Value m_custom_sx;
 
 private:
   BonusBlock(const BonusBlock&) = delete;

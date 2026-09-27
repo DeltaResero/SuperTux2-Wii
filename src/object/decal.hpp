@@ -39,8 +39,6 @@ public:
   virtual std::string get_class() const override { return "decal"; }
   virtual std::string get_display_name() const override { return _("Decal"); }
 
-  virtual ObjectSettings get_settings() override;
-
   virtual void draw(DrawingContext& context) override;
   virtual void update(float dt_sec) override;
 

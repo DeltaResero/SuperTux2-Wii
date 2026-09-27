@@ -41,9 +41,6 @@ public:
   Path* get_path() const;
   PathWalker* get_walker() const { return m_walker.get(); }
 
-  std::string get_path_ref() const;
-  void editor_set_path_by_ref(const std::string& new_ref);
-
 private:
   UID m_path_uid;
   std::unique_ptr<PathWalker> m_walker;

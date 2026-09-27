@@ -53,16 +53,10 @@ public:
   virtual void finish_construction() override;
 
   virtual std::string get_class() const override { return "tilemap"; }
-  virtual const std::string get_icon_path() const override { return "images/engine/editor/tilemap.png"; }
   virtual std::string get_display_name() const override { return _("Tilemap"); }
-
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
-
-  virtual void editor_update() override;
 
   virtual void on_flip(float height) override;
 
@@ -200,8 +194,6 @@ public:
       target alpha. */
   float get_alpha() const;
 
-  void set_tileset(const TileSet* new_tileset);
-
   const std::vector<uint32_t>& get_tiles() const { return m_tiles; }
 
 private:
@@ -256,11 +248,6 @@ private:
   /** Set to LIGHTMAP to draw to lightmap */
   DrawingTarget m_draw_target;
 
-  int m_new_size_x;
-  int m_new_size_y;
-  int m_new_offset_x;
-  int m_new_offset_y;
-  bool m_add_path;
 
   int m_starting_node;
 

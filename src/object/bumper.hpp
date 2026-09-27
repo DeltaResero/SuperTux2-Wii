@@ -26,7 +26,6 @@ class Bumper final : public MovingSprite
 public:
   Bumper(const ReaderMapping& reader);
 
-  virtual ObjectSettings get_settings() override;
   
   virtual void update(float dt_sec) override;
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;

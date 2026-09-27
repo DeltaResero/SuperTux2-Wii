@@ -42,7 +42,6 @@ class ItemHorizontalLine;
 class ItemInactive;
 class ItemIntField;
 class ItemLabel;
-class ItemPaths;
 class ItemScript;
 class ItemScriptLine;
 class ItemStringSelect;
@@ -95,7 +94,6 @@ public:
   ItemColorChannelRGBA& add_color_channel_rgba(float* input, Color channel, int id = -1,
     bool is_linear = false);
   ItemColorChannelOKLab& add_color_channel_oklab(Color* color, int channel);
-  ItemPaths& add_path_settings(const std::string& text, PathObject& target, const std::string& path_ref);
 
   void process_input(const Controller& controller);
 

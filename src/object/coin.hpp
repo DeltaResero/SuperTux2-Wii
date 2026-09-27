@@ -42,10 +42,6 @@ public:
   virtual std::string get_class() const override { return "coin"; }
   virtual std::string get_display_name() const override { return _("Coin"); }
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-  virtual void editor_update() override;
-
   virtual void move_to(const Vector& pos) override;
 
   void collect();
@@ -53,7 +49,6 @@ public:
 private:
   Vector m_offset;
   bool m_from_tilemap;
-  bool m_add_path;
   Physic m_physic;
   std::string m_collect_script;
 
@@ -75,9 +70,6 @@ public:
 
   virtual std::string get_class() const override { return "heavycoin"; }
   virtual std::string get_display_name() const override { return _("Heavy Coin"); }
-
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
 
 private:
   Physic m_physic;

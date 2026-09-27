@@ -45,7 +45,6 @@ class ReaderMapping;
 class Rectf;
 class Size;
 class TileMap;
-class Writer;
 
 /** Represents one of (potentially) multiple, separate parts of a Level.
     Sectors contain GameObjects, e.g. Badguys and Players. */
@@ -53,7 +52,6 @@ class Sector final : public GameObjectManager
 {
 public:
   friend class CollisionSystem;
-  friend class EditorSectorMenu;
 
 private:
   static Sector* s_current;
@@ -81,8 +79,6 @@ public:
   void update(float dt_sec);
 
   void draw(DrawingContext& context);
-
-  void save(Writer &writer);
 
   /** stops all looping sounds in whole sector. */
   void stop_looping_sounds();
@@ -126,12 +122,6 @@ public:
   Rectf get_active_region() const;
 
   int get_foremost_layer() const;
-
-  /** returns the editor size (in tiles) of a sector */
-  Size get_editor_size() const;
-
-  /** resize all tilemaps with given size */
-  void resize_sector(const Size& old_size, const Size& new_size, const Size& resize_offset);
 
   /** globally changes solid tilemaps' tile ids */
   void change_solid_tiles(uint32_t old_tile_id, uint32_t new_tile_id);

@@ -61,15 +61,10 @@ public:
   virtual void draw(DrawingContext& ) override;
 
   virtual bool is_singleton() const override { return true; }
-  virtual bool is_saveable() const override;
 
   virtual std::string get_class() const override { return "camera"; }
   virtual std::string get_display_name() const override { return _("Camera"); }
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
-  virtual const std::string get_icon_path() const override { return "images/engine/editor/camera.png"; }
   /** @} */
 
   /** \addtogroup CameraAPI

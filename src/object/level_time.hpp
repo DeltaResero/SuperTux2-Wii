@@ -54,10 +54,6 @@ public:
   virtual std::string get_class() const override { return "leveltime"; }
   virtual std::string get_display_name() const override { return _("Time Limit"); }
 
-  virtual ObjectSettings get_settings() override;
-
-  virtual const std::string get_icon_path() const override { return "images/engine/editor/clock.png"; }
-
 private:
   SurfacePtr time_surface;
   bool running;

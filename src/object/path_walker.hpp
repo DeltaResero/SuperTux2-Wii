@@ -23,8 +23,6 @@
 #include "object/path.hpp"
 #include "util/uid.hpp"
 
-class ObjectOption;
-
 /** A walker that travels along a path */
 class PathWalker final
 {

@@ -73,7 +73,6 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual void collision_tile(uint32_t tile_attributes) override;
   virtual void on_flip(float height) override;
-  virtual bool is_saveable() const override { return false; }
   virtual bool is_singleton() const override { return true; }
 
   virtual int get_layer() const override { return LAYER_OBJECTS + 1; }
@@ -178,10 +177,6 @@ public:
   /** Switches ghost mode on/off.
       Lets Tux float around and through solid objects. */
   void set_ghost_mode(bool enable);
-
-  /** Switches edit mode on/off.
-      In edit mode, Tux will enter ghost_mode instead of dying. */
-  void set_edit_mode(bool enable);
 
   /** Returns whether ghost mode is currently enabled */
   bool get_ghost_mode() const { return m_ghost_mode; }
@@ -339,7 +334,6 @@ private:
   Vector m_floor_normal;
 
   bool m_ghost_mode; /**< indicates if Tux should float around and through solid objects */
-  bool m_edit_mode; /**< indicates if Tux should switch to ghost mode rather than dying */
 
   Timer m_unduck_hurt_timer; /**< if Tux wants to stand up again after ducking and cannot, this timer is started */
 

@@ -29,10 +29,6 @@ class VideoSystem;
 class Compositor final
 {
 public:
-  /** Debug flag to disable lighting, used in the editor */
-  static bool s_render_lighting;
-
-public:
   Compositor(VideoSystem& video_system);
   ~Compositor();
 

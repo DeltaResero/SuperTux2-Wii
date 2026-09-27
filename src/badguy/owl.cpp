@@ -18,7 +18,6 @@
 #include "badguy/owl.hpp"
 
 #include "audio/sound_manager.hpp"
-#include "editor/editor.hpp"
 #include "object/player.hpp"
 #include "object/portable.hpp"
 #include "sprite/sprite.hpp"
@@ -49,14 +48,6 @@ Owl::initialize()
   m_physic.set_velocity_x(m_dir == Direction::LEFT ? -FLYING_SPEED : FLYING_SPEED);
   m_physic.enable_gravity(false);
   m_sprite->set_action(m_dir == Direction::LEFT ? "left" : "right");
-
-  // If we add the carried object to the sector while we're editing
-  // a level with the editor, it gets written to the level file,
-  // resulting in two carried objects. Returning early is much better.
-  if (Editor::is_active())
-  {
-    return;
-  }
 
   auto game_object = GameObjectFactory::instance().create(carried_obj_name, get_pos(), m_dir);
   if (game_object == nullptr)
@@ -217,18 +208,6 @@ Owl::ignite()
     carried_object = nullptr;
   }
   BadGuy::ignite();
-}
-
-ObjectSettings
-Owl::get_settings()
-{
-  ObjectSettings result = BadGuy::get_settings();
-
-  result.add_text(_("Carry"), &carried_obj_name, "carry"); //, std::string("skydive"));
-
-  result.reorder({"carry", "direction", "sprite", "x", "y"});
-
-  return result;
 }
 
 /* EOF */

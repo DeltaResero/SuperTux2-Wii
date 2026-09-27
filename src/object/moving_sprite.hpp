@@ -50,9 +50,6 @@ public:
   virtual std::string get_class() const override { return "moving-sprite"; }
   virtual std::string get_default_sprite_name() const { return m_default_sprite_name; }
 
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
   virtual int get_layer() const override { return m_layer; }
 
   std::string get_sprite_name() const;

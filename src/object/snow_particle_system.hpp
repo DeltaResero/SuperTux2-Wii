@@ -34,10 +34,6 @@ public:
   virtual std::string get_class() const override { return "particles-snow"; }
   virtual std::string get_display_name() const override { return _("Snow Particles"); }
 
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/snow.png";
-  }
-
   void init();
 
 private:

@@ -55,7 +55,6 @@ public:
 
   virtual std::string get_class() const override { return "particle-system"; }
   virtual std::string get_display_name() const override { return _("Particle system"); }
-  virtual ObjectSettings get_settings() override;
 
   void set_enabled(bool enabled_);
   bool get_enabled() const;

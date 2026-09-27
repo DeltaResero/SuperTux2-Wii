@@ -92,11 +92,6 @@ public:
     m_colormap_canvas.clear();
   }
 
-  void set_viewport(const Rect& viewport)
-  {
-    m_viewport = viewport;
-  }
-
   const Rect get_viewport() const;
 
   int get_width() const;

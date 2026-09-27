@@ -19,7 +19,6 @@
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "badguy/dart.hpp"
-#include "editor/editor.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/sector.hpp"
 #include "util/log.hpp"
@@ -48,9 +47,7 @@ DartTrap::DartTrap(const ReaderMapping& reader) :
   state = IDLE;
   set_colgroup_active(COLGROUP_DISABLED);
 
-  if (!Editor::is_active()) {
-    if (initial_delay == 0) initial_delay = 0.1f;
-  }
+  if (initial_delay == 0) initial_delay = 0.1f;
 }
 
 void
@@ -116,21 +113,6 @@ DartTrap::fire()
   Sector::get().add<Dart>(Vector(px, py), m_dir, this);
   state = IDLE;
   m_sprite->set_action(m_dir == Direction::LEFT ? "idle-left" : "idle-right");
-}
-
-ObjectSettings
-DartTrap::get_settings()
-{
-  ObjectSettings result = BadGuy::get_settings();
-
-  result.add_float(_("Initial delay"), &initial_delay, "initial-delay");
-  result.add_bool(_("Enabled"), &enabled, "enabled", true);
-  result.add_float(_("Fire delay"), &fire_delay, "fire-delay");
-  result.add_int(_("Ammo"), &ammo, "ammo");
-
-  result.reorder({"initial-delay", "fire-delay", "ammo", "direction", "x", "y"});
-
-  return result;
 }
 
 /* EOF */

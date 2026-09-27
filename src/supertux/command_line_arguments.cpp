@@ -20,7 +20,6 @@
 #include <config.h>
 #include <physfs.h>
 
-#include "editor/overlay_widget.hpp"
 #include "physfs/ifile_stream.hpp"
 #include "supertux/gameconfig.hpp"
 #include "util/gettext.hpp"
@@ -50,9 +49,7 @@ CommandLineArguments::CommandLineArguments() :
   spawnpoint(),
   developer_mode(),
   christmas_mode(),
-  repository_url(),
-  editor(),
-  resave()
+  repository_url()
 {
 }
 
@@ -113,8 +110,6 @@ CommandLineArguments::print_help(const char* arg0) const
     << _("  --disable-music              Disable music") << "\n"
     << "\n"
     << _("Game Options:") << "\n"
-    << _("  --edit-level                 Open given level in editor") << "\n"
-    << _("  --resave                     Loads given level and saves it") << "\n"
     << _("  --show-fps                   Display framerate in levels") << "\n"
     << _("  --no-show-fps                Do not display framerate in levels") << "\n"
     << _("  --show-pos                   Display player's current position") << "\n"
@@ -392,14 +387,6 @@ CommandLineArguments::parse_args(int argc, char** argv)
         repository_url = argv[++i];
       }
     }
-    else if (arg == "--editor" || arg == "--edit-level")
-    {
-      editor = true;
-    }
-    else if (arg == "--resave")
-    {
-      resave = true;
-    }
     else if (arg[0] != '-')
     {
       filenames.push_back(arg);
@@ -411,7 +398,7 @@ CommandLineArguments::parse_args(int argc, char** argv)
   }
 
   // some final checks
-  if (filenames.size() > 1 && !(resave && *resave)) {
+  if (filenames.size() > 1) {
     throw std::runtime_error("Only one filename allowed for the given options");
   }
 }

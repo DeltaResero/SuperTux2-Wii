@@ -38,8 +38,6 @@ public:
   virtual std::string get_class() const override { return "scriptedobject"; }
   virtual std::string get_display_name() const override { return _("Scripted Object"); }
 
-  virtual ObjectSettings get_settings() override;
-
   // --- scripting Interface stuff ---
   void set_action(const std::string& animation);
   std::string get_action() const;

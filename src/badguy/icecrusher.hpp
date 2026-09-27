@@ -52,9 +52,7 @@ public:
   virtual std::string get_class() const override { return "icecrusher"; }
   virtual std::string get_display_name() const override { return _("Icecrusher"); }
 
-  virtual void after_editor_set() override;
   
-  virtual ObjectSettings get_settings() override;
 
 private:
   bool found_victim_down() const;

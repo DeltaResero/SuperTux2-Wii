@@ -35,8 +35,6 @@ public:
   static Vector get_point_at_length(const Vector& p1, const Vector& p2, const Vector& p3, const Vector& p4, float length, int steps = 100);
   // Same as get_point but gets length-normalized
   static Vector get_point_by_length(const Vector& p1, const Vector& p2, const Vector& p3, const Vector& p4, float t);
-  // FIXME: Move this to the Canvas object?
-  static void draw_curve(DrawingContext& context, const Vector& p1, const Vector& p2, const Vector& p3, const Vector& p4, int steps, Color color, int layer);
 
 private:
   Bezier(const Bezier&) = delete;

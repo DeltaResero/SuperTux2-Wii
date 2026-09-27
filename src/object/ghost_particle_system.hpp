@@ -35,10 +35,6 @@ public:
   virtual std::string get_class() const override { return "particles-ghosts"; }
   virtual std::string get_display_name() const override { return _("Ghost Particles"); }
 
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/ghostparticles.png";
-  }
-
 private:
   class GhostParticle : public Particle
   {

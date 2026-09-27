@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <string>
 
-#include "editor/object_settings.hpp"
 #include "supertux/game_object_component.hpp"
 #include "util/fade_helper.hpp"
 #include "util/gettext.hpp"
@@ -30,7 +29,6 @@ class DrawingContext;
 class GameObjectComponent;
 class ObjectRemoveListener;
 class ReaderMapping;
-class Writer;
 
 /**
     Base class for all the things that make up Levels' Sectors.
@@ -65,36 +63,19 @@ public:
       update it's state. The dt_sec is the time that has passed since
       the last frame in seconds and should be the base for all timed
       calculations (don't use SDL_GetTicks directly as this will fail
-      in pause mode). This function is not called in the Editor. */
+      in pause mode). */
   virtual void update(float dt_sec) = 0;
 
   /** The GameObject should draw itself onto the provided
       DrawingContext if this function is called. */
   virtual void draw(DrawingContext& context) = 0;
 
-  /** This function saves the object. Editor will use that. */
-  virtual void save(Writer& writer);
   virtual std::string get_class() const { return "game-object"; }
   virtual std::string get_display_name() const { return _("Unknown object"); }
 
   /** If true only a single object of this type is allowed in a
       given GameObjectManager */
   virtual bool is_singleton() const { return false; }
-
-  /** Does this object have variable size
-      (secret area trigger, wind, etc.) */
-  virtual bool has_variable_size() const { return false; }
-
-  /** Indicates if the object will be saved. If false, the object will
-      be skipped on saving and can't be cloned in the editor. */
-  virtual bool is_saveable() const { return true; }
-
-  /** Indicates if get_settings() is implemented. If true the editor
-      will display Tip and ObjectMenu. */
-  virtual bool has_settings() const { return is_saveable(); }
-  virtual ObjectSettings get_settings();
-
-  virtual void after_editor_set() {}
 
   /** When level is flipped vertically */
   virtual void on_flip(float height) {}
@@ -115,10 +96,6 @@ public:
 
   void set_name(const std::string& name) { m_name = name; }
   const std::string& get_name() const { return m_name; }
-
-  virtual const std::string get_icon_path() const {
-    return "images/tiles/auxiliary/notile.png";
-  }
 
   /** stops all looping sounds */
   virtual void stop_looping_sounds() {}
@@ -149,19 +126,6 @@ public:
       m_components.erase(it);
     }
   }
-
-  /** The editor requested the deletion of the object */
-  virtual void editor_delete() { remove_me(); }
-
-  /** The user clicked on the object in the editor and selected it*/
-  virtual void editor_select() {}
-
-  /** The object got deselected */
-  virtual void editor_deselect() {}
-
-  /** Called each frame in the editor, used to keep linked objects
-      together (e.g. platform on a path) */
-  virtual void editor_update() {}
 
 private:
   void set_uid(const UID& uid) { m_uid = uid; }

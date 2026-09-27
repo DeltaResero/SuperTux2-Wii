@@ -17,7 +17,6 @@
 #include "badguy/dispenser.hpp"
 
 #include "audio/sound_manager.hpp"
-#include "editor/editor.hpp"
 #include "math/random.hpp"
 #include "object/bullet.hpp"
 #include "object/player.hpp"
@@ -92,14 +91,11 @@ Dispenser::Dispenser(const ReaderMapping& reader) :
   }
   catch(std::exception&)
   {
-    if (!Editor::is_active())
-    {
-      if (type_s.empty()) {
-        log_warning << "No dispenser type set, setting to dropper." << std::endl;
-      }
-      else {
-        log_warning << "Unknown type of dispenser:" << type_s << ", setting to dropper." << std::endl;
-      }
+    if (type_s.empty()) {
+      log_warning << "No dispenser type set, setting to dropper." << std::endl;
+    }
+    else {
+      log_warning << "Unknown type of dispenser:" << type_s << ", setting to dropper." << std::endl;
     }
     m_type = DispenserType::DROPPER;
   }
@@ -147,7 +143,7 @@ Dispenser::Dispenser(const ReaderMapping& reader) :
 void
 Dispenser::draw(DrawingContext& context)
 {
-  if (m_type != DispenserType::POINT || Editor::is_active()) {
+  if (m_type != DispenserType::POINT) {
     BadGuy::draw(context);
   }
 }
@@ -267,7 +263,7 @@ Dispenser::launch_badguy()
       return;
 
   //FIXME: Does is_offscreen() work right here?
-  if (!is_offscreen() && !Editor::is_active()) {
+  if (!is_offscreen()) {
     Direction launchdir = m_dir;
     if ( !m_autotarget && m_start_dir == Direction::AUTO ){
       Player* player = get_nearest_player();
@@ -435,38 +431,6 @@ Dispenser::set_correct_action()
     default:
       break;
   }
-}
-
-ObjectSettings
-Dispenser::get_settings()
-{
-  ObjectSettings result = BadGuy::get_settings();
-
-  result.add_float(_("Interval (seconds)"), &m_cycle, "cycle");
-  result.add_bool(_("Random"), &m_random, "random", false);
-  result.add_badguy(_("Enemies"), &m_badguys, "badguy");
-  result.add_bool(_("Limit dispensed badguys"), &m_limit_dispensed_badguys,
-                  "limit-dispensed-badguys", false);
-  result.add_bool(_("Obey Gravity"), &m_gravity,
-                  "gravity", false);
-  result.add_int(_("Max concurrent badguys"), &m_max_concurrent_badguys,
-                 "max-concurrent-badguys", 0);
-  result.add_enum(_("Type"), reinterpret_cast<int*>(&m_type),
-                  {_("dropper"), _("rocket launcher"), _("cannon"), _("invisible")},
-                  {"dropper", "rocketlauncher", "cannon", "point"},
-                  static_cast<int>(DispenserType::DROPPER), "type");
-
-  result.reorder({"cycle", "random", "type", "badguy", "direction", "gravity", "limit-dispensed-badguys", "max-concurrent-badguys", "x", "y"});
-
-  return result;
-}
-
-void
-Dispenser::after_editor_set()
-{
-  BadGuy::after_editor_set();
-
-  set_correct_action();
 }
 
 /* EOF */

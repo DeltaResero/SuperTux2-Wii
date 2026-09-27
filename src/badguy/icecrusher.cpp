@@ -75,18 +75,6 @@ IceCrusher::is_sideways() const
   return sideways;
 }
 
-ObjectSettings
-IceCrusher::get_settings()
-{
-  ObjectSettings result = MovingSprite::get_settings();
-
-  result.add_bool(_("Sideways"), &sideways, "sideways", false);
-
-  result.reorder({"sideways", "sprite", "x", "y"});
-
-  return result;
-}
-
 void
 IceCrusher::set_state(IceCrusherState state_, bool force)
 {
@@ -393,12 +381,6 @@ IceCrusher::draw(DrawingContext& context)
     // draw the whites of icecrusher's eyes even further behind
     whites->draw(context.color(), get_pos(), m_layer);
   }
-}
-
-void
-IceCrusher::after_editor_set() {
-  MovingSprite::after_editor_set();
-  after_sprite_set();
 }
 
 bool

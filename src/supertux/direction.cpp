@@ -18,7 +18,6 @@
 
 #include "supertux/direction.hpp"
 
-#include "editor/object_option.hpp"
 #include "util/gettext.hpp"
 
 std::ostream& operator<<(std::ostream& o, const Direction& dir)

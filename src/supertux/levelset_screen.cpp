@@ -16,7 +16,6 @@
 
 #include "supertux/levelset_screen.hpp"
 
-#include "editor/editor.hpp"
 #include "sdk/integration.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/level.hpp"
@@ -80,18 +79,13 @@ LevelsetScreen::setup()
   {
     m_level_started = true;
 
-    if (Editor::is_active()) {
-      log_warning << "Editor is still active, quiting Levelset screen" << std::endl;
-      ScreenManager::current()->pop_screen();
-    } else {
-      auto screen = std::make_unique<GameSession>(FileSystem::join(m_basedir, m_level_filename),
-                                                  m_savegame);
-      if (m_start_pos) {
-        screen->set_start_pos(m_start_pos->first, m_start_pos->second);
-        screen->restart_level();
-      }
-      ScreenManager::current()->push_screen(std::move(screen));
+    auto screen = std::make_unique<GameSession>(FileSystem::join(m_basedir, m_level_filename),
+                                                m_savegame);
+    if (m_start_pos) {
+      screen->set_start_pos(m_start_pos->first, m_start_pos->second);
+      screen->restart_level();
     }
+    ScreenManager::current()->push_screen(std::move(screen));
   }
 }
 

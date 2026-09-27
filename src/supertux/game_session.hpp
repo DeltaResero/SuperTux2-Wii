@@ -84,9 +84,6 @@ public:
   void abort_level();
   bool is_active() const;
 
-  /** Enters or leaves level editor mode */
-  void set_editmode(bool edit_mode = true);
-
   /** Forces all Players to enter ghost mode */
   void force_ghost_mode();
 
@@ -143,7 +140,6 @@ private:
 
   float m_play_time; /**< total time in seconds that this session ran interactively */
 
-  bool m_edit_mode; /**< true if GameSession runs in level editor mode */
   bool m_levelintro_shown; /**< true if the LevelIntro screen was already shown */
 
   int m_coins_at_start; /** How many coins does the player have at the start */

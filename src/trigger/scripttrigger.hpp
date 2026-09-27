@@ -30,10 +30,6 @@ public:
 
   virtual std::string get_class() const override { return "scripttrigger"; }
   std::string get_display_name() const override { return _("Script Trigger"); }
-  virtual bool has_variable_size() const override { return true; }
-
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
 
   virtual void event(Player& player, EventType type) override;
   virtual void draw(DrawingContext& context) override;

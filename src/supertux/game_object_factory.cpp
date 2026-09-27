@@ -69,7 +69,6 @@
 #include "badguy/yeti.hpp"
 #include "badguy/yeti_stalactite.hpp"
 #include "badguy/zeekling.hpp"
-#include "editor/worldmap_objects.hpp"
 #include "math/vector.hpp"
 #include "object/ambient_light.hpp"
 #include "object/ambient_sound.hpp"
@@ -269,16 +268,7 @@ GameObjectFactory::init_factories()
   add_factory<SecretAreaTrigger>("secretarea");
   add_factory<SequenceTrigger>("sequencetrigger");
   add_factory<Switch>("switch");
-
-  // editor stuff
   add_factory<SpawnPointMarker>("spawnpoint");
-
-  // worldmap editor objects
-  add_factory<worldmap_editor::LevelDot>("level");
-  add_factory<worldmap_editor::SpecialTile>("special-tile");
-  add_factory<worldmap_editor::SpriteChange>("sprite-change");
-  add_factory<worldmap_editor::Teleporter>("teleporter");
-  add_factory<worldmap_editor::WorldmapSpawnPoint>("worldmap-spawnpoint");
 
   add_factory("tilemap", [](const ReaderMapping& reader) {
       auto tileset = TileManager::current()->get_tileset(Level::current()->get_tileset());

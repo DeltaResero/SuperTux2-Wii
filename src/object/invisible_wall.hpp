@@ -35,11 +35,6 @@ public:
   virtual std::string get_class() const override { return "invisible_wall"; }
   virtual std::string get_display_name() const override { return _("Invisible Wall"); }
 
-  virtual bool has_variable_size() const override { return true; }
-
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
-
   virtual int get_layer() const override { return LAYER_OBJECTS; }
 
 private:

@@ -25,7 +25,6 @@ public:
   RCrystallo(const ReaderMapping& reader);
 
   virtual void initialize() override;
-  virtual ObjectSettings get_settings() override;
   virtual std::string get_class() const override { return "rcrystallo"; }
   virtual std::string get_display_name() const override { return _("Roof Crystallo"); }
 

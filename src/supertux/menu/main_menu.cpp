@@ -17,7 +17,6 @@
 #include "supertux/menu/main_menu.hpp"
 
 #include "audio/sound_manager.hpp"
-#include "editor/editor.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
@@ -55,7 +54,6 @@ MainMenu::MainMenu()
   //       Also see src/addon/downloader.*pp
   add_entry(MNID_ADDONS, _("Add-ons"));
   add_submenu(_("Options"), MenuStorage::OPTIONS_MENU);
-  add_entry(MNID_LEVELEDITOR, _("Level Editor"));
   add_entry(MNID_CREDITS, _("Credits"));
   add_entry(MNID_DONATE, _("Donate"));
 #ifndef REMOVE_QUIT_BUTTON
@@ -94,17 +92,6 @@ MainMenu::menu_action(MenuItem& item)
       GameManager::current()->start_level(*world, "credits.stl");
     }
 	  break;
-
-    case MNID_LEVELEDITOR:
-      {
-        MenuManager::instance().clear_menu_stack();
-        std::unique_ptr<Screen> screen(new Editor());
-        auto fade = std::make_unique<FadeToBlack>(FadeToBlack::FADEOUT, 0.5f);
-        SoundManager::current()->stop_music(0.5);
-        ScreenManager::current()->push_screen(move(screen),move(fade));
-        //Editor::current()->setup();
-      }
-      break;
 
     case MNID_DONATE:
       FileSystem::open_path("https://www.supertux.org/donate.html");

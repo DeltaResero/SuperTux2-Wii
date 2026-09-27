@@ -16,7 +16,6 @@
 
 #include "object/skull_tile.hpp"
 
-#include "editor/editor.hpp"
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
@@ -55,12 +54,9 @@ void
 SkullTile::draw(DrawingContext& context)
 {
   Vector pos = get_pos();
-  if(!Editor::is_active())
-  {
-    // shaking
-    if (timer.get_timegone() > CRACKTIME) {
-      pos.x += static_cast<float>(graphicsRandom.rand(-3, 3));
-    }
+  // shaking
+  if (timer.get_timegone() > CRACKTIME) {
+    pos.x += static_cast<float>(graphicsRandom.rand(-3, 3));
   }
   m_sprite->set_alpha(m_alpha);
   m_sprite->draw(context.color(), pos, m_layer);

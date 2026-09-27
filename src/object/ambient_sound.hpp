@@ -61,7 +61,6 @@ public:
 
   virtual std::string get_class() const override { return "ambient-sound"; }
   virtual std::string get_display_name() const override { return _("Ambient Sound"); }
-  virtual bool has_variable_size() const override { return true; }
 
   /** @name Scriptable Methods
       @{ */
@@ -74,9 +73,6 @@ public:
   /** @} */
 
   virtual void draw(DrawingContext& context) override;
-
-  virtual ObjectSettings get_settings() override;
-  virtual void after_editor_set() override;
 
   virtual int get_layer() const override { return LAYER_OBJECTS; }
 

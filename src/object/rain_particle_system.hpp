@@ -38,15 +38,10 @@ public:
 
   virtual std::string get_class() const override { return "particles-rain"; }
   virtual std::string get_display_name() const override { return _("Rain Particles"); }
-  virtual ObjectSettings get_settings() override;
 
   void fade_speed(float new_speed, float fade_time);
   void fade_angle(float new_angle, float fade_time, easing ease_func);
   void fade_amount(float new_amount, float fade_time);
-
-  virtual const std::string get_icon_path() const override {
-    return "images/engine/editor/rain.png";
-  }
 
   // Minimum and maximum multiplier for the amount of particles (intensity)
   static float constexpr const max_amount = 5.0f;

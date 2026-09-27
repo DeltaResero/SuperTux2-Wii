@@ -31,7 +31,6 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_class() const override { return "rublight"; }
   virtual std::string get_display_name() const override { return _("Rublight"); }
-  virtual ObjectSettings get_settings() override;
 
 private:
   enum State {
