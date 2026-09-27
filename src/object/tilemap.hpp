@@ -75,7 +75,6 @@ public:
       destroy the existing map) */
   void resize(int newwidth, int newheight, int fill_id = 0,
               int xoffset = 0, int yoffset = 0);
-  void resize(const Size& newsize, const Size& resize_offset);
 
   int get_width() const { return m_width; }
   int get_height() const { return m_height; }

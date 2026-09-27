@@ -16,9 +16,6 @@
 
 #include "supertux/world.hpp"
 
-#include <physfs.h>
-
-#include "physfs/util.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "util/file_system.hpp"
@@ -26,7 +23,6 @@
 #include "util/reader.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
-#include "util/writer.hpp"
 
 std::unique_ptr<World>
 World::from_directory(const std::string& directory)
@@ -66,38 +62,6 @@ World::from_directory(const std::string& directory)
   }
 }
 
-std::unique_ptr<World>
-World::create(const std::string& title, const std::string& desc)
-{
-  // Limit the charset to numbers and alphabet.
-  std::string base = title;
-
-  for (size_t i = 0; i < base.length(); i++) {
-    if (!isalnum(base[i])) {
-      base[i] = '_';
-    }
-  }
-
-  base = FileSystem::join("levels", base);
-
-  // Find a non-existing fitting directory name
-  std::string dirname = base;
-  if (PHYSFS_exists(dirname.c_str())) {
-    int num = 1;
-    do {
-      num++;
-      dirname = base + std::to_string(num);
-    } while (PHYSFS_exists(dirname.c_str()));
-  }
-
-  std::unique_ptr<World> world(new World(dirname));
-
-  world->m_title = title;
-  world->m_description = desc;
-
-  return world;
-}
-
 World::World(const std::string& directory) :
   m_title(),
   m_description(),
@@ -105,68 +69,6 @@ World::World(const std::string& directory) :
   m_basedir(directory),
   m_hide_from_contribs(false)
 {
-}
-
-void
-World::save(bool retry)
-{
-  std::string filepath = FileSystem::join(m_basedir, "/info");
-
-  try
-  {
-    { // make sure the levelset directory exists
-      std::string dirname = FileSystem::dirname(filepath);
-      if (!PHYSFS_exists(dirname.c_str()))
-      {
-        if (!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for levelset '"
-              << dirname << "': " <<PHYSFS_getLastErrorCode();
-          throw std::runtime_error(msg.str());
-        }
-      }
-
-      if (!physfsutil::is_directory(dirname))
-      {
-        std::ostringstream msg;
-        msg << "Levelset path '" << dirname << "' is not a directory";
-        throw std::runtime_error(msg.str());
-      }
-    }
-
-    Writer writer(filepath);
-    writer.start_list("supertux-level-subset");
-
-    writer.write("title", m_title, true);
-    writer.write("description", m_description, true);
-    writer.write("levelset", m_is_levelset);
-    writer.write("hide-from-contribs", m_hide_from_contribs);
-
-    writer.end_list("supertux-level-subset");
-    log_warning << "Levelset info saved as " << filepath << "." << std::endl;
-  }
-  catch(std::exception& e)
-  {
-    if (retry) {
-      std::stringstream msg;
-      msg << "Problem when saving levelset info '" << filepath << "': " << e.what();
-      throw std::runtime_error(msg.str());
-    } else {
-      log_warning << "Failed to save the levelset info, retrying..." << std::endl;
-      { // create the levelset directory again
-        std::string dirname = FileSystem::dirname(filepath);
-        if (!PHYSFS_mkdir(dirname.c_str()))
-        {
-          std::ostringstream msg;
-          msg << "Couldn't create directory for levelset '"
-              << dirname << "': " <<PHYSFS_getLastErrorCode();
-          throw std::runtime_error(msg.str());
-        }
-      }
-      save(true);
-    }
-  }
 }
 
 std::string

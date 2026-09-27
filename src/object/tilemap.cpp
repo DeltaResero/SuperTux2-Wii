@@ -470,10 +470,6 @@ TileMap::resize(int new_width, int new_height, int fill_id,
     apply_offset_y(fill_id, yoffset);
 }
 
-void TileMap::resize(const Size& newsize, const Size& resize_offset) {
-  resize(newsize.width, newsize.height, 0, resize_offset.width, resize_offset.height);
-}
-
 Rect
 TileMap::get_tiles_overlapping(const Rectf &rect) const
 {
