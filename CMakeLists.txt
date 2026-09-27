@@ -51,9 +51,6 @@ include(ConfigureFiles)
 include(ExternalProject)
 include(CheckCXXCompilerFlag)
 
-## For autopackage
-set(APPDATADIR "${CMAKE_INSTALL_PREFIX}/share/games/supertux2")
-
 set(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 set(BUILD_CONFIG_DATA_DIR "${CMAKE_BINARY_DIR}/data")
 ## Check endianess
@@ -1277,10 +1274,6 @@ mark_as_advanced(
   LIBRARY_OUTPUT_PATH
   CMAKE_OSX_ARCHITECTURES
   CMAKE_OSX_SYSROOT
-  )
-
-mark_as_advanced(
-  APPDATADIR
   )
 
 mark_as_advanced(
