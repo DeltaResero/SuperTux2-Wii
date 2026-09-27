@@ -25,7 +25,6 @@ class Value;
 
 class ReaderDocument;
 class ReaderMapping;
-class ReaderCollection;
 
 class ReaderObject final
 {
@@ -34,7 +33,6 @@ public:
 
   std::string get_name() const;
   ReaderMapping get_mapping() const;
-  ReaderCollection get_collection() const;
 
   const ReaderDocument& get_doc() const { return m_doc; }
   const sexp::Value& get_sexp() const { return m_sx; }

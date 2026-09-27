@@ -20,7 +20,6 @@
 #include <sexp/value.hpp>
 #include <stdexcept>
 
-#include "util/reader_collection.hpp"
 #include "util/reader_error.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -43,12 +42,6 @@ ReaderMapping
 ReaderObject::get_mapping() const
 {
   return ReaderMapping(m_doc, m_sx);
-}
-
-ReaderCollection
-ReaderObject::get_collection() const
-{
-  return ReaderCollection(m_doc, m_sx);
 }
 
 /* EOF */

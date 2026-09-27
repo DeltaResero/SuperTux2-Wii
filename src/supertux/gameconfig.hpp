@@ -90,13 +90,6 @@ public:
   bool mobile_controls;
 #endif
 
-  struct Addon
-  {
-    std::string id;
-    bool enabled;
-  };
-  std::vector<Addon> addons;
-
   bool developer_mode;
   bool christmas_mode;
   bool transitions_enabled;
@@ -107,8 +100,6 @@ public:
 #ifdef ENABLE_DISCORD
   bool enable_discord;
 #endif
-
-  std::string repository_url;
 
   bool is_christmas() const {
     try

@@ -320,28 +320,6 @@ endif()
 include_directories(BEFORE SYSTEM ${PHYSFS_INCLUDE_DIR})
 
 
-## The curl headers are in the standard include path in dependencies
-## so it's not required to add them here
-find_package(CURL REQUIRED)
-if(WIN32 AND VCPKG_BUILD)
-  list(LENGTH CURL_LIBRARY CURL_LIBRARY_LENGTH)
-  if (CURL_LIBRARY_LENGTH EQUAL 1)
-    set(CURL_LIBRARY_DEBUG_LIB   ${CURL_LIBRARY})
-      set(CURL_LIBRARY_RELEASE_LIB ${CURL_LIBRARY_DEBUG_LIB}/../../../lib/libcurl.lib)
-      get_filename_component(CURL_LIBRARY_RELEASE_LIB ${CURL_LIBRARY_RELEASE_LIB} REALPATH)
-      unset(CURL_LIBRARY CACHE)
-      unset(CURL_LIBRARY)
-      unset(CURL_LIBRARIES  CACHE)
-      unset(CURL_LIBRARIES)
-      set(CURL_LIBRARY "debug;${CURL_LIBRARY_DEBUG_LIB};optimized;${CURL_LIBRARY_RELEASE_LIB}")
-      set(CURL_LIBRARIES ${CURL_LIBRARY})
-  endif()
-endif()
-if(CURL_FOUND)
-  include_directories(SYSTEM ${CURL_INCLUDE_DIR})
-  set(HAVE_LIBCURL TRUE)
-endif(CURL_FOUND)
-
 #find_package(ICONV REQUIRED)
 #include_directories(SYSTEM ${ICONV_INCLUDE_DIR})
 #link_libraries(${ICONV_LIBRARY})
@@ -400,8 +378,6 @@ set_source_files_properties(${CMAKE_BINARY_DIR}/version.h
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/main.cpp
   PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_screen.cpp
-  PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/addon/addon_manager.cpp
   PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
 
 ## Check platform-dependent build options
@@ -838,10 +814,6 @@ add_dependencies(supertux2_lib tinygettext)
 add_dependencies(supertux2_lib squirrel)
 add_dependencies(supertux2_lib SDL_ttf)
 
-if(VCPKG_BUILD)
-  target_include_directories(supertux2_lib PUBLIC ${CURL_INCLUDE_DIRS})
-endif()
-
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS})
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2IMAGE_INCLUDE_DIRS})
 if(VCPKG_BUILD AND NOT WIN32)
@@ -894,14 +866,6 @@ if(HAVE_OPENGL)
     endif()
   endif()
 endif(HAVE_OPENGL)
-
-if(HAVE_LIBCURL)
-  if(VCPKG_BUILD)
-    target_link_libraries(supertux2_lib PUBLIC ${CURL_LIBRARIES})
-  else()
-    target_link_libraries(supertux2_lib PUBLIC ${CURL_LIBRARY})
-  endif()
-endif(HAVE_LIBCURL)
 
 if(BUILD_TESTS)
   find_package(Threads REQUIRED)
@@ -1027,7 +991,7 @@ set(CPACK_PACKAGE_VENDOR "SuperTux Devel Team")
 set(CPACK_PACKAGE_CONTACT "SuperTux Devel Team <supertux-devel@lists.lethargik.org>")
 set(CPACK_SOURCE_IGNORE_FILES "/\\\\.git/;${CMAKE_BINARY_DIR};/\\\\..*")
 set(CPACK_DEBIAN_PACKAGE_NAME "supertux2")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libgl1-mesa-glx | libgl1, libogg0 (>= 1.1.3), libopenal0a, libphysfs-1.0-0, libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libstdc++6 (>= 4.1.2), libvorbis0a (>= 1.1.2), libvorbisfile3 (>= 1.1.2), libcurl3 (>= 7.16)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libgl1-mesa-glx | libgl1, libogg0 (>= 1.1.3), libopenal0a, libphysfs-1.0-0, libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libstdc++6 (>= 4.1.2), libvorbis0a (>= 1.1.2), libvorbisfile3 (>= 1.1.2)")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Classic 2D jump 'n run sidescroller with Tux\n SuperTux is a classic 2D jump 'n run sidescroller game in a similar\n style like the original SuperMario games. This release of SuperTux\n features 9 enemies, 26 playable levels, software and OpenGL rendering\n modes, configurable joystick and keyboard input, new music and\n completely redone graphics.\n .\n This is a development snapshot of SuperTux. It may suffer from\n critical bugs and has not been fully tested. \n .\n Homepage: http://supertux.lethargik.org/")
 set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 set(CPACK_RPM_PACKAGE_NAME "supertux2")

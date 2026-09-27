@@ -18,11 +18,9 @@
 
 #include "config.h"
 
-#include "util/reader_collection.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
-#include "util/log.hpp"
 
 
 Config::Config() :
@@ -54,17 +52,15 @@ Config::Config() :
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   mobile_controls(true),
 #endif
-  addons(),
   developer_mode(false),
   christmas_mode(false),
   transitions_enabled(true),
   confirmation_dialog(false),
   pause_on_focusloss(true),
-  custom_mouse_cursor(true),
+  custom_mouse_cursor(true)
 #ifdef ENABLE_DISCORD
-  enable_discord(false),
+  , enable_discord(false)
 #endif
-  repository_url()
 {
 }
 
@@ -103,7 +99,6 @@ Config::load()
   config_mapping.get("transitions_enabled", transitions_enabled);
   config_mapping.get("locale", locale);
   config_mapping.get("random_seed", random_seed);
-  config_mapping.get("repository_url", repository_url);
 
   boost::optional<ReaderMapping> config_video_mapping;
   if (config_mapping.get("video", config_video_mapping))
@@ -164,30 +159,6 @@ Config::load()
     config_video_mapping->get("mobile_controls", mobile_controls);
 #endif
   }
-
-  boost::optional<ReaderCollection> config_addons_mapping;
-  if (config_mapping.get("addons", config_addons_mapping))
-  {
-    for (auto const& addon_node : config_addons_mapping->get_objects())
-    {
-      if (addon_node.get_name() == "addon")
-      {
-        auto addon = addon_node.get_mapping();
-
-        std::string id;
-        bool enabled = false;
-        if (addon.get("id", id) &&
-            addon.get("enabled", enabled))
-        {
-          addons.push_back({id, enabled});
-        }
-      }
-      else
-      {
-        log_warning << "Unknown token in config file: " << addon_node.get_name() << std::endl;
-      }
-    }
-  }
 }
 
 void
@@ -219,7 +190,6 @@ Config::save()
   }
   writer.write("transitions_enabled", transitions_enabled);
   writer.write("locale", locale);
-  writer.write("repository_url", repository_url);
 
   writer.start_list("video");
   writer.write("fullscreen", use_fullscreen);
@@ -270,16 +240,6 @@ Config::save()
 #endif
   }
   writer.end_list("control");
-
-  writer.start_list("addons");
-  for (const auto& addon : addons)
-  {
-    writer.start_list("addon");
-    writer.write("id", addon.id);
-    writer.write("enabled", addon.enabled);
-    writer.end_list("addon");
-  }
-  writer.end_list("addons");
 
   writer.end_list("supertux-config");
 }

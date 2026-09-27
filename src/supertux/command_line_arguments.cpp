@@ -48,8 +48,7 @@ CommandLineArguments::CommandLineArguments() :
   sector(),
   spawnpoint(),
   developer_mode(),
-  christmas_mode(),
-  repository_url()
+  christmas_mode()
 {
 }
 
@@ -127,9 +126,6 @@ CommandLineArguments::print_help(const char* arg0) const
     << _("Directory Options:") << "\n"
     << _("  --datadir DIR                Set the directory for the games datafiles") << "\n"
     << _("  --userdir DIR                Set the directory for user data (savegames, etc.)") << "\n"
-    << "\n"
-    << _("Add-On Options:") << "\n"
-    << _("  --repository-url URL         Set the URL to the Add-On repository") << "\n"
     << "\n"
     << _("Environment variables:") << "\n"
     << _("  SUPERTUX2_USER_DIR           Directory for user data (savegames, etc.)" ) << "\n"
@@ -376,17 +372,6 @@ CommandLineArguments::parse_args(int argc, char** argv)
     {
       enable_script_debugger = true;
     }
-    else if (arg == "--repository-url")
-    {
-      if (i + 1 >= argc)
-      {
-        throw std::runtime_error("Need to specify a repository URL");
-      }
-      else
-      {
-        repository_url = argv[++i];
-      }
-    }
     else if (arg[0] != '-')
     {
       filenames.push_back(arg);
@@ -424,7 +409,6 @@ CommandLineArguments::merge_into(Config& config)
   merge_option(tux_spawn_pos)
   merge_option(developer_mode)
   merge_option(christmas_mode)
-  merge_option(repository_url)
 
 #undef merge_option
 }

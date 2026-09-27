@@ -16,7 +16,6 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "supertux/menu/language_menu.hpp"
-#include "addon/addon_manager.hpp"
 
 extern "C" {
 #include <findlocale.h>
@@ -26,7 +25,6 @@ extern "C" {
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
-#include "supertux/menu/menu_storage.hpp"
 #include "util/gettext.hpp"
 
 enum {
@@ -98,15 +96,7 @@ LanguageMenu::menu_action(MenuItem& item)
   // Reload font files
   Resources::load();
 
-  if (g_dictionary_manager->get_language().get_language() != "en" &&
-      !AddonManager::current()->is_addon_installed("language-pack"))
-  {
-    MenuManager::instance().push_menu(MenuStorage::LANGPACK_AUTO_UPDATE_MENU);
-  }
-  else
-  {
-    MenuManager::instance().clear_menu_stack();
-  }
+  MenuManager::instance().clear_menu_stack();
 }
 
 /* EOF */
