@@ -1,9 +1,5 @@
 (supertux-tiles
 
-(autotileset
-  (source "autotiles_ice_world.satc")
-)
-
 ;; ice tiles- next id: 648
 
 (tiles

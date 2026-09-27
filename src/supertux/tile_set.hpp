@@ -22,7 +22,6 @@
 #include <string>
 
 #include "math/fwd.hpp"
-#include "supertux/autotile.hpp"
 #include "video/color.hpp"
 #include "video/surface_ptr.hpp"
 
@@ -43,7 +42,6 @@ public:
 
   const Tile& get(const uint32_t id) const;
   
-  AutotileSet* get_autotileset_from_tile(uint32_t tile_id) const;
 
   uint32_t get_max_tileid() const {
     return static_cast<uint32_t>(m_tiles.size());
@@ -51,10 +49,6 @@ public:
 
   void print_debug_info(const std::string& filename);
   
-public:
-  // Must be public because of tile_set_parser.cpp
-  std::vector<AutotileSet*>* m_autotilesets;
-
 private:
   std::vector<std::unique_ptr<Tile> > m_tiles;
 

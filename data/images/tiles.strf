@@ -15,9 +15,6 @@
 ;;    src/tile.cpp, unisolid is 3 not 2
 
 (supertux-tiles
-  (autotileset
-    (source "autotiles.satc")
-  )
  
    ;; next-id: 4327
   
