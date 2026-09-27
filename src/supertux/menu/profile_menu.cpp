@@ -25,33 +25,32 @@
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 
 #include <physfs.h>
 
 ProfileMenu::ProfileMenu()
 {
-  add_label(_("Select Profile"));
+  add_label("Select Profile");
   add_hl();
   for (int i = 1; i <= 5; ++i)
   {
     std::ostringstream out;
     if (i == g_config->profile)
     {
-      out << str(boost::format(_("[Profile %s]")) %i);
+      out << str(boost::format("[Profile %s]") %i);
     }
     else
     {
-      out << str(boost::format(_("Profile %s")) %i);
+      out << str(boost::format("Profile %s") %i);
     }
     add_entry(i, out.str());
   }
   add_hl();
-  add_entry(6, _("Reset profile"));
-  add_entry(7, _("Reset all profiles"));
+  add_entry(6, "Reset profile");
+  add_entry(7, "Reset all profiles");
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void
@@ -64,13 +63,13 @@ ProfileMenu::menu_action(MenuItem& item)
   }
   else if(id == 6)
   {
-    Dialog::show_confirmation(_("Deleting your profile will reset your game progress. Are you sure?"), [this]() {
+    Dialog::show_confirmation("Deleting your profile will reset your game progress. Are you sure?", [this]() {
       delete_savegames(g_config->profile);
     });
   }
   else if(id == 7)
   {
-    Dialog::show_confirmation(_("This will reset your game progress on all profiles. Are you sure?"), [this]() {
+    Dialog::show_confirmation("This will reset your game progress on all profiles. Are you sure?", [this]() {
       for (int i = 1; i <= 5; i++) {
         delete_savegames(i);
       }

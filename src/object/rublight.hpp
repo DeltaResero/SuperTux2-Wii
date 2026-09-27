@@ -30,7 +30,7 @@ public:
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_class() const override { return "rublight"; }
-  virtual std::string get_display_name() const override { return _("Rublight"); }
+  virtual std::string get_display_name() const override { return "Rublight"; }
 
 private:
   enum State {

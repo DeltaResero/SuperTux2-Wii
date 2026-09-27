@@ -48,12 +48,12 @@ MainMenu::MainMenu()
   set_center_pos(static_cast<float>(SCREEN_WIDTH) / 2.0f,
                  static_cast<float>(SCREEN_HEIGHT) / 2.0f + 35.0f);
 
-  add_entry(MNID_STARTGAME, _("Start Game"));
-  add_submenu(_("Options"), MenuStorage::OPTIONS_MENU);
-  add_entry(MNID_CREDITS, _("Credits"));
-  add_entry(MNID_DONATE, _("Donate"));
+  add_entry(MNID_STARTGAME, "Start Game");
+  add_submenu("Options", MenuStorage::OPTIONS_MENU);
+  add_entry(MNID_CREDITS, "Credits");
+  add_entry(MNID_DONATE, "Donate");
 #ifndef REMOVE_QUIT_BUTTON
-  add_entry(MNID_QUITMAINMENU, _("Quit"));
+  add_entry(MNID_QUITMAINMENU, "Quit");
 #endif
 }
 

@@ -24,7 +24,6 @@
 
 #include "gui/menu_manager.hpp"
 #include "math/sizef.hpp"
-#include "util/gettext.hpp"
 
 class Controller;
 class DrawingContext;
@@ -78,7 +77,7 @@ public:
     auto dialog = std::make_unique<Dialog>();
     dialog->set_text(text);
     dialog->clear_buttons();
-    dialog->add_button(_("OK"), [] {});
+    dialog->add_button("OK", [] {});
     MenuManager::instance().set_dialog(std::move(dialog));
   }
 
@@ -87,8 +86,8 @@ public:
     auto dialog = std::make_unique<Dialog>();
     dialog->set_text(text);
     dialog->clear_buttons();
-    dialog->add_default_button(_("Yes"), callback);
-    dialog->add_cancel_button(_("No"));
+    dialog->add_default_button("Yes", callback);
+    dialog->add_cancel_button("No");
     MenuManager::instance().set_dialog(std::move(dialog));
   }
 

@@ -31,28 +31,28 @@ WorldmapCheatMenu::WorldmapCheatMenu()
   auto worldmap = worldmap::WorldMap::current();
   auto& tux = worldmap->get_singleton_by_type<worldmap::Tux>();
 
-  add_label(_("Cheats"));
+  add_label("Cheats");
   add_hl();
-  add_entry(MNID_GROW, _("Bonus: Grow"));
-  add_entry(MNID_FIRE, _("Bonus: Fire"));
-  add_entry(MNID_ICE, _("Bonus: Ice"));
-  add_entry(MNID_AIR, _("Bonus: Air"));
-  add_entry(MNID_EARTH, _("Bonus: Earth"));
-  add_entry(MNID_SHRINK, _("Bonus: None"));
+  add_entry(MNID_GROW, "Bonus: Grow");
+  add_entry(MNID_FIRE, "Bonus: Fire");
+  add_entry(MNID_ICE, "Bonus: Ice");
+  add_entry(MNID_AIR, "Bonus: Air");
+  add_entry(MNID_EARTH, "Bonus: Earth");
+  add_entry(MNID_SHRINK, "Bonus: None");
   add_hl();
   add_entry(MNID_GHOST, (tux.get_ghost_mode() ?
-                         _("Leave Ghost Mode") : _("Activate Ghost Mode")));
+                         "Leave Ghost Mode" : "Activate Ghost Mode"));
   add_hl();
-  add_entry(MNID_FINISH_LEVEL, _("Finish Level"));
-  add_entry(MNID_RESET_LEVEL, _("Reset Level"));
+  add_entry(MNID_FINISH_LEVEL, "Finish Level");
+  add_entry(MNID_RESET_LEVEL, "Reset Level");
   add_hl();
-  add_entry(MNID_FINISH_WORLDMAP, _("Finish Worldmap"));
-  add_entry(MNID_RESET_WORLDMAP, _("Reset Worldmap"));
+  add_entry(MNID_FINISH_WORLDMAP, "Finish Worldmap");
+  add_entry(MNID_RESET_WORLDMAP, "Reset Worldmap");
   add_hl();
-  add_entry(MNID_MOVE_TO_LEVEL, _("Go to level"));
-  add_entry(MNID_MOVE_TO_MAIN, _("Go to main spawnpoint"));
+  add_entry(MNID_MOVE_TO_LEVEL, "Go to level");
+  add_entry(MNID_MOVE_TO_MAIN, "Go to main spawnpoint");
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void
@@ -142,7 +142,7 @@ WorldmapLevelSelectMenu::WorldmapLevelSelectMenu()
 {
   auto worldmap = worldmap::WorldMap::current();
   int id = 0;
-  add_label(_("Select level"));
+  add_label("Select level");
   add_hl();
   for (auto& level : worldmap->get_objects_by_type<worldmap::LevelTile>())
   {
@@ -150,7 +150,7 @@ WorldmapLevelSelectMenu::WorldmapLevelSelectMenu()
     id++;
   }
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

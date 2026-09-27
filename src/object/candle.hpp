@@ -33,7 +33,7 @@ public:
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual std::string get_class() const override { return "candle"; }
-  virtual std::string get_display_name() const override { return _("Candle"); }
+  virtual std::string get_display_name() const override { return "Candle"; }
 
   /** @name Scriptable Methods
       @{ */

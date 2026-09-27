@@ -33,7 +33,7 @@ public:
   virtual bool is_singleton() const override { return true; }
 
   virtual std::string get_class() const override { return "ambient-light"; }
-  virtual std::string get_display_name() const override { return _("Ambient Light"); }
+  virtual std::string get_display_name() const override { return "Ambient Light"; }
 
   void set_ambient_light(const Color& ambient_light);
   Color get_ambient_light() const;

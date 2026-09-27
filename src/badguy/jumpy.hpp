@@ -34,7 +34,7 @@ public:
   virtual bool is_freezable() const override;
   virtual bool is_flammable() const override;
   virtual std::string get_class() const override { return "jumpy"; }
-  virtual std::string get_display_name() const override { return _("Jumpy"); }
+  virtual std::string get_display_name() const override { return "Jumpy"; }
 
 private:
   HitResponse hit(const CollisionHit& hit);

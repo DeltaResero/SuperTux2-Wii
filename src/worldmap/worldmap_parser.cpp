@@ -161,7 +161,7 @@ void
 WorldMapParser::load_level_information(LevelTile& level)
 {
   /** get special_tile's title */
-  level.m_title = _("<no title>");
+  level.m_title = "<no title>";
   level.m_target_time = 0.0f;
 
   try {

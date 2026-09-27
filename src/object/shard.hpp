@@ -31,7 +31,7 @@ public:
   virtual void collision_solid(const CollisionHit& hit) override;
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual std::string get_class() const override { return "shard"; }
-  virtual std::string get_display_name() const override { return _("Shard"); }
+  virtual std::string get_display_name() const override { return "Shard"; }
 
 protected:
   Physic m_physic;

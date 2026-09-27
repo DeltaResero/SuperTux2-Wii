@@ -29,7 +29,7 @@ public:
   SkullTile(const ReaderMapping& mapping);
 
   virtual std::string get_class() const override { return "skull_tile"; }
-  virtual std::string get_display_name() const override { return _("Skull Tile"); }
+  virtual std::string get_display_name() const override { return "Skull Tile"; }
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual void update(float dt_sec) override;

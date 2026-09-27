@@ -35,7 +35,7 @@ public:
   virtual void deactivate() override;
 
   virtual std::string get_class() const override { return "stalactite"; }
-  virtual std::string get_display_name() const override { return _("Stalactite"); }
+  virtual std::string get_display_name() const override { return "Stalactite"; }
 
   void squish();
 

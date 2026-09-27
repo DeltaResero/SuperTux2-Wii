@@ -33,7 +33,6 @@
 #include "supertux/game_session.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "video/renderer.hpp"
 
@@ -45,16 +44,16 @@ enum IntegrationsMenuIDs {
 
 IntegrationsMenu::IntegrationsMenu()
 {
-  add_label(_("Integrations"));
+  add_label("Integrations");
   add_hl();
 #ifdef ENABLE_DISCORD
-  add_toggle(MNID_ENABLE_DISCORD, _("Enable Discord integration"), &g_config->enable_discord)
-    .set_help(_("Sends information to your Discord application about what you're doing in the game."));
+  add_toggle(MNID_ENABLE_DISCORD, "Enable Discord integration", &g_config->enable_discord)
+    .set_help("Sends information to your Discord application about what you're doing in the game.");
 #else
-  add_inactive(_("Discord (disabled; not compiled)"));
+  add_inactive("Discord (disabled; not compiled)");
 #endif
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 IntegrationsMenu::~IntegrationsMenu()

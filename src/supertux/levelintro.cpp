@@ -27,7 +27,6 @@
 #include "supertux/resources.hpp"
 #include "supertux/screen_manager.hpp"
 #include "supertux/sector.hpp"
-#include "util/gettext.hpp"
 #include "video/compositor.hpp"
 
 #include <boost/format.hpp>
@@ -133,7 +132,7 @@ LevelIntro::draw(Compositor& compositor)
 
   std::string author = m_level.get_author();
   if ((!author.empty()) && (author != "SuperTux Team")) {
-    std::string author_text = str(boost::format(_("contributed by %s")) % author);
+    std::string author_text = str(boost::format("contributed by %s") % author);
     context.color().draw_center_text(Resources::small_font, author_text, Vector(0, static_cast<float>(py)), LAYER_FOREGROUND1, s_author_color);
     py += static_cast<int>(Resources::small_font->get_height());
   }
@@ -157,28 +156,28 @@ LevelIntro::draw(Compositor& compositor)
   if (m_best_level_statistics)
   {
     context.color().draw_center_text(Resources::normal_font,
-                                     std::string("- ") + _("Best Level Statistics") + std::string(" -"),
+                                     std::string("- ") + "Best Level Statistics" + std::string(" -"),
                                      Vector(0, static_cast<float>(py)),
                                      LAYER_FOREGROUND1, s_stat_hdr_color);
 
     py += static_cast<int>(Resources::normal_font->get_height());
 
-    draw_stats_line(context, py, _("Coins"),
+    draw_stats_line(context, py, "Coins",
                     Statistics::coins_to_string(m_best_level_statistics->get_coins(), stats.m_total_coins),
                     m_best_level_statistics->get_coins() >= stats.m_total_coins);
-    draw_stats_line(context, py, _("Badguys killed"),
+    draw_stats_line(context, py, "Badguys killed",
                     Statistics::frags_to_string(m_best_level_statistics->get_badguys(), stats.m_total_badguys),
                     m_best_level_statistics->get_badguys() >= stats.m_total_badguys);
-    draw_stats_line(context, py, _("Secrets"),
+    draw_stats_line(context, py, "Secrets",
                     Statistics::secrets_to_string(m_best_level_statistics->get_secrets(), stats.m_total_secrets),
                     m_best_level_statistics->get_secrets() >= stats.m_total_secrets);
 
     bool targetTimeBeaten = m_level.m_target_time == 0.0f || (m_best_level_statistics->get_time() != 0.0f && m_best_level_statistics->get_time() < m_level.m_target_time);
-    draw_stats_line(context, py, _("Best time"),
+    draw_stats_line(context, py, "Best time",
                     Statistics::time_to_string(m_best_level_statistics->get_time()), targetTimeBeaten);
 
     if (m_level.m_target_time != 0.0f) {
-      draw_stats_line(context, py, _("Level target time"),
+      draw_stats_line(context, py, "Level target time",
                       Statistics::time_to_string(m_level.m_target_time), targetTimeBeaten);
     }
   }

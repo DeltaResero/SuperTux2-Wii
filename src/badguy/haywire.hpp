@@ -42,7 +42,7 @@ public:
   virtual HitResponse collision_badguy(BadGuy& badguy, const CollisionHit& hit) override;
 
   virtual std::string get_class() const override { return "haywire"; }
-  virtual std::string get_display_name() const override { return _("Haywire"); }
+  virtual std::string get_display_name() const override { return "Haywire"; }
 
 protected:
   virtual bool collision_squished(GameObject& object) override;

@@ -27,21 +27,21 @@ CheatMenu::CheatMenu()
 {
   auto& player = Sector::get().get_player();
 
-  add_label(_("Cheats"));
+  add_label("Cheats");
   add_hl();
-  add_entry(MNID_GROW, _("Bonus: Grow"));
-  add_entry(MNID_FIRE, _("Bonus: Fire x 64"));
-  add_entry(MNID_ICE, _("Bonus: Ice x 64"));
-  add_entry(MNID_AIR, _("Bonus: Air x 64"));
-  add_entry(MNID_EARTH, _("Bonus: Earth x 64"));
-  add_entry(MNID_STAR, _("Bonus: Star"));
-  add_entry(MNID_SHRINK, _("Shrink Tux"));
-  add_entry(MNID_KILL, _("Kill Tux"));
-  add_entry(MNID_FINISH, _("Finish Level"));
+  add_entry(MNID_GROW, "Bonus: Grow");
+  add_entry(MNID_FIRE, "Bonus: Fire x 64");
+  add_entry(MNID_ICE, "Bonus: Ice x 64");
+  add_entry(MNID_AIR, "Bonus: Air x 64");
+  add_entry(MNID_EARTH, "Bonus: Earth x 64");
+  add_entry(MNID_STAR, "Bonus: Star");
+  add_entry(MNID_SHRINK, "Shrink Tux");
+  add_entry(MNID_KILL, "Kill Tux");
+  add_entry(MNID_FINISH, "Finish Level");
   add_entry(MNID_GHOST, player.get_ghost_mode() ?
-            _("Leave Ghost Mode") : _("Activate Ghost Mode"));
+            "Leave Ghost Mode" : "Activate Ghost Mode");
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

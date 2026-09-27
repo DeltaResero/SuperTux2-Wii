@@ -38,7 +38,7 @@ public:
   virtual bool is_flammable() const override;
 
   virtual std::string get_class() const override { return "flame"; }
-  virtual std::string get_display_name() const override { return _("Flame"); }
+  virtual std::string get_display_name() const override { return "Flame"; }
 
   virtual void stop_looping_sounds() override;
   virtual void play_looping_sounds() override;

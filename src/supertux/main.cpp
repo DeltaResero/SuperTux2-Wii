@@ -59,7 +59,6 @@
 #include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "util/string_util.hpp"
 #include "util/timelog.hpp"
 #include "util/string_util.hpp"

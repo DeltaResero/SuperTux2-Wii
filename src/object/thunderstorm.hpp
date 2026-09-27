@@ -37,7 +37,7 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "thunderstorm"; }
-  virtual std::string get_display_name() const override { return _("Thunderstorm"); }
+  virtual std::string get_display_name() const override { return "Thunderstorm"; }
 
   /** @name Scriptable Methods
       @{ */

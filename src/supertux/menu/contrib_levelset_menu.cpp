@@ -28,7 +28,6 @@
 #include "supertux/savegame.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 
 ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
   m_world(std::move(world)),
@@ -64,7 +63,7 @@ ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
   }
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

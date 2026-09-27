@@ -21,16 +21,15 @@
 #include "supertux/game_manager.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/world.hpp"
-#include "util/gettext.hpp"
 
 WorldSetMenu::WorldSetMenu()
 {
-   add_label(_("Start Game"));
+   add_label("Start Game");
    add_hl();
-   add_entry(WORLDSET_STORY, _("Story Mode"));
-   add_entry(WORLDSET_CONTRIB, _("Contrib Levels"));
+   add_entry(WORLDSET_STORY, "Story Mode");
+   add_entry(WORLDSET_CONTRIB, "Contrib Levels");
    add_hl();
-   add_back(_("Back"));
+   add_back("Back");
 }
 
 void WorldSetMenu::menu_action(MenuItem& item)

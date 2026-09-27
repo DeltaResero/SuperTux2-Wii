@@ -40,7 +40,7 @@ public:
   virtual bool is_flammable() const override;
   virtual bool is_hurtable() const override { return false; }
   virtual std::string get_class() const override { return "mole_rock"; }
-  virtual std::string get_display_name() const override { return _("Mole's rock"); }
+  virtual std::string get_display_name() const override { return "Mole's rock"; }
 
 protected:
   const BadGuy* parent; /**< collisions with this BadGuy will be ignored */

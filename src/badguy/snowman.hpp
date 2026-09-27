@@ -25,7 +25,7 @@ public:
   Snowman(const ReaderMapping& reader);
 
   virtual std::string get_class() const override { return "snowman"; }
-  virtual std::string get_display_name() const override { return _("Snowman"); }
+  virtual std::string get_display_name() const override { return "Snowman"; }
 
 protected:
   void loose_head();

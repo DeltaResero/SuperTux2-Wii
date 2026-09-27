@@ -30,7 +30,6 @@
 #include "supertux/savegame.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 
 ContribMenu::ContribMenu() :
@@ -51,7 +50,7 @@ ContribMenu::ContribMenu() :
     }
   }
 
-  add_label(_("Contrib Levels"));
+  add_label("Contrib Levels");
   add_hl();
 
   int i = 0;
@@ -132,7 +131,7 @@ ContribMenu::ContribMenu() :
   }
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

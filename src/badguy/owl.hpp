@@ -36,7 +36,7 @@ public:
   virtual bool is_freezable() const override;
   virtual void ignite() override;
   virtual std::string get_class() const override { return "owl"; }
-  virtual std::string get_display_name() const override { return _("Owl"); }
+  virtual std::string get_display_name() const override { return "Owl"; }
 
 protected:
   bool is_above_player() const;

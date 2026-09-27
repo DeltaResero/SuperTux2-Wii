@@ -23,13 +23,12 @@
 #include "supertux/debug.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
-#include "util/gettext.hpp"
 #include "video/texture_manager.hpp"
 
 DebugMenu::DebugMenu() :
   next_game_speed(0)
 {
-  add_label(_("Debug"));
+  add_label("Debug");
   add_hl();
 
   { // game speed menu entry
@@ -53,26 +52,26 @@ DebugMenu::DebugMenu() :
       next_game_speed = 6;
     }
 
-    auto& item = add_string_select(MNID_GAME_SPEED, _("Game Speed"), &next_game_speed, game_speeds);
-    item.set_help(_("Adjust Game Speed"));
+    auto& item = add_string_select(MNID_GAME_SPEED, "Game Speed", &next_game_speed, game_speeds);
+    item.set_help("Adjust Game Speed");
     item.set_callback([game_speed_multiplier](int i) {
         g_debug.set_game_speed_multiplier(game_speed_multiplier[i]);
       });
   }
 
-  add_toggle(-1, _("Show Collision Rects"), &g_debug.show_collision_rects);
-  add_toggle(-1, _("Show Worldmap Path"), &g_debug.show_worldmap_path);
-  add_toggle(-1, _("Show Controller"), &g_config->show_controller);
-  add_toggle(-1, _("Show Framerate"), &g_config->show_fps);
-  add_toggle(-1, _("Draw Redundant Frames"), &g_debug.draw_redundant_frames);
-  add_toggle(-1, _("Show Player Position"), &g_config->show_player_pos);
-  add_toggle(-1, _("Use Bitmap Fonts"),
+  add_toggle(-1, "Show Collision Rects", &g_debug.show_collision_rects);
+  add_toggle(-1, "Show Worldmap Path", &g_debug.show_worldmap_path);
+  add_toggle(-1, "Show Controller", &g_config->show_controller);
+  add_toggle(-1, "Show Framerate", &g_config->show_fps);
+  add_toggle(-1, "Draw Redundant Frames", &g_debug.draw_redundant_frames);
+  add_toggle(-1, "Show Player Position", &g_config->show_player_pos);
+  add_toggle(-1, "Use Bitmap Fonts",
              []{ return g_debug.get_use_bitmap_fonts(); },
              [](bool value){ g_debug.set_use_bitmap_fonts(value); });
-  add_entry(_("Dump Texture Cache"), []{ TextureManager::current()->debug_print(std::cout); });
+  add_entry("Dump Texture Cache", []{ TextureManager::current()->debug_print(std::cout); });
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 void

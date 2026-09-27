@@ -26,7 +26,6 @@
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/sector.hpp"
 #include "object/player.hpp"
-#include "util/gettext.hpp"
 
 GameMenu::GameMenu() :
   reset_callback ( [] {
@@ -49,16 +48,16 @@ GameMenu::GameMenu() :
 
   add_label(level.m_name);
   add_hl();
-  add_entry(MNID_CONTINUE, _("Continue"));
-  add_entry(MNID_RESETLEVEL, _("Restart Level"));
+  add_entry(MNID_CONTINUE, "Continue");
+  add_entry(MNID_RESETLEVEL, "Restart Level");
 
   if (Sector::current()->get_player().get_status().can_reach_checkpoint()) {
-    add_entry(MNID_RESETLEVELCHECKPOINT, _("Restart from Checkpoint"));
+    add_entry(MNID_RESETLEVELCHECKPOINT, "Restart from Checkpoint");
   }
 
-  add_submenu(_("Options"), MenuStorage::INGAME_OPTIONS_MENU);
+  add_submenu("Options", MenuStorage::INGAME_OPTIONS_MENU);
   add_hl();
-  add_entry(MNID_ABORTLEVEL, _("Abort Level"));
+  add_entry(MNID_ABORTLEVEL, "Abort Level");
 }
 
 void
@@ -74,7 +73,7 @@ GameMenu::menu_action(MenuItem& item)
     case MNID_RESETLEVEL:
       if (g_config->confirmation_dialog)
       {
-        Dialog::show_confirmation(_("Are you sure?"), reset_callback);
+        Dialog::show_confirmation("Are you sure?", reset_callback);
       }
       else
       {
@@ -85,7 +84,7 @@ GameMenu::menu_action(MenuItem& item)
     case MNID_RESETLEVELCHECKPOINT:
       if (g_config->confirmation_dialog)
       {
-        Dialog::show_confirmation(_("Are you sure?"),
+        Dialog::show_confirmation("Are you sure?",
                                   reset_checkpoint_callback);
       }
       else
@@ -97,7 +96,7 @@ GameMenu::menu_action(MenuItem& item)
     case MNID_ABORTLEVEL:
       if (g_config->confirmation_dialog)
       {
-        Dialog::show_confirmation(_("Are you sure?"), abort_callback);
+        Dialog::show_confirmation("Are you sure?", abort_callback);
       }
       else
       {

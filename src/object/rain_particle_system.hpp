@@ -37,7 +37,7 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual std::string get_class() const override { return "particles-rain"; }
-  virtual std::string get_display_name() const override { return _("Rain Particles"); }
+  virtual std::string get_display_name() const override { return "Rain Particles"; }
 
   void fade_speed(float new_speed, float fade_time);
   void fade_angle(float new_angle, float fade_time, easing ease_func);

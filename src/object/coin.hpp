@@ -40,7 +40,7 @@ public:
 
   virtual void update(float dt_sec) override;
   virtual std::string get_class() const override { return "coin"; }
-  virtual std::string get_display_name() const override { return _("Coin"); }
+  virtual std::string get_display_name() const override { return "Coin"; }
 
   virtual void move_to(const Vector& pos) override;
 
@@ -69,7 +69,7 @@ public:
   virtual void collision_solid(const CollisionHit& hit) override;
 
   virtual std::string get_class() const override { return "heavycoin"; }
-  virtual std::string get_display_name() const override { return _("Heavy Coin"); }
+  virtual std::string get_display_name() const override { return "Heavy Coin"; }
 
 private:
   Physic m_physic;

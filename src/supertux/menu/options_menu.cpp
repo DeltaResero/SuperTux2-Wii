@@ -28,7 +28,6 @@
 #include "supertux/game_session.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
-#include "util/gettext.hpp"
 #include "util/log.hpp"
 #include "video/renderer.hpp"
 
@@ -88,13 +87,13 @@ OptionsMenu::OptionsMenu(bool complete) :
   sound_volumes(),
   music_volumes()
 {
-  add_label(_("Options"));
+  add_label("Options");
   add_hl();
 
   magnifications.clear();
   // These values go from screen:640/projection:1600 to
   // screen:1600/projection:640 (i.e. 640, 800, 1024, 1280, 1600)
-  magnifications.push_back(_("auto"));
+  magnifications.push_back("auto");
 #ifndef ENABLE_TOUCHSCREEN_SUPPORT
   magnifications.push_back("40%");
   magnifications.push_back("50%");
@@ -132,7 +131,7 @@ OptionsMenu::OptionsMenu(bool complete) :
   }
 
   aspect_ratios.clear();
-  aspect_ratios.push_back(_("auto"));
+  aspect_ratios.push_back("auto");
   aspect_ratios.push_back("5:4");
   aspect_ratios.push_back("4:3");
   aspect_ratios.push_back("16:10");
@@ -211,7 +210,7 @@ OptionsMenu::OptionsMenu(bool complete) :
   }
   resolutions.push_back("Desktop");
 
-  std::string fullscreen_size_str = _("Desktop");
+  std::string fullscreen_size_str = "Desktop";
   {
     std::ostringstream out;
     if (g_config->fullscreen_size != Size(0, 0))
@@ -241,9 +240,9 @@ OptionsMenu::OptionsMenu(bool complete) :
   }
 
   { // vsync
-    vsyncs.push_back(_("on"));
-    vsyncs.push_back(_("off"));
-    vsyncs.push_back(_("adaptive"));
+    vsyncs.push_back("on");
+    vsyncs.push_back("off");
+    vsyncs.push_back("adaptive");
     int mode = VideoSystem::current()->get_vsync();
 
     switch (mode)
@@ -337,90 +336,90 @@ OptionsMenu::OptionsMenu(bool complete) :
   {
     // Profile changes are only possible in the main menu as
     // elsewhere it might not always work fully
-    add_submenu(_("Select Profile"), MenuStorage::PROFILE_MENU)
-      .set_help(_("Select a profile to play with"));
+    add_submenu("Select Profile", MenuStorage::PROFILE_MENU)
+      .set_help("Select a profile to play with");
   }
 
 #ifndef ENABLE_TOUCHSCREEN_SUPPORT
-  add_toggle(MNID_FULLSCREEN,_("Window Resizable"), &g_config->window_resizable)
-    .set_help(_("Allow window resizing, might require a restart to take effect"));
+  add_toggle(MNID_FULLSCREEN,"Window Resizable", &g_config->window_resizable)
+    .set_help("Allow window resizing, might require a restart to take effect");
 
-  MenuItem& window_res = add_string_select(MNID_WINDOW_RESOLUTION, _("Window Resolution"), &next_window_resolution, window_resolutions);
-  window_res.set_help(_("Resize the window to the given size"));
+  MenuItem& window_res = add_string_select(MNID_WINDOW_RESOLUTION, "Window Resolution", &next_window_resolution, window_resolutions);
+  window_res.set_help("Resize the window to the given size");
 
-  add_toggle(MNID_FULLSCREEN,_("Fullscreen"), &g_config->use_fullscreen)
-    .set_help(_("Fill the entire screen"));
+  add_toggle(MNID_FULLSCREEN,"Fullscreen", &g_config->use_fullscreen)
+    .set_help("Fill the entire screen");
 
-  MenuItem& fullscreen_res = add_string_select(MNID_FULLSCREEN_RESOLUTION, _("Fullscreen Resolution"), &next_resolution, resolutions);
-  fullscreen_res.set_help(_("Determine the resolution used in fullscreen mode (you must toggle fullscreen to complete the change)"));
+  MenuItem& fullscreen_res = add_string_select(MNID_FULLSCREEN_RESOLUTION, "Fullscreen Resolution", &next_resolution, resolutions);
+  fullscreen_res.set_help("Determine the resolution used in fullscreen mode (you must toggle fullscreen to complete the change)");
 #endif
 
 #if 0
 #endif
 
-  MenuItem& magnification = add_string_select(MNID_MAGNIFICATION, _("Magnification"), &next_magnification, magnifications);
-  magnification.set_help(_("Change the magnification of the game area"));
+  MenuItem& magnification = add_string_select(MNID_MAGNIFICATION, "Magnification", &next_magnification, magnifications);
+  magnification.set_help("Change the magnification of the game area");
 
-  MenuItem& vsync = add_string_select(MNID_VSYNC, _("VSync"), &next_vsync, vsyncs);
-  vsync.set_help(_("Set the VSync mode"));
+  MenuItem& vsync = add_string_select(MNID_VSYNC, "VSync", &next_vsync, vsyncs);
+  vsync.set_help("Set the VSync mode");
 
 #ifndef ENABLE_TOUCHSCREEN_SUPPORT
-  MenuItem& aspect = add_string_select(MNID_ASPECTRATIO, _("Aspect Ratio"), &next_aspect_ratio, aspect_ratios);
-  aspect.set_help(_("Adjust the aspect ratio"));
+  MenuItem& aspect = add_string_select(MNID_ASPECTRATIO, "Aspect Ratio", &next_aspect_ratio, aspect_ratios);
+  aspect.set_help("Adjust the aspect ratio");
 #endif
 
   if (SoundManager::current()->is_audio_enabled())
   {
-    add_toggle(MNID_SOUND, _("Sound"), &g_config->sound_enabled)
-      .set_help(_("Disable all sound effects"));
-    add_toggle(MNID_MUSIC, _("Music"), &g_config->music_enabled)
-      .set_help(_("Disable all music"));
+    add_toggle(MNID_SOUND, "Sound", &g_config->sound_enabled)
+      .set_help("Disable all sound effects");
+    add_toggle(MNID_MUSIC, "Music", &g_config->music_enabled)
+      .set_help("Disable all music");
 
-    MenuItem& sound_volume_select = add_string_select(MNID_SOUND_VOLUME, _("Sound Volume"), &next_sound_volume, sound_volumes);
-    sound_volume_select.set_help(_("Adjust sound volume"));
+    MenuItem& sound_volume_select = add_string_select(MNID_SOUND_VOLUME, "Sound Volume", &next_sound_volume, sound_volumes);
+    sound_volume_select.set_help("Adjust sound volume");
 
-    MenuItem& music_volume_select = add_string_select(MNID_MUSIC_VOLUME, _("Music Volume"), &next_music_volume, music_volumes);
-    music_volume_select.set_help(_("Adjust music volume"));
+    MenuItem& music_volume_select = add_string_select(MNID_MUSIC_VOLUME, "Music Volume", &next_music_volume, music_volumes);
+    music_volume_select.set_help("Adjust music volume");
   }
   else
   {
-    add_inactive( _("Sound (disabled)"));
-    add_inactive( _("Music (disabled)"));
+    add_inactive( "Sound (disabled)");
+    add_inactive( "Music (disabled)");
   }
 
-  add_submenu(_("Setup Keyboard"), MenuStorage::KEYBOARD_MENU)
-    .set_help(_("Configure key-action mappings"));
+  add_submenu("Setup Keyboard", MenuStorage::KEYBOARD_MENU)
+    .set_help("Configure key-action mappings");
 
-  add_submenu(_("Setup Joystick"), MenuStorage::JOYSTICK_MENU)
-    .set_help(_("Configure joystick control-action mappings"));
+  add_submenu("Setup Joystick", MenuStorage::JOYSTICK_MENU)
+    .set_help("Configure joystick control-action mappings");
 
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
-  add_toggle(MNID_MOBILE_CONTROLS, _("On-screen controls"), &g_config->mobile_controls)
-      .set_help(_("Toggle on-screen controls for mobile devices"));
+  add_toggle(MNID_MOBILE_CONTROLS, "On-screen controls", &g_config->mobile_controls)
+      .set_help("Toggle on-screen controls for mobile devices");
 #endif
-  MenuItem& enable_transitions = add_toggle(MNID_TRANSITIONS, _("Enable transitions"), &g_config->transitions_enabled);
-  enable_transitions.set_help(_("Enable screen transitions and smooth menu animation"));
+  MenuItem& enable_transitions = add_toggle(MNID_TRANSITIONS, "Enable transitions", &g_config->transitions_enabled);
+  enable_transitions.set_help("Enable screen transitions and smooth menu animation");
 
   if (g_config->developer_mode)
   {
-    add_toggle(MNID_DEVELOPER_MODE, _("Developer Mode"), &g_config->developer_mode);
+    add_toggle(MNID_DEVELOPER_MODE, "Developer Mode", &g_config->developer_mode);
   }
 
   if (g_config->is_christmas() || g_config->christmas_mode)
   {
-    add_toggle(MNID_CHRISTMAS_MODE, _("Christmas Mode"), &g_config->christmas_mode);
+    add_toggle(MNID_CHRISTMAS_MODE, "Christmas Mode", &g_config->christmas_mode);
   }
 
-  add_toggle(MNID_CONFIRMATION_DIALOG, _("Confirmation Dialog"), &g_config->confirmation_dialog).set_help(_("Confirm aborting level"));
-  add_toggle(MNID_PAUSE_ON_FOCUSLOSS, _("Pause on focus loss"), &g_config->pause_on_focusloss)
-    .set_help(_("Automatically pause the game when the window loses focus"));
-  add_toggle(MNID_CUSTOM_CURSOR, _("Use custom mouse cursor"), &g_config->custom_mouse_cursor).set_help(_("Whether the game renders its own cursor or uses the system's cursor"));
+  add_toggle(MNID_CONFIRMATION_DIALOG, "Confirmation Dialog", &g_config->confirmation_dialog).set_help("Confirm aborting level");
+  add_toggle(MNID_PAUSE_ON_FOCUSLOSS, "Pause on focus loss", &g_config->pause_on_focusloss)
+    .set_help("Automatically pause the game when the window loses focus");
+  add_toggle(MNID_CUSTOM_CURSOR, "Use custom mouse cursor", &g_config->custom_mouse_cursor).set_help("Whether the game renders its own cursor or uses the system's cursor");
 
-  add_submenu(_("Integrations and presence"), MenuStorage::INTEGRATIONS_MENU)
-      .set_help(_("Manage whether SuperTux should display the levels you play on your social media profiles (Discord)"));
+  add_submenu("Integrations and presence", MenuStorage::INTEGRATIONS_MENU)
+      .set_help("Manage whether SuperTux should display the levels you play on your social media profiles (Discord)");
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
 }
 
 OptionsMenu::~OptionsMenu()
@@ -433,7 +432,7 @@ OptionsMenu::menu_action(MenuItem& item)
   switch (item.get_id()) {
     case MNID_ASPECTRATIO:
       {
-        if (aspect_ratios[next_aspect_ratio] == _("auto"))
+        if (aspect_ratios[next_aspect_ratio] == "auto")
         {
           g_config->aspect_size = Size(0, 0); // Magic values
           VideoSystem::current()->apply_config();
@@ -454,7 +453,7 @@ OptionsMenu::menu_action(MenuItem& item)
       break;
 
     case MNID_MAGNIFICATION:
-      if (magnifications[next_magnification] == _("auto"))
+      if (magnifications[next_magnification] == "auto")
       {
         g_config->magnification = 0.0f; // Magic value
       }

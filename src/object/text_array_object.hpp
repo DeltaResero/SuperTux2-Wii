@@ -46,7 +46,7 @@ public:
   virtual bool is_singleton() const override { return true; }
 
   virtual std::string get_class() const override { return "text-array"; }
-  virtual std::string get_display_name() const override { return _("Text array"); }
+  virtual std::string get_display_name() const override { return "Text array"; }
 
   /////////// TextArray api related ///////////
 

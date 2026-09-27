@@ -34,7 +34,7 @@ public:
   ~Climbable() override;
 
   virtual std::string get_class() const override { return "climbable"; }
-  virtual std::string get_display_name() const override { return _("Climbable"); }
+  virtual std::string get_display_name() const override { return "Climbable"; }
 
   virtual void event(Player& player, EventType type) override;
   virtual void update(float dt_sec) override;
