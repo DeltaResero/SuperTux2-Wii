@@ -102,8 +102,7 @@ public:
   Tile(const std::vector<SurfacePtr>& images,
        const std::vector<SurfacePtr>& editor_images,
        uint32_t attributes, uint32_t data, float fps,
-       const std::string& obj_name = "", const std::string& obj_data = "",
-       bool deprecated = false);
+       const std::string& obj_name = "", const std::string& obj_data = "");
 
   /** Draw a tile on the screen */
   void draw(Canvas& canvas, const Vector& pos, int z_pos, const Color& color = Color(1, 1, 1)) const;
@@ -140,8 +139,6 @@ public:
   /** Checks the UNISOLID attribute. Returns "true" if set, "false" otherwise. */
   bool is_unisolid() const { return (m_attributes & UNISOLID) != 0; }
 
-  bool is_deprecated() const { return m_deprecated; }
-
   const std::string& get_object_name() const { return m_object_name; }
   const std::string& get_object_data() const { return m_object_data; }
 
@@ -169,9 +166,6 @@ private:
 
   std::string m_object_name;
   std::string m_object_data;
-
-  /** Discourage use of this tile by not making it available in the editor */
-  bool m_deprecated;
 
 private:
   Tile(const Tile&) = delete;

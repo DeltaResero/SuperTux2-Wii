@@ -22,7 +22,6 @@
 #include <sexp/io.hpp>
 
 #include "supertux/autotile_parser.hpp"
-#include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/tile_set.hpp"
 #include "util/log.hpp"
@@ -58,15 +57,6 @@ TileSetParser::parse()
       ReaderMapping tile_mapping = iter.as_mapping();
       parse_tile(tile_mapping);
     }
-    else if (iter.get_key() == "tilegroup")
-    {
-      /* tilegroups are only interesting for the editor */
-      ReaderMapping reader = iter.as_mapping();
-      Tilegroup tilegroup;
-      reader.get("name", tilegroup.name);
-      reader.get("tiles", tilegroup.tiles);
-      m_tileset.add_tilegroup(tilegroup);
-    }
     else if (iter.get_key() == "tiles")
     {
       ReaderMapping tiles_mapping = iter.as_mapping();
@@ -91,10 +81,6 @@ TileSetParser::parse()
     {
       log_warning << "Unknown symbol '" << iter.get_key() << "' in tileset file" << std::endl;
     }
-  }
-  if (g_config->developer_mode)
-  {
-    m_tileset.add_unassigned_tilegroup();
   }
 }
 
@@ -172,12 +158,9 @@ TileSetParser::parse_tile(const ReaderMapping& reader)
     surfaces = parse_imagespecs(*images_mapping);
   }
 
-  bool deprecated = false;
-  reader.get("deprecated", deprecated);
-
   auto tile = std::make_unique<Tile>(surfaces, editor_surfaces,
                                      attributes, data, fps,
-                                     object_name, object_data, deprecated);
+                                     object_name, object_data);
   m_tileset.add_tile(id, std::move(tile));
 }
 
