@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "Castle Life"))
+  (name "Castle Life")
   (author "alex")
   (license "CC-BY-SA 4.0 International")
   (sector
@@ -167,7 +167,7 @@
       (y 1216)
     )
     (infoblock
-      (message (_ "#It's possible, but not recommended to swim in hot lava."))
+      (message "#It's possible, but not recommended to swim in hot lava.")
       (x 7328)
       (y 928)
     )

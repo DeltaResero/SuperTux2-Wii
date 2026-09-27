@@ -19,9 +19,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_RESOURCES_HPP
 
 #include <memory>
-#include <string>
 
-#include "util/gettext.hpp"
 #include "video/font_ptr.hpp"
 #include "video/surface_ptr.hpp"
 
@@ -58,10 +56,6 @@ public:
 public:
   static void load();
   static void unload();
-
-private:
-  static std::string current_font;
-  static std::string get_font_for_locale(const tinygettext::Language& locale);
 
 public:
   Resources();

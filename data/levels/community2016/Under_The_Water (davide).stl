@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "Under The Water"))
+  (name "Under The Water")
   (author "Davide")
   (license "CC-BY-SA 4.0 International")
   (sector
@@ -347,11 +347,11 @@
       (y 256)
     )
     (infoblock
-      (message (_ "-Plants
+      (message "-Plants
 !images/creatures/plant/plant.png
 #The sleeping plants are like a sleeping spiky. The normal plants are like a simple snowball.
 !images/creatures/tumbleweed/tumbleweed0.png
-#This creature is like a bouncing snowball or a flying snowball."))
+#This creature is like a bouncing snowball or a flying snowball.")
       (x 256)
       (y 608)
     )

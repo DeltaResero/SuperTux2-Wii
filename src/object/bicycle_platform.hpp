@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_BICYCLE_PLATFORM_HPP
 
+#include <set>
+
 #include "object/path_walker.hpp"
 #include "object/moving_sprite.hpp"
 
@@ -59,7 +61,7 @@ public:
   virtual void on_flip(float height) override;
 
   virtual std::string get_class() const override { return "bicycle-platform"; }
-  virtual std::string get_display_name() const override { return _("Bicycle Platform"); }
+  virtual std::string get_display_name() const override { return "Bicycle Platform"; }
 
 private:
   Vector m_center; /**< pivot point */

@@ -22,12 +22,9 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "util/gettext.hpp"
 #include "util/reader_collection.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_error.hpp"
-
-bool ReaderMapping::s_translations_enabled = true;
 
 ReaderMapping::ReaderMapping(const ReaderDocument& doc, const sexp::Value& sx) :
   m_doc(doc),
@@ -127,11 +124,7 @@ ReaderMapping::get(const char* key, std::string& value, const boost::optional<co
                item[1].as_array()[0].is_symbol() &&
                item[1].as_array()[0].as_string() == "_" &&
                item[1].as_array()[1].is_string()) {
-      if (s_translations_enabled) {
-        value = _(item[1].as_array()[1].as_string());
-      } else {
-        value = item[1].as_array()[1].as_string();
-      }
+      value = item[1].as_array()[1].as_string();
       return true;
     } else {
       raise_exception(m_doc, item[1], "expected string");

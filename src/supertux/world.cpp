@@ -20,7 +20,6 @@
 #include "supertux/globals.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
-#include "util/reader.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -33,7 +32,6 @@ World::from_directory(const std::string& directory)
 
   try
   {
-    register_translation_directory(info_filename);
     auto doc = ReaderDocument::from_file(info_filename);
     auto root = doc.get_root();
 

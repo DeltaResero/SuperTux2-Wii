@@ -34,7 +34,7 @@ public:
   virtual void ungrab(MovingObject& object, Direction dir) override;
 
   virtual std::string get_class() const override { return "lantern"; }
-  virtual std::string get_display_name() const override { return _("Lantern"); }
+  virtual std::string get_display_name() const override { return "Lantern"; }
 
   /** returns true if lamp is currently open */
   bool is_open() const;

@@ -52,7 +52,7 @@ public:
   virtual void finish_construction() override;
 
   virtual std::string get_class() const override { return "tilemap"; }
-  virtual std::string get_display_name() const override { return _("Tilemap"); }
+  virtual std::string get_display_name() const override { return "Tilemap"; }
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;

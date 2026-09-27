@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 
+#include <set>
+
 #include "object/moving_sprite.hpp"
 
 class PneumaticPlatform;
@@ -57,7 +59,7 @@ public:
   virtual void on_flip(float height) override;
 
   virtual std::string get_class() const override { return "pneumatic-platform"; }
-  virtual std::string get_display_name() const override { return _("Pneumatic Platform"); }
+  virtual std::string get_display_name() const override { return "Pneumatic Platform"; }
 
 private:
   Vector m_pos;

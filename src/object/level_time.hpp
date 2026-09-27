@@ -52,7 +52,7 @@ public:
 
   /** @} */
   virtual std::string get_class() const override { return "leveltime"; }
-  virtual std::string get_display_name() const override { return _("Time Limit"); }
+  virtual std::string get_display_name() const override { return "Time Limit"; }
 
 private:
   SurfacePtr time_surface;

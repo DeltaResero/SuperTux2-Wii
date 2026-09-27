@@ -32,7 +32,7 @@ public:
   ~Door() override;
 
   virtual std::string get_class() const override { return "door"; }
-  virtual std::string get_display_name() const override { return _("Door"); }
+  virtual std::string get_display_name() const override { return "Door"; }
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;

@@ -27,7 +27,6 @@
 #include "supertux/screen_manager.hpp"
 #include "supertux/sector.hpp"
 #include "util/log.hpp"
-#include "util/reader.hpp"
 #include "util/reader_collection.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
@@ -115,7 +114,6 @@ TextScroller::TextScroller(const ReaderObject& root) :
 void
 TextScroller::parse_file(const std::string& filename)
 {
-  register_translation_directory(filename);
   auto doc = ReaderDocument::from_file(filename);
   auto root = doc.get_root();
   parse_root(root);

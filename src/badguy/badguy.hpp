@@ -49,7 +49,7 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual std::string get_class() const override { return "badguy"; }
-  virtual std::string get_display_name() const override { return _("Badguy"); }
+  virtual std::string get_display_name() const override { return "Badguy"; }
 
   /** Called when a collision with another object occurred. The
       default implementation calls collision_player, collision_solid,

@@ -36,7 +36,7 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "particle-zone"; }
-  virtual std::string get_display_name() const override { return _("Particle zone");}
+  virtual std::string get_display_name() const override { return "Particle zone";}
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
   virtual int get_layer() const override { return LAYER_OBJECTS; }

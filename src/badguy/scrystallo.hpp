@@ -26,7 +26,7 @@ public:
 
   virtual void initialize() override;
   virtual std::string get_class() const override { return "scrystallo"; }
-  virtual std::string get_display_name() const override { return _("Sleeping Crystallo"); }
+  virtual std::string get_display_name() const override { return "Sleeping Crystallo"; }
 
   virtual void collision_solid(const CollisionHit& hit) override;
   virtual HitResponse collision_badguy(BadGuy& badguy, const CollisionHit& hit) override;

@@ -36,7 +36,7 @@ public:
   virtual void draw(DrawingContext& context) override;
   
   virtual std::string get_class() const override { return "fallblock"; }
-  virtual std::string get_display_name() const override { return _("Falling Platform"); }
+  virtual std::string get_display_name() const override { return "Falling Platform"; }
   
 protected:
   enum State

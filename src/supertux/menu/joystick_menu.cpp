@@ -22,7 +22,6 @@
 #include "gui/item_toggle.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
-#include "util/gettext.hpp"
 
 namespace {
 
@@ -49,12 +48,12 @@ void
 JoystickMenu::recreate_menu()
 {
   clear();
-  add_label(_("Setup Joystick"));
+  add_label("Setup Joystick");
   add_hl();
 
-  add_toggle(MNID_AUTO_JOYSTICK_CFG, _("Manual Configuration"),
+  add_toggle(MNID_AUTO_JOYSTICK_CFG, "Manual Configuration",
              &m_auto_joystick_cfg)
-    .set_help(_("Use manual configuration instead of SDL2's automatic GameController support"));
+    .set_help("Use manual configuration instead of SDL2's automatic GameController support");
 
   if (m_input_manager.use_game_controller())
   {
@@ -66,35 +65,35 @@ JoystickMenu::recreate_menu()
     {
       m_joysticks_available = true;
 
-      add_controlfield(static_cast<int>(Control::UP),          _("Up"));
-      add_controlfield(static_cast<int>(Control::DOWN),        _("Down"));
-      add_controlfield(static_cast<int>(Control::LEFT),        _("Left"));
-      add_controlfield(static_cast<int>(Control::RIGHT),       _("Right"));
-      add_controlfield(static_cast<int>(Control::JUMP),        _("Jump"));
-      add_controlfield(static_cast<int>(Control::ACTION),      _("Action"));
-      add_controlfield(static_cast<int>(Control::START),       _("Pause/Menu"));
-      add_controlfield(static_cast<int>(Control::PEEK_LEFT),   _("Peek Left"));
-      add_controlfield(static_cast<int>(Control::PEEK_RIGHT),  _("Peek Right"));
-      add_controlfield(static_cast<int>(Control::PEEK_UP),     _("Peek Up"));
-      add_controlfield(static_cast<int>(Control::PEEK_DOWN),   _("Peek Down"));
+      add_controlfield(static_cast<int>(Control::UP),          "Up");
+      add_controlfield(static_cast<int>(Control::DOWN),        "Down");
+      add_controlfield(static_cast<int>(Control::LEFT),        "Left");
+      add_controlfield(static_cast<int>(Control::RIGHT),       "Right");
+      add_controlfield(static_cast<int>(Control::JUMP),        "Jump");
+      add_controlfield(static_cast<int>(Control::ACTION),      "Action");
+      add_controlfield(static_cast<int>(Control::START),       "Pause/Menu");
+      add_controlfield(static_cast<int>(Control::PEEK_LEFT),   "Peek Left");
+      add_controlfield(static_cast<int>(Control::PEEK_RIGHT),  "Peek Right");
+      add_controlfield(static_cast<int>(Control::PEEK_UP),     "Peek Up");
+      add_controlfield(static_cast<int>(Control::PEEK_DOWN),   "Peek Down");
       if (g_config->developer_mode) {
-        add_controlfield(static_cast<int>(Control::CONSOLE), _("Console"));
-        add_controlfield(static_cast<int>(Control::CHEAT_MENU), _("Cheat Menu"));
-        add_controlfield(static_cast<int>(Control::DEBUG_MENU), _("Debug Menu"));
+        add_controlfield(static_cast<int>(Control::CONSOLE), "Console");
+        add_controlfield(static_cast<int>(Control::CHEAT_MENU), "Cheat Menu");
+        add_controlfield(static_cast<int>(Control::DEBUG_MENU), "Debug Menu");
       }
-      add_toggle(MNID_JUMP_WITH_UP, _("Jump with Up"), &g_config->joystick_config.m_jump_with_up_joy);
+      add_toggle(MNID_JUMP_WITH_UP, "Jump with Up", &g_config->joystick_config.m_jump_with_up_joy);
     }
     else
     {
       m_joysticks_available = false;
 
-      add_inactive(_("No Joysticks found"));
-      add_entry(MNID_SCAN_JOYSTICKS, _("Scan for Joysticks"));
+      add_inactive("No Joysticks found");
+      add_entry(MNID_SCAN_JOYSTICKS, "Scan for Joysticks");
     }
   }
 
   add_hl();
-  add_back(_("Back"));
+  add_back("Back");
   refresh();
 }
 
@@ -103,7 +102,7 @@ JoystickMenu::get_button_name(int button) const
 {
   if (button < 0)
   {
-    return _("None");
+    return "None";
   }
   else
   {
@@ -122,7 +121,7 @@ JoystickMenu::menu_action(MenuItem& item)
     if (!micf) {
       return;
     }
-    micf->change_input(_("Press Button"));
+    micf->change_input("Press Button");
     m_input_manager.joystick_manager->bind_next_event_to(static_cast<Control>(item.get_id()));
   }
   else if (item.get_id() == MNID_AUTO_JOYSTICK_CFG)
@@ -159,21 +158,21 @@ JoystickMenu::refresh_menu_item(Control id)
   {
     std::ostringstream name;
 
-    name << _("Axis ");
+    name << "Axis ";
 
     if (axis < 0)
-      name << _("-");
+      name << "-";
     else
-      name << _("+");
+      name << "+";
 
     if (abs(axis) == 1)
-      name << _("X");
+      name << "X";
     else if (abs(axis) == 2)
-      name << _("Y");
+      name << "Y";
     else if (abs(axis) == 3)
-      name << _("X2");
+      name << "X2";
     else if (abs(axis) == 4)
-      name << _("Y2");
+      name << "Y2";
     else
       name << abs(axis);
 
@@ -186,19 +185,19 @@ JoystickMenu::refresh_menu_item(Control id)
     switch (hat_dir)
     {
       case SDL_HAT_UP:
-        name = _("Hat Up");
+        name = "Hat Up";
         break;
 
       case SDL_HAT_DOWN:
-        name = _("Hat Down");
+        name = "Hat Down";
         break;
 
       case SDL_HAT_LEFT:
-        name = _("Hat Left");
+        name = "Hat Left";
         break;
 
       case SDL_HAT_RIGHT:
-        name = _("Hat Right");
+        name = "Hat Right";
         break;
 
       default:
@@ -210,7 +209,7 @@ JoystickMenu::refresh_menu_item(Control id)
   }
   else
   {
-    itemcf->change_input(_("None"));
+    itemcf->change_input("None");
   }
 }
 

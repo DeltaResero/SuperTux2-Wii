@@ -432,59 +432,11 @@ endif()
 
 include_directories(SYSTEM ${SQUIRREL_PREFIX}/include)
 
-## Also build external/tinygettext
-
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/CMakeLists.txt)
-  message(FATAL_ERROR "tinygettext submodule is not checked out or ${CMAKE_CURRENT_SOURCE_DIR}/external/tinygettext/CMakeLists.txt is missing")
-endif()
-
-# Include altivec wrapper on ppc
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
-  set(TINYGETTEXT_CXX_FLAGS "-isystem ${CMAKE_CURRENT_SOURCE_DIR}/src/ppc ${CMAKE_CXX_FLAGS}")
-else()
-  set(TINYGETTEXT_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-endif()
-
-# CMake lists are just strings with ';' separators, thus passing lists
-# of lists is impossible. ExternalProject_Add provides LIST_SEPARATOR
-# to work around this limitations by using a different separator.
-string(REPLACE ";" "|" TINYGETTEXT_SDL2_INCLUDE_DIRS "${SDL2_INCLUDE_DIRS}")
-
-set(TINYGETTEXT_PREFIX ${CMAKE_BINARY_DIR}/tinygettext/)
-ExternalProject_Add(tinygettext
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/tinygettext/"
-  BUILD_BYPRODUCTS "${TINYGETTEXT_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}tinygettext${CMAKE_STATIC_LIBRARY_SUFFIX}"
-  LIST_SEPARATOR "|"
-  CMAKE_ARGS
-  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-  -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-  -DCMAKE_CXX_FLAGS=${TINYGETTEXT_CXX_FLAGS}
-  -DBUILD_SHARED_LIBS=OFF
-  -DHAVE_SDL=ON
-  -DVCPKG_BUILD=${VCPKG_BUILD}
-  -DCMAKE_INSTALL_PREFIX=${TINYGETTEXT_PREFIX}
-  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-  -DSDL2_LIBRARIES=${SDL2_LIBRARIES}
-  -DSDL2_INCLUDE_DIRS=${TINYGETTEXT_SDL2_INCLUDE_DIRS}
-  -DLIB_SUFFIX=${LIB_SUFFIX})
-
-add_library(tinygettext_lib STATIC IMPORTED)
-set_target_properties(tinygettext_lib PROPERTIES IMPORTED_LOCATION "${TINYGETTEXT_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}tinygettext${CMAKE_STATIC_LIBRARY_SUFFIX}")
-
-include_directories(SYSTEM ${TINYGETTEXT_PREFIX}/include)
-
-
 ## external/SDL_ttf with patches
 if (VCPKG_BUILD)
   find_package(freetype CONFIG REQUIRED)
 else()
   find_package(Freetype REQUIRED)
-endif()
-if (NOT VCPKG_BUILD)
-  find_package(RAQM)
 endif()
 set(SDL_TTF_PREFIX ${CMAKE_BINARY_DIR}/SDL_ttf/)
 ExternalProject_Add(SDL_ttf
@@ -497,25 +449,16 @@ ExternalProject_Add(SDL_ttf
   -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
   -DCMAKE_INSTALL_PREFIX=${SDL_TTF_PREFIX}
   -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-  -DWITH_RAQM=${RAQM_FOUND}
-  -DRAQM_LIBRARIES=${RAQM_LIBRARY}
-  -DRAQM_INCLUDE_DIR=${RAQM_INCLUDE_DIR}
   -DBUILD_SHARED_LIBS=OFF)
 add_library(SDL_ttf_lib STATIC IMPORTED)
 set_target_properties(SDL_ttf_lib PROPERTIES IMPORTED_LOCATION "${SDL_TTF_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}SDL2_ttf${CMAKE_STATIC_LIBRARY_SUFFIX}")
 link_directories(${SDL_TTF_PREFIX}/lib)
 include_directories(SYSTEM ${SDL_TTF_PREFIX}/include/SDL2)
-if(RAQM_FOUND)
-  find_package(FriBidi REQUIRED)
-  find_package(HarfBuzz REQUIRED)
-  set_target_properties(SDL_ttf_lib PROPERTIES INTERFACE_LINK_LIBRARIES "${RAQM_LIBRARIES}")
-endif()
 
 ## Some additional include paths
 
 include_directories(${CMAKE_BINARY_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/findlocale/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/obstack/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/sexp-cpp/include/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/SDL_SavePNG/)
@@ -540,7 +483,7 @@ endif(WIN32)
 
 ## Build list of sources for supertux binary
 
-file(GLOB SUPERTUX_SOURCES_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/obstack/*.c external/findlocale/findlocale.c)
+file(GLOB SUPERTUX_SOURCES_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/obstack/*.c)
 
 file(GLOB SUPERTUX_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*/*.cpp src/supertux/menu/*.cpp src/video/sdl/*.cpp src/video/null/*.cpp)
 file(GLOB SUPERTUX_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${PROJECT_BINARY_DIR}/tmp/*.rc")
@@ -692,58 +635,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   endif(WARNINGS)
 endif()
 
-## If xgettext is available, generate messages.pot for sources
-
-option(GENERATE_MESSAGESPOT "Generate messages.pot files" OFF)
-if(GENERATE_MESSAGESPOT)
-  mark_as_advanced(
-    XGETTEXT_EXECUTABLE
-    )
-  find_program(XGETTEXT_EXECUTABLE xgettext)
-  if(NOT XGETTEXT_EXECUTABLE)
-    message(STATUS "Warning: xgettext not found - will not update messages.pot")
-  else(NOT XGETTEXT_EXECUTABLE)
-    message(STATUS "Found xgettext: ${XGETTEXT_EXECUTABLE}")
-
-    set(MESSAGES_POT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/data/locale/messages.pot)
-    add_custom_command(
-      OUTPUT ${MESSAGES_POT_FILE}
-      COMMAND ${XGETTEXT_EXECUTABLE}
-      ARGS --keyword=_ --language=C++ --output=${MESSAGES_POT_FILE} ${SUPERTUX_SOURCES_CXX}
-      DEPENDS ${SUPERTUX_SOURCES_CXX}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      COMMENT "Generating POT file ${MESSAGES_POT_FILE}"
-      )
-    list(APPEND MESSAGES_POT_FILES ${MESSAGES_POT_FILE})
-
-    file(GLOB SUPERTUX_LEVEL_DIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} data/levels/*)
-    foreach(SUPERTUX_LEVEL_DIR ${SUPERTUX_LEVEL_DIRS})
-      file(GLOB SUPERTUX_LEVELS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SUPERTUX_LEVEL_DIR}/*.stl ${SUPERTUX_LEVEL_DIR}/*.stwm ${SUPERTUX_LEVEL_DIR}/*.txt)
-
-      ## Do not add target if SUPERTUX_LEVELS is empty. This is needed for cmake <=2.4
-      if(SUPERTUX_LEVELS)
-        set(MESSAGES_POT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${SUPERTUX_LEVEL_DIR}/messages.pot)
-        add_custom_command(
-          OUTPUT ${MESSAGES_POT_FILE}
-          COMMAND ${XGETTEXT_EXECUTABLE}
-          ARGS --keyword="_:1" --language=Lisp --force-po --sort-by-file "--output=${MESSAGES_POT_FILE}" ${SUPERTUX_LEVELS}
-          DEPENDS ${SUPERTUX_LEVELS}
-          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-          COMMENT "Generating POT file ${MESSAGES_POT_FILE}"
-          )
-        list(APPEND MESSAGES_POT_FILES ${MESSAGES_POT_FILE})
-      endif(SUPERTUX_LEVELS)
-
-    endforeach(SUPERTUX_LEVEL_DIR)
-
-    add_custom_target(
-      supertux2-messages ALL
-      DEPENDS ${MESSAGES_POT_FILES}
-      )
-
-  endif(NOT XGETTEXT_EXECUTABLE)
-endif(GENERATE_MESSAGESPOT)
-
 ## Some additional compiler switches
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
@@ -810,7 +701,6 @@ endif(WIN32 AND NOT VCPKG_BUILD)
 
 ## Link supertux binary with squirrel and other libraries
 
-add_dependencies(supertux2_lib tinygettext)
 add_dependencies(supertux2_lib squirrel)
 add_dependencies(supertux2_lib SDL_ttf)
 
@@ -830,13 +720,8 @@ else()
   target_link_libraries(supertux2_lib PUBLIC ${FREETYPE_LIBRARIES})
 endif()
 
-if(RAQM_FOUND)
-  target_link_libraries(supertux2_lib PUBLIC ${HARFBUZZ_LIBRARY} ${FRIBIDI_LIBRARY} ${RAQM_LIBRARY})
-endif()
-
 target_link_libraries(supertux2_lib PUBLIC squirrel_lib)
 target_link_libraries(supertux2_lib PUBLIC sqstdlib_lib)
-target_link_libraries(supertux2_lib PUBLIC tinygettext_lib)
 target_link_libraries(supertux2_lib PUBLIC sexp)
 target_link_libraries(supertux2_lib PUBLIC savepng)
 if(ENABLE_DISCORD)
@@ -949,7 +834,6 @@ install(DIRECTORY
   ${CMAKE_CURRENT_SOURCE_DIR}/data/shader
   ${CMAKE_CURRENT_SOURCE_DIR}/data/speech
   ${CMAKE_CURRENT_SOURCE_DIR}/data/sounds
-  ${CMAKE_CURRENT_SOURCE_DIR}/data/locale
   DESTINATION ${INSTALL_SUBDIR_SHARE})
 
 if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")

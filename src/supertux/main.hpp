@@ -80,7 +80,6 @@ public:
   int run(int argc, char** argv);
 
 private:
-  void init_tinygettext();
   void init_video();
 
   void launch_game(const CommandLineArguments& args);

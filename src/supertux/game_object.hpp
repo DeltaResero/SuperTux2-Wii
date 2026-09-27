@@ -18,11 +18,12 @@
 #define HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_HPP
 
 #include <algorithm>
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "supertux/game_object_component.hpp"
 #include "util/fade_helper.hpp"
-#include "util/gettext.hpp"
 #include "util/uid.hpp"
 
 class DrawingContext;
@@ -71,7 +72,7 @@ public:
   virtual void draw(DrawingContext& context) = 0;
 
   virtual std::string get_class() const { return "game-object"; }
-  virtual std::string get_display_name() const { return _("Unknown object"); }
+  virtual std::string get_display_name() const { return "Unknown object"; }
 
   /** If true only a single object of this type is allowed in a
       given GameObjectManager */

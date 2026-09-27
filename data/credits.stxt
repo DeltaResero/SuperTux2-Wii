@@ -22,173 +22,173 @@
     (blank)
 	(text
       (type "heading")
-      (string (_ "Current SuperTux Team"))
+      (string "Current SuperTux Team")
     )
 	(blank)
 	(person
       (name "Tobias \"Tobbi\" Markus")
-      (info (_ "Programming, project lead ad interim"))
+      (info "Programming, project lead ad interim")
     )
 	(blank)
 	(person
       (name "Carsten \"RustyBox\" Wirtz")
-      (info (_ "Graphics, Level Design, Story"))
+      (info "Graphics, Level Design, Story")
     )
 	(blank)
 	(person
       (name "Kai Alex \"Serano\" Jockers")
-      (info (_ "Level Design, Story, Optimisation, Coordination"))
+      (info "Level Design, Story, Optimisation, Coordination")
     )
     (blank)
 	(person
       (name "Alexander \"Alzter\" S.")
-      (info (_ "Graphics"))
+      (info "Graphics")
     )
 	(blank)
 	(person
       (name "Daniel \"WeLuvGoatz\" Ward")
-      (info (_ "Graphics, Programming, Level Design"))
+      (info "Graphics, Programming, Level Design")
     )
 	(blank)
 	(person
       (name "Semphris")
-      (info (_ "Features and Programming"))
+      (info "Features and Programming")
     )
     (blank)
     (person
       (name "Zwatotem")
-      (info (_ "Programming, Level Updates"))
+      (info "Programming, Level Updates")
     )
     (blank)
 	(person
       (name "HybridDog")
-      (info (_ "Graphics, Programming"))
+      (info "Graphics, Programming")
     )
 	(blank)
 	(person
       (name "Christian \"christ2go\" Hagemeier")
-      (info (_ "Programming"))
+      (info "Programming")
     )
   (blank)
 	(blank)
     (text
       (type "heading")
-      (string (_ "Original Developers"))
+      (string "Original Developers")
     )
     (blank)
     (person
       (name "Bill Kendrick")
-      (info (_ "Original Developer"))
+      (info "Original Developer")
 	  (image "images/credits/bill.jpg")
     )
 	(blank)
 	(person
       (name "Ingo \"grumbel\" Ruhnke")
-      (info (_ "Graphics, Programming, Level Design"))
+      (info "Graphics, Programming, Level Design")
 	  (image "images/credits/ingo.jpg")
     )
     (blank)
     (person
       (name "Matthias \"MatzeB\" Braun")
-      (info (_ "Graphics, Programming, Level Design"))
+      (info "Graphics, Programming, Level Design")
 	  (image "images/credits/matze.jpg")
     )
     (blank)
     (person
       (name "Marek \"Wansti\" Moeckel")
-      (info (_ "Music, Level Design"))
+      (info "Music, Level Design")
 	  (image "images/credits/wansti.jpg")
     )
     (blank)
     (person
       (name "Stephen Groundwater")
-      (info (_ "Graphics"))
+      (info "Graphics")
       (image "images/credits/gwater.jpg")
     )
     (blank)
     (person
       (name "Christoph Sommer")
-      (info (_ "Programming, Graphics, Level Design"))
+      (info "Programming, Graphics, Level Design")
       (image "images/credits/christoph.jpg")
     )
     (blank)
     (person
       (name "Wolfgang Becker")
-      (info (_ "Programming, Level Design"))
+      (info "Programming, Level Design")
       (image "images/credits/wolfgang.jpg")
     )
     (blank)
     (person
       (name "Christopher A. \"paroneayea\" Webber")
-      (info (_ "Graphics, Story"))
+      (info "Graphics, Story")
       (image "images/credits/paroneayea.jpg")
     )
     (blank)
     (person
       (name "Ondřej \"Ravu al Hemio\" Hošek")
-      (info (_ "Programming, Documentation"))
+      (info "Programming, Documentation")
       (image "images/credits/ondra.jpg")
     )
     (blank)
     (person
       (name "Ryan \"sik0fewl\" Flegel")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (blank)
     (person
       (name "Mathnerd314")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (blank)
     (person
       (name "Tim \"tuxdev\" Goya")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (blank)
     (person
       (name "LMH")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (blank)
     (person
       (name "M. Teufel")
-      (info (_ "Coordination"))
+      (info "Coordination")
     )
     (blank)
     (person
       (name "Karkus476")
-      (info (_ "Programming, \"Flexlay\" Level editor"))
+      (info "Programming, \"Flexlay\" Level editor")
     )
     (blank)
     (person
       (name "Hume")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (blank)
     (person
       (name "Miloš Klouček")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (blank)
     (person
       (name "Seebi \"Flakebi\"")
-      (info (_ "Windows build fixes"))
+      (info "Windows build fixes")
     )
     (blank)
     (person
       (name "Jacob \"maths22\" Burroughs")
-      (info (_ "Packaging, Nightly builds"))
+      (info "Packaging, Nightly builds")
     )
     (blank)
     (person
       (name "Benjamin \"GiBy\" Leduc")
-      (info (_ "Translation Guru (and many details anyone else could have done)"))
+      (info "Translation Guru (and many details anyone else could have done)")
     )
     (blank)
     (blank)
     (text
       (type "heading")
-      (string (_ "Graphics"))
+      (string "Graphics")
     )
     (blank)
     (person
@@ -248,7 +248,7 @@
     (blank)
     (text
       (type "heading")
-      (string (_ "Level Design"))
+      (string "Level Design")
     )
     (blank)
 	(person
@@ -291,7 +291,7 @@
     (blank)
     (text
       (type "heading")
-      (string (_ "Music"))
+      (string "Music")
     )
     (blank)
     (text
@@ -349,7 +349,7 @@
     (blank)
     (text
       (type "heading")
-      (string (_ "Sound"))
+      (string "Sound")
     )
     (blank)
     (text
@@ -428,229 +428,229 @@
     (blank)
     (text
       (type "heading")
-      (string (_ "Additional contributors"))
+      (string "Additional contributors")
     )
     (blank)
     (person
       (name "Arian Behvandnejad")
-      (info (_ "Bug fixes"))
+      (info "Bug fixes")
     )
     (person
       (name "brmbrmcar")
-      (info (_ "Scripting functions, Level fixes"))
+      (info "Scripting functions, Level fixes")
     )
     (person
       (name "Daniel Butum")
-      (info (_ "Code quality fixes"))
+      (info "Code quality fixes")
     )
     (person
       (name "Vincent Cheng")
-      (info (_ "Various contributions"))
+      (info "Various contributions")
       )
     (person
       (name "chrism")
-      (info (_ "Various contributions"))
+      (info "Various contributions")
     )
     (person
       (name "Daniela Ferraz")
-      (info (_ "Various contributions"))
+      (info "Various contributions")
     )
     (person
       (name "Fabian Greffrath")
-      (info (_ "Build issue fix"))
+      (info "Build issue fix")
     )
     (person
       (name "Jann Horn")
-      (info (_ "Code contributions"))
+      (info "Code contributions")
     )
     (person
       (name "HybridDog")
-      (info (_ "Code contributions")))
+      (info "Code contributions"))
     (person
       (name "David King")
-      (info (_ "Code contribution, AppData file"))
+      (info "Code contribution, AppData file")
     )
     (person
       (name "Jonas Kuemmerlin")
-      (info (_ "Bug fix"))
+      (info "Bug fix")
     )
     (person
       (name "mahboi")
-      (info (_ "Menu reorganization"))
+      (info "Menu reorganization")
     )
     (person
       (name "Matt McCutchen")
-      (info (_ "Various contributions"))
+      (info "Various contributions")
     )
     (person
       (name "nicholas")
-      (info (_ "Fixing tile bugs"))
+      (info "Fixing tile bugs")
     )
     (person
       (name "Eric Newberry")
-      (info (_ "Build error fix"))
+      (info "Build error fix")
     )
     (person
       (name "José Rebelo")
-      (info (_ "Scripting function fix"))
+      (info "Scripting function fix")
     )
     (person
       (name "Semphris")
-      (info (_ "New features and notable updates"))
+      (info "New features and notable updates")
     )
     (person
       (name "Willy Scheibel")
-      (info (_ "Support for \"glbinding\" as optional OpenGL binding"))
+      (info "Support for \"glbinding\" as optional OpenGL binding")
     )
     (person
       (name "Matthew Taylor")
-      (info (_ "New menu code"))
+      (info "New menu code")
     )
     (person
       (name "WindowsDylan")
-      (info (_ "Big Tux Walking Sprites improvements"))
+      (info "Big Tux Walking Sprites improvements")
     )
     (person
       (name "Bastiaan \"basti_\" Zapf")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (person
       (name "Benjamin P. \"litespeed\" Jung")
-      (info (_ "Graphics"))
+      (info "Graphics")
     )
     (person
       (name "Duong-Khang \"neoneurone\" Nguyen")
-      (info (_ "Contrib Programming"))
+      (info "Contrib Programming")
     )
     (person
       (name "Ricardo \"blacksheep\" Cruz")
-      (info (_ "Programming"))
+      (info "Programming")
     )
     (person
       (name "Richard Smith")
-      (info (_ "Contrib Programming"))
+      (info "Contrib Programming")
     )
     (person
       (name "Tobias \"tobgle\" Gläßer")
-      (info (_ "Programming, Previous Maintainer"))
+      (info "Programming, Previous Maintainer")
     )
 	(person
       (name "martinvanzijl")
-      (info (_ "Various Contributions"))
+      (info "Various Contributions")
     )
 	(person
       (name "mrkubax10")
-      (info (_ "Minor features and programming"))
+      (info "Minor features and programming")
     )
 	(person
       (name "kernigh")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "qwertychouskie")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "DivVerent")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "markand")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "shawnanastasio")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "Cleverking2003")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "PT400C")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "Alexander Wilms")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "Erratic-C-Programmer")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "Andre \"C4INAN\" Pinheiro")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
 	(person
       (name "comradekingu")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Clint Moyer")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Frost3424")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Vankata453")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Lennard Hofmann")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Linus Probert")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Namhyeon Go")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Maxim Bernard")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "RamiSlicer")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Raoul1808")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Omer I.S.")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Sean Yeh")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Reiner Herrmann")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Wuzzy")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "bar (bruhmoent)")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
   (person
       (name "Jiří Paleček")
-      (info (_ "Contributions"))
+      (info "Contributions")
     )
     (blank)
     (blank)
     (text
       (type "heading")
-      (string (_ "Localization"))
+      (string "Localization")
     )
     (blank)
     (text
@@ -1213,34 +1213,34 @@
       (blank)
       (text
         (type "heading")
-        (string (_ " Special Thanks to"))
+        (string " Special Thanks to")
       )
       (blank)
       (person
         (name "Larry Ewing")
-        (info (_ "Creator of Tux, the Linux penguin"))
+        (info "Creator of Tux, the Linux penguin")
       )
       (blank)
       (person
-        (name  (_ "SDL, OpenAL and OpenGL"))
-        (info (_ "For making such a great gaming experience
-        possible on Linux"))
+        (name  "SDL, OpenAL and OpenGL")
+        (info "For making such a great gaming experience
+        possible on Linux")
       )
       (blank)
       (person
-        (name  (_ "and you, the player"))
-        (info (_ "for giving this game a chance and playing it"))
+        (name  "and you, the player")
+        (info "for giving this game a chance and playing it")
       )
       (blank)
       (blank)
       (text
         (type "heading")
-        (string (_ "Contact"))
+        (string "Contact")
       )
       (blank)
       (text
         (type "normal")
-        (string (_ "Visit our webpage at"))
+        (string "Visit our webpage at")
       )
       (text
         (type "reference")
@@ -1249,16 +1249,16 @@
       (blank)
       (text
         (type "normal")
-        (string (_ "Or visit us directly at IRC:"))
+        (string "Or visit us directly at IRC:")
       )
       (text
         (type "reference")
-        (string (_ "#supertux at web.libera.chat"))
+        (string "#supertux at web.libera.chat")
       )
       (blank)
       (text
         (type "normal")
-        (string (_ "Or at our Forum:"))
+        (string "Or at our Forum:")
       )
       (text
         (type "reference")
@@ -1267,11 +1267,11 @@
       (blank)
       (text
         (type "normal")
-        (string (_ "Comments, ideas and suggestions"))
+        (string "Comments, ideas and suggestions")
       )
       (text
         (type "normal")
-        (string (_ "go to our mailing list"))
+        (string "go to our mailing list")
       )
       (text
         (type "reference")
@@ -1281,29 +1281,29 @@
       (text
         (type "normal")
         ; l10n: typo contact
-        (string (_ "Typographical errors can be"))
+        (string "Typographical errors can be")
       )
       (text
         (type "normal")
         ; l10n: typo contact
-        (string (_ "reported to"))
+        (string "reported to")
       )
       (text
         (type "reference")
         ; l10n: typo contact, see <https://github.com/SuperTux/supertux/issues/611>
-        (string (_ "supertux-devel@lists.lethargik.org"))
+        (string "supertux-devel@lists.lethargik.org")
       )
       (blank)
       (blank)
       (blank)
       (text
         (type "heading")
-        (string (_ "Want to help…"))
+        (string "Want to help…")
       )
       (blank)
       (text
         (type "normal")
-        (string (_ "…with localization?"))
+        (string "…with localization?")
       )
       (text
         (type "reference")
@@ -1313,7 +1313,7 @@
       (blank)
       (text
         (type "normal")
-        (string (_ "…with something else?"))
+        (string "…with something else?")
       )
       (text
         (type "reference")
@@ -1324,11 +1324,11 @@
       (blank)
       (text
         (type "normal")
-        (string (_ "Thank you for"))
+        (string "Thank you for")
       )
       (text
         (type "normal")
-        (string (_ "playing"))
+        (string "playing")
       )
       (blank)
       (text
@@ -1338,7 +1338,7 @@
       (blank)
 	  (text
         (type "normal")
-        (string (_ "Penny awaits you in warmer temperatures!"))
+        (string "Penny awaits you in warmer temperatures!")
       )
 	  (blank)
   )

@@ -29,7 +29,7 @@ public:
   virtual void on_flip(float height) override;
   
   virtual std::string get_class() const override { return "circleplatform"; }
-  virtual std::string get_display_name() const override { return _("Circular Platform"); }
+  virtual std::string get_display_name() const override { return "Circular Platform"; }
   
 private:
   virtual void initialize();

@@ -407,7 +407,7 @@ Sector::draw(DrawingContext& context)
   if (m_level.m_is_in_cutscene && !m_level.m_skip_cutscene)
   {
     context.color().draw_text(Resources::normal_font,
-                              _("Press escape to skip"),
+                              "Press escape to skip",
                               Vector(32.f, 32.f),
                               ALIGN_LEFT,
                               LAYER_OBJECTS + 1000,

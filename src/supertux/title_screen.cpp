@@ -40,11 +40,10 @@ TitleScreen::TitleScreen(Savegame& savegame) :
   m_frame(Surface::from_file("images/engine/menu/frame.png")),
   m_controller(new CodeController()),
   m_titlesession(new GameSession("levels/misc/menu.stl", savegame)),
-  m_copyright_text("SuperTux " PACKAGE_VERSION "\n" +
-    _("Copyright") + " (c) 2003-2021 SuperTux Devel Team\n" +
-    _("This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to\n"
-      "redistribute it under certain conditions; see the license file for details.\n"
-      )),
+  m_copyright_text("SuperTux " PACKAGE_VERSION "\n"
+    "Copyright (c) 2003-2021 SuperTux Devel Team\n"
+    "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to\n"
+    "redistribute it under certain conditions; see the license file for details.\n"),
   m_videosystem_name(VideoSystem::current()->get_name())
 {
   Player& player = m_titlesession->get_current_sector().get_player();

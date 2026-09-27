@@ -33,7 +33,7 @@ public:
 
   virtual bool updatePointers(const GameObject* from_object, GameObject* to_object);
   virtual std::string get_class() const override { return "totem"; }
-  virtual std::string get_display_name() const override { return _("Totem"); }
+  virtual std::string get_display_name() const override { return "Totem"; }
 
 protected:
   virtual bool collision_squished(GameObject& object) override;

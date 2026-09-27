@@ -24,7 +24,6 @@
 #include "object/path_gameobject.hpp"
 #include "supertux/d_scope.hpp"
 #include "supertux/sector.hpp"
-#include "util/gettext.hpp"
 #include "math/easing.hpp"
 
 PathWalker::PathWalker(UID path_uid, bool running_) :

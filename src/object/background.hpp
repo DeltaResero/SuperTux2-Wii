@@ -40,7 +40,7 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "background"; }
-  virtual std::string get_display_name() const override { return _("Background"); }
+  virtual std::string get_display_name() const override { return "Background"; }
 
   void set_image(const std::string& name);
   void set_images(const std::string& name_top, const std::string& name_middle, const std::string& name_bottom);

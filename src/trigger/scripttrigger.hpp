@@ -29,7 +29,7 @@ public:
   ScriptTrigger(const Vector& pos, const std::string& script);
 
   virtual std::string get_class() const override { return "scripttrigger"; }
-  std::string get_display_name() const override { return _("Script Trigger"); }
+  std::string get_display_name() const override { return "Script Trigger"; }
 
   virtual void event(Player& player, EventType type) override;
   virtual void draw(DrawingContext& context) override;

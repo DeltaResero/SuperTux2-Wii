@@ -38,7 +38,7 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
   virtual std::string get_class() const override { return "wind"; }
-  virtual std::string get_display_name() const override { return _("Wind");}
+  virtual std::string get_display_name() const override { return "Wind";}
 
   virtual int get_layer() const override { return LAYER_OBJECTS; }
 

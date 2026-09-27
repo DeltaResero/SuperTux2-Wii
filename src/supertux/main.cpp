@@ -25,10 +25,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 #include <physfs.h>
-#include <tinygettext/log.hpp>
-extern "C" {
-#include <findlocale.h>
-}
 
 #ifdef WIN32
 #include <codecvt>
@@ -39,7 +35,6 @@ extern "C" {
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "object/spawnpoint.hpp"
-#include "physfs/physfs_file_system.hpp"
 #include "physfs/physfs_sdl.hpp"
 #include "sdk/integration.hpp"
 #include "sprite/sprite_data.hpp"
@@ -64,7 +59,6 @@ extern "C" {
 #include "supertux/title_screen.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
-#include "util/gettext.hpp"
 #include "util/string_util.hpp"
 #include "util/timelog.hpp"
 #include "util/string_util.hpp"
@@ -125,32 +119,6 @@ Main::Main() :
   m_screen_manager(),
   m_savegame()
 {
-}
-
-void
-Main::init_tinygettext()
-{
-  g_dictionary_manager.reset(new tinygettext::DictionaryManager(std::make_unique<PhysFSFileSystem>(), "UTF-8"));
-
-  tinygettext::Log::set_log_info_callback(log_info_callback);
-  tinygettext::Log::set_log_warning_callback(log_warning_callback);
-  tinygettext::Log::set_log_error_callback(log_error_callback);
-
-  g_dictionary_manager->add_directory("locale");
-
-  // Config setting "locale" overrides language detection
-  if (!g_config->locale.empty())
-  {
-    g_dictionary_manager->set_language(tinygettext::Language::from_name(g_config->locale));
-  }
-  else
-  {
-    FL_Locale *locale;
-    FL_FindLocale(&locale);
-    tinygettext::Language language = tinygettext::Language::from_spec( locale->lang?locale->lang:"", locale->country?locale->country:"", locale->variant?locale->variant:"");
-    FL_FreeLocale(&locale);
-    g_dictionary_manager->set_language(language);
-  }
 }
 
 PhysfsSubsystem::PhysfsSubsystem(const char* argv0,
@@ -539,8 +507,6 @@ Main::run(int argc, char** argv)
     m_config_subsystem.reset(new ConfigSubsystem());
     args.merge_into(*g_config);
 
-    s_timelog.log("tinygettext");
-    init_tinygettext();
     switch (args.get_action())
     {
       case CommandLineArguments::PRINT_VERSION:
@@ -574,8 +540,6 @@ Main::run(int argc, char** argv)
     log_fatal << "Unexpected exception" << std::endl;
     result = 1;
   }
-
-  g_dictionary_manager.reset();
 
   return result;
 }

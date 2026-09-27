@@ -35,7 +35,7 @@ public:
   ~CustomParticleSystemFile() override;
 
   virtual std::string get_class() const override { return "particles-custom-file"; }
-  virtual std::string get_display_name() const override { return _("Custom Particles from file"); }
+  virtual std::string get_display_name() const override { return "Custom Particles from file"; }
 
 private:
   void update_data();

@@ -63,7 +63,7 @@ public:
   virtual bool is_singleton() const override { return true; }
 
   virtual std::string get_class() const override { return "camera"; }
-  virtual std::string get_display_name() const override { return _("Camera"); }
+  virtual std::string get_display_name() const override { return "Camera"; }
 
   /** @} */
 

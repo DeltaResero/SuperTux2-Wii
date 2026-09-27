@@ -43,8 +43,6 @@ SurfacePtr Resources::arrow_left;
 SurfacePtr Resources::arrow_right;
 SurfacePtr Resources::no_tile;
 
-std::string Resources::current_font;
-
 void
 Resources::load()
 {
@@ -64,15 +62,10 @@ Resources::load()
   {
     console_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 12, 1.25f, 0, 1));
 
-    auto font = get_font_for_locale(g_dictionary_manager->get_language());
-    if(font != current_font)
-    {
-      current_font = font;
-      fixed_font.reset(new TTFFont(font, 18, 1.25f, 2, 1));
-      normal_font = fixed_font;
-      small_font.reset(new TTFFont(font, 10, 1.25f, 2, 1));
-      big_font.reset(new TTFFont(font, 22, 1.25f, 2, 1));
-    }
+    fixed_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 18, 1.25f, 2, 1));
+    normal_font = fixed_font;
+    small_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 10, 1.25f, 2, 1));
+    big_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 22, 1.25f, 2, 1));
   }
 
   /* Load menu images */
@@ -82,23 +75,6 @@ Resources::load()
   arrow_left = Surface::from_file("images/engine/menu/arrow-left.png");
   arrow_right = Surface::from_file("images/engine/menu/arrow-right.png");
   no_tile = Surface::from_file("images/tiles/auxiliary/notile.png");
-}
-
-std::string
-Resources::get_font_for_locale(const tinygettext::Language& locale)
-{
-  auto lang = locale.get_language();
-
-  if(lang == "ne")
-    return "fonts/Dekko-Regular.ttf";
-  if(lang == "cmn" || lang == "ja" || lang == "zh_CN" || lang == "zh_TW")
-    return "fonts/NotoSansCJKjp-Medium.otf";
-  if(lang == "he")
-    return "fonts/VarelaRound-Regular.ttf";
-  if(lang == "ko")
-    return "fonts/NanumBarunGothic.ttf";
-
-  return "fonts/SuperTux-Medium.ttf";
 }
 
 void

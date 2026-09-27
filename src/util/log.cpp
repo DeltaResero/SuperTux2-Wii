@@ -68,20 +68,4 @@ std::ostream& log_fatal_f(const char* file, int line)
   return (log_generic_f ("[FATAL]", file, line));
 }
 
-/* Callbacks used by tinygettext */
-void log_info_callback(const std::string& str)
-{
-    log_info << "\r\n[TINYGETTEXT] " << str << std::endl;
-}
-
-void log_warning_callback(const std::string& str)
-{
-    log_debug << "\r\n[TINYGETTEXT] " << str << std::endl;
-}
-
-void log_error_callback(const std::string& str)
-{
-    log_warning << "\r\n[TINYGETTEXT] " << str << std::endl;
-}
-
 /* EOF */

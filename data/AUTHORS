@@ -1,3 +1,13 @@
+== Fonts ==
+
+The bitmap fonts once carried glyphs for other alphabets, since removed:
+
+* Cyrillic - qMax, unDEFER (Nikolaj Krivchenkov), ASM
+* Chinese - Liu Sizhuang, Ingo "grumbel" Ruhnke
+* Tatar letters - Bulat Ibrahim
+* Greek, Devanagari, Korean, Arabic, and the Belarusian, Serbian and extra
+  Chinese letters - Benjamin "GiBy" Leduc
+
 == Images ==
 
 Most images were created either by grumbel or gwater. Check the log for details.
@@ -18,10 +28,6 @@ The license should be include in the file itself.
 Contrib levels are so old that they have no specific license, but they should be redistributable along with the rest of SuperTux.
 
 Test levels are created by SuperTux developers to test specific code and so are under the GPL.
-
-== Locale ==
-
-License should be included with them.
 
 == Music ==
 

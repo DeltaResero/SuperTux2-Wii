@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <physfs.h>
 
-#include "physfs/physfs_file_system.hpp"
 #include "physfs/util.hpp"
 #include "squirrel/serialize.hpp"
 #include "squirrel/squirrel_util.hpp"

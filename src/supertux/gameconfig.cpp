@@ -46,7 +46,6 @@ Config::Config() :
   start_demo(),
   record_demo(),
   tux_spawn_pos(),
-  locale(),
   keyboard_config(),
   joystick_config(),
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
@@ -97,7 +96,6 @@ Config::load()
     config_mapping.get("christmas", christmas_mode, true);
   }
   config_mapping.get("transitions_enabled", transitions_enabled);
-  config_mapping.get("locale", locale);
   config_mapping.get("random_seed", random_seed);
 
   boost::optional<ReaderMapping> config_video_mapping;
@@ -189,7 +187,6 @@ Config::save()
     writer.write("christmas", christmas_mode);
   }
   writer.write("transitions_enabled", transitions_enabled);
-  writer.write("locale", locale);
 
   writer.start_list("video");
   writer.write("fullscreen", use_fullscreen);
