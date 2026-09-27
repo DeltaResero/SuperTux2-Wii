@@ -10,7 +10,6 @@ Quick links:
   - [Unix and Unix-like (Linux/MacOS/\*BSD)](#linuxunix-using-cmake)
   - [Windows](#windows-using-cmake-and-visual-studio)
   - [Browser (WASM)](#wasm-using-emscripten)
-  - [Ubuntu Touch](#ubuntu-touch-using-clickable)
 
 Binaries
 --------
@@ -279,32 +278,3 @@ your browser.
 Note that if you intend to run SuperTux on a public web server, you must set
 [two headers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements)
 as a web security requirement.
-
-### Ubuntu Touch using Clickable
-
-To compile for Ubuntu Touch phones, you will need an Ubuntu desktop, as well as
-[Clickable](https://clickable-ut.dev/en/latest/install.html). You will not
-need any other development library, as those are already managed by Clickable.
-
-First, make sure you have all the submodules:
-```
-git submodule update --init --recursive
-```
-
-Then:
-- To install SuperTux on your phone, plug your phone to your computer and run:
-  ```
-  clickable --config mk/clickable/clickable.json
-  ```
-
-- To run SuperTux directly on your computer:
-  ```
-  clickable desktop --config mk/clickable/clickable.json
-  ```
-
-- To build SuperTux without running it:
-  ```
-  clickable build --config mk/clickable/clickable.json
-  ```
-  You may specify an architecture using the `--arch ARCH` flag. Clickable
-  currently supports `amd64`, `arm64` and `armhf`.

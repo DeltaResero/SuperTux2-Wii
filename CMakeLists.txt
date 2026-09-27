@@ -83,7 +83,7 @@ if(EMSCRIPTEN)
 endif()
 
 # TODO: Add " OR ANDROID OR IOS" to this
-if(EMSCRIPTEN OR UBUNTU_TOUCH)
+if(EMSCRIPTEN)
   option(REMOVE_QUIT_BUTTON "Remove the option to quit the game (useful on mobile devices)" ON)
 else()
   option(REMOVE_QUIT_BUTTON "Remove the option to quit the game (useful on mobile devices)" OFF)
@@ -141,15 +141,7 @@ if(WIN32)
   endif()
 endif(WIN32)
 
-# Detect mobile builds
-option(UBUNTU_TOUCH "Compile the project for an Ubuntu Touch target" OFF)
-
-# Mobile builds
-if (UBUNTU_TOUCH)
-  option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection for touchscreen devices" ON)
-else()
-  option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection for touchscreen devices" OFF)
-endif()
+option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection for touchscreen devices" OFF)
 
 ## Add lots of dependencies to compiler switches
 
@@ -1039,28 +1031,15 @@ else(WIN32 AND NOT UNIX)
   set(INSTALL_SUBDIR_SHARE "share/games/supertux2" CACHE STRING "Installation subdir for data")
   set(INSTALL_SUBDIR_DOC "share/doc/supertux2" CACHE STRING "Installation subdir for docs")
 
-  if(UBUNTU_TOUCH)
-    set(LINUX_DESKTOP_ICON "assets/supertux-256x256.png")
-    # FIXME: The "install" folder is a folder managed by Clickable and shouldn't be hardcoded here
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "install/supertux2.desktop")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/supertux2.apparmor DESTINATION ".")
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mk/clickable/manifest.json.in ${CMAKE_CURRENT_BINARY_DIR}/install/manifest.json)
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux-256x256.png DESTINATION "assets")
-  else(UBUNTU_TOUCH)
-    set(LINUX_DESKTOP_ICON "supertux2")
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "supertux2.desktop")
-    install(FILES ${CMAKE_BINARY_DIR}/supertux2.desktop DESTINATION "share/applications")
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
-  endif(UBUNTU_TOUCH)
+  set(LINUX_DESKTOP_ICON "supertux2")
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/supertux2.desktop.in "supertux2.desktop")
+  install(FILES ${CMAKE_BINARY_DIR}/supertux2.desktop DESTINATION "share/applications")
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.png ${CMAKE_CURRENT_SOURCE_DIR}/data/images/engine/icons/supertux.xpm DESTINATION "share/pixmaps/")
 
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.svg DESTINATION "share/icons/hicolor/scalable/apps")
 endif(WIN32 AND NOT UNIX)
 
-if(UBUNTU_TOUCH)
-  install(TARGETS supertux2 DESTINATION ".")
-else(UBUNTU_TOUCH)
-  install(TARGETS supertux2 DESTINATION ${INSTALL_SUBDIR_BIN})
-endif(UBUNTU_TOUCH)
+install(TARGETS supertux2 DESTINATION ${INSTALL_SUBDIR_BIN})
 
 if(WIN32)
   get_property(SQUIRREL_LIB_PATH TARGET squirrel_lib PROPERTY IMPORTED_LOCATION)

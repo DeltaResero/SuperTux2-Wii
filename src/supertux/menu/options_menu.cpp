@@ -408,10 +408,8 @@ OptionsMenu::OptionsMenu(bool complete) :
   add_submenu(_("Setup Keyboard"), MenuStorage::KEYBOARD_MENU)
     .set_help(_("Configure key-action mappings"));
 
-#ifndef UBUNTU_TOUCH
   add_submenu(_("Setup Joystick"), MenuStorage::JOYSTICK_MENU)
     .set_help(_("Configure joystick control-action mappings"));
-#endif
 
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   add_toggle(MNID_MOBILE_CONTROLS, _("On-screen controls"), &g_config->mobile_controls)

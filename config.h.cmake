@@ -35,7 +35,6 @@
 
 #cmakedefine ENABLE_DISCORD
 
-#cmakedefine UBUNTU_TOUCH
 #cmakedefine ENABLE_TOUCHSCREEN_SUPPORT
 
 #cmakedefine REMOVE_QUIT_BUTTON
