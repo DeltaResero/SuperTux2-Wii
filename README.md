@@ -49,7 +49,6 @@ Please see them:
 
 * `INSTALL.md` - Requirements, compiling and installing.
 * `README.md` - This file
-* `NEWS.md` - Changes since the previous versions of SuperTux.
 * `LICENSE.txt` - The GNU General Public License, under whose terms SuperTux is
 licensed. (Most of the data subdirectory is also licensed under
 CC-by-SA)
