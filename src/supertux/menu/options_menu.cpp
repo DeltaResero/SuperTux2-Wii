@@ -335,11 +335,8 @@ OptionsMenu::OptionsMenu(bool complete) :
 
   if (complete)
   {
-    // Language and profile changes are only be possible in the
-    // main menu, since elsewhere it might not always work fully
-    add_submenu(_("Select Language"), MenuStorage::LANGUAGE_MENU)
-      .set_help(_("Select a different language to display text in"));
-
+    // Profile changes are only possible in the main menu as
+    // elsewhere it might not always work fully
     add_submenu(_("Select Profile"), MenuStorage::PROFILE_MENU)
       .set_help(_("Select a profile to play with"));
   }

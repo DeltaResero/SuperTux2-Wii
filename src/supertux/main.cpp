@@ -26,9 +26,6 @@
 #include <boost/locale.hpp>
 #include <physfs.h>
 #include <tinygettext/log.hpp>
-extern "C" {
-#include <findlocale.h>
-}
 
 #ifdef WIN32
 #include <codecvt>
@@ -137,20 +134,6 @@ Main::init_tinygettext()
   tinygettext::Log::set_log_error_callback(log_error_callback);
 
   g_dictionary_manager->add_directory("locale");
-
-  // Config setting "locale" overrides language detection
-  if (!g_config->locale.empty())
-  {
-    g_dictionary_manager->set_language(tinygettext::Language::from_name(g_config->locale));
-  }
-  else
-  {
-    FL_Locale *locale;
-    FL_FindLocale(&locale);
-    tinygettext::Language language = tinygettext::Language::from_spec( locale->lang?locale->lang:"", locale->country?locale->country:"", locale->variant?locale->variant:"");
-    FL_FreeLocale(&locale);
-    g_dictionary_manager->set_language(language);
-  }
 }
 
 PhysfsSubsystem::PhysfsSubsystem(const char* argv0,
