@@ -1,3 +1,13 @@
+== Fonts ==
+
+The bitmap fonts once carried glyphs for other alphabets, since removed:
+
+* Cyrillic - qMax, unDEFER (Nikolaj Krivchenkov), ASM
+* Chinese - Liu Sizhuang, Ingo "grumbel" Ruhnke
+* Tatar letters - Bulat Ibrahim
+* Greek, Devanagari, Korean, Arabic, and the Belarusian, Serbian and extra
+  Chinese letters - Benjamin "GiBy" Leduc
+
 == Images ==
 
 Most images were created either by grumbel or gwater. Check the log for details.
