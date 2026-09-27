@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "The Entrance To The Lava Castle"))
+  (name "The Entrance To The Lava Castle")
   (author "HerobrineRC")
   (contact "Rkarol.les@o2.pl")
   (license "CC-BY-SA 4.0 International")

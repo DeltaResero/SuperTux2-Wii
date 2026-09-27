@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "The Problem With GREEN"))
+  (name "The Problem With GREEN")
   (author "HerobrineRC")
   (license "CC-BY-SA 4.0 International")
   (sector

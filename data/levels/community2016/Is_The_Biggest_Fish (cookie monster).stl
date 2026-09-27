@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "Is The Biggest Fish"))
+  (name "Is The Biggest Fish")
   (author "Cookie Monster")
   (license "CC-BY-SA 4.0 Intl")
   (sector
@@ -126,7 +126,7 @@
     )
     (secretarea
       (fade-tilemap "secret area")
-      (message (_ "Area secreta"))
+      (message "Area secreta")
       (width 275)
       (height 175)
       (name "secret 1")

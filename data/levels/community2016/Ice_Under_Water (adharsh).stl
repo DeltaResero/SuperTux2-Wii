@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "Ice Under Water"))
+  (name "Ice Under Water")
   (author "Adharsh PS")
   (license "CC-BY-SA 4.0 International")
   (sector
@@ -106,7 +106,7 @@
       (y 832)
     )
     (infoblock
-      (message (_ "For Tux to swim, just jump into the water and use the navigation keys. You can use the jump key to move faster."))
+      (message "For Tux to swim, just jump into the water and use the navigation keys. You can use the jump key to move faster.")
       (x 288)
       (y 448)
     )

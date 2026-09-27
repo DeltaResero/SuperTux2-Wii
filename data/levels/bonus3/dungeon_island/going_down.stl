@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "Going down"))
+  (name "Going down")
   (author "Torfi Gunnarsson")
   (sector
     (name "main")

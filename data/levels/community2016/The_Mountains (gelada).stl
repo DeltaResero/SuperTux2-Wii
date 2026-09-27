@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "The Mountains"))
+  (name "The Mountains")
   (author "Cookie Monster")
   (license "CC-BY-SA 4.0 Intl")
   (sector
@@ -274,7 +274,7 @@
       (z-pos 500)
     )
     (secretarea
-      (message (_ "area secreta"))
+      (message "area secreta")
       (width 1090)
       (height 160)
       (x 6782)

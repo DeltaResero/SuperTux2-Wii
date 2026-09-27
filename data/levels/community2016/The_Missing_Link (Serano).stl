@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "The Missing Link"))
+  (name "The Missing Link")
   (author "alex")
   (license "CC-BY-SA 4.0 International")
   (sector

@@ -1,6 +1,6 @@
 (supertux-level
   (version 3)
-  (name (_ "Double Problems"))
+  (name "Double Problems")
   (author "HerobrineRC")
   (license "CC-BY-SA")
   (sector
@@ -79,7 +79,7 @@
       (y 448)
     )
     (infoblock
-      (message (_ "-Concentrate! Tux! It's not Mario!"))
+      (message "-Concentrate! Tux! It's not Mario!")
       (x 6938)
       (y 576)
     )
@@ -139,7 +139,7 @@
     )
     (secretarea
       (fade-tilemap "s1")
-      (message (_ "You found a secret area!"))
+      (message "You found a secret area!")
       (width 320)
       (height 500)
       (x 122)
