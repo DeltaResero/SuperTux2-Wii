@@ -19,22 +19,12 @@
 #include "control/input_manager.hpp"
 #include "gui/item_action.hpp"
 #include "gui/item_back.hpp"
-#include "gui/item_badguy_select.hpp"
-#include "gui/item_color.hpp"
-#include "gui/item_colorchannel.hpp"
-#include "gui/item_colordisplay.hpp"
 #include "gui/item_controlfield.hpp"
-#include "gui/item_file.hpp"
-#include "gui/item_floatfield.hpp"
 #include "gui/item_goto.hpp"
 #include "gui/item_hl.hpp"
 #include "gui/item_inactive.hpp"
-#include "gui/item_intfield.hpp"
 #include "gui/item_label.hpp"
-#include "gui/item_script.hpp"
-#include "gui/item_script_line.hpp"
 #include "gui/item_stringselect.hpp"
-#include "gui/item_textfield.hpp"
 #include "gui/item_toggle.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
@@ -42,6 +32,7 @@
 #include "math/util.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
+#include "video/color.hpp"
 #include "video/drawing_context.hpp"
 #include "video/renderer.hpp"
 #include "video/video_system.hpp"
@@ -96,44 +87,6 @@ Menu::add_item(std::unique_ptr<MenuItem> new_item)
   return item;
 }
 
-MenuItem&
-Menu::add_item(std::unique_ptr<MenuItem> new_item, int pos_)
-{
-  m_items.insert(m_items.begin()+pos_,std::move(new_item));
-  MenuItem& item = *m_items[pos_];
-
-  // When the item is inserted before the selected item, the
-  // same menu item should be still selected.
-
-  if (m_active_item >= pos_)
-  {
-    m_active_item++;
-  }
-
-  calculate_width();
-
-  return item;
-}
-
-void
-Menu::delete_item(int pos_)
-{
-  m_items.erase(m_items.begin()+pos_);
-
-  // When the item is deleted before the selected item, the
-  // same menu item should be still selected.
-
-  if (m_active_item >= pos_)
-  {
-    do {
-      if (m_active_item > 0)
-        --m_active_item;
-      else
-        m_active_item = int(m_items.size())-1;
-    } while (m_items[m_active_item]->skippable());
-  }
-}
-
 ItemHorizontalLine&
 Menu::add_hl()
 {
@@ -157,51 +110,6 @@ Menu::add_controlfield(int id, const std::string& text,
                        const std::string& mapping)
 {
   auto item = std::make_unique<ItemControlField>(text, mapping, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemTextField&
-Menu::add_textfield(const std::string& text, std::string* input, int id)
-{
-  auto item = std::make_unique<ItemTextField>(text, input, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemScript&
-Menu::add_script(const std::string& text, std::string* script, int id)
-{
-  auto item = std::make_unique<ItemScript>(text, script, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemScriptLine&
-Menu::add_script_line(std::string* input, int id)
-{
-  auto item = std::make_unique<ItemScriptLine>(input, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemIntField&
-Menu::add_intfield(const std::string& text, int* input, int id)
-{
-  auto item = std::make_unique<ItemIntField>(text, input, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemFloatField&
-Menu::add_floatfield(const std::string& text, float* input, int id)
-{
-  auto item = std::make_unique<ItemFloatField>(text, input, id);
   auto item_ptr = item.get();
   add_item(std::move(item));
   return *item_ptr;
@@ -263,16 +171,6 @@ Menu::add_string_select(int id, const std::string& text, int* selected, const st
   return *item_ptr;
 }
 
-ItemFile&
-Menu::add_file(const std::string& text, std::string* input, const std::vector<std::string>& extensions,
-               const std::string& basedir, int id)
-{
-  auto item = std::make_unique<ItemFile>(text, input, extensions, basedir, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
 ItemBack&
 Menu::add_back(const std::string& text, int id)
 {
@@ -286,46 +184,6 @@ ItemGoTo&
 Menu::add_submenu(const std::string& text, int submenu, int id)
 {
   auto item = std::make_unique<ItemGoTo>(text, submenu, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemColorChannelRGBA&
-Menu::add_color_channel_rgba(float* input, Color channel, int id, bool is_linear) {
-  auto item = std::make_unique<ItemColorChannelRGBA>(input, channel, id, is_linear);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemColorChannelOKLab&
-Menu::add_color_channel_oklab(Color* color, int channel) {
-  auto item = std::make_unique<ItemColorChannelOKLab>(color, channel, this);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemColorDisplay&
-Menu::add_color_display(Color* color, int id) {
-  auto item = std::make_unique<ItemColorDisplay>(color, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemColor&
-Menu::add_color(const std::string& text, Color* color, int id) {
-  auto item = std::make_unique<ItemColor>(text, color, id);
-  auto item_ptr = item.get();
-  add_item(std::move(item));
-  return *item_ptr;
-}
-
-ItemBadguySelect&
-Menu::add_badguy_select(const std::string& text, std::vector<std::string>* badguys, int id) {
-  auto item = std::make_unique<ItemBadguySelect>(text, badguys, id);
   auto item_ptr = item.get();
   add_item(std::move(item));
   return *item_ptr;
@@ -436,7 +294,7 @@ Menu::process_input(const Controller& controller)
   if (controller.pressed(Control::ACTION) ||
      controller.pressed(Control::JUMP) ||
      controller.pressed(Control::MENU_SELECT) ||
-     (!is_sensitive() && controller.pressed(Control::MENU_SELECT_SPACE))) {
+     controller.pressed(Control::MENU_SELECT_SPACE)) {
     menuaction = MenuAction::HIT;
   }
 
@@ -646,11 +504,6 @@ Menu::get_item_by_id(int id) const
   throw std::runtime_error("MenuItem not found: " + std::to_string(id));
 }
 
-int Menu::get_active_item_id() const
-{
-  return m_items[m_active_item]->get_id();
-}
-
 void
 Menu::event(const SDL_Event& ev)
 {
@@ -731,12 +584,6 @@ Menu::set_active_item(int id)
       break;
     }
   }
-}
-
-bool
-Menu::is_sensitive() const
-{
-  return false;
 }
 
 /* EOF */
