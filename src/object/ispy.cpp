@@ -1,4 +1,4 @@
-//  SuperTux - Ispy
+//  SuperTux
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -80,8 +80,8 @@ Ispy::update(float )
     if (m_sprite->animation_done()) {
       m_sprite->set_action((dir == Direction::DOWN) ? "hiding-down" : ((dir == Direction::LEFT) ? "hiding-left" : "hiding-right"), 1);
       state = ISPYSTATE_HIDING;
-	  
-	  Sector::get().run_script(script, "Ispy");
+
+      Sector::get().run_script(script, "Ispy");
     }
   }
   if (state == ISPYSTATE_HIDING) {

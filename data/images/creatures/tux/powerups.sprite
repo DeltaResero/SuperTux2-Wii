@@ -63,7 +63,7 @@
          (name "fire-fall-left")
          (hitbox 16 15 32 64)
          (mirror-action "fire-jump-right"))
-		 
+
        (action
          (name "fire-skid-right")
          (hitbox 16 15 32 64)
@@ -273,7 +273,7 @@
          (name "ice-fall-left")
          (hitbox 16 15 32 64)
          (mirror-action "ice-jump-right"))
-		 
+
        (action
          (name "ice-skid-right")
          (hitbox 16 15 32 64)
@@ -476,7 +476,7 @@
          (name "air-jump-left")
          (hitbox 16 15 32 64)
          (mirror-action "air-jump-right"))
-		 
+
 	          (action
          (name "air-fall-right")
          (fps 10)
@@ -692,7 +692,7 @@
          (name "earth-jump-left")
          (hitbox 16 15 32 64)
          (mirror-action "earth-jump-right"))
-		 
+
 	   (action
          (name "earth-fall-right")
          (hitbox 16 15 32 64)
@@ -854,7 +854,7 @@
          (loops 1)
          (hitbox 29 24 32 64)
          (mirror-action "earth-swimjump-right"))
-        
+
 ; Santa Tux
        (action
          (name "santa-walk-right")
@@ -900,7 +900,7 @@
          (name "santa-jump-left")
          (hitbox 16 15 32 64)
          (mirror-action "santa-jump-right"))
-		 
+
 	          (action
          (name "santa-fall-right")
          (hitbox 16 15 32 64)

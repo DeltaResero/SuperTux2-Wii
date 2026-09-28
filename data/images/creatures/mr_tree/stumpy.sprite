@@ -2,7 +2,7 @@
   (action
     (hitbox 20 23 42 62)
     (name "left")
-    (images 
+    (images
       "small-left-0.png"
       "small-left-1.png"
       "small-left-2.png"
@@ -20,7 +20,7 @@
     (hitbox 20 23 42 62)
     (fps 15)
     (name "burning-left")
-    (images 
+    (images
       "small-burning-0.png"
       "small-burning-1.png"
       "small-burning-2.png"
@@ -53,7 +53,7 @@
   (action
     (hitbox 20 23 42 62)
     (name "dizzy-left")
-    (images 
+    (images
       "dizzy-0.png"
       "dizzy-1.png"
       "dizzy-2.png"
@@ -67,7 +67,7 @@
   (action
     (hitbox 20 23 42 42)
     (name "squished-left")
-    (images 
+    (images
       "squished-left.png"
     )
   )

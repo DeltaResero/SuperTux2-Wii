@@ -1,4 +1,4 @@
-//  SuperTux - Rusty Trampoline
+//  SuperTux
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //  Copyright (C) 2011 Jonas Kuemmerlin <rgcjonas@googlemail.com>
 //

@@ -15,13 +15,13 @@
 ;;    src/tile.cpp, unisolid is 3 not 2
 
 (supertux-tiles
- 
+
    ;; next-id: 4327
-  
+
   ;; free/skipped ids (please use before any other): 101
   ;; No group ids are currently skipped! Delete this line if any are and replace it with said ids...
-  
-  
+
+
   (tile
     (id 3162)
     (images
@@ -219,7 +219,7 @@
     (data 6)
     (fps 15)
   )
-  
+
   (tile
     (id 1)
     (images
@@ -2983,7 +2983,7 @@
     )
     (fps 16)
   )
-  
+
   (tile
     (id 4004)
     (images
@@ -3905,7 +3905,7 @@
     (height 4)
     (ids
       3438 3439
-      3440 3441      
+      3440 3441
       3442 3443
       3444 3445
     )
@@ -4181,7 +4181,7 @@
      3617 3618 3619 3620
      )
   )
-       
+
   (tiles
     (width 4)
     (height 11)
@@ -4217,7 +4217,7 @@
      3685 3686
      )
   )
-  
+
   (tiles
     (width 4)
     (height 8)
@@ -4243,7 +4243,7 @@
       1 1 1 1
 	  )
   )
-  
+
   (tiles
     (width 4)
     (height 26)
@@ -4305,7 +4305,7 @@
       1 1 1 1
 	  )
   )
-  
+
   (tiles
     (width 4)
     (height 10)
@@ -4347,7 +4347,7 @@
      65 51 65 51
      )
   )
-  
+
   (tiles
     (width 4)
     (height 1)
@@ -4363,7 +4363,7 @@
 	 1024 1024 1024 1024
 	 )
   )
-  
+
   (tile
 	(fps 16)
 	(water #t)
@@ -4374,7 +4374,7 @@
      3877
 	 )
   )
-	 
+
   (tiles
     (width 1)
     (height 3)
@@ -4383,7 +4383,7 @@
      3927 3928 3929
      )
   )
-	 
+
   (tiles
     (width 6)
     (height 7)
@@ -4407,7 +4407,7 @@
 	 1 1 1 1 1 1
      )
   )
-	
+
   (tiles
     (width 4)
     (height 4)
@@ -4425,7 +4425,7 @@
 	 257 257 257 257
      )
   )
-	
+
   (tiles
     (width 4)
     (height 1)
@@ -4461,7 +4461,7 @@
 	 1 1 1 1 0 0 0 0
      )
   )
-  
+
    (tiles
     (width 4)
     (height 1)
@@ -4527,7 +4527,7 @@
     )
     (image "tiles/darksnow/special.png")
   )
-  
+
   (tiles
     (width 2)(height 3)
     (image "tiles/doodads/nolok-statue-forest.png")
@@ -4542,7 +4542,7 @@
        0 0
        )
    )
-   
+
    (tiles
      (width 2)(height 3)
      (image "tiles/doodads/nolok-statue-ghost.png")
@@ -4557,7 +4557,7 @@
         0 0
         )
     )
-    
+
     (tiles
       (width 2)(height 3)
       (image "tiles/doodads/nolok-statue-snow.png")

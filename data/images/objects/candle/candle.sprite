@@ -1,7 +1,7 @@
 (supertux-sprite
   (action
     (name "on")
-    (images 
+    (images
       "candle-1.png"
       "candle-2.png"
       "candle-3.png"
@@ -10,9 +10,8 @@
     )
   (action
     (name "off")
-    (images 
+    (images
       "off.png"
       )
     )
   )
-

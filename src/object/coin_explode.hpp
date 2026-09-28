@@ -1,4 +1,4 @@
-//  CoinExplode - several coins are hurled through the air
+//  SuperTux
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify

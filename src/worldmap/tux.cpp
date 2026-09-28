@@ -1,4 +1,4 @@
-//  SuperTux -  A Jump'n Run
+//  SuperTux
 //  Copyright (C) 2004 Ingo Ruhnke <grumbel@gmail.com>
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
@@ -61,9 +61,9 @@ Tux::draw(DrawingContext& context)
     {
       std::string direct = "-up";
       if (get_axis().x == 1) direct = "-right";
-      if (get_axis().x == -1) direct = "-left"; 
-      if (get_axis().y == 1) direct = "-up"; 
-      if (get_axis().y == -1) direct = "-down"; 
+      if (get_axis().x == -1) direct = "-left";
+      if (get_axis().y == 1) direct = "-up";
+      if (get_axis().y == -1) direct = "-down";
       if (m_sprite->has_action(action + "-walking" + direct))
       {
         m_sprite->set_action(action + "-walking" + direct);

@@ -1,4 +1,4 @@
-//  SuperTux - Wind
+//  SuperTux
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -59,7 +59,7 @@ Wind::Wind(const ReaderMapping& reader) :
   reader.get("affects-badguys", affects_badguys, false);
   reader.get("affects-objects", affects_objects, false);
   reader.get("affects-player", affects_player, true);
-  
+
   reader.get("fancy-wind", fancy_wind, false);
 
   set_group(COLGROUP_TOUCHABLE);
@@ -81,14 +81,14 @@ Wind::update(float dt_sec_)
   if (graphicsRandom.randf(0.f, 100.f) < (m_col.m_bbox.get_width() / 32.f) * (m_col.m_bbox.get_height() / 32.f))
   {
     // emit a particle
-	  if (fancy_wind)
+    if (fancy_wind)
     {
-	    Sector::get().add<SpriteParticle>("images/particles/wind.sprite", (std::abs(speed.x) > std::abs(speed.y)) ? "default" : "flip", ppos, ANCHOR_MIDDLE, pspeed, Vector(0, 0), LAYER_BACKGROUNDTILES + 1); 
-	  }
-	  else
+      Sector::get().add<SpriteParticle>("images/particles/wind.sprite", (std::abs(speed.x) > std::abs(speed.y)) ? "default" : "flip", ppos, ANCHOR_MIDDLE, pspeed, Vector(0, 0), LAYER_BACKGROUNDTILES + 1);
+    }
+    else
     {
-	    Sector::get().add<Particles>(ppos, 44, 46, pspeed, Vector(0, 0), 1, Color(.4f, .4f, .4f), 3, .1f, LAYER_BACKGROUNDTILES + 1);
-	  }
+      Sector::get().add<Particles>(ppos, 44, 46, pspeed, Vector(0, 0), 1, Color(.4f, .4f, .4f), 3, .1f, LAYER_BACKGROUNDTILES + 1);
+    }
   }
 }
 
@@ -106,20 +106,20 @@ Wind::collision(GameObject& other, const CollisionHit& )
   if (player && affects_player)
   {
     if (!player->on_ground())
-	  {
+    {
       player->add_velocity(speed * acceleration * dt_sec, speed);
     }
     else
     {
       if (player->get_controller().hold(Control::RIGHT) || player->get_controller().hold(Control::LEFT))
-	    {
-	      player->add_velocity(Vector(speed.x, 0) * acceleration * dt_sec, speed);
-	    }
-	    else
       {
-	      //When on ground, get blown slightly differently, but the max speed is less than it would be otherwise seen as we take "friction" into account
-	      player->add_velocity((Vector(speed.x, 0) * 0.1f) * (acceleration+1), (Vector(speed.x, speed.y) * 0.5f));
-	    }
+        player->add_velocity(Vector(speed.x, 0) * acceleration * dt_sec, speed);
+      }
+      else
+      {
+        //When on ground, get blown slightly differently, but the max speed is less than it would be otherwise seen as we take "friction" into account
+        player->add_velocity((Vector(speed.x, 0) * 0.1f) * (acceleration+1), (Vector(speed.x, speed.y) * 0.5f));
+      }
     }
   }
 

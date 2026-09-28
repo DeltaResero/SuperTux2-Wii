@@ -41,10 +41,10 @@ public:
   void add_tile(int id, std::unique_ptr<Tile> tile);
 
   const Tile& get(const uint32_t id) const;
-  
+
 
   void print_debug_info(const std::string& filename);
-  
+
 private:
   std::vector<std::unique_ptr<Tile> > m_tiles;
 

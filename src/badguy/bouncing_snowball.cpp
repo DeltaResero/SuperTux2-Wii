@@ -78,7 +78,7 @@ BouncingSnowball::collision_solid(const CollisionHit& hit)
     if (get_state() == STATE_ACTIVE) {
       float bounce_speed = -m_physic.get_velocity_y()*0.8f;
       m_physic.set_velocity_y(std::min(JUMPSPEED, bounce_speed));
-	    m_sprite->set_action(m_dir == Direction::LEFT ? "left-up" : "right-up", /* loops = */ 1);
+      m_sprite->set_action(m_dir == Direction::LEFT ? "left-up" : "right-up", /* loops = */ 1);
     } else {
       m_physic.set_velocity_y(0);
     }

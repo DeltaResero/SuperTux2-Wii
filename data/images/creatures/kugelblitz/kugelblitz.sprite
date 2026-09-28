@@ -5,7 +5,7 @@
   (images "falling-0.png"
           "falling-1.png"
           "falling-2.png"))
- 
+
  (action
   (name "flying")
   (hitbox 0 0 63.8 63.8)
@@ -21,4 +21,4 @@
           "pop-1.png"
           "pop-2.png"
           "pop-3.png"))
-) 
+)

@@ -1,4 +1,4 @@
-//  SuperTux - Badguy "Snail"
+//  SuperTux
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -101,7 +101,7 @@ Snail::active_update(float dt_sec)
 {
   if (state == STATE_GRABBED)
     return;
-  
+
   if (m_frozen)
   {
     BadGuy::active_update(dt_sec);

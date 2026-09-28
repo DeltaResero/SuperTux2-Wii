@@ -1,4 +1,4 @@
-(supertux-text			
+(supertux-text
   (background	"oiltux.jpg"	)
   (music	"music/voc-boss.ogg"	)
   (text "- Congratulations!

@@ -2,7 +2,7 @@
   (action
     (name "default")
     (hitbox 230 300 40 60)
-    (images 
+    (images
       "ghosttree-glow.png"
     )
   )
@@ -10,7 +10,7 @@
     (name "dying")
     (hitbox 230 300 40 60)
     (fps 4)
-    (images 
+    (images
       "ghosttree-glow-dying-0.png"
       "ghosttree-glow-dying-0.png"
       "ghosttree-glow-dying-0.png"

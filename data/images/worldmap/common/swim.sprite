@@ -2,14 +2,14 @@
   (action
     (hitbox 4 0 0 0)
     (name "empty")
-    (images 
+    (images
       "big_swim_up5.png"
     )
   )
   (action
     (hitbox 4 20 0 0)
     (name "small-stop")
-    (images 
+    (images
       "smalltux.png"
     )
   )
@@ -17,7 +17,7 @@
     (hitbox 4 0 0 0)
     (name "small-walking-up")
     (fps 9)
-    (images 
+    (images
       "big_swim_up1.png"
       "big_swim_up2.png"
       "big_swim_up3.png"
@@ -29,7 +29,7 @@
     (hitbox 4 0 0 0)
     (name "small-walking-down")
     (fps 9)
-    (images 
+    (images
       "big_swim_down1.png"
       "big_swim_down2.png"
       "big_swim_down3.png"
@@ -41,7 +41,7 @@
     (hitbox 4 4 0 0)
     (name "small-walking-left")
     (fps 9)
-    (images 
+    (images
       "big_swim_left1.png"
       "big_swim_left2.png"
       "big_swim_left3.png"
@@ -58,7 +58,7 @@
   (action
     (hitbox 4 20 0 0)
     (name "large-stop")
-    (images 
+    (images
       "tux.png"
     )
   )
@@ -66,7 +66,7 @@
     (hitbox 4 0 0 0)
     (name "large-walking-up")
     (fps 9)
-    (images 
+    (images
       "big_swim_up1.png"
       "big_swim_up2.png"
       "big_swim_up3.png"
@@ -78,7 +78,7 @@
     (hitbox 4 0 0 0)
     (name "large-walking-down")
     (fps 9)
-    (images 
+    (images
       "big_swim_down1.png"
       "big_swim_down2.png"
       "big_swim_down3.png"
@@ -90,7 +90,7 @@
     (hitbox 4 4 0 0)
     (name "large-walking-left")
     (fps 9)
-    (images 
+    (images
       "big_swim_left1.png"
       "big_swim_left2.png"
       "big_swim_left3.png"
@@ -107,7 +107,7 @@
   (action
     (hitbox 4 20 0 0)
     (name "air-stop")
-    (images 
+    (images
       "airtux.png"
     )
   )
@@ -115,7 +115,7 @@
     (hitbox 4 0 0 0)
     (name "air-walking-up")
     (fps 9)
-    (images 
+    (images
       "air_swim_up1.png"
       "air_swim_up2.png"
       "air_swim_up3.png"
@@ -127,7 +127,7 @@
     (hitbox 4 0 0 0)
     (name "air-walking-down")
     (fps 9)
-    (images 
+    (images
       "air_swim_down1.png"
       "air_swim_down2.png"
       "air_swim_down3.png"
@@ -139,7 +139,7 @@
     (hitbox 4 4 0 0)
     (name "air-walking-left")
     (fps 9)
-    (images 
+    (images
       "air_swim_left1.png"
       "air_swim_left2.png"
       "air_swim_left3.png"
@@ -156,7 +156,7 @@
   (action
     (hitbox 4 20 0 0)
     (name "fire-stop")
-    (images 
+    (images
       "firetux.png"
     )
   )
@@ -164,7 +164,7 @@
     (hitbox 4 0 0 0)
     (name "fire-walking-up")
     (fps 9)
-    (images 
+    (images
       "fire_swim_up1.png"
       "fire_swim_up2.png"
       "fire_swim_up3.png"
@@ -176,7 +176,7 @@
     (hitbox 4 0 0 0)
     (name "fire-walking-down")
     (fps 9)
-    (images 
+    (images
       "fire_swim_down1.png"
       "fire_swim_down2.png"
       "fire_swim_down3.png"
@@ -188,7 +188,7 @@
     (hitbox 4 4 0 0)
     (name "fire-walking-left")
     (fps 9)
-    (images 
+    (images
       "fire_swim_left1.png"
       "fire_swim_left2.png"
       "fire_swim_left3.png"
@@ -205,7 +205,7 @@
   (action
     (hitbox 4 20 0 0)
     (name "ice-stop")
-    (images 
+    (images
       "icetux.png"
     )
   )
@@ -213,7 +213,7 @@
     (hitbox 4 0 0 0)
     (name "ice-walking-up")
     (fps 9)
-    (images 
+    (images
       "ice_swim_up1.png"
       "ice_swim_up2.png"
       "ice_swim_up3.png"
@@ -225,7 +225,7 @@
     (hitbox 4 0 0 0)
     (name "ice-walking-down")
     (fps 9)
-    (images 
+    (images
       "ice_swim_down1.png"
       "ice_swim_down2.png"
       "ice_swim_down3.png"
@@ -237,7 +237,7 @@
     (hitbox 4 4 0 0)
     (name "ice-walking-left")
     (fps 9)
-    (images 
+    (images
       "ice_swim_left1.png"
       "ice_swim_left2.png"
       "ice_swim_left3.png"
@@ -255,7 +255,7 @@
     (hitbox 4 20 0 0)
     (name "earth-stop")
     (fps 4)
-    (images 
+    (images
       "earthtux.png"
     )
   )
@@ -263,7 +263,7 @@
     (hitbox 4 0 0 0)
     (name "earth-walking-up")
     (fps 9)
-    (images 
+    (images
       "earth_swim_up1.png"
       "earth_swim_up2.png"
       "earth_swim_up3.png"
@@ -275,7 +275,7 @@
     (hitbox 4 0 0 0)
     (name "earth-walking-down")
     (fps 9)
-    (images 
+    (images
       "earth_swim_down1.png"
       "earth_swim_down2.png"
       "earth_swim_down3.png"
@@ -287,7 +287,7 @@
     (hitbox 4 4 0 0)
     (name "earth-walking-left")
     (fps 9)
-    (images 
+    (images
       "earth_swim_left1.png"
       "earth_swim_left2.png"
       "earth_swim_left3.png"

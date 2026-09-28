@@ -1,38 +1,38 @@
-These files describes glyphs, contained on images 
-at data/images/engine/fonts/ 
+These files describes glyphs, contained on images
+at data/images/engine/fonts/
 (or any subdirectory)
 
 Each file describes separate font.
 
 (supertux-font
   ; height of font and glyph on images
-  (glyph-height $h)    
-  
+  (glyph-height $h)
+
   ; default width of glyph on images and width of fixed-font
-  (glyph-width $w)   
+  (glyph-width $w)
 
   ; one or more surfaces, containing glyph images
-  (surface              
- 
+  (surface
+
     ; may override default width
-    (glyph-width $w)    
+    (glyph-width $w)
 
     ; may prevent to form variable-width glyphs from this surface
-    (monospace #t)      
+    (monospace #t)
 
     ; filename containing glyph images,
     ; related to data/images/engine/fonts/
     ; any dimentions, RGBS pixel format
-    (glyphs $filename)   
-    
-    ; filename containing shadow images, 
+    (glyphs $filename)
+
+    ; filename containing shadow images,
     ; should fit glyph image
-    (shadows $filename)  
+    (shadows $filename)
 
     ; charset definition
     ; each string represent separate row of glyphs on image
     ; spaces may be put to skip glyph (not drawn)
-    (chars 
+    (chars
       $strings)
   )
 )

@@ -86,7 +86,7 @@ Haywire::collision_squished(GameObject& object)
 
   if (!is_exploding) {
     start_exploding();
-	stomped_timer.start(STOMPED_TIME);
+    stomped_timer.start(STOMPED_TIME);
   }
 
   time_stunned = TIME_STUNNED;
@@ -162,15 +162,15 @@ Haywire::active_update(float dt_sec)
 
     //end of pathfinding
 
-	  if (stomped_timer.get_timeleft() < 0.05f) {
-        set_action ((m_dir == Direction::LEFT) ? "ticking-left" : "ticking-right", /* loops = */ -1);
-        walk_left_action = "ticking-left";
-        walk_right_action = "ticking-right";
+    if (stomped_timer.get_timeleft() < 0.05f) {
+      set_action ((m_dir == Direction::LEFT) ? "ticking-left" : "ticking-right", /* loops = */ -1);
+      walk_left_action = "ticking-left";
+      walk_right_action = "ticking-right";
     }
     else {
-        set_action ((m_dir == Direction::LEFT) ? "active-left" : "active-right", /* loops = */ 1);
-        walk_left_action = "active-left";
-	      walk_right_action = "active-right";
+      set_action ((m_dir == Direction::LEFT) ? "active-left" : "active-right", /* loops = */ 1);
+      walk_left_action = "active-left";
+      walk_right_action = "active-right";
     }
 
     auto p = get_nearest_player ();

@@ -1,5 +1,5 @@
 (supertux-sprite
-      (action 
+      (action
           (name "normal")
           (images "s_manbig_1.png"
                   "s_manbig_2.png"

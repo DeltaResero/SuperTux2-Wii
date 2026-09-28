@@ -25,12 +25,12 @@
 class VerticalStripes final : public GameObject
 {
 public:
-	VerticalStripes();
-	~VerticalStripes() override;
+  VerticalStripes();
+  ~VerticalStripes() override;
 
   virtual bool is_singleton() const override { return true; }
   virtual void update(float dt_sec) override;
- 	virtual void draw(DrawingContext& context) override;
+  virtual void draw(DrawingContext& context) override;
 
 private:
   bool m_visible;

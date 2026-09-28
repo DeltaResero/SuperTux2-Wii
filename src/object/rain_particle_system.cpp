@@ -101,7 +101,7 @@ void RainParticleSystem::set_amount(float amount)
   int old_raindropcount = static_cast<int>(virtual_width*m_current_real_amount/6.0f);
   int new_raindropcount = static_cast<int>(virtual_width*real_amount/6.0f);
   int delta = new_raindropcount - old_raindropcount;
-  
+
   if (delta > 0) {
     for (int i=0; i<delta; ++i) {
       auto particle = std::make_unique<RainParticle>();
@@ -232,7 +232,7 @@ void RainParticleSystem::fade_speed(float new_speed, float fade_time)
   {
     m_current_speed = new_speed;
   }
-  
+
   m_target_speed = new_speed;
   m_speed_fade_time_remaining = fade_time;
 }
@@ -246,7 +246,7 @@ void RainParticleSystem::fade_angle(float new_angle, float fade_time, easing eas
   {
     m_current_angle = new_angle - 45.f;
   }
-  
+
   m_begin_angle = m_current_angle;
   m_target_angle = new_angle - 45.f;
   m_angle_fade_time_total = fade_time;
@@ -263,7 +263,7 @@ void RainParticleSystem::fade_amount(float new_amount, float fade_time)
   {
     m_current_amount = new_amount;
   }
-  
+
   m_target_amount = new_amount;
   m_amount_fade_time_remaining = fade_time;
 }
@@ -271,7 +271,7 @@ void RainParticleSystem::fade_amount(float new_amount, float fade_time)
 void RainParticleSystem::draw(DrawingContext& context)
 {
   ParticleSystem_Interactive::draw(context);
-  
+
   if (!enabled)
     return;
 

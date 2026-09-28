@@ -1,13 +1,13 @@
 (supertux-sprite
   (action
     (name "normal")
-    (images 
+    (images
       "straw.png"
     )
   )
   (action
     (name "burning")
-    (images 
+    (images
       "straw_01.png"
       "straw_02.png"
       "straw_03.png"
@@ -18,7 +18,7 @@
   )
   (action
     (name "disintegrating")
-    (images 
+    (images
       "straw_07.png"
       "straw_08.png"
       "straw_09.png"

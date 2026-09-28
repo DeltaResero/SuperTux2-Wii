@@ -2,7 +2,7 @@
   (action
     (name "off")
     (hitbox 0 2 20 43)
-    (images 
+    (images
       "right-0.png"
     )
   )
@@ -10,7 +10,7 @@
     (name "turnon")
 	(fps 18)
     (hitbox 0 2 20 43)
-    (images 
+    (images
 	  "right-1.png"
 	  "right-2.png"
       "right-3.png"
@@ -19,7 +19,7 @@
   (action
     (name "on")
     (hitbox 0 2 20 43)
-    (images 
+    (images
       "right-4.png"
     )
   )
@@ -34,4 +34,3 @@
     )
   )
 )
-

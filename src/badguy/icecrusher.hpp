@@ -1,4 +1,4 @@
-//  IceCrusher - A block to stand on, which can drop down to crush the player
+//  SuperTux
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -29,11 +29,11 @@ private:
   enum IceCrusherState {
     IDLE,
     CRUSHING,
-	  CRUSHING_RIGHT,
-	  CRUSHING_LEFT,
+    CRUSHING_RIGHT,
+    CRUSHING_LEFT,
     RECOVERING,
-	  RECOVERING_RIGHT,
-	  RECOVERING_LEFT
+    RECOVERING_RIGHT,
+    RECOVERING_LEFT
   };
 
   enum IceCrusherSize {
@@ -50,7 +50,7 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_class() const override { return "icecrusher"; }
 
-  
+
 
 private:
   bool found_victim_down() const;
@@ -72,7 +72,7 @@ private:
   SpritePtr whites;
 
   IceCrusherSize ic_size;
-  
+
   bool sideways;
 
 private:

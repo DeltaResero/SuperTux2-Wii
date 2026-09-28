@@ -424,5 +424,4 @@ Background::load_background(const std::string& image_path)
   return Surface::from_file(new_path);
 }
 
-
 /* EOF */

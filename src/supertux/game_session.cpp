@@ -185,7 +185,7 @@ GameSession::on_escape_press(bool force_quick_respawn)
   if (!m_level->m_suppress_pause_menu) {
     toggle_pause();
   } else {
-	  abort_level();
+    abort_level();
   }
 }
 

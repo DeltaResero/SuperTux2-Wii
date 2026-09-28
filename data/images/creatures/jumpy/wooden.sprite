@@ -4,37 +4,37 @@
   (name "left-up")
   (hitbox 9 8 32 45)
   (images "wooden-up.png"))
- 
+
  (action
   (name "right-up")
   (hitbox 3 8 32 45)
   (mirror-action "left-up"))
- 
+
  (action
   (name "left-down")
   (hitbox 9 8 32 45)
   (images "wooden-down.png"))
- 
+
  (action
   (name "right-down")
   (hitbox 3 8 32 45)
   (mirror-action "left-down"))
- 
+
  (action
   (name "left-middle")
   (hitbox 9 8 32 45)
   (images "wooden-middle.png"))
- 
+
  (action
   (name "right-middle")
   (hitbox 3 8 32 45)
   (mirror-action "left-middle"))
- 
+
  (action
   (name "iced-left")
   (hitbox 9 8 32 45)
   (images "wooden-iced.png"))
- 
+
  (action
   (name "iced-right")
   (hitbox 3 8 32 45)
@@ -62,4 +62,3 @@
   (mirror-action "burning-left"))
 
 )
-

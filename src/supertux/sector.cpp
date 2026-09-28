@@ -1,4 +1,4 @@
-//  SuperTux -  A Jump'n Run
+//  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -346,7 +346,7 @@ Sector::before_object_add(GameObject& object)
       return false;
     }
   }
-  
+
   if (auto* movingobject = dynamic_cast<MovingObject*>(&object))
   {
     m_collision_system->add(movingobject->get_collision_object());

@@ -55,7 +55,7 @@
       (z-pos -310)
     )
     (infoblock
-      (message "- Flush: 
+      (message "- Flush:
 #Press the up key to flush! ")
       (x 896)
       (y 576)

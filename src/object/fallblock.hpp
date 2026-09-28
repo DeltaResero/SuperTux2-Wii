@@ -1,3 +1,4 @@
+//  SuperTux
 //  Copyright (C) 2020 Daniel Ward <weluvgoatz@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -27,16 +28,16 @@ class FallBlock : public MovingSprite
 {
 public:
   FallBlock(const ReaderMapping& reader);
-  
+
   virtual void update(float dt_sec) override;
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual void collision_solid(const CollisionHit& hit) override;
 
   virtual void draw(DrawingContext& context) override;
-  
+
   virtual std::string get_class() const override { return "fallblock"; }
-  
+
 protected:
   enum State
   {
@@ -45,15 +46,15 @@ protected:
     FALL,
     LAND
   };
-  
+
 private:
   State state;
-    
+
   Physic physic;
   Timer timer;
-  
+
   bool found_victim_down() const;
-  
+
 private:
   FallBlock(const FallBlock&) = delete;
   FallBlock& operator=(const FallBlock&) = delete;

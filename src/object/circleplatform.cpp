@@ -1,3 +1,4 @@
+//  SuperTux
 //  Copyright (C) 2020 Daniel Ward <weluvgoatz@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -70,3 +71,5 @@ CirclePlatform::initialize()
 {
   timer.start(time);
 }
+
+/* EOF */

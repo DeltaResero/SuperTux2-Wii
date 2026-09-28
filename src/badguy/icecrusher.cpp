@@ -1,4 +1,4 @@
-//  IceCrusher - A block to stand on, which can drop down to crush the player
+//  SuperTux
 //  Copyright (C) 2008 Christoph Sommer <christoph.sommer@2008.expires.deltadevelopment.de>
 //  Copyright (C) 2010 Florian Forster <supertux at octo.it>
 //
@@ -87,13 +87,13 @@ IceCrusher::set_state(IceCrusherState state_, bool force)
       break;
     case CRUSHING_RIGHT:
       set_group(COLGROUP_MOVING_STATIC);
-	    physic.reset ();
+      physic.reset ();
       physic.enable_gravity (false);
       m_sprite->set_action("idle");
-	    break;
-	  case CRUSHING_LEFT:
+      break;
+    case CRUSHING_LEFT:
       set_group(COLGROUP_MOVING_STATIC);
-	    physic.reset ();
+      physic.reset ();
       physic.enable_gravity (false);
       m_sprite->set_action("idle");
       break;
@@ -102,12 +102,12 @@ IceCrusher::set_state(IceCrusherState state_, bool force)
       physic.enable_gravity (false);
       m_sprite->set_action("recovering");
       break;
-	  case RECOVERING_RIGHT:
+    case RECOVERING_RIGHT:
       set_group(COLGROUP_MOVING_STATIC);
       physic.enable_gravity (false);
       m_sprite->set_action("recovering");
       break;
-	  case RECOVERING_LEFT:
+    case RECOVERING_LEFT:
       set_group(COLGROUP_MOVING_STATIC);
       physic.enable_gravity (false);
       m_sprite->set_action("recovering");
@@ -203,17 +203,17 @@ IceCrusher::collision_solid(const CollisionHit& hit)
         set_state(RECOVERING);
       }
       break;
-	  case CRUSHING_RIGHT:
-	    if (hit.right)
-    {
-		  if (ic_size == LARGE)
-    {
+    case CRUSHING_RIGHT:
+      if (hit.right)
+      {
+        if (ic_size == LARGE)
+        {
           cooldown_timer = PAUSE_TIME_LARGE;
           Sector::get().get_camera().shake (0.125f, 0.0f, 16.0f);
           SoundManager::current()->play("sounds/brick.wav");
         }
-		  else
-    {
+        else
+        {
           cooldown_timer = PAUSE_TIME_NORMAL;
           Sector::get().get_camera().shake (0.1f, 0.0, 8.0);
           if ( m_sprite_name.find("rock_crusher") != std::string::npos ||
@@ -226,20 +226,20 @@ IceCrusher::collision_solid(const CollisionHit& hit)
             SoundManager::current()->play("sounds/brick.wav");
           }
         }
-		set_state(RECOVERING_RIGHT);
-	  }
-	    break;
-	  case CRUSHING_LEFT:
-	    if (hit.left)
-    {
-		  if (ic_size == LARGE)
-    {
+        set_state(RECOVERING_RIGHT);
+      }
+      break;
+    case CRUSHING_LEFT:
+      if (hit.left)
+      {
+        if (ic_size == LARGE)
+        {
           cooldown_timer = PAUSE_TIME_LARGE;
           Sector::get().get_camera().shake (0.125f, 0.0f, 16.0f);
           SoundManager::current()->play("sounds/brick.wav");
         }
-		  else
-    {
+        else
+        {
           cooldown_timer = PAUSE_TIME_NORMAL;
           Sector::get().get_camera().shake (0.1f, 0.0, 8.0);
           if ( m_sprite_name.find("rock_crusher") != std::string::npos ||
@@ -252,9 +252,9 @@ IceCrusher::collision_solid(const CollisionHit& hit)
             SoundManager::current()->play("sounds/brick.wav");
           }
         }
-		set_state(RECOVERING_LEFT);
-	  }
-	    break;
+        set_state(RECOVERING_LEFT);
+      }
+      break;
     default:
       log_debug << "IceCrusher in invalid state" << std::endl;
       break;
@@ -264,7 +264,7 @@ IceCrusher::collision_solid(const CollisionHit& hit)
 void
 IceCrusher::update(float dt_sec)
 {
-  
+
   if (cooldown_timer >= dt_sec)
   {
     cooldown_timer -= dt_sec;
@@ -281,9 +281,9 @@ IceCrusher::update(float dt_sec)
       m_col.set_movement(Vector (0, 0));
       if (found_victim_down() && !sideways)
         set_state(CRUSHING);
-		  if (found_victim_right() && sideways)
+      if (found_victim_right() && sideways)
         set_state(CRUSHING_RIGHT);
-	    if (found_victim_left() && sideways)
+      if (found_victim_left() && sideways)
         set_state(CRUSHING_LEFT);
       break;
     case CRUSHING:
@@ -295,7 +295,7 @@ IceCrusher::update(float dt_sec)
         m_col.propagate_movement(movement);
       }
       break;
-	  case CRUSHING_RIGHT:
+    case CRUSHING_RIGHT:
       {
         Vector movement = physic.get_movement(dt_sec);
         m_col.set_movement(movement);
@@ -303,7 +303,7 @@ IceCrusher::update(float dt_sec)
         physic.set_velocity_x((physic.get_velocity_x() + 10.f));
       }
       break;
-	  case CRUSHING_LEFT:
+    case CRUSHING_LEFT:
       {
         Vector movement = physic.get_movement(dt_sec);
         m_col.set_movement(movement);
@@ -327,7 +327,7 @@ IceCrusher::update(float dt_sec)
         m_col.propagate_movement(movement);
       }
       break;
-	  case RECOVERING_RIGHT:
+    case RECOVERING_RIGHT:
       if (m_col.m_bbox.get_left() <= start_position.x+1) {
         set_pos(start_position);
         m_col.set_movement(Vector (0, 0));
@@ -342,7 +342,7 @@ IceCrusher::update(float dt_sec)
         m_col.propagate_movement(Vector(RECOVER_SPEED_LARGE, 0));
       }
       break;
-	  case RECOVERING_LEFT:
+    case RECOVERING_LEFT:
       if (m_col.m_bbox.get_left() >= start_position.x-1) {
         set_pos(start_position);
         m_col.set_movement(Vector (0, 0));
@@ -402,12 +402,12 @@ IceCrusher::found_victim_right() const
   if (auto* player = Sector::get().get_nearest_player(m_col.m_bbox))
   {
     const Rectf& player_bbox = player->get_bbox();
-	  Rectf crush_area_right = get_bbox();
-	  crush_area_right.set_right(player_bbox.get_left() - 1);
+    Rectf crush_area_right = get_bbox();
+    crush_area_right.set_right(player_bbox.get_left() - 1);
     if (((player_bbox.get_left() + 64) >= m_col.m_bbox.get_right())
         && (player_bbox.get_bottom() + 5 > (m_col.m_bbox.get_top() - DROP_ACTIVATION_DISTANCE))
         && (player_bbox.get_top() < (m_col.m_bbox.get_bottom() + DROP_ACTIVATION_DISTANCE))
-        && (Sector::get().is_free_of_statics(crush_area_right, this, false))		/* and area to player is free of objects */) {
+        && (Sector::get().is_free_of_statics(crush_area_right, this, false)) /* and area to player is free of objects */) {
       return true;
     }
   }
@@ -421,12 +421,12 @@ IceCrusher::found_victim_left() const
   if (auto* player = Sector::get().get_nearest_player(m_col.m_bbox))
   {
     const Rectf& player_bbox = player->get_bbox();
-	  Rectf crush_area_left = get_bbox();
-	  crush_area_left.set_left(player_bbox.get_right() + 1);
+    Rectf crush_area_left = get_bbox();
+    crush_area_left.set_left(player_bbox.get_right() + 1);
     if (((player_bbox.get_right() - 64) <= m_col.m_bbox.get_left())
         && (player_bbox.get_bottom() + 5 > (m_col.m_bbox.get_top() - DROP_ACTIVATION_DISTANCE))
         && (player_bbox.get_top() < (m_col.m_bbox.get_bottom() + DROP_ACTIVATION_DISTANCE))
-        && (Sector::get().is_free_of_statics(crush_area_left, this, false))		/* and area to player is free of objects */) {
+        && (Sector::get().is_free_of_statics(crush_area_left, this, false)) /* and area to player is free of objects */) {
       return true;
     }
   }

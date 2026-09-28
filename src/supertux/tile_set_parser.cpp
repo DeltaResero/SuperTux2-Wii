@@ -1,6 +1,6 @@
 //  SuperTux
 //  Copyright (C) 2008 Matthias Braun <matze@braunis.de>
-//                     Ingo Ruhnke <grumbel@gmail.com>
+//  Copyright (C) 2008 Ingo Ruhnke <grumbel@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -234,7 +234,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
           std::vector<SurfacePtr> regions;
           regions.reserve(surfaces.size());
           std::transform(surfaces.begin(), surfaces.end(), std::back_inserter(regions),
-              [x, y] (const SurfacePtr& surface) { 
+              [x, y] (const SurfacePtr& surface) {
                 return surface->region(Rect(x, y, Size(32, 32)));
               });
 

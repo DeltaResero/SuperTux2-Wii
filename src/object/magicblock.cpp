@@ -1,10 +1,4 @@
-//  SuperTux - MagicBlock
-//
-//  Magic Blocks are tile-like game objects that are sensitive to
-//  lighting conditions. They are rendered in a color and
-//  will only be solid as long as light of the same color shines
-//  on the block.
-//
+//  SuperTux
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //
 //  This program is free software: you can redistribute it and/or modify

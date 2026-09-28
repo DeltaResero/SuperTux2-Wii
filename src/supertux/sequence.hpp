@@ -45,4 +45,5 @@ struct SequenceData {
 Sequence string_to_sequence(const std::string& sequencename);
 
 #endif
+
 /* EOF */

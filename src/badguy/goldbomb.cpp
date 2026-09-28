@@ -1,4 +1,4 @@
-//  SuperTux BadGuy GoldBomb - a bomb that throws up coins when exploding
+//  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //

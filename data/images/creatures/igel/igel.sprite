@@ -2,7 +2,7 @@
   (action
     (name "walking-left")
     (hitbox 2.1 6.1 45.8 25.8)
-    (images 
+    (images
       "walk-0.png"
 "walk-1.png"
 "walk-2.png"
@@ -27,7 +27,7 @@
     (name "burning-left")
     (hitbox 2.1 38.1 45.8 25.8)
     (fps 15)
-    (images 
+    (images
       "burning-0.png"
       "burning-1.png"
       "burning-2.png"

@@ -16,5 +16,4 @@
 
 #include "supertux/game_object_iterator.hpp"
 
-
 /* EOF */

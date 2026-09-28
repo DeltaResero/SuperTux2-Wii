@@ -1,3 +1,5 @@
+* text=auto eol=lf
+
 # STL files are supertux level files, thus do not treat as binary
 *.stl text=auto diff=astextplain
 *.sprite text=auto

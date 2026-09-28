@@ -1,4 +1,4 @@
-(supertux-text			
+(supertux-text
   (background	"halloween/outro.jpg")
   (music	"music/antarctic/chipdisko.ogg")
   (text "-Halloween Party!

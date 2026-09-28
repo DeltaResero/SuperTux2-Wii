@@ -2,7 +2,7 @@
   (action
     (name "idle")
     (hitbox 27 39 26 39)
-    (images 
+    (images
       "mhill.png"
     )
   )
@@ -10,7 +10,7 @@
     (name "peeking")
     (hitbox 27 39 26 39)
     (fps 12)
-    (images 
+    (images
 	  "mhill.png"
 	  "mhill.png"
 	  "mhill.png"
@@ -52,7 +52,7 @@
     (name "burning")
     (hitbox 27 39 26 39)
     (fps 15)
-    (images 
+    (images
       "fire1.png"
 	  "fire2.png"
 	  "fire3.png"

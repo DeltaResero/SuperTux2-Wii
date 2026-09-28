@@ -85,7 +85,7 @@ Changes made to levels by LMH 03-FEB-2012:
   -"Mountanin climbing rebuild" renamed to "Mountain climbing" fixing typo and removing confusing development naming
   -"A long adventure" undefined background (missing image)
   -"Snowfall alert" two undefined decals (missing sprites)
-	
+
 *Scripting
   -Modified "Crystal mountain" so that the crystal keys only need to be acquired once
   -Removed non-functioning code from "Nice Ice"

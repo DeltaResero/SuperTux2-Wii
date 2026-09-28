@@ -509,7 +509,7 @@ TileMap::get_tile_id(int x, int y) const
   if (x >= m_width) x = m_width - 1;
   if (y < 0) y = 0;
   if (y >= m_height) y = m_height - 1;
-  
+
   if (x < 0 || x >= m_width || y < 0 || y >= m_height) {
     //log_warning << "tile outside tilemap requested" << std::endl;
     return 0;

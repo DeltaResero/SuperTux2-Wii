@@ -1,7 +1,7 @@
 (supertux-sprite
   (action
     (name "on")
-    (images 
+    (images
       "torch1.png"
       "torch2.png"
       "torch3.png"
@@ -10,9 +10,8 @@
   (action
     (name "off")
     (hitbox 0 -32 32 32)
-    (images 
+    (images
       "torch-off.png"
       )
     )
   )
-

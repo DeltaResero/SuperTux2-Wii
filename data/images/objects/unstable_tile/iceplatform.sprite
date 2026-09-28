@@ -1,14 +1,14 @@
 (supertux-sprite
   (action
     (name "normal")
-    (images 
+    (images
       "iceplatform.png"
     )
   )
   (action
     (name "fall-down")
     (fps 0.2)
-    (images 
+    (images
       "iceplatform.png"
     )
   )

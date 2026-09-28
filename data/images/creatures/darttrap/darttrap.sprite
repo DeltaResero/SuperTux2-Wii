@@ -20,7 +20,7 @@
     (hitbox 21 13 11 37)
     (name "loading-left")
 	(fps 10)
-    (images 
+    (images
       "d-idle.png"
       "d1.png"
 	  "d2.png"

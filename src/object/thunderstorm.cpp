@@ -1,4 +1,4 @@
-//  SuperTux - Thunderstorm Game Object
+//  SuperTux
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -120,7 +120,7 @@ Thunderstorm::lightning()
   flash();
   electrify();
   if (!m_strike_script.empty()) {
-	  Sector::get().run_script(m_strike_script, "strike-script");
+    Sector::get().run_script(m_strike_script, "strike-script");
   }
 }
 
@@ -144,9 +144,9 @@ Thunderstorm::electrify()
     {3429, 3525}, {3430, 3526},
     {3431, 3527}, {3432, 3528},
     {3433, 3529}, {3434, 3530},
-	{2019, 3873}, {2140, 3874},
-	{2141, 3875}, {2142, 3876},
-	{2020, 3877}
+    {2019, 3873}, {2140, 3874},
+    {2141, 3875}, {2142, 3876},
+    {2020, 3877}
   });
   Sector::get().add<Electrifier>(changing_tiles, ELECTRIFY_TIME);
 }

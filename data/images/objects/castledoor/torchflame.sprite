@@ -3,7 +3,7 @@
   (name "normal")
   (hitbox 0 0 0 0)
 (fps 4)
-  (images 
+  (images
 
 "torchflame1.png"
 "torchflame1.png"

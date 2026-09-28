@@ -1,6 +1,6 @@
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
-//                2018 Ingo Ruhnke <grumbel@gmail.com>
+//  Copyright (C) 2018 Ingo Ruhnke <grumbel@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -179,7 +179,7 @@ public:
   }
 
   const std::vector<TileMap*>& get_solid_tilemaps() const { return m_solid_tilemaps; }
-  
+
   void update_solids();
   void update_solid(TileMap* solid);
 

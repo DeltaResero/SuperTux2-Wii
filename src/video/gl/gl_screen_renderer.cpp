@@ -1,6 +1,6 @@
 //  SuperTux
 //  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
-//	Updated by GiBy 2013 for SDL2 <giby_the_kid@yahoo.fr>
+//  Copyright (C) 2013 GiBy <giby_the_kid@yahoo.fr>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by

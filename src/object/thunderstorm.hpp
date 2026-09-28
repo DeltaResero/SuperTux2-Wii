@@ -1,4 +1,4 @@
-//  SuperTux - Thunderstorm Game Object
+//  SuperTux
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -65,7 +65,7 @@ private:
   bool running; /**< whether we currently automatically trigger lightnings */
   float interval; /**< time between two lightnings */
   int layer; /**< layer, where flash will be painted */
-  
+
   std::string m_strike_script;
 
   Timer time_to_thunder; /**< counts down until next thunder */

@@ -14,13 +14,6 @@
 #define _SQ64
 #endif
 
-#cmakedefine HAVE_ICONV_CONST
-#ifdef HAVE_ICONV_CONST
-#define ICONV_CONST const
-#else
-#define ICONV_CONST
-#endif
-
 #cmakedefine WORDS_BIGENDIAN
 
 #cmakedefine HAVE_OPENGL

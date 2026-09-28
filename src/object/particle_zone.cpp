@@ -1,4 +1,4 @@
-//  SuperTux - Particle spawn zone
+//  SuperTux
 //  Copyright (C) 2020 A. Semphris <semphris@protonmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify

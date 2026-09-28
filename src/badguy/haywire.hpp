@@ -58,7 +58,7 @@ private:
 
   std::unique_ptr<SoundSource> ticking;
   std::unique_ptr<SoundSource> grunting;
-  
+
   Timer stomped_timer;
 
 private:

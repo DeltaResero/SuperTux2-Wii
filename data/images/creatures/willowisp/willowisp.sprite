@@ -2,7 +2,7 @@
   (action
     (hitbox 0 0 31.8 31.8)
     (name "idle")
-    (images 
+    (images
       "idle-0.png"
       "idle-1.png"
       "idle-2.png"
@@ -12,7 +12,7 @@
   (action
     (hitbox 0 0 31.8 31.8)
     (name "vanishing")
-    (images 
+    (images
       "vanishing-0.png"
       "vanishing-1.png"
       "vanishing-2.png"
@@ -22,7 +22,7 @@
   (action
     (hitbox 0 0 31.8 31.8)
     (name "warping")
-    (images 
+    (images
       "warping-0.png"
       "warping-1.png"
       "warping-2.png"
@@ -32,4 +32,3 @@
       )
     )
   )
-

@@ -37,9 +37,9 @@ public:
     template <class T>
       void comment(const T& outp)
       {   // This routine writes just about anything as an XML comment.
-	newLine();
-	out << "<!-- " << outp ;
-	closetag = " -->";
+        newLine();
+        out << "<!-- " << outp ;
+        closetag = " -->";
       }
 
 
@@ -50,18 +50,18 @@ public:
             out << ">";
             closetag = "";
         } else if (closetag[0]=='/') {
-      	    out << ">"; // eventually we should place a \n here
-	    closetag = "</";
-	    closetag += lasttag;
-	    closetag += ">";
-	}
-	out << text;
+            out << ">"; // eventually we should place a \n here
+            closetag = "</";
+            closetag += lasttag;
+            closetag += ">";
+        }
+        out << text;
     }
 
     template<class T>
     void writeAttribute(const char* name, T value)
     {
-	out << " " << name << "=\"" << value << "\"";
+        out << " " << name << "=\"" << value << "\"";
     }
 
 private:

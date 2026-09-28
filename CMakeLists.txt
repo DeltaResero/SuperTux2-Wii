@@ -319,11 +319,6 @@ endif()
 
 include_directories(BEFORE SYSTEM ${PHYSFS_INCLUDE_DIR})
 
-
-#find_package(ICONV REQUIRED)
-#include_directories(SYSTEM ${ICONV_INCLUDE_DIR})
-#link_libraries(${ICONV_LIBRARY})
-
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   ## Find revision of WC
   mark_as_advanced(GIT_EXECUTABLE)
@@ -379,10 +374,6 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/main.cpp
   PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_screen.cpp
   PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-
-## Check platform-dependent build options
-
-include(ConfigureChecks)
 
 # Include altivec wrapper on ppc
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
@@ -804,7 +795,7 @@ endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE DESTINATION ${INSTALL_SUBDIR_DOC})
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/credits.stxt DESTINATION ${INSTALL_SUBDIR_SHARE})
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/data/credits.txt DESTINATION ${INSTALL_SUBDIR_SHARE})
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/supertux2.appdata.xml DESTINATION "share/metainfo" )
 
