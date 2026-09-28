@@ -1,5 +1,5 @@
 (supertux-sprite
-      (action 
+      (action
           (name "normal")
           (fps 15.0)
           (images "coin-0.png"

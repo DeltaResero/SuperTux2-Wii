@@ -5,7 +5,7 @@
 #include "xmlwriter.hpp"
 
 XmlWriter::XmlWriter(std::ostream& outstream) :
-    out(outstream), 
+    out(outstream),
     indent(0),
     closetag(),
     lasttag(),

@@ -28,9 +28,9 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual void update(float dt_sec) override;
   virtual void on_flip(float height) override;
-  
+
   virtual std::string get_class() const override { return "circleplatform"; }
-  
+
 private:
   virtual void initialize();
 
@@ -39,11 +39,11 @@ protected:
   float angle;
   float radius;
   float speed;
-  
+
   Timer timer;
   float time;
-  
-  
+
+
 private:
   CirclePlatform(const CirclePlatform&) = delete;
   CirclePlatform& operator=(const CirclePlatform&) = delete;

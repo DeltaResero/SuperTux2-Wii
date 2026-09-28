@@ -1,6 +1,6 @@
 %{
 #include <config.h>
-  
+
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,7 +32,7 @@ int getCurrentLine()
 {
     return yylineno - offset_lnum;
 }
-    
+
 %}
 
 %option noyywrap
@@ -106,7 +106,7 @@ __custom                                { return T_CUSTOM; }
 [a-zA-Z_][a-zA-Z_0-9]*                  {
         Namespace* ns = search_namespace;
         if(ns == 0)
-            ns = current_namespace;          
+            ns = current_namespace;
         // is it a type?
         yylval->atomic_type = ns->_findType(yytext, search_down);
         if(yylval->atomic_type) {
@@ -126,7 +126,7 @@ __custom                                { return T_CUSTOM; }
         sscanf(yytext, "%i", &(yylval->ival));
         return T_INT;
 }
-[0-9]*\.[0-9]+(e[0-9]+)? { 
+[0-9]*\.[0-9]+(e[0-9]+)? {
         sscanf(yytext, "%f", &(yylval->fval));
         return T_FLOAT;
 }

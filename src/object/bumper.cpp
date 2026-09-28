@@ -38,8 +38,8 @@ Bumper::Bumper(const ReaderMapping& reader) :
   m_sprite->set_action(left ? "left-normal" : "right-normal");
 	physic.enable_gravity(false);
 }
-  
-  
+
+
 void
 Bumper::update(float dt_sec)
 {
@@ -62,7 +62,7 @@ Bumper::collision(GameObject& other, const CollisionHit& hit)
     SoundManager::current()->play(TRAMPOLINE_SOUND);
     m_sprite->set_action((left ? "left-swinging" : "right-swinging"), 1);
   }
-	
+
 	auto bumper = dynamic_cast<Bumper*> (&other);
 	if (bumper)
   {

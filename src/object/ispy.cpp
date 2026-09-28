@@ -80,7 +80,7 @@ Ispy::update(float )
     if (m_sprite->animation_done()) {
       m_sprite->set_action((dir == Direction::DOWN) ? "hiding-down" : ((dir == Direction::LEFT) ? "hiding-left" : "hiding-right"), 1);
       state = ISPYSTATE_HIDING;
-	  
+
 	  Sector::get().run_script(script, "Ispy");
     }
   }

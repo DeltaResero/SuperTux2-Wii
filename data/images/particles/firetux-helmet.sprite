@@ -2,7 +2,7 @@
  (action
   (name "right")
   (fps 1)
-  (images 
+  (images
     "firetux-helmet.png"
   )
  )

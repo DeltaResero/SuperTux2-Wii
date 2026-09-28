@@ -5,7 +5,7 @@
           (surface
            (diffuse-texture (file "empty.png"))
            (displacement-texture (file "displacement.png")))))
-      (action 
+      (action
         (name "normal")
         (images "invisible.png"))
 )

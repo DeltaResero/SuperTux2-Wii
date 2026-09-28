@@ -2,7 +2,7 @@
  (action
   (name "default")
   (fps 1.0)
-  (images 
+  (images
     "bark-0.png"
   )
  )

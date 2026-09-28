@@ -59,7 +59,7 @@ Wind::Wind(const ReaderMapping& reader) :
   reader.get("affects-badguys", affects_badguys, false);
   reader.get("affects-objects", affects_objects, false);
   reader.get("affects-player", affects_player, true);
-  
+
   reader.get("fancy-wind", fancy_wind, false);
 
   set_group(COLGROUP_TOUCHABLE);
@@ -83,7 +83,7 @@ Wind::update(float dt_sec_)
     // emit a particle
 	  if (fancy_wind)
     {
-	    Sector::get().add<SpriteParticle>("images/particles/wind.sprite", (std::abs(speed.x) > std::abs(speed.y)) ? "default" : "flip", ppos, ANCHOR_MIDDLE, pspeed, Vector(0, 0), LAYER_BACKGROUNDTILES + 1); 
+	    Sector::get().add<SpriteParticle>("images/particles/wind.sprite", (std::abs(speed.x) > std::abs(speed.y)) ? "default" : "flip", ppos, ANCHOR_MIDDLE, pspeed, Vector(0, 0), LAYER_BACKGROUNDTILES + 1);
 	  }
 	  else
     {

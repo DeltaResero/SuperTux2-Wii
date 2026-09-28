@@ -1,7 +1,7 @@
 (supertux-sprite
   (action
     (name "default")
-    (images 
+    (images
       "flying_platform-0.png"
       "flying_platform-1.png"
       "flying_platform-2.png"

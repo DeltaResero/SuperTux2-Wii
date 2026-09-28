@@ -1,4 +1,4 @@
-(supertux-text			
+(supertux-text
   (background	"christmas/intro.jpg")
   (music	"music/antarctic/voc-dark.music")
   (text "-Ready for Christmas?
@@ -12,5 +12,5 @@
 	But there was still one last thing missing.
 
 	They still needed a christmas tree.
-	And Tux immediately went on his way 
+	And Tux immediately went on his way
 	to search for a beautiful christmas tree.") )

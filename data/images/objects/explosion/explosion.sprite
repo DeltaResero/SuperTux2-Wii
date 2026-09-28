@@ -3,7 +3,7 @@
     (name "default")
     (fps 15.0)
     (hitbox 36 36 48 48)
-    (images 
+    (images
       "explosion-0.png"
       "explosion-1.png"
       "explosion-2.png"

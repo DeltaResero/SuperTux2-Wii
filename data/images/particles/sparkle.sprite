@@ -1,7 +1,7 @@
 (supertux-sprite
   (action
     (name "small")
-    (images 
+    (images
       "sparkle-0.png"
       "sparkle-1.png"
       "sparkle-0.png"
@@ -9,7 +9,7 @@
   )
   (action
     (name "dark")
-    (images 
+    (images
       "sparkle-dark-0.png"
       "sparkle-dark-1.png"
       "sparkle-dark-0.png"
@@ -17,7 +17,7 @@
   )
   (action
     (name "medium")
-    (images 
+    (images
       "sparkle-0.png"
       "sparkle-1.png"
       "sparkle-0.png"

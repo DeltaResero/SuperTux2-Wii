@@ -1,13 +1,13 @@
 (supertux-sprite
   (action
     (name "normal")
-    (images 
+    (images
       "meltbox.png"
     )
   )
   (action
     (name "burning")
-    (images 
+    (images
       "melt_01.png"
 			"melt_02.png"
 			"melt_03.png"
@@ -17,7 +17,7 @@
   )
   (action
     (name "disintegrating")
-    (images 
+    (images
       "melt_06.png"
       "melt_07.png"
       "melt_08.png"

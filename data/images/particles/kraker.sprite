@@ -1,7 +1,7 @@
 (supertux-sprite
  (action
   (name "default")
-  (images 
+  (images
     "kracker-1.png"
 
   )

@@ -24,7 +24,7 @@ class SkyDive final : public BadGuy, public Portable
 {
 public:
   SkyDive(const ReaderMapping& reader);
-  
+
   virtual void kill_fall() override;
 
   virtual void collision_solid(const CollisionHit& hit) override;

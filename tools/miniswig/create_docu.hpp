@@ -13,7 +13,7 @@ public:
 
     DocuCreator(std::ostream& _out = std::cout) :
         ind("  "),
-        out(_out), 
+        out(_out),
         writer(out)
     { }
 

@@ -38,7 +38,7 @@
   (hitbox 17 14 31 31)
   (fps 30)
   (mirror-action "left-down"))
-  
+
  (action
   (name "left-up")
   (loops 1)

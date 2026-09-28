@@ -202,7 +202,7 @@ GameObjectManager::flush_game_objects()
 }
 
 void
-GameObjectManager::update_solids() 
+GameObjectManager::update_solids()
 {
   m_solid_tilemaps.clear();
   for (auto tilemap : get_objects_by_type_index(typeid(TileMap)))
@@ -212,7 +212,7 @@ GameObjectManager::update_solids()
   }
 }
 
-void 
+void
 GameObjectManager::update_solid(TileMap* tm) {
   auto it = std::find(m_solid_tilemaps.begin(), m_solid_tilemaps.end(), tm);
   bool found = it != m_solid_tilemaps.end();

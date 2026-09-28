@@ -2,7 +2,7 @@
   (action
     (name "appearing")
     (fps 16)
-    (images 
+    (images
       "root-base-0.png"
       "root-base-1.png"
       "root-base-2.png"
@@ -12,7 +12,7 @@
   (action
     (name "vanishing")
     (fps 16)
-    (images 
+    (images
       "root-base-3.png"
       "root-base-2.png"
       "root-base-1.png"

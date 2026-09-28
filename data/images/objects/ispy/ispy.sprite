@@ -2,7 +2,7 @@
   (action
     (name "idle-left")
     (hitbox 8 12 18 28)
-    (images 
+    (images
       "i-idle.png"
     )
   )
@@ -15,7 +15,7 @@
     (name "alert-left")
     (hitbox 8 12 18 28)
 	(fps 14)
-    (images 
+    (images
 	  "i-idle.png"
 	  "i-idle.png"
 	  "i-idle.png"
@@ -43,7 +43,7 @@
   (action
     (name "hiding-left")
     (hitbox 8 12 18 28)
-    (images 
+    (images
       "i-hiding.png"
       "i-hiding.png"
       "i-hiding.png"
@@ -65,7 +65,7 @@
     (name "showing-left")
     (hitbox 8 12 18 28)
 	(fps 14)
-    (images 
+    (images
       "i-hiding.png"
       "i-showing1.png"
       "i-showing2.png"
@@ -84,7 +84,7 @@
     (name "idle-down")
     (hitbox 2 3 28 18)
 	(fps 14)
-    (images 
+    (images
       "i-idle-down.png"
     )
   )
@@ -92,7 +92,7 @@
     (name "alert-down")
     (hitbox 2 3 28 18)
 	(fps 14)
-    (images 
+    (images
       "i-idle-down.png"
 	  "i-idle-down.png"
 	  "i-idle-down.png"
@@ -115,7 +115,7 @@
     (name "hiding-down")
     (hitbox 2 3 28 18)
 	(fps 14)
-    (images 
+    (images
       "i-hiding-down.png"
       "i-hiding-down.png"
       "i-hiding-down.png"
@@ -132,7 +132,7 @@
     (name "showing-down")
     (hitbox 2 3 28 18)
 	(fps 14)
-    (images 
+    (images
       "i-hiding-down.png"
       "i-showing1-down.png"
       "i-showing2-down.png"

@@ -50,7 +50,7 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_class() const override { return "icecrusher"; }
 
-  
+
 
 private:
   bool found_victim_down() const;
@@ -72,7 +72,7 @@ private:
   SpritePtr whites;
 
   IceCrusherSize ic_size;
-  
+
   bool sideways;
 
 private:

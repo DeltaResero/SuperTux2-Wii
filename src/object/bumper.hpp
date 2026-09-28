@@ -27,17 +27,17 @@ class Bumper final : public MovingSprite
 public:
   Bumper(const ReaderMapping& reader);
 
-  
+
   virtual void update(float dt_sec) override;
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
-  
+
   virtual std::string get_class() const override { return "bumper"; }
 
   Physic physic;
 
 private:
   bool left;
-	
+
 private:
   Bumper(const Bumper&) = delete;
   Bumper& operator=(const Bumper&) = delete;

@@ -2,7 +2,7 @@
  (action
   (name "default")
 (fps 4.0)
-  (images 
+  (images
     "poisonivy-0.png"
 "poisonivy-1.png"
 "poisonivy-2.png"

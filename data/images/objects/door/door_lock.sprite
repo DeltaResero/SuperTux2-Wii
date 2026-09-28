@@ -2,7 +2,7 @@
   (action
     (name "default")
     (hitbox 2 2 15 18)
-    (images 
+    (images
       "door_lock.png")
   )
 )

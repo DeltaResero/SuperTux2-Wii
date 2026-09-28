@@ -264,7 +264,7 @@ IceCrusher::collision_solid(const CollisionHit& hit)
 void
 IceCrusher::update(float dt_sec)
 {
-  
+
   if (cooldown_timer >= dt_sec)
   {
     cooldown_timer -= dt_sec;

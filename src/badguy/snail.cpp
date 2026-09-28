@@ -101,7 +101,7 @@ Snail::active_update(float dt_sec)
 {
   if (state == STATE_GRABBED)
     return;
-  
+
   if (m_frozen)
   {
     BadGuy::active_update(dt_sec);

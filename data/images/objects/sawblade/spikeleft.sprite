@@ -3,7 +3,7 @@
   (name "default")
   (hitbox 0 0 32 32)
   (fps 120)
-  (images 
+  (images
    "left.png"
   )
  )

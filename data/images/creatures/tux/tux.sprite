@@ -80,7 +80,7 @@
          (fps 15.0)
          (hitbox 8 16 32 32)
          (mirror-action "small-jump-right"))
-		 
+
 	   (action
          (name "small-fall-right")
          (fps 15.0)
@@ -92,7 +92,7 @@
          (fps 15.0)
          (hitbox 8 16 32 32)
          (mirror-action "small-jump-right"))
-		 
+
        (action
          (name "small-skid-right")
          (hitbox 8 17 32 32)
@@ -213,12 +213,12 @@
                  "small/grow-4.png"
                  "small/grow-5.png"
                  "small/grow-6.png"))
-				 
+
        (action
          (name "grow-left")
          (hitbox 16 13 32 64)
          (mirror-action "grow-right"))
-         
+
        (action
          (name "swimgrow-right")
          (fps 15.0)
@@ -235,7 +235,7 @@
          (name "swimgrow-left")
          (hitbox 29 24 32 64)
          (mirror-action "swimgrow-right"))
-		 
+
        (action
          (name "grow-ladder-right")
          (fps 15.0)
@@ -286,7 +286,7 @@
          (fps 15.0)
          (hitbox 16 14 32 64)
          (mirror-action "big-stand-right"))
-		 
+
 	   (action
          (name "big-walljump-right")
          (fps 24.0)
@@ -314,7 +314,7 @@
          (fps 15.0)
          (hitbox 16 14 32 64)
          (mirror-action "big-jump-right"))
-		 
+
 	   (action
          (name "big-fall-right")
          (fps 15.0)
@@ -435,7 +435,7 @@
          (fps 15.0)
          (hitbox 29 24 32 64)
          (mirror-action "big-swimming-right"))
-				 
+
 	   (action
          (name "big-floating-right")
          (fps 11.0)
@@ -537,7 +537,7 @@
          (hitbox 16 14 32 64)
          (loops 1)
          (mirror-action "big-jump-right"))
-		 
+
 	   (action
          (name "fire-fall-right")
          (fps 16.0)
@@ -721,7 +721,7 @@
          (hitbox 16 14 32 64)
          (loops 1)
          (mirror-action "big-jump-right"))
-		 
+
 	   (action
          (name "ice-fall-right")
          (fps 16.0)
@@ -905,7 +905,7 @@
          (hitbox 16 14 32 64)
          (loops 1)
          (mirror-action "big-jump-right"))
-		 
+
        (action
          (name "earth-fall-right")
          (fps 16.0)
@@ -1199,7 +1199,7 @@
          (hitbox 16 14 32 64)
          (loops 1)
          (mirror-action "big-jump-right"))
-		 
+
 	   (action
          (name "air-fall-right")
          (fps 16.0)
@@ -1383,7 +1383,7 @@
          (hitbox 16 14 32 64)
          (loops 1)
          (mirror-action "big-jump-right"))
-		 
+
 	   (action
          (name "santa-fall-right")
          (fps 16.0)

@@ -8,7 +8,7 @@
   (name "dropper-iced")
   (hitbox 0 0 64 24)
   (images "dropper-frozen.png"))
- 
+
  (action
   (name "working")
   (hitbox 3 5 32 60)
@@ -18,12 +18,12 @@
   (name "iced")
   (hitbox 3 5 32 60)
   (images "canon-frozen.png"))
- 
+
  (action
   (name "working-left")
   (hitbox 5 12 55 40)
   (images "working.png"))
- 
+
  (action
   (name "broken-left")
   (hitbox 5 12 55 40)
@@ -33,12 +33,12 @@
   (name "iced-left")
   (hitbox 5 12 55 40)
   (images "frozen.png"))
- 
+
  (action
   (name "working-right")
   (hitbox 4 12 55 40)
   (mirror-action "working-left"))
- 
+
  (action
   (name "broken-right")
   (hitbox 4 12 55 40)

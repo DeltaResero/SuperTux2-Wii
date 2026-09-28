@@ -234,7 +234,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
           std::vector<SurfacePtr> regions;
           regions.reserve(surfaces.size());
           std::transform(surfaces.begin(), surfaces.end(), std::back_inserter(regions),
-              [x, y] (const SurfacePtr& surface) { 
+              [x, y] (const SurfacePtr& surface) {
                 return surface->region(Rect(x, y, Size(32, 32)));
               });
 

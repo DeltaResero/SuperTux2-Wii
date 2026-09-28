@@ -10,5 +10,5 @@
  (action
   (name "outline")
   (images "o_outline.png")
- )           
+ )
 )
