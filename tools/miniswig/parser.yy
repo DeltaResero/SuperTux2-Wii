@@ -447,4 +447,3 @@ void yyerror(const char* error)
 {
     throw ParseError(error);
 }
-

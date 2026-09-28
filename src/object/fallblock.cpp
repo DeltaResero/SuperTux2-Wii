@@ -163,3 +163,5 @@ FallBlock::found_victim_down() const
   }
   return false;
 }
+
+/* EOF */

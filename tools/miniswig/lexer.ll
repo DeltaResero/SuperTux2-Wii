@@ -137,4 +137,3 @@ __custom                                { return T_CUSTOM; }
 .                                       { return yytext[0]; }
 
 %%
-

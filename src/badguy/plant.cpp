@@ -109,4 +109,5 @@ Plant::ignite()
     m_sprite->set_action(m_dir == Direction::LEFT ? "sleeping-burning-left" : "sleeping-burning-right", 1);
   }
 }
+
 /* EOF */

@@ -71,3 +71,5 @@ CirclePlatform::initialize()
 {
   timer.start(time);
 }
+
+/* EOF */
