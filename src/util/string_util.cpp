@@ -16,7 +16,6 @@
 
 #include "string_util.hpp"
 
-#include <algorithm>
 #include <string>
 #include <string.h>
 
@@ -83,14 +82,6 @@ StringUtil::numeric_less(const std::string& lhs, const std::string& rhs)
   }
 
   return lhs.size() < rhs.size();
-}
-
-std::string
-StringUtil::tolower(const std::string& text)
-{
-  std::string result = text;
-  std::transform(result.begin(), result.end(), result.begin(), ::tolower);
-  return result;
 }
 
 std::string
