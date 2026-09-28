@@ -35,7 +35,6 @@ public:
   virtual void kill_fall() override {}
 
   virtual std::string get_class() const override { return "walking_candle"; }
-  virtual std::string get_display_name() const override { return "Walking Candle"; }
 
 private:
   Color lightcolor;

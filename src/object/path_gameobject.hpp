@@ -41,7 +41,6 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "path"; }
-  virtual std::string get_display_name() const override { return "Path"; }
 
   virtual void remove_me() override;
 

@@ -59,7 +59,6 @@ public:
   virtual void on_flip(float height) override;
 
   virtual std::string get_class() const override { return "pneumatic-platform"; }
-  virtual std::string get_display_name() const override { return "Pneumatic Platform"; }
 
 private:
   Vector m_pos;

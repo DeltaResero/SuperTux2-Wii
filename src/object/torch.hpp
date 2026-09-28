@@ -39,7 +39,6 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& ) override;
 
   virtual std::string get_class() const override { return "torch"; }
-  virtual std::string get_display_name() const override { return "Torch"; }
 
   virtual int get_layer() const override { return m_layer; }
 

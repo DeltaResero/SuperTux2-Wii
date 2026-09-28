@@ -54,7 +54,6 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "particle-system"; }
-  virtual std::string get_display_name() const override { return "Particle system"; }
 
   void set_enabled(bool enabled_);
   bool get_enabled() const;

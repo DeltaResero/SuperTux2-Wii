@@ -36,7 +36,6 @@ public:
   virtual void ungrab(MovingObject&, Direction) override;
   virtual bool is_portable() const override;
   virtual std::string get_class() const override { return "rustytrampoline"; }
-  virtual std::string get_display_name() const override { return "Rusty Trampoline"; }
 
 private:
   bool portable;

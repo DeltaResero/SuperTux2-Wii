@@ -30,7 +30,6 @@ public:
 
   virtual bool is_flammable() const override;
   virtual std::string get_class() const override { return "yeti_stalactite"; }
-  virtual std::string get_display_name() const override { return "Yeti's Stalactite"; }
 
   void start_shaking();
   bool is_hanging() const;

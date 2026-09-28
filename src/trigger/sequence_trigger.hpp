@@ -30,7 +30,6 @@ public:
   SequenceTrigger(const Vector& pos, const std::string& sequence_name);
 
   virtual std::string get_class() const override { return "sequencetrigger"; }
-  virtual std::string get_display_name() const override { return "Sequence Trigger"; }
 
   virtual void event(Player& player, EventType type) override;
   virtual void draw(DrawingContext& context) override;

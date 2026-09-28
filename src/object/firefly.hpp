@@ -33,7 +33,6 @@ public:
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual std::string get_class() const override { return "firefly"; }
-  virtual std::string get_display_name() const override { return "Checkpoint"; }
 
 private:
   SpritePtr m_sprite_light;

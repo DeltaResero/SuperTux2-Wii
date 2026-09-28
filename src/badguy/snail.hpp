@@ -39,7 +39,6 @@ public:
 
   virtual bool is_freezable() const override;
   virtual std::string get_class() const override { return "snail"; }
-  virtual std::string get_display_name() const override { return "Snail"; }
 
   virtual bool is_portable() const override;
   virtual void ungrab(MovingObject& , Direction dir_) override;

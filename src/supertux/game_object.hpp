@@ -72,7 +72,6 @@ public:
   virtual void draw(DrawingContext& context) = 0;
 
   virtual std::string get_class() const { return "game-object"; }
-  virtual std::string get_display_name() const { return "Unknown object"; }
 
   /** If true only a single object of this type is allowed in a
       given GameObjectManager */

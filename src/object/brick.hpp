@@ -27,7 +27,6 @@ public:
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual std::string get_class() const override { return "brick"; }
-  virtual std::string get_display_name() const override { return "Brick"; }
 
   void try_break(Player* player);
 

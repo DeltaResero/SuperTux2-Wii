@@ -29,7 +29,6 @@ public:
   virtual void initialize() override;
   virtual void collision_solid(const CollisionHit& hit) override;
   virtual std::string get_class() const override { return "kamikazesnowball"; }
-  virtual std::string get_display_name() const override { return "Snowshot"; }
 
 protected:
   virtual bool collision_squished(GameObject& object) override;
@@ -49,7 +48,6 @@ public:
   virtual void initialize() override;
   virtual bool is_freezable() const override;
   virtual std::string get_class() const override { return "leafshot"; }
-  virtual std::string get_display_name() const override { return "Leafshot"; }
   virtual void kill_collision() override;
 
 protected:

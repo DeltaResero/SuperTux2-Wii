@@ -38,7 +38,6 @@ public:
   virtual bool is_singleton() const override { return true; }
 
   virtual std::string get_class() const override { return "music"; }
-  virtual std::string get_display_name() const override { return "Music"; }
 
   void play_music(MusicType musictype);
   void resume_music();

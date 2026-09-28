@@ -42,7 +42,6 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual std::string get_class() const override { return "particles-custom"; }
-  virtual std::string get_display_name() const override { return "Custom Particles"; }
 
   virtual void expose(HSQUIRRELVM vm, SQInteger table_idx) override {
     ExposedObject<CustomParticleSystem, scripting::CustomParticles>::expose(vm, table_idx);

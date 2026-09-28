@@ -32,7 +32,6 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
   virtual std::string get_class() const override { return "powerup"; }
-  virtual std::string get_display_name() const override { return "Powerup"; }
 
 private:
   /** Initialize power up sprites and other defaults */

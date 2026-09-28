@@ -33,7 +33,6 @@ public:
   SecretAreaTrigger(const Rectf& area, const std::string& fade_tilemap = "");
 
   virtual std::string get_class() const override { return "secretarea"; }
-  virtual std::string get_display_name() const override { return "Secret Area"; }
 
   virtual void event(Player& player, EventType type) override;
   virtual void draw(DrawingContext& context) override;

@@ -29,7 +29,6 @@ public:
   virtual void collision_solid(const CollisionHit& hit) override;
   virtual HitResponse collision_badguy(BadGuy& badguy, const CollisionHit& hit) override;
   virtual std::string get_class() const override { return "bouncingsnowball"; }
-  virtual std::string get_display_name() const override { return "Bouncing Snowball"; }
 
 protected:
   virtual bool collision_squished(GameObject& object) override;

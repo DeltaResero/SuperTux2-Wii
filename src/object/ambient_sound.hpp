@@ -60,7 +60,6 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit_) override;
 
   virtual std::string get_class() const override { return "ambient-sound"; }
-  virtual std::string get_display_name() const override { return "Ambient Sound"; }
 
   /** @name Scriptable Methods
       @{ */

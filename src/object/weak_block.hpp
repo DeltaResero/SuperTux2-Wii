@@ -32,7 +32,6 @@ public:
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_class() const override { return "weak_block"; }
-  virtual std::string get_display_name() const override { return "Weak Tile"; }
 
 private:
   virtual HitResponse collision_bullet(Bullet& bullet, const CollisionHit& hit);

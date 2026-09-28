@@ -34,7 +34,6 @@ public:
   virtual void unfreeze() override;
   virtual bool is_freezable() const override;
   virtual std::string get_class() const override { return "skullyhop"; }
-  virtual std::string get_display_name() const override { return "Skullyhop"; }
 
 private:
   enum SkullyHopState {

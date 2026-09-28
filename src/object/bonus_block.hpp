@@ -53,7 +53,6 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "bonusblock"; }
-  virtual std::string get_display_name() const override { return "Bonus Block"; }
 
   Content get_contents() const { return m_contents; }
   int get_hit_counter() const { return m_hit_counter; }

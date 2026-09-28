@@ -32,7 +32,6 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual std::string get_class() const override { return "particles-snow"; }
-  virtual std::string get_display_name() const override { return "Snow Particles"; }
 
   void init();
 

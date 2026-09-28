@@ -30,7 +30,6 @@ public:
   virtual void active_update(float dt_sec) override;
   virtual void ignite() override;
   virtual std::string get_class() const override { return "plant"; }
-  virtual std::string get_display_name() const override { return "Plant"; }
 
 protected:
   enum PlantState {
