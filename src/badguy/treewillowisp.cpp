@@ -1,4 +1,4 @@
-//  SuperTux - "Will-O-Wisp" Badguy
+//  SuperTux
 //  Copyright (C) 2007 Matthias Braun
 //
 //  This program is free software: you can redistribute it and/or modify

@@ -1,4 +1,4 @@
-//  SuperTux badguy - Iceflame a flame-like enemy that can be killed with fireballs
+//  SuperTux
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify

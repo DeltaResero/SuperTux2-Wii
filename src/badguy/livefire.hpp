@@ -1,4 +1,4 @@
-//  SuperTux badguy - walking flame that glows
+//  SuperTux
 //  Copyright (C) 2013 LMH <lmh.0013@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify

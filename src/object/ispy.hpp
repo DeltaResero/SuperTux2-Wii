@@ -1,4 +1,4 @@
-//  SuperTux - Ispy
+//  SuperTux
 //  Copyright (C) 2007 Christoph Sommer <christoph.sommer@2007.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify

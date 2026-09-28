@@ -1,6 +1,6 @@
 //  SuperTux
-//  Copyright (C) 2018 Ingo Ruhnke <grumbel@gmail.com>,
-//                     Tobias Markus <tobbi.bugs@googlemail.com>
+//  Copyright (C) 2018 Ingo Ruhnke <grumbel@gmail.com>
+//  Copyright (C) 2018 Tobias Markus <tobbi.bugs@googlemail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by

@@ -1,4 +1,4 @@
-//  SuperTux - Lantern
+//  SuperTux
 //  Copyright (C) 2006 Wolfgang Becker <uafr@gmx.de>
 //
 //  This program is free software: you can redistribute it and/or modify

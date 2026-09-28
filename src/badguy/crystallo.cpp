@@ -1,4 +1,4 @@
-//  SuperTux - Crystallo
+//  SuperTux
 //  Copyright (C) 2008 Wolfgang Becker <uafr@gmx.de>
 //
 //  This program is free software: you can redistribute it and/or modify

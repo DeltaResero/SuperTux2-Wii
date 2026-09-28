@@ -1,4 +1,4 @@
-//  MoleRock - Rock thrown by "Mole" Badguy
+//  SuperTux
 //  Copyright (C) 2006 Christoph Sommer <christoph.sommer@2006.expires.deltadevelopment.de>
 //
 //  This program is free software: you can redistribute it and/or modify

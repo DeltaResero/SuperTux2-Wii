@@ -1,4 +1,4 @@
-//  SuperTux - Sector scripting
+//  SuperTux
 //  Copyright (C) 2016 Tobias Markus <tobbi.bugs@gmail.com>
 //
 //  This program is free software: you can redistribute it and/or modify
