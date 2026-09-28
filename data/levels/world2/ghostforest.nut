@@ -7,7 +7,7 @@ if("ambient_r" in state && "ambient_g" in state && "ambient_b" in state){
 }
 
 if(! ("ghostforest" in state)){
-	state.ghostforest <- false;
+  state.ghostforest <- false;
   print("[DEBUG] Ghost Forest state initialized\n");
 }
 

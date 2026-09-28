@@ -38,10 +38,9 @@ function levelflip()
 
 function println(val)
 {
-	print(val);
-	print("\n");
+  print(val);
+  print("\n");
 }
 
 if(! ("state" in this))
   state <- {};
-
