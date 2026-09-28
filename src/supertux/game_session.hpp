@@ -69,12 +69,6 @@ public:
 
   void start_sequence(Sequence seq, const SequenceData* data = nullptr);
 
-  /**
-   * returns the "working directory" usually this is the directory where the
-   * currently played level resides. This is used when locating additional
-   * resources for the current level/world
-   */
-  std::string get_working_directory() const;
   int restart_level(bool after_death = false);
   bool reset_button;
   bool reset_checkpoint_button;

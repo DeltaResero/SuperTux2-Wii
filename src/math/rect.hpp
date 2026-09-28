@@ -76,8 +76,6 @@ public:
     bottom(rect.y + rect.h)
   {}
 
-  explicit Rect(const Rectf& other);
-
   bool operator==(const Rect& other) const
   {
     return (left == other.left &&
@@ -128,14 +126,6 @@ public:
                 top + y,
                 right + x,
                 bottom + y);
-  }
-
-  Rect grown(int border) const
-  {
-    return Rect(left - border,
-                top - border,
-                right + border,
-                bottom + border);
   }
 
   SDL_Rect to_sdl() const

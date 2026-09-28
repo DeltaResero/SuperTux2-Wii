@@ -47,9 +47,6 @@ public:
 
   void draw_image(DrawingContext& context, const Vector& pos);
 
-  std::string get_image() const { return m_imagefile; }
-  float get_speed() const { return m_parallax_speed.x; }
-
   Color get_color() const { return m_color; }
   void set_color(Color color) { m_color = color; }
   void fade_color(Color color, float time);

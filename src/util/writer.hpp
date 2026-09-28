@@ -26,8 +26,6 @@ public:
   Writer(const std::string& filename);
   ~Writer();
 
-  void write_comment(const std::string& comment);
-
   void start_list(const std::string& listname, bool string = false);
 
   void write(const std::string& name, bool value);
@@ -35,7 +33,6 @@ public:
   void write(const std::string& name, float value);
   void write(const std::string& name, const char* value);
   void write(const std::string& name, const std::string& value);
-  void write(const std::string& name, const std::vector<int>& value);
   // add more write-functions when needed...
 
   void end_list(const std::string& listname);

@@ -61,11 +61,6 @@ public:
     return *m_surface;
   }
 
-  const SDL_Surface& operator*() const
-  {
-    return *m_surface;
-  }
-
   SDL_Surface* operator->()
   {
     return m_surface;

@@ -97,10 +97,4 @@ Color::multiply_linearly(float v) const
   return Color(red * v, green * v, blue * v, alpha);
 }
 
-bool
-Color::operator < (const Color& other) const
-{
-  return greyscale() < other.greyscale();
-}
-
 /* EOF */

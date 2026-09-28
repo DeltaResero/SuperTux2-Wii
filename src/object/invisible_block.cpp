@@ -22,15 +22,6 @@
 #include "sprite/sprite_manager.hpp"
 #include "supertux/constants.hpp"
 
-InvisibleBlock::InvisibleBlock(const Vector& pos) :
-   Block(SpriteManager::current()->create("images/objects/bonus_block/invisibleblock.sprite")),
-   visible(false)
-{
-  m_col.m_bbox.set_pos(pos);
-  SoundManager::current()->preload("sounds/brick.wav");
-  m_sprite->set_action("default-editor");
-}
-
 InvisibleBlock::InvisibleBlock(const ReaderMapping& mapping) :
    Block(mapping, "images/objects/bonus_block/invisibleblock.sprite"),
    visible(false)

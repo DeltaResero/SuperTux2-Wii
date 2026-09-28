@@ -41,8 +41,6 @@ public:
 
   virtual std::string get_class() const override { return "platform"; }
 
-  const Vector& get_speed() const { return m_speed; }
-
   /** @name Scriptable Methods
       @{ */
 

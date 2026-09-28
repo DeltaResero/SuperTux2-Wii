@@ -48,8 +48,6 @@ enum class Control {
   CONTROLCOUNT
 };
 
-std::ostream& operator<<(std::ostream& os, Control control);
-
 std::string Control_to_string(Control control);
 boost::optional<Control> Control_from_string(const std::string& text);
 

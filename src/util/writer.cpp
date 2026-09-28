@@ -37,12 +37,6 @@ Writer::~Writer()
 }
 
 void
-Writer::write_comment(const std::string& comment)
-{
-  *out << "; " << comment << "\n";
-}
-
-void
 Writer::start_list(const std::string& listname, bool string)
 {
   indent();
@@ -112,17 +106,6 @@ Writer::write(const std::string& name, bool value)
 {
   indent();
   *out << '(' << name << ' ' << (value ? "#t" : "#f") << ")\n";
-}
-
-void
-Writer::write(const std::string& name,
-              const std::vector<int>& value)
-{
-  indent();
-  *out << '(' << name;
-  for (const auto& i : value)
-    *out << " " << i;
-  *out << ")\n";
 }
 
 void

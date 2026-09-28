@@ -38,10 +38,8 @@ public:
   TTFSurface(const SurfacePtr& surface, const Vector& offset);
 
   SurfacePtr get_surface() { return m_surface; }
-  Vector get_offset() const { return m_offset; }
 
   int get_width() const;
-  int get_height() const;
 
 private:
   SurfacePtr m_surface;

@@ -48,18 +48,6 @@ SequenceTrigger::SequenceTrigger(const ReaderMapping& reader) :
   reader.get("fade", reinterpret_cast<int&>(fade));
 }
 
-SequenceTrigger::SequenceTrigger(const Vector& pos, const std::string& sequence_name) :
-  triggerevent(EVENT_TOUCH),
-  sequence(string_to_sequence(sequence_name)),
-  new_size(0.0f, 0.0f),
-  new_spawnpoint(),
-  fade_tilemap(),
-  fade()
-{
-  m_col.m_bbox.set_pos(pos);
-  m_col.m_bbox.set_size(32, 32);
-}
-
 void
 SequenceTrigger::event(Player& player, EventType type)
 {
@@ -67,12 +55,6 @@ SequenceTrigger::event(Player& player, EventType type)
     auto data = SequenceData(new_spawnpoint, fade_tilemap, fade);
     player.trigger_sequence(sequence, &data);
   }
-}
-
-std::string
-SequenceTrigger::get_sequence_name() const
-{
-  return sequence_to_string(sequence);
 }
 
 void

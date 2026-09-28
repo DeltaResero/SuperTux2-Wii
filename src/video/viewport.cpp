@@ -214,10 +214,4 @@ Viewport::to_logical(int physical_x, int physical_y) const
                 static_cast<float>(physical_y - m_rect.top) / m_scale.y);
 }
 
-bool
-Viewport::needs_clear_screen() const
-{
-  return (m_rect.left != 0 || m_rect.top != 0);
-}
-
 /* EOF */

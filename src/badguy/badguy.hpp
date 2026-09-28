@@ -209,11 +209,6 @@ protected:
       collision_solid. */
   bool on_ground() const;
 
-  /** Returns floor normal stored the last time when
-      update_on_ground_flag was called and we touched something solid
-      from above. */
-  Vector get_floor_normal() const;
-
   /** Returns true if we were in STATE_ACTIVE at the beginning of the
       last call to update() */
   bool is_active() const;

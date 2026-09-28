@@ -47,9 +47,6 @@ public:
   void fade_out(float fade_time);
   void fade_sprite(const std::string& new_sprite, float fade_time);
 
-  void set_visible(bool v) { m_visible = v; }
-  bool is_visible() const { return m_visible; }
-
 private:
   std::string m_default_action;
   bool m_solid;

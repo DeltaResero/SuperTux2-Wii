@@ -52,25 +52,6 @@ Door::Door(const ReaderMapping& mapping) :
   SoundManager::current()->preload("sounds/door.wav");
 }
 
-Door::Door(int x, int y, const std::string& sector, const std::string& spawnpoint) :
-  TriggerBase(),
-  state(CLOSED),
-  target_sector(sector),
-  target_spawnpoint(spawnpoint),
-  script(),
-  sprite_name("images/objects/door/door.sprite"),
-  sprite(SpriteManager::current()->create(sprite_name)),
-  stay_open_timer(),
-  m_flip(NO_FLIP)
-{
-  m_col.m_bbox.set_pos(Vector(static_cast<float>(x), static_cast<float>(y)));
-
-  sprite->set_action("closed");
-  m_col.m_bbox.set_size(sprite->get_current_hitbox_width(), sprite->get_current_hitbox_height());
-
-  SoundManager::current()->preload("sounds/door.wav");
-}
-
 Door::~Door()
 {
 }

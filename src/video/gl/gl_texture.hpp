@@ -42,13 +42,9 @@ public:
   virtual int get_image_width() const override { return m_image_width; }
   virtual int get_image_height() const override { return m_image_height; }
 
-  void set_handle(GLuint handle) { m_handle = handle; }
   const GLuint &get_handle() const { return m_handle; }
 
   const Sampler& get_sampler() const { return m_sampler; }
-
-  void set_image_width(int width) { m_image_width = width; }
-  void set_image_height(int height) { m_image_height = height; }
 
 private:
   void set_texture_params();

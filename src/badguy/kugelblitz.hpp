@@ -40,7 +40,6 @@ public:
   void explode();
 
 private:
-  void try_activate();
   HitResponse hit(const CollisionHit& hit);
 
 private:

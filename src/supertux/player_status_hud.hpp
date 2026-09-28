@@ -40,8 +40,6 @@ public:
 
   virtual bool is_singleton() const override { return true; }
 
-  void reset();
-
 private:
   PlayerStatus& m_player_status;
   int displayed_coins;

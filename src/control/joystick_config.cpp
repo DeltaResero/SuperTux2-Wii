@@ -79,25 +79,6 @@ JoystickConfig::reversemap_joyhat(Control c) const
 }
 
 void
-JoystickConfig::print_joystick_mappings() const
-{
-  std::cout << "Joystick Mappings" << std::endl;
-  std::cout << "-----------------" << std::endl;
-  for (const auto& i : m_joy_axis_map) {
-    std::cout << "Axis: " << i.first.second << " -> " << i.second << std::endl;
-  }
-
-  for (const auto& i : m_joy_button_map) {
-    std::cout << "Button: " << i.first.second << " -> " << i.second << std::endl;
-  }
-
-  for (const auto& i : m_joy_hat_map) {
-    std::cout << "Hat: " << i.first.second << " -> " << i.second << std::endl;
-  }
-  std::cout << std::endl;
-}
-
-void
 JoystickConfig::unbind_joystick_control(Control control)
 {
   // remove all previous mappings for that control

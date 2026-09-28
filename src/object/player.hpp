@@ -84,7 +84,6 @@ public:
 
   // Tux can only go this fast. If set to 0 no special limit is used, only the default limits.
   void set_speedlimit(float newlimit);
-  float get_speedlimit() const;
 
   const Controller& get_controller() const { return *m_controller; }
 

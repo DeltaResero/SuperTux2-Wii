@@ -34,11 +34,6 @@ public:
   void deactivate() override;
   void active_update(float dt_sec) override;
   
-  void goto_node(int node_no);
-  void set_state(const std::string& state);
-  void start_moving();
-  void stop_moving();
-
   void move_to(const Vector& pos) override;
 
 protected:

@@ -44,7 +44,6 @@ public:
   };
 
 public:
-  BonusBlock(const Vector& pos, int tile_data);
   BonusBlock(const ReaderMapping& mapping);
   ~BonusBlock() override;
 
@@ -67,7 +66,6 @@ private:
 
   BonusBlock::Content get_content_by_data(int tile_data) const;
   BonusBlock::Content get_content_from_string(const std::string& contentstring) const;
-  std::string contents_to_string(const BonusBlock::Content& content) const;
 
 private:
   Content m_contents;

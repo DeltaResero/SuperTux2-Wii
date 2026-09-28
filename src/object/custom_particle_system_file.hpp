@@ -30,7 +30,6 @@ class CustomParticleSystemFile final :
   public CustomParticleSystem
 {
 public:
-  CustomParticleSystemFile();
   CustomParticleSystemFile(const ReaderMapping& reader);
   ~CustomParticleSystemFile() override;
 

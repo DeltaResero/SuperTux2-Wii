@@ -145,7 +145,6 @@ public:
   /** changes all tiles with the given ID */
   void change_all(uint32_t oldtile, uint32_t newtile);
 
-  void set_flip(Flip flip) { m_flip = flip; }
   Flip get_flip() const { return m_flip; }
 
   /** Start fading the tilemap to opacity given by @c alpha.

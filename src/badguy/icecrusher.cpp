@@ -69,12 +69,6 @@ IceCrusher::IceCrusher(const ReaderMapping& reader) :
   after_sprite_set();
 }
 
-bool
-IceCrusher::is_sideways() const
-{
-  return sideways;
-}
-
 void
 IceCrusher::set_state(IceCrusherState state_, bool force)
 {

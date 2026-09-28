@@ -30,7 +30,6 @@ class Climbable final : public TriggerBase
   static Color text_color;
 public:
   Climbable(const ReaderMapping& reader);
-  Climbable(const Rectf& area);
   ~Climbable() override;
 
   virtual std::string get_class() const override { return "climbable"; }

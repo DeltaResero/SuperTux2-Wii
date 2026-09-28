@@ -81,7 +81,6 @@ public:
   /** scroll the upper left edge of the camera in scrolltime seconds
       to the position goal */
   void scroll_to(const Vector& goal, float scrolltime);
-  void move(const int dx, const int dy);
 
   void reload_config();
 

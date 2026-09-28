@@ -48,9 +48,6 @@ public:
   /** Converts window coordinates into logical screen coordinates */
   Vector to_logical(int physical_x, int physical_y) const;
 
-  /** True if the logical screen doens't cover the whole window */
-  bool needs_clear_screen() const;
-
 private:
   /** The minimum logical screen size that is allowed */
   static const Size s_max_size;

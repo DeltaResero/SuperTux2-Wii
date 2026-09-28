@@ -32,7 +32,6 @@ enum class PathStyle
 class PathGameObject : public GameObject
 {
 public:
-  PathGameObject();
   PathGameObject(const Vector& pos);
   PathGameObject(const ReaderMapping& mapping, bool backward_compatibility_hack=false);
   ~PathGameObject() override;

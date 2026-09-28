@@ -700,12 +700,6 @@ BadGuy::is_active() const
   return m_is_active_flag;
 }
 
-Vector
-BadGuy::get_floor_normal() const
-{
-  return m_floor_normal;
-}
-
 void
 BadGuy::freeze()
 {

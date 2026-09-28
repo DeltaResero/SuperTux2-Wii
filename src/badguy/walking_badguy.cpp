@@ -21,22 +21,6 @@
 #include "sprite/sprite.hpp"
 
 WalkingBadguy::WalkingBadguy(const Vector& pos,
-                             const std::string& sprite_name_,
-                             const std::string& walk_left_action_,
-                             const std::string& walk_right_action_,
-                             int layer_,
-                             const std::string& light_sprite_name) :
-  BadGuy(pos, sprite_name_, layer_, light_sprite_name),
-  walk_left_action(walk_left_action_),
-  walk_right_action(walk_right_action_),
-  walk_speed(80),
-  max_drop_height(-1),
-  turn_around_timer(),
-  turn_around_counter()
-{
-}
-
-WalkingBadguy::WalkingBadguy(const Vector& pos,
                              Direction direction,
                              const std::string& sprite_name_,
                              const std::string& walk_left_action_,

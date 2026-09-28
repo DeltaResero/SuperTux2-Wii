@@ -31,7 +31,6 @@ enum class DrawingTarget {
 };
 
 DrawingTarget DrawingTarget_from_string(const std::string& text);
-std::string to_string(DrawingTarget value);
 
 #endif
 

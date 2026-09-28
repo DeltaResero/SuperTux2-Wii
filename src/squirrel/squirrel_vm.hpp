@@ -53,7 +53,6 @@ public:
   bool get_bool(const char* name, bool& val);
   bool get_int(const char* name, int& val);
   bool get_float(const char* name, float& val);
-  bool get_string(const char* name, std::string& val);
 
   bool read_bool(const char* name);
   int read_int(const char* name);
@@ -64,7 +63,6 @@ public:
   void get_or_create_table_entry(const std::string& name);
   void delete_table_entry(const char* name);
   void rename_table_entry(const char* oldname, const char* newname);
-  std::vector<std::string> get_table_keys();
 
   HSQOBJECT create_thread();
 

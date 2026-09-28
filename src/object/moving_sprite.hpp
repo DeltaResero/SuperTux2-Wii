@@ -34,21 +34,13 @@ public:
                int layer = LAYER_OBJECTS,
                CollisionGroup collision_group = COLGROUP_MOVING);
   MovingSprite(const ReaderMapping& reader,
-               const Vector& pos,
-               int layer = LAYER_OBJECTS,
-               CollisionGroup collision_group = COLGROUP_MOVING);
-  MovingSprite(const ReaderMapping& reader,
                const std::string& sprite_name,
-               int layer = LAYER_OBJECTS,
-               CollisionGroup collision_group = COLGROUP_MOVING);
-  MovingSprite(const ReaderMapping& reader,
                int layer = LAYER_OBJECTS,
                CollisionGroup collision_group = COLGROUP_MOVING);
 
   virtual void draw(DrawingContext& context) override;
   virtual void update(float dt_sec) override;
   virtual std::string get_class() const override { return "moving-sprite"; }
-  virtual std::string get_default_sprite_name() const { return m_default_sprite_name; }
 
   virtual int get_layer() const override { return m_layer; }
 
@@ -60,11 +52,6 @@ protected:
   /** set new action for sprite and resize bounding box.  use with
       care as you can easily get stuck when resizing the bounding box. */
   void set_action(const std::string& action, int loops);
-
-  /** set new action for sprite and re-center bounding box.  use with
-      care as you can easily get stuck when resizing the bounding
-      box. */
-  void set_action_centered(const std::string& action, int loops);
 
   /** set new action for sprite and align bounding boxes at
       anchorPoint.  use with care as you can easily get stuck when

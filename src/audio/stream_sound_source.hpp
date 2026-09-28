@@ -42,7 +42,6 @@ public:
 
   void set_fading(FadeState state, float fadetime);
   FadeState get_fade_state() const { return m_fade_state; }
-  bool get_looping() const { return m_looping; }
 
 private:
   bool fillBufferAndQueue(ALuint buffer);

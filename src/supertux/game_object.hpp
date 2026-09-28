@@ -113,20 +113,6 @@ public:
     return nullptr;
   }
 
-  void add_component(std::unique_ptr<GameObjectComponent> component) {
-    m_components.emplace_back(std::move(component));
-  }
-
-  void remove_component(GameObjectComponent* component) {
-    auto it = std::find_if(m_components.begin(), m_components.end(),
-                           [component](const std::unique_ptr<GameObjectComponent>& lhs){
-                             return lhs.get() == component;
-                           });
-    if (it != m_components.end()) {
-      m_components.erase(it);
-    }
-  }
-
 private:
   void set_uid(const UID& uid) { m_uid = uid; }
 

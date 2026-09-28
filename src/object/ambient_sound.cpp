@@ -71,34 +71,6 @@ AmbientSound::AmbientSound(const ReaderMapping& mapping) :
   latency=0;
 }
 
-AmbientSound::AmbientSound(const Vector& pos, float factor, float bias, float vol, const std::string& file) :
-  ExposedObject<AmbientSound, scripting::AmbientSound>(this),
-  sample(file),
-  sound_source(),
-  latency(0),
-  distance_factor(factor * factor),
-  distance_bias(bias * bias),
-  silence_distance(),
-  maximumvolume(vol),
-  targetvolume(),
-  currentvolume()
-{
-  m_col.m_group = COLGROUP_DISABLED;
-
-  m_col.m_bbox.set_pos(pos);
-  m_col.m_bbox.set_size(32, 32);
-
-  // set default silence_distance
-
-  if (distance_factor == 0)
-    silence_distance = std::numeric_limits<float>::max();
-  else
-    silence_distance = 1/distance_factor;
-
-  sound_source.reset(); // not playing at the beginning
-  SoundManager::current()->preload(sample);
-}
-
 AmbientSound::~AmbientSound()
 {
   stop_playing();

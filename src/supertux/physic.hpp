@@ -39,10 +39,6 @@ public:
   void set_velocity_x(float nvx) { vx = nvx; }
   void set_velocity_y(float nvy) { vy = nvy; }
 
-  /// Velocity inversion.
-  void inverse_velocity_x() { vx = -vx; }
-  void inverse_velocity_y() { vy = -vy; }
-
   Vector get_velocity() const { return Vector(vx, vy); }
   float get_velocity_x() const { return vx; }
   float get_velocity_y() const { return vy; }
@@ -52,12 +48,10 @@ public:
    * eventually added to the vertical acceleration)
    */
   void set_acceleration(float nax, float nay);
-  void set_acceleration(const Vector& vector);
 
   void set_acceleration_x(float nax) { ax = nax; }
   void set_acceleration_y(float nay) { ay = nay; }
 
-  Vector get_acceleration() const { return Vector(ax, ay); }
   float get_acceleration_x() const { return ax; }
   float get_acceleration_y() const { return ay; }
 

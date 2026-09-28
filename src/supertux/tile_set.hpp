@@ -43,10 +43,6 @@ public:
   const Tile& get(const uint32_t id) const;
   
 
-  uint32_t get_max_tileid() const {
-    return static_cast<uint32_t>(m_tiles.size());
-  }
-
   void print_debug_info(const std::string& filename);
   
 private:

@@ -472,12 +472,6 @@ GameSession::set_reset_point(const std::string& sector, const Vector& pos)
   m_reset_pos = pos;
 }
 
-std::string
-GameSession::get_working_directory() const
-{
-  return FileSystem::dirname(m_levelfile);
-}
-
 void
 GameSession::start_sequence(Sequence seq, const SequenceData* data)
 {

@@ -26,7 +26,6 @@ class ScriptTrigger final : public TriggerBase
 {
 public:
   ScriptTrigger(const ReaderMapping& reader);
-  ScriptTrigger(const Vector& pos, const std::string& script);
 
   virtual std::string get_class() const override { return "scripttrigger"; }
 

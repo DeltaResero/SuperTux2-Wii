@@ -35,19 +35,4 @@ DrawingTarget DrawingTarget_from_string(const std::string& text)
   }
 }
 
-std::string to_string(DrawingTarget value)
-{
-  switch (value)
-  {
-    case DrawingTarget::LIGHTMAP:
-      return "lightmap";
-
-    case DrawingTarget::COLORMAP:
-      return "colormap";
-
-    default:
-      return "colormap";
-  }
-}
-
 /* EOF */

@@ -44,7 +44,6 @@ public:
   MusicType get_music_type() const;
 
   void set_music(const std::string& music);
-  std::string get_music() const;
 
 private:
   MusicType m_currentmusic;

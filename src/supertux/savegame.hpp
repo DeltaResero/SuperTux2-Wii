@@ -49,7 +49,6 @@ public:
   std::vector<LevelState> level_states;
 
   LevelState get_level_state(const std::string& filename) const;
-  void store_level_state(const LevelState& state);
 };
 
 struct WorldmapState
@@ -76,13 +75,11 @@ public:
 
   std::string get_title() const;
 
-  std::vector<std::string> get_levelsets();
   LevelsetState get_levelset_state(const std::string& name);
   void set_levelset_state(const std::string& basedir,
                           const std::string& level_filename,
                           bool solved);
 
-  std::vector<std::string> get_worldmaps();
   WorldmapState get_worldmap_state(const std::string& name);
 
   void save();

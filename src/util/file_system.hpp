@@ -36,9 +36,6 @@ std::string dirname(const std::string& filename);
 /** returns the name of the file */
 std::string basename(const std::string& filename);
 
-/** remove everything starting from and including the last dot */
-std::string strip_extension(const std::string& filename);
-
 /** normalize filename so that "blup/bla/blo/../../bar" will become
     "blup/bar" */
 std::string normalize(const std::string& filename);

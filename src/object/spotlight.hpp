@@ -36,7 +36,6 @@ public:
   };
 
   static Direction Direction_from_string(const std::string& s);
-  static std::string Direction_to_string(Direction dir);
 
 public:
   Spotlight(const ReaderMapping& reader);

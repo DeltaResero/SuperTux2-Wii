@@ -21,12 +21,6 @@
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 
-CustomParticleSystemFile::CustomParticleSystemFile() :
-  CustomParticleSystem(),
-  m_filename()
-{
-}
-
 CustomParticleSystemFile::CustomParticleSystemFile(const ReaderMapping& reader) :
   CustomParticleSystem(reader),
   m_filename()

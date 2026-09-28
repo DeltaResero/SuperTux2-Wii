@@ -154,20 +154,6 @@ private:
       hb_offset(sp.hb_offset)
     {
     }
-
-    inline bool operator==(const SpriteProperties& sp)
-    {
-      return this->likeliness == sp.likeliness
-          && this->color      == sp.color
-          && this->texture    == sp.texture
-          && this->scale      == sp.scale
-          && this->hb_scale   == sp.hb_scale
-          && this->hb_offset  == sp.hb_offset;
-    }
-    inline bool operator!=(const SpriteProperties& sp)
-    {
-      return !operator==(sp);
-    }
   };
 
   SpriteProperties get_random_texture();

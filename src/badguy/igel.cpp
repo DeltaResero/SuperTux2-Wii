@@ -36,12 +36,6 @@ Igel::Igel(const ReaderMapping& reader) :
 }
 
 void
-Igel::be_normal()
-{
-  initialize();
-}
-
-void
 Igel::turn_around()
 {
   WalkingBadguy::turn_around();

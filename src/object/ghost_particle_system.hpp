@@ -25,7 +25,6 @@ class ReaderMapping;
 class GhostParticleSystem final : public ParticleSystem
 {
 public:
-  GhostParticleSystem();
   GhostParticleSystem(const ReaderMapping& reader);
   ~GhostParticleSystem() override;
 

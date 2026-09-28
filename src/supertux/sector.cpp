@@ -35,7 +35,6 @@
 #include "object/player.hpp"
 #include "object/portable.hpp"
 #include "object/pulsing_light.hpp"
-#include "object/smoke_cloud.hpp"
 #include "object/spawnpoint.hpp"
 #include "object/text_array_object.hpp"
 #include "object/text_object.hpp"

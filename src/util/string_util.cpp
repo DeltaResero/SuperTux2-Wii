@@ -84,16 +84,4 @@ StringUtil::numeric_less(const std::string& lhs, const std::string& rhs)
   return lhs.size() < rhs.size();
 }
 
-std::string
-StringUtil::replace_all(const std::string& haystack, const std::string& needle,
-                        const std::string& replacement)
-{
-  std::string ret = haystack;
-  size_t start_pos = 0;
-  while((start_pos = ret.find(needle, start_pos)) != std::string::npos) {
-    ret.replace(start_pos, needle.length(), replacement);
-    start_pos += replacement.length();
-  }
-  return ret;
-}
 /* EOF */

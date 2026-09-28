@@ -36,8 +36,6 @@ private:
 
 public:
   LineIterator(const std::string& str);
-  LineIterator(std::string::const_iterator first,
-               std::string::const_iterator last);
 
   /** @return false when no characters are left in the string, true
       otherwise */

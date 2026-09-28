@@ -74,7 +74,6 @@ public:
   void preload(const std::string& name);
 
   void set_listener_position(const Vector& position);
-  void set_listener_velocity(const Vector& velocity);
   void set_listener_orientation(const Vector& at, const Vector& up);
 
   void enable_music(bool music_enabled);
@@ -89,9 +88,6 @@ public:
   void resume_sounds();
   void stop_sounds();
   void set_sound_volume(int volume);
-
-  bool is_music_enabled() const { return m_music_enabled; }
-  bool is_sound_enabled() const { return m_sound_enabled; }
 
   bool is_audio_enabled() const { return m_device != nullptr && m_context != nullptr; }
   std::string get_current_music() const { return m_current_music; }
