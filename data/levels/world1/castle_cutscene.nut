@@ -132,7 +132,7 @@ function trigger_state(state) {
     case "start":
       initialize();
       break;
-	case "outdoor":
+    case "outdoor":
       outdoor();
       break;
   }

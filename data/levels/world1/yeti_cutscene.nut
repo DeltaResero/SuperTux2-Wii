@@ -29,7 +29,7 @@ function initialize()
   Yeti.set_action("stomp-left");
   play_sound("sounds/yeti_gna.wav");
   Yeti.set_velocity(0, -300);
- wait(0.5);
+  wait(0.5);
   Yeti.set_action("stand-left");
   wait(0.5);
   Yeti.set_action("walking-right");

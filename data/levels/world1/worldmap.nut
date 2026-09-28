@@ -17,7 +17,7 @@ if("ambient_r" in state && "ambient_g" in state && "ambient_b" in state){
 // ============================================================================
 
 if(! ("underground" in state)){
-	state.underground <- false;
+  state.underground <- false;
   print("[DEBUG] Underground state initialized\n");
 }
 
@@ -41,12 +41,12 @@ go_underground(state.underground);
 // ============================================================================
 
 if(! ("fitr_down" in state)){
-	state.fitr_down <- false;
+  state.fitr_down <- false;
   print("[DEBUG] 'Fork in the Road' road fork (down) initialized\n");
 }
 
 if(! ("fitr_up" in state)){
-	state.fitr_up <- false;
+  state.fitr_up <- false;
   print("[DEBUG] 'Fork in the Road' road fork (up) initialized\n");
 }
 
@@ -65,7 +65,7 @@ reset_forks(0.0);
 // ============================================================================
 
 if(! ("iv_secret" in state)){
-	state.iv_secret <- false;
+  state.iv_secret <- false;
   print("[DEBUG] 'Icy Valley' secret road initialized\n");
 }
 
