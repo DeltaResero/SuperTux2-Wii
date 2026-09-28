@@ -67,11 +67,6 @@ public:
     return *this;
   }
 
-  bool is_valid() const 
-  {
-    return width > 0 && height > 0;
-  }
-
 public:
   int width;
   int height;

@@ -101,7 +101,6 @@ public:
        const std::string& obj_name = "", const std::string& obj_data = "");
 
   /** Draw a tile on the screen */
-  void draw(Canvas& canvas, const Vector& pos, int z_pos, const Color& color = Color(1, 1, 1)) const;
   void draw_debug(Canvas& canvas, const Vector& pos, int z_pos, const Color& color = Color(1.0f, 0.f, 1.0f, 0.5f)) const;
 
   SurfacePtr get_current_surface() const;

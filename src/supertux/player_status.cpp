@@ -126,8 +126,8 @@ PlayerStatus::write(Writer& writer)
 
   writer.write("coins", coins);
 
-  writer.write("worldmap-sprite", worldmap_sprite, false);
-  writer.write("last-worldmap", last_worldmap, false);
+  writer.write("worldmap-sprite", worldmap_sprite);
+  writer.write("last-worldmap", last_worldmap);
 }
 
 void

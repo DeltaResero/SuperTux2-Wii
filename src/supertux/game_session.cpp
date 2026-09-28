@@ -227,12 +227,6 @@ GameSession::is_active() const
 }
 
 void
-GameSession::force_ghost_mode()
-{
-  m_currentsector->get_player().set_ghost_mode(true);
-}
-
-void
 GameSession::check_end_conditions()
 {
   Player& tux = m_currentsector->get_player();

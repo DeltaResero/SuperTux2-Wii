@@ -58,7 +58,6 @@ public:
 public:
   static const Color BLACK;
   static const Color RED;
-  static const Color GREEN;
   static const Color BLUE;
   static const Color CYAN;
   static const Color MAGENTA;
@@ -118,12 +117,6 @@ public:
             (static_cast<uint32_t>(b8()) << 16u) |
             (static_cast<uint32_t>(g8()) <<  8u) |
             (static_cast<uint32_t>(r8()) <<  0u));
-  }
-
-  /** Return a human-readable string representation for this color */
-  std::string to_string() const
-  {
-    return std::to_string(red) + " " + std::to_string(green) + " " + std::to_string(blue);
   }
 
   SDL_Color to_sdl_color() const

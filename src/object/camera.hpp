@@ -75,7 +75,6 @@ public:
 
   /** return camera position */
   const Vector get_translation() const;
-  void set_translation(const Vector& translation) { m_translation = translation; }
 
   /** shake camera in a direction 1 time */
   void shake(float duration, float x, float y);

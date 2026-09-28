@@ -54,7 +54,6 @@ public:
   int get_total_badguys() const;
   int get_total_secrets() const;
 
-  void reactivate();
 
 private:
   void load_old_format(const ReaderMapping& reader);

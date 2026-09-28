@@ -47,8 +47,6 @@ public:
   GradientDirection get_direction() const { return m_gradient_direction; }
   void set_direction(const GradientDirection& direction);
 
-  void set_layer(int layer) { m_layer = layer; }
-  int get_layer() const { return m_layer; }
 
 private:
   int m_layer;

@@ -50,7 +50,6 @@ public:
 
   std::string get_image() const { return m_imagefile; }
   float get_speed() const { return m_parallax_speed.x; }
-  int get_layer() const { return m_layer; }
 
   Color get_color() const { return m_color; }
   void set_color(Color color) { m_color = color; }

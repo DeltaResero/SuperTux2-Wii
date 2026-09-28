@@ -83,9 +83,6 @@ public:
   void abort_level();
   bool is_active() const;
 
-  /** Forces all Players to enter ghost mode */
-  void force_ghost_mode();
-
   Savegame& get_savegame() const { return m_savegame; }
 
   void set_scheduler(SquirrelScheduler& new_scheduler);

@@ -78,7 +78,6 @@ public:
 
   int get_width() const { return m_width; }
   int get_height() const { return m_height; }
-  Size get_size() const { return Size(m_width, m_height); }
 
   void set_offset(const Vector &offset_) { m_offset = offset_; }
   Vector get_offset() const { return m_offset; }
@@ -88,7 +87,6 @@ public:
     m_ground_movement_manager = movement_manager;
   }
 
-  void move_by(const Vector& pos);
 
   /** Get the movement of this tilemap. The collision detection code
       may need a non-negative y-movement. Passing `false' as the
@@ -128,7 +126,6 @@ public:
   void notify_object_removal(CollisionObject* other);
 
   int get_layer() const { return m_z_pos; }
-  void set_layer(int layer_) { m_z_pos = layer_; }
 
   bool is_solid() const { return m_real_solid && m_effective_solid; }
 

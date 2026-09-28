@@ -20,15 +20,10 @@
 #include <string>
 #include <vector>
 
-namespace sexp {
-class Value;
-} // namespace sexp
-
 class Writer final
 {
 public:
   Writer(const std::string& filename);
-  Writer(std::ostream& out);
   ~Writer();
 
   void write_comment(const std::string& comment);
@@ -39,25 +34,19 @@ public:
   void write(const std::string& name, int value);
   void write(const std::string& name, float value);
   void write(const std::string& name, const char* value);
-  void write(const std::string& name, const std::string& value, bool translatable = false);
+  void write(const std::string& name, const std::string& value);
   void write(const std::string& name, const std::vector<int>& value);
-  void write(const std::string& name, const std::vector<unsigned int>& value, int width = 0);
-  void write(const std::string& name, const std::vector<float>& value);
-  void write(const std::string& name, const std::vector<std::string>& value);
-  void write(const std::string& name, const sexp::Value& value);
   // add more write-functions when needed...
 
   void end_list(const std::string& listname);
 
 private:
   void write_escaped_string(const std::string& str);
-  void write_sexp(const sexp::Value& value, bool fudge);
   void indent();
 
 private:
   std::string m_filename;
   std::ostream* out;
-  bool out_owned;
   int indent_depth;
   std::vector<std::string> lists;
 

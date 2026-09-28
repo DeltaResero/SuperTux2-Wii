@@ -35,7 +35,6 @@ CloudParticleSystem::CloudParticleSystem() :
   m_target_speed(1.f),
   m_speed_fade_time_remaining(0.f),
 
-  m_current_amount(15.f),
   //m_target_amount(15.f),
   //m_amount_fade_time_remaining(0.f),
   m_current_real_amount(0)
@@ -52,7 +51,6 @@ CloudParticleSystem::CloudParticleSystem(const ReaderMapping& reader) :
   m_target_speed(1.f),
   m_speed_fade_time_remaining(0.f),
 
-  m_current_amount(15.f),
   //m_target_amount(15.f),
   //m_amount_fade_time_remaining(0.f),
   m_current_real_amount(0)

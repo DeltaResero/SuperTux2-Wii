@@ -32,7 +32,6 @@ public:
   void set_help(const std::string& help_text);
   const std::string& get_help() const { return m_help; }
 
-  void set_text(const std::string& text) { m_text = text; }
   const std::string& get_text() const { return m_text; }
 
   /** Draws the menu item. */
