@@ -45,7 +45,6 @@ public:
   virtual bool is_freezable() const override;
   virtual bool is_flammable() const override;
   virtual std::string get_class() const override { return "dispenser"; }
-  virtual std::string get_display_name() const override { return "Dispenser"; }
 
   virtual void expose(HSQUIRRELVM vm, SQInteger table_idx) override
   {

@@ -72,7 +72,6 @@ public:
   int get_badguys() const { return m_badguys; }
   int get_secrets() const { return m_secrets; }
   float get_time() const { return m_time; }
-  Status get_status() const { return m_status; }
 
   void increment_coins() { m_coins++; check_coins(); }
   void increment_badguys() { m_badguys++; check_badguys(); }

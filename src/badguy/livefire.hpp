@@ -34,7 +34,6 @@ public:
 
   virtual void kill_fall() override;
   virtual std::string get_class() const override { return "livefire"; }
-  virtual std::string get_display_name() const override { return "Walking Flame"; }
 
 private:
   std::string death_sound;
@@ -65,7 +64,6 @@ public:
 
   virtual void initialize() override;
   virtual std::string get_class() const override { return "livefire_asleep"; }
-  virtual std::string get_display_name() const override { return "Sleeping Flame"; }
 
 private:
   LiveFireAsleep(const LiveFireAsleep&) = delete;
@@ -81,7 +79,6 @@ public:
 
   virtual void initialize() override;
   virtual std::string get_class() const override { return "livefire_dormant"; }
-  virtual std::string get_display_name() const override { return "Dormant Flame"; }
 
 private:
   LiveFireDormant(const LiveFireDormant&) = delete;

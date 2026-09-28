@@ -42,7 +42,6 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual std::string get_class() const override { return "particles-custom"; }
-  virtual std::string get_display_name() const override { return "Custom Particles"; }
 
   virtual void expose(HSQUIRRELVM vm, SQInteger table_idx) override {
     ExposedObject<CustomParticleSystem, scripting::CustomParticles>::expose(vm, table_idx);
@@ -154,20 +153,6 @@ private:
       hb_scale(sp.hb_scale),
       hb_offset(sp.hb_offset)
     {
-    }
-
-    inline bool operator==(const SpriteProperties& sp)
-    {
-      return this->likeliness == sp.likeliness
-          && this->color      == sp.color
-          && this->texture    == sp.texture
-          && this->scale      == sp.scale
-          && this->hb_scale   == sp.hb_scale
-          && this->hb_offset  == sp.hb_offset;
-    }
-    inline bool operator!=(const SpriteProperties& sp)
-    {
-      return !operator==(sp);
     }
   };
 

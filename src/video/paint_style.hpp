@@ -37,25 +37,9 @@ public:
     return *this;
   }
 
-  PaintStyle& set_alpha(const float& alpha) {
-    m_alpha = alpha;
-    return *this;
-  }
-
-  PaintStyle& set_blend(const Blend& blend) {
-    m_blend = blend;
-    return *this;
-  }
-
-  PaintStyle& set_flip(const Flip& flip) {
-    m_flip = flip;
-    return *this;
-  }
-
   const Color& get_color() const { return m_color; }
   const float& get_alpha() const { return m_alpha; }
   const Blend& get_blend() const { return m_blend; }
-  const Flip& get_flip() const { return m_flip; }
 
 private:
   Color m_color;

@@ -40,17 +40,12 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "background"; }
-  virtual std::string get_display_name() const override { return "Background"; }
 
   void set_image(const std::string& name);
   void set_images(const std::string& name_top, const std::string& name_middle, const std::string& name_bottom);
   void set_speed(float bgd_speed);
 
   void draw_image(DrawingContext& context, const Vector& pos);
-
-  std::string get_image() const { return m_imagefile; }
-  float get_speed() const { return m_parallax_speed.x; }
-  int get_layer() const { return m_layer; }
 
   Color get_color() const { return m_color; }
   void set_color(Color color) { m_color = color; }

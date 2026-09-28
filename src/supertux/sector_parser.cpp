@@ -40,8 +40,6 @@
 #include "util/reader_collection.hpp"
 #include "util/reader_mapping.hpp"
 
-static const std::string DEFAULT_BG = "images/background/antarctic/arctis2.png";
-
 std::unique_ptr<Sector>
 SectorParser::from_reader(Level& level, const ReaderMapping& reader)
 {

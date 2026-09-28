@@ -39,8 +39,6 @@ public:
   virtual ~SquirrelEnvironment();
 
 public:
-  SquirrelVM& get_vm() const { return m_vm; }
-
   /** Expose this engine under 'name' */
   void expose_self();
   void unexpose_self();

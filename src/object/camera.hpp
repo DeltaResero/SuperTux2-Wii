@@ -63,7 +63,6 @@ public:
   virtual bool is_singleton() const override { return true; }
 
   virtual std::string get_class() const override { return "camera"; }
-  virtual std::string get_display_name() const override { return "Camera"; }
 
   /** @} */
 
@@ -75,7 +74,6 @@ public:
 
   /** return camera position */
   const Vector get_translation() const;
-  void set_translation(const Vector& translation) { m_translation = translation; }
 
   /** shake camera in a direction 1 time */
   void shake(float duration, float x, float y);
@@ -83,7 +81,6 @@ public:
   /** scroll the upper left edge of the camera in scrolltime seconds
       to the position goal */
   void scroll_to(const Vector& goal, float scrolltime);
-  void move(const int dx, const int dy);
 
   void reload_config();
 

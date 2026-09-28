@@ -37,7 +37,6 @@ public:
   virtual HitResponse collision(GameObject& , const CollisionHit& ) override { return FORCE_MOVE; }
 
   virtual std::string get_class() const override { return "decal"; }
-  virtual std::string get_display_name() const override { return "Decal"; }
 
   virtual void draw(DrawingContext& context) override;
   virtual void update(float dt_sec) override;
@@ -47,9 +46,6 @@ public:
   void fade_in(float fade_time);
   void fade_out(float fade_time);
   void fade_sprite(const std::string& new_sprite, float fade_time);
-
-  void set_visible(bool v) { m_visible = v; }
-  bool is_visible() const { return m_visible; }
 
 private:
   std::string m_default_action;

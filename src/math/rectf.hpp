@@ -126,14 +126,6 @@ public:
     return glm::distance(v, other);
   }
 
-  float distance (const Rectf& other, AnchorPoint ap = ANCHOR_MIDDLE) const
-  {
-    Vector v1 = get_anchor_pos(*this, ap);
-    Vector v2 = get_anchor_pos(other, ap);
-
-    return glm::distance(v1, v2);
-  }
-
   Rectf grown(float border) const
   {
     return Rectf(m_p1.x - border, m_p1.y - border,

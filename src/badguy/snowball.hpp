@@ -26,7 +26,6 @@ public:
   SnowBall(const Vector& pos, Direction d, const std::string& script);
 
   virtual std::string get_class() const override { return "snowball"; }
-  virtual std::string get_display_name() const override { return "Snowball"; }
 
 protected:
   virtual bool collision_squished(GameObject& object) override;

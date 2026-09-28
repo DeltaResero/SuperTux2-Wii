@@ -26,7 +26,6 @@ public:
 
   virtual void initialize() override;
   virtual std::string get_class() const override { return "rcrystallo"; }
-  virtual std::string get_display_name() const override { return "Roof Crystallo"; }
 
   virtual void active_update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;

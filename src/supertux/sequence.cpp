@@ -29,17 +29,4 @@ Sequence string_to_sequence(const std::string& sequencename) {
   return SEQ_ENDSEQUENCE;
 }
 
-std::string sequence_to_string(const Sequence& seq) {
-  switch (seq) {
-    case SEQ_ENDSEQUENCE:
-      return "endsequence";
-    case SEQ_STOPTUX:
-      return "stoptux";
-    case SEQ_FIREWORKS:
-      return "fireworks";
-    default:
-      return "unknown sequence " + std::to_string( static_cast<int>(seq) );
-  }
-}
-
 /* EOF */

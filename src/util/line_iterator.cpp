@@ -23,14 +23,6 @@ LineIterator::LineIterator(const std::string& str)
 {
 }
 
-LineIterator::LineIterator(std::string::const_iterator first_,
-                           std::string::const_iterator last_)
-  : first(first_),
-    last(last_),
-    line_end(first_)
-{
-}
-
 bool
 LineIterator::next()
 {

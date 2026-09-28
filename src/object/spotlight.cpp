@@ -34,21 +34,6 @@ Spotlight::Direction_from_string(const std::string& s)
   throw std::runtime_error("Invalid spotlight direction from string '" + s + "'");
 }
 
-std::string
-Spotlight::Direction_to_string(Direction dir)
-{
-  switch(dir) {
-    case Direction::CLOCKWISE:
-      return "clockwise";
-    case Direction::COUNTERCLOCKWISE:
-      return "counter-clockwise";
-    case Direction::STOPPED:
-      return "stopped";
-  }
-
-  throw std::runtime_error("Invalid spotlight direction '" + std::to_string(static_cast<int>(dir)) + "'");
-}
-
 Spotlight::Spotlight(const ReaderMapping& mapping) :
   MovingObject(mapping),
   ExposedObject<Spotlight, scripting::Spotlight>(this),

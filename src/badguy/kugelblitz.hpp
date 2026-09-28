@@ -36,12 +36,10 @@ public:
 
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_class() const override { return "kugelblitz"; }
-  virtual std::string get_display_name() const override { return "Kugelblitz"; }
 
   void explode();
 
 private:
-  void try_activate();
   HitResponse hit(const CollisionHit& hit);
 
 private:

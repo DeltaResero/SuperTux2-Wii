@@ -40,11 +40,9 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual void update(float dt_sec) override;
   virtual std::string get_class() const override { return "textscroller"; }
-  virtual std::string get_display_name() const override { return "Text Scroller"; }
 
   void set_default_speed(float default_speed);
   void scroll(float offset);
-  bool is_finished() const { return m_finished; }
   
 protected:
   const Controller* controller;

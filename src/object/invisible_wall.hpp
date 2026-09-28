@@ -33,7 +33,6 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "invisible_wall"; }
-  virtual std::string get_display_name() const override { return "Invisible Wall"; }
 
   virtual int get_layer() const override { return LAYER_OBJECTS; }
 

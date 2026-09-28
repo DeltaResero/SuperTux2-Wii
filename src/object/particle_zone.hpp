@@ -36,12 +36,9 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "particle-zone"; }
-  virtual std::string get_display_name() const override { return "Particle zone";}
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
   virtual int get_layer() const override { return LAYER_OBJECTS; }
-
-  Rectf get_rect() {return m_col.m_bbox;}
 
   enum class ParticleZoneType {
     /** Particles will spawn in this area */
@@ -59,18 +56,6 @@ public:
   /** @name Scriptable Methods
       @{ */
 
-  /** Sets whether or not particles can spawn in this area */
-  void set_enabled(bool enabled) {m_enabled = enabled;}
-
-  /** Returns whether or not particles can spawn in this area */
-  bool get_enabled() const {return m_enabled;}
-
-  /** Sets the name of the particle object for this area */
-  void set_particle_name(std::string& particle_name) {m_particle_name = particle_name;}
-
-  /** Returns the name of the particle object for this area */
-  std::string get_particle_name() const {return m_particle_name;}
-
   /** Move the area around. Multiple calls stack (e. g. calling one before
    *  the other finished will play both movements simultaneously)
    */
@@ -81,12 +66,6 @@ public:
    */
   //void resize(int width, int height, float time, std::string easing);
 
-  /** Returns the current X position of the zone */
-  float current_x() const { return m_col.m_bbox.get_left(); }
-
-  /** Returns the current Y position of the zone */
-  float current_y() const { return m_col.m_bbox.get_top(); }
-
   /** Returns the target X position of the zone */
   //float target_x() {return m_col.m_bbox.get_left();}
 
@@ -94,9 +73,6 @@ public:
   //float target_y() {return m_col.m_bbox.get_left();}
 
   /** @} */
-
-  void set_type(ParticleZoneType type) {m_type = type;}
-  ParticleZoneType get_type() {return m_type;}
 
   class ZoneDetails {
   public:

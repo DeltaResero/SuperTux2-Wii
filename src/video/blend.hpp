@@ -30,7 +30,6 @@ enum class Blend {
 };
 
 Blend Blend_from_string(const std::string& text);
-std::string Blend_to_string(Blend blend);
 
 #endif
 

@@ -75,12 +75,7 @@ public:
   /** Remove all entries from the menu */
   void clear();
 
-  MenuItem& get_item(int index) { return *(m_items[index]); }
-
   MenuItem& get_item_by_id(int id);
-  const MenuItem& get_item_by_id(int id) const;
-
-  void set_active_item(int id);
 
   void draw(DrawingContext& context);
   Vector get_center_pos() const { return m_pos; }

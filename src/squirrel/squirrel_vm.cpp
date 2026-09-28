@@ -142,14 +142,6 @@ SquirrelVM::get_float(const char* name, float& val)
 }
 
 bool
-SquirrelVM::get_string(const char* name, std::string& val)
-{
-  if (!has_property(name)) return false;
-  val = read_string(name);
-  return true;
-}
-
-bool
 SquirrelVM::read_bool(const char* name)
 {
   get_table_entry(name);
@@ -273,35 +265,6 @@ SquirrelVM::rename_table_entry(const char* oldname, const char* newname)
   sq_createslot(m_vm, -3);
 
   sq_settop(m_vm, oldtop);
-}
-
-std::vector<std::string>
-SquirrelVM::get_table_keys()
-{
-  auto old_top = sq_gettop(m_vm);
-  std::vector<std::string> keys;
-
-  sq_pushnull(m_vm);
-  while (SQ_SUCCEEDED(sq_next(m_vm, -2)))
-  {
-    //here -1 is the value and -2 is the key
-    const char* result;
-    if (SQ_FAILED(sq_getstring(m_vm, -2, &result)))
-    {
-      throw SquirrelError(m_vm, "Couldn't get string value for key");
-    }
-    else
-    {
-      keys.push_back(result);
-    }
-
-    // pops key and val before the next iteration
-    sq_pop(m_vm, 2);
-  }
-
-  sq_settop(m_vm, old_top);
-
-  return keys;
 }
 
 HSQOBJECT

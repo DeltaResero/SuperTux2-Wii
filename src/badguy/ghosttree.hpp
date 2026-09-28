@@ -39,7 +39,6 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
   virtual std::string get_class() const override { return "ghosttree"; }
-  virtual std::string get_display_name() const override { return "Ghost Tree"; }
 
   void willowisp_died(TreeWillOWisp* willowisp);
   void die();

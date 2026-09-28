@@ -50,12 +50,4 @@ SurfaceBatch::draw(const Rectf& dstrect, float angle)
   m_angles.emplace_back(angle);
 }
 
-void
-SurfaceBatch::draw(const Rectf& srcrect, const Rectf& dstrect, float angle)
-{
-  m_srcrects.emplace_back(srcrect);
-  m_dstrects.emplace_back(dstrect);
-  m_angles.emplace_back(angle);
-}
-
 /* EOF */

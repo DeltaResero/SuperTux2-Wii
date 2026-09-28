@@ -24,7 +24,6 @@
 
 #include "sprite/sprite_ptr.hpp"
 #include "util/currenton.hpp"
-#include "video/surface_ptr.hpp"
 
 class DrawingContext;
 
@@ -55,7 +54,6 @@ public:
   void draw(DrawingContext& context);
 
   void set_state(MouseCursorState state);
-  void set_icon(SurfacePtr icon);
 
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   void set_pos(int x, int y) { m_mobile_mode = true; m_x = x; m_y = y; }
@@ -72,7 +70,6 @@ private:
   int m_x, m_y;
   bool m_mobile_mode;
 #endif
-  SurfacePtr m_icon;
 
 private:
   MouseCursor(const MouseCursor&) = delete;

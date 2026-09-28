@@ -36,7 +36,6 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
 
   virtual std::string get_class() const override { return "scriptedobject"; }
-  virtual std::string get_display_name() const override { return "Scripted Object"; }
 
   // --- scripting Interface stuff ---
   void set_action(const std::string& animation);

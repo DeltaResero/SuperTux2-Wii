@@ -29,19 +29,6 @@
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 
-Brick::Brick(const Vector& pos, int data, const std::string& spriteName) :
-  Block(SpriteManager::current()->create(spriteName)),
-  m_breakable(false),
-  m_coin_counter(0)
-{
-  m_col.m_bbox.set_pos(pos);
-  if (data == 1) {
-    m_coin_counter = 5;
-  } else {
-    m_breakable = true;
-  }
-}
-
 Brick::Brick(const ReaderMapping& mapping) :
   Block(mapping, "images/objects/bonus_block/brick.sprite"),
   m_breakable(),

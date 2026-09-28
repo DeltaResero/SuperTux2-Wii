@@ -33,10 +33,6 @@ public:
   TTFFont(const std::string& filename, int size, float line_spacing = 1.0f, int shadowsize = 0, int border = 0);
   ~TTFFont() override;
 
-  float get_line_spacing() {
-    return m_line_spacing;
-  }
-
   virtual float get_height() const override {
     return static_cast<float>(m_font_size) * m_line_spacing;
   }

@@ -227,12 +227,6 @@ GameSession::is_active() const
 }
 
 void
-GameSession::force_ghost_mode()
-{
-  m_currentsector->get_player().set_ghost_mode(true);
-}
-
-void
 GameSession::check_end_conditions()
 {
   Player& tux = m_currentsector->get_player();
@@ -476,12 +470,6 @@ GameSession::set_reset_point(const std::string& sector, const Vector& pos)
 {
   m_reset_sector = sector;
   m_reset_pos = pos;
-}
-
-std::string
-GameSession::get_working_directory() const
-{
-  return FileSystem::dirname(m_levelfile);
 }
 
 void

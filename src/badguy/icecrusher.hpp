@@ -48,9 +48,7 @@ public:
   virtual void collision_solid(const CollisionHit& hit) override;
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
-  virtual bool is_sideways() const;
   virtual std::string get_class() const override { return "icecrusher"; }
-  virtual std::string get_display_name() const override { return "Icecrusher"; }
 
   
 

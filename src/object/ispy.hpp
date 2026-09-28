@@ -30,7 +30,6 @@ public:
 
   virtual void update(float dt_sec) override;
   virtual std::string get_class() const override { return "ispy"; }
-  virtual std::string get_display_name() const override { return "Ispy"; }
 
 private:
   enum IspyState {

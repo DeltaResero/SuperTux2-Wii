@@ -22,10 +22,6 @@
 class FadeHelper
 {
 public:
-  /** Initialize FadeHelper without binding to a value */
-  FadeHelper(float time, float target_value,
-             float start_value = 0.f, easing ease = LinearInterpolation);
-
   /** Initialize FadeHelper, binding to @c value */
   FadeHelper(float* value, float time,
              float target_value, easing ease = LinearInterpolation);

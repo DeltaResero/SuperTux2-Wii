@@ -16,7 +16,6 @@
 
 #include "supertux/colorscheme.hpp"
 
-#include "object/floating_text.hpp"
 #include "object/level_time.hpp"
 #include "object/text_object.hpp"
 #include "supertux/levelintro.hpp"
@@ -45,8 +44,6 @@ Color ColorScheme::Menu::field_color(1.f,1.f,0.6f);
 Color PlayerStatusHUD::text_color(1.f,1.f,0.6f);
 
 Color TextObject::default_color(1.f,1.f,1.f);
-
-Color FloatingText::text_color(1.f,1.f,0.6f);
 
 Color LevelTime::text_color(1.f,1.f,0.6f);
 

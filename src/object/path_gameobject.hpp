@@ -32,7 +32,6 @@ enum class PathStyle
 class PathGameObject : public GameObject
 {
 public:
-  PathGameObject();
   PathGameObject(const Vector& pos);
   PathGameObject(const ReaderMapping& mapping, bool backward_compatibility_hack=false);
   ~PathGameObject() override;
@@ -41,7 +40,6 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "path"; }
-  virtual std::string get_display_name() const override { return "Path"; }
 
   virtual void remove_me() override;
 

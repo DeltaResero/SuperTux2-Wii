@@ -31,11 +31,6 @@ public:
     height(0.0f)
   {}
 
-  explicit Sizef(const Vector& v) :
-    width(v.x),
-    height(v.y)
-  {}
-
   Sizef(float width_, float height_) :
     width(width_),
     height(height_)
@@ -67,21 +62,9 @@ public:
     return *this;
   }
 
-  Sizef& operator-=(const Sizef& rhs)
-  {
-    width  -= rhs.width;
-    height -= rhs.height;
-    return *this;
-  }
-
   Vector as_vector() const
   {
     return Vector(width, height);
-  }
-
-  bool is_valid() const 
-  {
-    return width > 0 && height > 0;
   }
 
 public:
@@ -93,12 +76,6 @@ inline Sizef operator*(const Sizef& lhs, float factor)
 {
   return Sizef(lhs.width  * factor,
                lhs.height * factor);
-}
-
-inline Sizef operator*(float factor, const Sizef& rhs)
-{
-  return Sizef(rhs.width  * factor,
-               rhs.height * factor);
 }
 
 inline Sizef operator/(const Sizef& lhs, float divisor)
@@ -122,11 +99,6 @@ inline Sizef operator-(const Sizef& lhs, const Sizef& rhs)
 inline bool operator==(const Sizef& lhs, const Sizef& rhs)
 {
   return (lhs.width == rhs.width) && (rhs.height == rhs.height);
-}
-
-inline bool operator!=(const Sizef& lhs, const Sizef& rhs)
-{
-  return (lhs.width != rhs.width) || (lhs.height != rhs.height);
 }
 
 std::ostream& operator<<(std::ostream& s, const Sizef& size);

@@ -138,10 +138,4 @@ Level::get_total_secrets() const
   return std::accumulate(m_sectors.begin(), m_sectors.end(), 0, get_secret_count);
 }
 
-void
-Level::reactivate()
-{
-  s_current = this;
-}
-
 /* EOF */

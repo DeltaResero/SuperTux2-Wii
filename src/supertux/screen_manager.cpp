@@ -101,18 +101,6 @@ struct ScreenManager::FPS_Stats
   float get_fps_min() const { return last_fps_min; }
   float get_fps_max() const { return last_fps_max; }
 
-  // This returns the highest measured delay between two frames from the
-  // previous and current 0.5 s measuring intervals
-  float get_highest_max_ms() const
-  {
-    float previous_max_ms = 1000.0f / last_fps_min;
-    if (measurements_cnt > 0) {
-      float current_max_ms = static_cast<float>(max_us) / 1000.0f;
-      return std::max<float>(previous_max_ms, current_max_ms);
-    }
-    return previous_max_ms;
-  }
-
 private:
   int measurements_cnt;
   int acc_us;

@@ -72,15 +72,6 @@ public:
     return m_passive;
   }
 
-  static void show_message(const std::string& text)
-  {
-    auto dialog = std::make_unique<Dialog>();
-    dialog->set_text(text);
-    dialog->clear_buttons();
-    dialog->add_button("OK", [] {});
-    MenuManager::instance().set_dialog(std::move(dialog));
-  }
-
   static void show_confirmation(const std::string& text, const std::function<void ()>& callback)
   {
     auto dialog = std::make_unique<Dialog>();

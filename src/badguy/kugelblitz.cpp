@@ -174,37 +174,6 @@ Kugelblitz::explode()
   else remove_me();
 }
 
-void
-Kugelblitz::try_activate()
-{
-  // Much smaller offscreen distances to pop out of nowhere and surprise Tux
-  float X_OFFSCREEN_DISTANCE = 400;
-  float Y_OFFSCREEN_DISTANCE = 600;
-
-  auto player_ = get_nearest_player();
-  if (!player_) return;
-  Vector dist = player_->get_bbox().get_middle() - m_col.m_bbox.get_middle();
-  if ((fabsf(dist.x) <= X_OFFSCREEN_DISTANCE) && (fabsf(dist.y) <= Y_OFFSCREEN_DISTANCE)) {
-    set_state(STATE_ACTIVE);
-    if (!m_is_initialized) {
-
-      // if starting direction was set to AUTO, this is our chance to re-orient the badguy
-      if (m_start_dir == Direction::AUTO) {
-        Player* player__ = get_nearest_player();
-        if (player__ && (player__->get_bbox().get_left() > m_col.m_bbox.get_right())) {
-          m_dir = Direction::RIGHT;
-        } else {
-          m_dir = Direction::LEFT;
-        }
-      }
-
-      initialize();
-      m_is_initialized = true;
-    }
-    activate();
-  }
-}
-
 bool
 Kugelblitz::is_flammable() const
 {

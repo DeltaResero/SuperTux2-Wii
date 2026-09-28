@@ -59,10 +59,6 @@ public:
     return m_value != 0;
   }
 
-  inline bool operator<(const UID& other) const {
-    return m_value < other.m_value;
-  }
-
   inline bool operator==(const UID& other) const {
     return m_value == other.m_value;
   }
@@ -70,8 +66,6 @@ public:
   inline bool operator!=(const UID& other) const {
     return m_value != other.m_value;
   }
-
-  inline Magic get_magic() const { return static_cast<Magic>((m_value & 0xffff0000u) >> 16); }
 
 protected:
   uint32_t m_value;

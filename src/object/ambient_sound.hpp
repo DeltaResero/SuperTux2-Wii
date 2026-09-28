@@ -54,13 +54,11 @@ class AmbientSound final : public MovingObject,
 {
 public:
   AmbientSound(const ReaderMapping& mapping);
-  AmbientSound(const Vector& pos, float factor, float bias, float vol, const std::string& file);
   ~AmbientSound() override;
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit_) override;
 
   virtual std::string get_class() const override { return "ambient-sound"; }
-  virtual std::string get_display_name() const override { return "Ambient Sound"; }
 
   /** @name Scriptable Methods
       @{ */

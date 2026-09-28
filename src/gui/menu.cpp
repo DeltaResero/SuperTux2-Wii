@@ -490,20 +490,6 @@ Menu::get_item_by_id(int id)
   throw std::runtime_error("MenuItem not found: " + std::to_string(id));
 }
 
-const MenuItem&
-Menu::get_item_by_id(int id) const
-{
-  auto item = std::find_if(m_items.begin(), m_items.end(), [id](const std::unique_ptr<MenuItem>& i)
-  {
-    return i->get_id() == id;
-  });
-
-  if(item != m_items.end())
-    return *item->get();
-
-  throw std::runtime_error("MenuItem not found: " + std::to_string(id));
-}
-
 void
 Menu::event(const SDL_Event& ev)
 {
@@ -572,17 +558,6 @@ Menu::event(const SDL_Event& ev)
 
     default:
       break;
-  }
-}
-
-void
-Menu::set_active_item(int id)
-{
-  for (size_t i = 0; i < m_items.size(); ++i) {
-    if (m_items[i]->get_id() == id) {
-      m_active_item = static_cast<int>(i);
-      break;
-    }
   }
 }
 

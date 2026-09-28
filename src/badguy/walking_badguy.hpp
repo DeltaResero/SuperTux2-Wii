@@ -25,12 +25,6 @@ class Timer;
 class WalkingBadguy : public BadGuy
 {
 public:
-  WalkingBadguy(const Vector& pos,
-                const std::string& sprite_name,
-                const std::string& walk_left_action,
-                const std::string& walk_right_action,
-                int layer = LAYER_OBJECTS,
-                const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
   WalkingBadguy(const Vector& pos, Direction direction,
                 const std::string& sprite_name,
                 const std::string& walk_left_action,
@@ -60,7 +54,6 @@ public:
   /** Adds velocity to the badguy (be careful when using this) */
   void add_velocity(const Vector& velocity);
 
-  float get_walk_speed() const { return walk_speed; }
   void set_walk_speed (float);
   bool is_active() const { return BadGuy::is_active(); }
 

@@ -129,14 +129,4 @@ TTFSurface::get_width() const
   }
 }
 
-int
-TTFSurface::get_height() const
-{
-  if (m_surface) {
-    return m_surface->get_height();
-  } else {
-    return 0;
-  }
-}
-
 /* EOF */

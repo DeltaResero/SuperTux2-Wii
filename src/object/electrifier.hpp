@@ -34,7 +34,6 @@ public:
 
 public:
   Electrifier(TileChangeMap replacements, float seconds);
-  Electrifier(uint32_t oldtile, uint32_t newtile, float seconds);
 
 protected:
   virtual void update(float dt_sec) override;

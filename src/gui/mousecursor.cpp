@@ -23,7 +23,6 @@
 #include "sprite/sprite.hpp"
 #include "video/drawing_context.hpp"
 #include "video/renderer.hpp"
-#include "video/surface.hpp"
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
@@ -32,13 +31,12 @@ MouseCursor* MouseCursor::current_ = nullptr;
 MouseCursor::MouseCursor(SpritePtr sprite) :
   m_state(MouseCursorState::NORMAL),
   m_applied_state(MouseCursorState::HIDE),
-  m_sprite(std::move(sprite)),
+  m_sprite(std::move(sprite))
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
-  m_x(),
+  , m_x(),
   m_y(),
-  m_mobile_mode(false),
+  m_mobile_mode(false)
 #endif
-  m_icon()
 {
 }
 
@@ -46,12 +44,6 @@ void
 MouseCursor::set_state(MouseCursorState state)
 {
   m_state = state;
-}
-
-void
-MouseCursor::set_icon(SurfacePtr icon)
-{
-  m_icon = std::move(icon);
 }
 
 void
@@ -110,13 +102,6 @@ MouseCursor::draw(DrawingContext& context)
     Vector mouse_pos = VideoSystem::current()->get_viewport().to_logical(x, y);
 
     m_sprite->draw(context.color(), mouse_pos, LAYER_GUI + 100);
-
-    if (m_icon) {
-      context.color().draw_surface(m_icon,
-                                   Vector(mouse_pos.x,
-                                          mouse_pos.y - static_cast<float>(m_icon->get_height())),
-                                   LAYER_GUI + 100);
-    }
   }
 }
 

@@ -56,22 +56,6 @@ const float upgrade_sound_gain = 0.3f;
 
 } // namespace
 
-BonusBlock::BonusBlock(const Vector& pos, int tile_data) :
-  Block(SpriteManager::current()->create("images/objects/bonus_block/bonusblock.sprite")),
-  m_contents(),
-  m_object(),
-  m_hit_counter(1),
-  m_script(),
-  m_lightsprite()
-{
-  m_default_sprite_name = "images/objects/bonus_block/bonusblock.sprite";
-
-  m_col.m_bbox.set_pos(pos);
-  m_sprite->set_action("normal");
-  m_contents = get_content_by_data(tile_data);
-  preload_contents(tile_data);
-}
-
 BonusBlock::BonusBlock(const ReaderMapping& mapping) :
   Block(mapping, "images/objects/bonus_block/bonusblock.sprite"),
   m_contents(Content::COIN),
@@ -80,8 +64,6 @@ BonusBlock::BonusBlock(const ReaderMapping& mapping) :
   m_script(),
   m_lightsprite()
 {
-  m_default_sprite_name = "images/objects/bonus_block/bonusblock.sprite";
-
   auto iter = mapping.get_iter();
   while (iter.next()) {
     const std::string& token = iter.get_key();
@@ -557,29 +539,6 @@ BonusBlock::get_content_from_string(const std::string& contentstring) const
   } else {
     log_warning << "Invalid box contents '" << contentstring << "'" << std::endl;
     return Content::COIN;
-  }
-}
-
-std::string
-BonusBlock::contents_to_string(const BonusBlock::Content& content) const
-{
-  switch (m_contents)
-  {
-    case Content::COIN: return "coin";
-    case Content::FIREGROW: return "firegrow";
-    case Content::ICEGROW: return "icegrow";
-    case Content::AIRGROW: return "airgrow";
-    case Content::EARTHGROW: return "earthgrow";
-    case Content::STAR: return "star";
-    case Content::ONEUP: return "1up";
-    case Content::CUSTOM: return "custom";
-    case Content::SCRIPT: return "script";
-    case Content::LIGHT: return "light";
-    case Content::LIGHT_ON: return "light-on";
-    case Content::TRAMPOLINE: return "trampoline";
-    case Content::RAIN: return "rain";
-    case Content::EXPLODE: return "explode";
-    default: return "coin";
   }
 }
 

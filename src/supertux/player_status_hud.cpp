@@ -37,12 +37,6 @@ PlayerStatusHUD::PlayerStatusHUD(PlayerStatus& player_status) :
 }
 
 void
-PlayerStatusHUD::reset()
-{
-  displayed_coins = DISPLAYED_COINS_UNSET;
-}
-
-void
 PlayerStatusHUD::update(float dt_sec)
 {
 }

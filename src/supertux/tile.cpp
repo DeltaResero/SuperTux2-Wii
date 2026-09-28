@@ -66,17 +66,6 @@ Tile::Tile(const std::vector<SurfacePtr>& images,
 }
 
 void
-Tile::draw(Canvas& canvas, const Vector& pos, int z_pos, const Color& color) const
-{
-  if (m_images.size() > 1) {
-    size_t frame = size_t(g_game_time * m_fps) % m_images.size();
-    canvas.draw_surface(m_images[frame], pos, 0, color, Blend(), z_pos);
-  } else if (m_images.size() == 1) {
-    canvas.draw_surface(m_images[0], pos, 0, color, Blend(), z_pos);
-  }
-}
-
-void
 Tile::draw_debug(Canvas& canvas, const Vector& pos, int z_pos, const Color& color) const
 {
   if (!is_slope())

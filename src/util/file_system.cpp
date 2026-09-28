@@ -17,7 +17,6 @@
 #include "util/file_system.hpp"
 
 #include <boost/filesystem.hpp>
-#include <boost/version.hpp>
 #include <sstream>
 #include <stdexcept>
 #include <sys/stat.h>
@@ -77,56 +76,6 @@ std::string basename(const std::string& filename)
     return filename;
 
   return filename.substr(p+1, filename.size()-p-1);
-}
-
-std::string relpath(const std::string& filename, const std::string& basedir)
-{
-#if BOOST_VERSION >= 106000
-  return fs::relative(filename, basedir).string();
-#else
-  fs::path from = basedir;
-  fs::path to = filename;
-
-  // Taken from https://stackoverflow.com/a/29221546
-
-  // Start at the root path and while they are the same then do nothing then when they first
-  // diverge take the entire from path, swap it with '..' segments, and then append the remainder of the to path.
-  fs::path::const_iterator fromIter = from.begin();
-  fs::path::const_iterator toIter = to.begin();
-
-  // Loop through both while they are the same to find nearest common directory
-  while (fromIter != from.end() && toIter != to.end() && (*toIter) == (*fromIter))
-  {
-    ++toIter;
-    ++fromIter;
-  }
-
-  // Replace from path segments with '..' (from => nearest common directory)
-  fs::path finalPath;
-  while (fromIter != from.end())
-  {
-    finalPath /= "..";
-    ++fromIter;
-  }
-
-  // Append the remainder of the to path (nearest common directory => to)
-  while (toIter != to.end())
-  {
-    finalPath /= *toIter;
-    ++toIter;
-  }
-
-  return finalPath.string();
-#endif
-}
-
-std::string strip_extension(const std::string& filename)
-{
-  std::string::size_type p = filename.find_last_of('.');
-  if (p == std::string::npos)
-    return filename;
-
-  return filename.substr(0, p);
 }
 
 std::string normalize(const std::string& filename)
@@ -206,12 +155,6 @@ std::string join(const std::string& lhs, const std::string& rhs)
   {
     return lhs + "/" + rhs;
   }
-}
-
-bool remove(const std::string& path)
-{
-  fs::path location(path);
-  return fs::remove(location);
 }
 
 } // namespace FileSystem

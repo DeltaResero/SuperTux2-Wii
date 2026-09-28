@@ -25,13 +25,6 @@
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
-//FIXME: Sometimes both ghosts have the same image
-//       Ghosts don't change their movement pattern - not random
-GhostParticleSystem::GhostParticleSystem()
-{
-  init();
-}
-
 GhostParticleSystem::GhostParticleSystem(const ReaderMapping& reader) :
   ParticleSystem(reader)
 {

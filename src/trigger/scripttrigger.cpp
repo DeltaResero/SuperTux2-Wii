@@ -50,19 +50,6 @@ ScriptTrigger::ScriptTrigger(const ReaderMapping& reader) :
     triggerevent = EVENT_TOUCH;
 }
 
-ScriptTrigger::ScriptTrigger(const Vector& pos, const std::string& script_) :
-  TriggerBase(),
-  triggerevent(EVENT_TOUCH),
-  script(script_),
-  new_size(0.0f, 0.0f),
-  must_activate(),
-  oneshot(false),
-  runcount(0)
-{
-  m_col.m_bbox.set_pos(pos);
-  m_col.m_bbox.set_size(32, 32);
-}
-
 void
 ScriptTrigger::event(Player& , EventType type)
 {

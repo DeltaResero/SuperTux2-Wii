@@ -37,8 +37,6 @@ public:
 public:
   JoystickConfig();
 
-  void print_joystick_mappings() const;
-
   int reversemap_joybutton(Control c) const;
   int reversemap_joyaxis(Control c) const;
   int reversemap_joyhat(Control c) const;

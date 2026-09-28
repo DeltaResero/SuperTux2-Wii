@@ -34,7 +34,6 @@ public:
 
   virtual bool is_flammable() const override;
   virtual std::string get_class() const override { return "yeti"; }
-  virtual std::string get_display_name() const override { return "Yeti"; }
 
   void kill_squished(GameObject& object);
 

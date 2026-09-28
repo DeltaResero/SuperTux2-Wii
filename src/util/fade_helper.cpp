@@ -16,17 +16,6 @@
 
 #include "util/fade_helper.hpp"
 
-FadeHelper::FadeHelper(float time, float target_value,
-                       float start_value, easing ease) :
-  m_value(nullptr),
-  m_start(start_value),
-  m_target(target_value),
-  m_time(0.f),
-  m_total_time(time),
-  m_ease(ease)
-{
-}
-
 FadeHelper::FadeHelper(float* value, float time,
                        float target_value, easing ease) :
   m_value(value),

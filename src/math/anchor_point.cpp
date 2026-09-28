@@ -24,58 +24,6 @@
 #include "math/rectf.hpp"
 #include "util/log.hpp"
 
-std::string anchor_point_to_string(AnchorPoint point)
-{
-  switch (point) {
-    case ANCHOR_TOP_LEFT:
-      return "topleft";
-    case ANCHOR_TOP:
-      return "top";
-    case ANCHOR_TOP_RIGHT:
-      return "topright";
-    case ANCHOR_LEFT:
-      return "left";
-    case ANCHOR_MIDDLE:
-      return "middle";
-    case ANCHOR_RIGHT:
-      return "right";
-    case ANCHOR_BOTTOM_LEFT:
-      return "bottomleft";
-    case ANCHOR_BOTTOM:
-      return "bottom";
-    case ANCHOR_BOTTOM_RIGHT:
-      return "bottomright";
-    default:
-      throw std::runtime_error("Invalid anchor point");
-  }
-}
-
-AnchorPoint string_to_anchor_point(const std::string& str)
-{
-  if (str == "topleft")
-    return ANCHOR_TOP_LEFT;
-  else if (str == "top")
-    return ANCHOR_TOP;
-  else if (str == "topright")
-    return ANCHOR_TOP_RIGHT;
-  else if (str == "left")
-    return ANCHOR_LEFT;
-  else if (str == "middle")
-    return ANCHOR_MIDDLE;
-  else if (str == "right")
-    return ANCHOR_RIGHT;
-  else if (str == "bottomleft")
-    return ANCHOR_BOTTOM_LEFT;
-  else if (str == "bottom")
-    return ANCHOR_BOTTOM;
-  else if (str == "bottomright")
-    return ANCHOR_BOTTOM_RIGHT;
-
-  std::ostringstream msg;
-  msg << "Unknown anchor '" << str << "'";
-  throw std::runtime_error(msg.str());
-}
-
 Vector get_anchor_pos(const Rectf& rect, AnchorPoint point)
 {
   Vector result(0.0f, 0.0f);

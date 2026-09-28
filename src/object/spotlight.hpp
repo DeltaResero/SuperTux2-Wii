@@ -36,7 +36,6 @@ public:
   };
 
   static Direction Direction_from_string(const std::string& s);
-  static std::string Direction_to_string(Direction dir);
 
 public:
   Spotlight(const ReaderMapping& reader);
@@ -48,7 +47,6 @@ public:
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit_) override;
 
   virtual std::string get_class() const override { return "spotlight"; }
-  virtual std::string get_display_name() const override { return "Spotlight"; }
 
   virtual int get_layer() const override { return m_layer; }
 

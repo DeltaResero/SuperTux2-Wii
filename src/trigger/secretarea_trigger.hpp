@@ -30,15 +30,11 @@ class SecretAreaTrigger final : public TriggerBase
   static Color text_color;
 public:
   SecretAreaTrigger(const ReaderMapping& reader);
-  SecretAreaTrigger(const Rectf& area, const std::string& fade_tilemap = "");
 
   virtual std::string get_class() const override { return "secretarea"; }
-  virtual std::string get_display_name() const override { return "Secret Area"; }
 
   virtual void event(Player& player, EventType type) override;
   virtual void draw(DrawingContext& context) override;
-
-  std::string get_fade_tilemap_name() const;
 
 private:
   Timer message_timer;

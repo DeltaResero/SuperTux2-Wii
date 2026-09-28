@@ -45,30 +45,4 @@ Blend_from_string(const std::string& text)
   }
 }
 
-std::string
-Blend_to_string(Blend blend)
-{
-  if (blend == Blend::NONE)
-  {
-    return "none";
-  }
-  else if (blend == Blend::BLEND)
-  {
-    return "blend";
-  }
-  else if (blend == Blend::ADD)
-  {
-    return "add";
-  }
-  else if (blend == Blend::MOD)
-  {
-    return "mod";
-  }
-  else
-  {
-    log_warning << "unknown blend mode: " << static_cast<int>(blend) << std::endl;
-    return "blend";
-  }
-}
-
 /* EOF */

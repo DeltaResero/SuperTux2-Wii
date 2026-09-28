@@ -148,47 +148,6 @@ Ghoul::active_update(float dt_sec)
 }
 
 void
-Ghoul::goto_node(int node_no)
-{
-  get_walker()->goto_node(node_no);
-  if (m_mystate != STATE_PATHMOVING && m_mystate != STATE_PATHMOVING_TRACK) {
-    m_mystate = STATE_PATHMOVING;
-  }
-}
-
-void
-Ghoul::start_moving()
-{
-  get_walker()->start_moving();
-}
-
-void
-Ghoul::stop_moving()
-{
-  get_walker()->stop_moving();
-}
-
-void
-Ghoul::set_state(const std::string& new_state)
-{
-  if (new_state == "stopped") {
-    m_mystate = STATE_STOPPED;
-  } else if (new_state == "idle") {
-    m_mystate = STATE_IDLE;
-  } else if (new_state == "move_path") {
-    m_mystate = STATE_PATHMOVING;
-    get_walker()->start_moving();
-  } else if (new_state == "move_path_track") {
-    m_mystate = STATE_PATHMOVING_TRACK;
-    get_walker()->start_moving();
-  } else if (new_state == "normal") {
-    m_mystate = STATE_IDLE;
-  } else {
-    log_warning << "Can't set unknown state '" << new_state << std::endl;
-  }
-}
-
-void
 Ghoul::move_to(const Vector& pos)
 {
   Vector shift = pos - m_col.m_bbox.p1();

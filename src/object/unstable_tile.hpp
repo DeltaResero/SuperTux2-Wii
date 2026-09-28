@@ -35,7 +35,6 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual void on_flip(float height) override;
   virtual std::string get_class() const override { return "unstable_tile"; }
-  virtual std::string get_display_name() const override { return "Unstable Tile"; }
 
 private:
   enum State {

@@ -45,11 +45,6 @@ const char* g_control_names[] = {
 
 } // namespace
 
-std::ostream& operator<<(std::ostream& os, Control control)
-{
-  return os << g_control_names[static_cast<int>(control)];
-}
-
 std::string Control_to_string(Control control)
 {
   return g_control_names[static_cast<int>(control)];

@@ -36,23 +36,12 @@ std::string dirname(const std::string& filename);
 /** returns the name of the file */
 std::string basename(const std::string& filename);
 
-/** Return a path to 'filename' that is relative to 'basedir', e.g.
-    reldir("/levels/juser/level1.stl", "/levels") -> "juser/level1.stl" */
-std::string relpath(const std::string& filename, const std::string& basedir);
-
-/** remove everything starting from and including the last dot */
-std::string strip_extension(const std::string& filename);
-
 /** normalize filename so that "blup/bla/blo/../../bar" will become
     "blup/bar" */
 std::string normalize(const std::string& filename);
 
 /** join two filenames join("foo", "bar") -> "foo/bar" */
 std::string join(const std::string& lhs, const std::string& rhs);
-
-/** Remove a file
-    @return true when successfully removed, false otherwise */
- bool remove(const std::string& path);
 
 } // namespace FileSystem
 

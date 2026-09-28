@@ -49,7 +49,6 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual std::string get_class() const override { return "badguy"; }
-  virtual std::string get_display_name() const override { return "Badguy"; }
 
   /** Called when a collision with another object occurred. The
       default implementation calls collision_player, collision_solid,
@@ -209,11 +208,6 @@ protected:
       works if update_on_ground_flag() gets called in
       collision_solid. */
   bool on_ground() const;
-
-  /** Returns floor normal stored the last time when
-      update_on_ground_flag was called and we touched something solid
-      from above. */
-  Vector get_floor_normal() const;
 
   /** Returns true if we were in STATE_ACTIVE at the beginning of the
       last call to update() */

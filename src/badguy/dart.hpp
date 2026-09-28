@@ -40,7 +40,6 @@ public:
 
   virtual bool updatePointers(const GameObject* from_object, GameObject* to_object);
   virtual std::string get_class() const override { return "dart"; }
-  virtual std::string get_display_name() const override { return "Dart"; }
 
   virtual bool is_flammable() const override;
 

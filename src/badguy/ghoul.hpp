@@ -25,7 +25,6 @@ class Ghoul final : public BadGuy,
 public:
   Ghoul(const ReaderMapping& reader);
   std::string get_class() const override { return "ghoul"; }
-  std::string get_display_name() const override { return "Ghoul"; }
   bool is_freezable() const override;
   bool is_flammable() const override;
 
@@ -35,11 +34,6 @@ public:
   void deactivate() override;
   void active_update(float dt_sec) override;
   
-  void goto_node(int node_no);
-  void set_state(const std::string& state);
-  void start_moving();
-  void stop_moving();
-
   void move_to(const Vector& pos) override;
 
 protected:

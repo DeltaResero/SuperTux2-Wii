@@ -37,7 +37,6 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "gradient"; }
-  virtual std::string get_display_name() const override { return "Gradient"; }
 
   void set_gradient(Color top, Color bottom);
   void fade_gradient(Color top, Color bottom, float time);
@@ -47,8 +46,6 @@ public:
   GradientDirection get_direction() const { return m_gradient_direction; }
   void set_direction(const GradientDirection& direction);
 
-  void set_layer(int layer) { m_layer = layer; }
-  int get_layer() const { return m_layer; }
 
 private:
   int m_layer;

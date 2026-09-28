@@ -29,14 +29,11 @@ class Block : public MovingObject
   friend class FlipLevelTransformer;
 
 public:
-  Block(SpritePtr sprite);
   Block(const ReaderMapping& mapping, const std::string& sprite_file);
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
-
-  virtual std::string get_default_sprite_name() const { return m_default_sprite_name; }
 
   virtual void on_flip(float height) override;
 
@@ -52,11 +49,9 @@ protected:
 protected:
   SpritePtr m_sprite;
   std::string m_sprite_name;
-  std::string m_default_sprite_name;
   bool m_bouncing;
   bool m_breaking;
   float m_bounce_dir;
-  float m_bounce_offset;
   float m_original_y;
 
 private:

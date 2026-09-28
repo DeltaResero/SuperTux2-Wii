@@ -55,8 +55,6 @@ public:
   virtual bool supports_framebuffer() const override { return true; }
 
   GLProgram& get_program() const { return *m_program; }
-  GLVertexArrays& get_vertex_arrays() const { return *m_vertex_arrays; }
-  GLTexture& get_white_texture() const { return *m_white_texture; }
 
 private:
   GLVideoSystem& m_video_system;

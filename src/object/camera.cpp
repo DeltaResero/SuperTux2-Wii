@@ -715,11 +715,4 @@ Camera::get_center() const
                               static_cast<float>(m_screen_size.height) / 2.0f);
 }
 
-void
-Camera::move(const int dx, const int dy)
-{
-  m_translation.x += static_cast<float>(dx);
-  m_translation.y += static_cast<float>(dy);
-}
-
 /* EOF */

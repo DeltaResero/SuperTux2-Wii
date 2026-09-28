@@ -38,7 +38,6 @@ public:
   virtual void draw(DrawingContext& context) override;
 
   virtual std::string get_class() const override { return "particles-clouds"; }
-  virtual std::string get_display_name() const override { return "Cloud Particles"; }
 
   void fade_speed(float new_speed, float fade_time);
   void fade_amount(int new_amount, float fade_time, float time_between = 0.f);
@@ -83,7 +82,6 @@ private:
   float m_target_speed;
   float m_speed_fade_time_remaining;
 
-  float m_current_amount;
   //float m_target_amount;
   //float m_amount_fade_time_remaining;
   

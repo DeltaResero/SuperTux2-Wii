@@ -27,15 +27,11 @@ class SequenceTrigger final : public TriggerBase
 {
 public:
   SequenceTrigger(const ReaderMapping& reader);
-  SequenceTrigger(const Vector& pos, const std::string& sequence_name);
 
   virtual std::string get_class() const override { return "sequencetrigger"; }
-  virtual std::string get_display_name() const override { return "Sequence Trigger"; }
 
   virtual void event(Player& player, EventType type) override;
   virtual void draw(DrawingContext& context) override;
-
-  std::string get_sequence_name() const;
 
 private:
   EventType triggerevent;

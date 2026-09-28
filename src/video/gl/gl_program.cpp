@@ -69,22 +69,6 @@ GLProgram::bind()
   assert_gl();
 }
 
-void
-GLProgram::validate()
-{
-  assert_gl();
-
-  glValidateProgram(m_program);
-  if (!get_validate_status())
-  {
-    std::ostringstream out;
-    out << "validate failure:\n" << get_info_log() << std::endl;
-    throw std::runtime_error(out.str());
-  }
-
-  assert_gl();
-}
-
 GLint
 GLProgram::get_attrib_location(const char* name) const
 {
@@ -128,19 +112,6 @@ GLProgram::get_link_status() const
   assert_gl();
 
   return link_status != 0;
-}
-
-bool
-GLProgram::get_validate_status() const
-{
-  assert_gl();
-
-  GLint validate_status;
-  glGetProgramiv(m_program, GL_VALIDATE_STATUS, &validate_status);
-
-  assert_gl();
-
-  return validate_status != 0;
 }
 
 std::string

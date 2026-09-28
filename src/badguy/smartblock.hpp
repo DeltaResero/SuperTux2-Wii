@@ -26,7 +26,6 @@ public:
 
   virtual std::string get_water_sprite() const override { return "images/objects/water_drop/pink_drop.sprite"; }
   virtual std::string get_class() const override { return "smartblock"; }
-  virtual std::string get_display_name() const override { return "Smartblock"; }
 
 private:
   SmartBlock(const SmartBlock&) = delete;

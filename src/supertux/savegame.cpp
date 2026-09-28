@@ -68,24 +68,6 @@ std::vector<LevelState> get_level_states(SquirrelVM& vm)
 
 } // namespace
 
-void
-LevelsetState::store_level_state(const LevelState& in_state)
-{
-  auto it = std::find_if(level_states.begin(), level_states.end(),
-                         [&in_state](const LevelState& state)
-                         {
-                           return state.filename == in_state.filename;
-                         });
-  if (it != level_states.end())
-  {
-    *it = in_state;
-  }
-  else
-  {
-    level_states.push_back(in_state);
-  }
-}
-
 LevelState
 LevelsetState::get_level_state(const std::string& filename) const
 {
@@ -289,96 +271,6 @@ Savegame::save()
   writer.end_list("state");
 
   writer.end_list("supertux-savegame");
-}
-
-std::vector<std::string>
-Savegame::get_worldmaps()
-{
-  std::vector<std::string> worlds;
-
-  SquirrelVM& vm = SquirrelVirtualMachine::current()->get_vm();
-  SQInteger oldtop = sq_gettop(vm.get_vm());
-
-  try
-  {
-    sq_pushroottable(vm.get_vm());
-    vm.get_table_entry("state");
-    vm.get_or_create_table_entry("worlds");
-    worlds = vm.get_table_keys();
-  }
-  catch(const std::exception& err)
-  {
-    log_warning << err.what() << std::endl;
-  }
-
-  sq_settop(vm.get_vm(), oldtop);
-
-  // ensure that the loaded worldmap names have their canonical form
-  std::transform(worlds.begin(), worlds.end(), worlds.begin(), physfsutil::realpath);
-
-  return worlds;
-}
-
-WorldmapState
-Savegame::get_worldmap_state(const std::string& name)
-{
-  WorldmapState result;
-
-  SquirrelVM& vm = SquirrelVirtualMachine::current()->get_vm();
-  SQInteger oldtop = sq_gettop(vm.get_vm());
-
-  try
-  {
-    sq_pushroottable(vm.get_vm());
-    vm.get_table_entry("state");
-    vm.get_or_create_table_entry("worlds");
-
-    // if a non-canonical entry is present, replace them with a canonical one
-    if (name != "/levels/world2/worldmap.stwm") {
-      std::string old_map_filename = name.substr(1);
-      if (vm.has_property(old_map_filename.c_str())) {
-        vm.rename_table_entry(old_map_filename.c_str(), name.c_str());
-      }
-    }
-
-    vm.get_or_create_table_entry(name);
-    vm.get_or_create_table_entry("levels");
-
-    result.level_states = get_level_states(vm);
-  }
-  catch(const std::exception& err)
-  {
-    log_warning << err.what() << std::endl;
-  }
-
-  sq_settop(vm.get_vm(), oldtop);
-
-  return result;
-}
-
-std::vector<std::string>
-Savegame::get_levelsets()
-{
-  std::vector<std::string> results;
-
-  SquirrelVM& vm = SquirrelVirtualMachine::current()->get_vm();
-  SQInteger oldtop = sq_gettop(vm.get_vm());
-
-  try
-  {
-    sq_pushroottable(vm.get_vm());
-    vm.get_table_entry("state");
-    vm.get_or_create_table_entry("levelsets");
-    results = vm.get_table_keys();
-  }
-  catch(const std::exception& err)
-  {
-    log_warning << err.what() << std::endl;
-  }
-
-  sq_settop(vm.get_vm(), oldtop);
-
-  return results;
 }
 
 LevelsetState

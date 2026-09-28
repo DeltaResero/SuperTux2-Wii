@@ -25,7 +25,6 @@ class ReaderMapping;
 class GhostParticleSystem final : public ParticleSystem
 {
 public:
-  GhostParticleSystem();
   GhostParticleSystem(const ReaderMapping& reader);
   ~GhostParticleSystem() override;
 
@@ -33,7 +32,6 @@ public:
   virtual void update(float dt_sec) override;
 
   virtual std::string get_class() const override { return "particles-ghosts"; }
-  virtual std::string get_display_name() const override { return "Ghost Particles"; }
 
 private:
   class GhostParticle : public Particle

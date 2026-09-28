@@ -236,12 +236,6 @@ Player::~Player()
   if (m_climbing) stop_climbing(*m_climbing);
 }
 
-float
-Player::get_speedlimit() const
-{
-  return m_speedlimit;
-}
-
 void
 Player::set_speedlimit(float newlimit)
 {

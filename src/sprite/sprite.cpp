@@ -175,18 +175,6 @@ Sprite::get_height() const
 }
 
 float
-Sprite::get_current_hitbox_x_offset() const
-{
-  return m_action->x_offset;
-}
-
-float
-Sprite::get_current_hitbox_y_offset() const
-{
-  return m_action->y_offset;
-}
-
-float
 Sprite::get_current_hitbox_width() const
 {
   return m_action->hitbox_w;
@@ -222,12 +210,6 @@ Sprite::set_alpha(float a)
   m_alpha = a;
 }
 
-float
-Sprite::get_alpha() const
-{
-  return m_alpha;
-}
-
 void
 Sprite::set_color(const Color& c)
 {
@@ -244,12 +226,6 @@ void
 Sprite::set_blend(const Blend& b)
 {
   m_blend = b;
-}
-
-Blend
-Sprite::get_blend() const
-{
-  return m_blend;
 }
 
 /* EOF */

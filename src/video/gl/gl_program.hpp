@@ -30,16 +30,12 @@ public:
   ~GLProgram();
 
   void bind();
-  void validate();
-
-  GLuint get_handle() const { return m_program; }
 
   GLint get_attrib_location(const char* name) const;
   GLint get_uniform_location(const char* name) const;
 
 private:
   bool get_link_status() const;
-  bool get_validate_status() const;
   std::string get_info_log() const;
 
 private:

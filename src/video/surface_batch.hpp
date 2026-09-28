@@ -33,7 +33,6 @@ public:
 
   void draw(const Vector& pos, float angle = 0.0f);
   void draw(const Rectf& dstrect, float angle = 0.0f);
-  void draw(const Rectf& srcrect, const Rectf& dstrect, float angle = 0.0f);
 
   std::vector<Rectf> move_srcrects() { return std::move(m_srcrects); }
   std::vector<Rectf> move_dstrects() { return std::move(m_dstrects); }

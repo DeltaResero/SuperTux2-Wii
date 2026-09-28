@@ -28,11 +28,9 @@ class Door final : public TriggerBase
 {
 public:
   Door(const ReaderMapping& reader);
-  Door(int x, int y, const std::string& sector, const std::string& spawnpoint);
   ~Door() override;
 
   virtual std::string get_class() const override { return "door"; }
-  virtual std::string get_display_name() const override { return "Door"; }
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;

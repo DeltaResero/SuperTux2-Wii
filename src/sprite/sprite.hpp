@@ -62,19 +62,12 @@ public:
   /** Get current frame progress */
   float get_current_frame_progress() const { return m_frame; }
 
-  /** Get sprite's name */
-  const std::string& get_name() const { return m_data.name; }
-
   /** Get current action name */
   const std::string& get_action() const { return m_action->name; }
 
   int get_width() const;
   int get_height() const;
 
-  /** return x-offset of current action's hitbox, relative to start of image */
-  float get_current_hitbox_x_offset() const;
-  /** return y-offset of current action's hitbox, relative to start of image */
-  float get_current_hitbox_y_offset() const;
   /** return width of current action's hitbox */
   float get_current_hitbox_width() const;
   /** return height of current action's hitbox */
@@ -92,10 +85,8 @@ public:
   Color get_color() const;
 
   void set_alpha(float alpha);
-  float get_alpha() const;
 
   void set_blend(const Blend& blend);
-  Blend get_blend() const;
 
   bool has_action (const std::string& name) const { return (m_data.get_action(name) != nullptr); }
 

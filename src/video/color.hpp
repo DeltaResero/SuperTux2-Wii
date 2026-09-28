@@ -40,16 +40,7 @@ public:
 
     Color validate() const { return Color(r, g, b, a); }
 
-    CalculateColor operator+(const CalculateColor& o) const { return CalculateColor(r + o.r, g + o.g, b + o.b, a + o.a); }
-    CalculateColor operator-(const CalculateColor& o) const { return CalculateColor(r - o.r, g - o.g, b - o.b, a - o.a); }
-    CalculateColor operator*(const CalculateColor& o) const { return CalculateColor(r * o.r, g * o.g, b * o.b, a * o.a); }
-    CalculateColor operator/(const CalculateColor& o) const { return CalculateColor(r / o.r, g / o.g, b / o.b, a / o.a); }
-    CalculateColor operator+(const Color& o) const { return CalculateColor(r + o.red, g + o.green, b + o.blue, a + o.alpha); }
-    CalculateColor operator-(const Color& o) const { return CalculateColor(r - o.red, g - o.green, b - o.blue, a - o.alpha); }
-    CalculateColor operator*(const Color& o) const { return CalculateColor(r * o.red, g * o.green, b * o.blue, a * o.alpha); }
-    CalculateColor operator/(const Color& o) const { return CalculateColor(r / o.red, g / o.green, b / o.blue, a / o.alpha); }
     CalculateColor operator*(float m) const { return CalculateColor(r * m, g * m, b * m, a * m); }
-    CalculateColor operator/(float d) const { return CalculateColor(r / d, g / d, b / d, a / d); }
 
   public:
     float r, g, b, a;
@@ -58,7 +49,6 @@ public:
 public:
   static const Color BLACK;
   static const Color RED;
-  static const Color GREEN;
   static const Color BLUE;
   static const Color CYAN;
   static const Color MAGENTA;
@@ -81,11 +71,6 @@ public:
                  static_cast<float>(a) / 255.0f);
   }
 
-  static Color from_linear(float r, float g, float b, float a = 1.0f)
-  {
-    return Color(add_gamma(r), add_gamma(g), add_gamma(b), a);
-  }
-
   // Helper functions to approximately transform to/from sRGB colours
   static float add_gamma(float x) { return powf(x, 1.0f / 2.2f); }
   static float remove_gamma(float x) { return powf(x, 2.2f); }
@@ -105,8 +90,6 @@ public:
   // Multiplies the sRGB color values by v gamma-correctly
   Color multiply_linearly(float v) const;
 
-  bool operator < (const Color& other) const;
-
   inline uint8_t r8() const { return static_cast<uint8_t>(255.0f * red); }
   inline uint8_t g8() const { return static_cast<uint8_t>(255.0f * green); }
   inline uint8_t b8() const { return static_cast<uint8_t>(255.0f * blue); }
@@ -120,27 +103,8 @@ public:
             (static_cast<uint32_t>(r8()) <<  0u));
   }
 
-  /** Return a human-readable string representation for this color */
-  std::string to_string() const
-  {
-    return std::to_string(red) + " " + std::to_string(green) + " " + std::to_string(blue);
-  }
-
-  SDL_Color to_sdl_color() const
-  {
-    return { r8(), g8(), b8(), a8() };
-  }
-
-  CalculateColor operator+(const Color& o) const { return CalculateColor(red + o.red, green + o.green, blue + o.blue, alpha + o.alpha); }
   CalculateColor operator-(const Color& o) const { return CalculateColor(red - o.red, green - o.green, blue - o.blue, alpha - o.alpha); }
-  CalculateColor operator*(const Color& o) const { return CalculateColor(red * o.red, green * o.green, blue * o.blue, alpha * o.alpha); }
-  CalculateColor operator/(const Color& o) const { return CalculateColor(red / o.red, green / o.green, blue / o.blue, alpha / o.alpha); }
   CalculateColor operator+(const CalculateColor& o) const { return CalculateColor(red + o.r, green + o.g, blue + o.b, alpha + o.a); }
-  CalculateColor operator-(const CalculateColor& o) const { return CalculateColor(red - o.r, green - o.g, blue - o.b, alpha - o.a); }
-  CalculateColor operator*(const CalculateColor& o) const { return CalculateColor(red * o.r, green * o.g, blue * o.b, alpha * o.a); }
-  CalculateColor operator/(const CalculateColor& o) const { return CalculateColor(red / o.r, green / o.g, blue / o.b, alpha / o.a); }
-  CalculateColor operator*(float m) const { return CalculateColor(red * m, green * m, blue * m, alpha * m); }
-  CalculateColor operator/(float d) const { return CalculateColor(red / d, green / d, blue / d, alpha / d); }
 
 public:
   float red, green, blue, alpha;

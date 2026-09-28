@@ -40,9 +40,6 @@ public:
   virtual void move_to(const Vector& pos) override;
 
   virtual std::string get_class() const override { return "platform"; }
-  virtual std::string get_display_name() const override { return "Platform"; }
-
-  const Vector& get_speed() const { return m_speed; }
 
   /** @name Scriptable Methods
       @{ */

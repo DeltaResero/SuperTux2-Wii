@@ -20,7 +20,6 @@
 
 const Color Color::BLACK(0.0, 0.0, 0.0);
 const Color Color::RED(1.0, 0.0, 0.0);
-const Color Color::GREEN(0.0, 1.0, 0.0);
 const Color Color::BLUE(0.0, 0.0, 1.0);
 const Color Color::CYAN(0.0, 1.0, 1.0);
 const Color Color::MAGENTA(1.0, 0.0, 1.0);
@@ -96,12 +95,6 @@ Color::multiply_linearly(float v) const
   // to v
   v = add_gamma(v);
   return Color(red * v, green * v, blue * v, alpha);
-}
-
-bool
-Color::operator < (const Color& other) const
-{
-  return greyscale() < other.greyscale();
 }
 
 /* EOF */

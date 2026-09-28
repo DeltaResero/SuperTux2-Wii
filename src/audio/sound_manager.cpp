@@ -422,12 +422,6 @@ SoundManager::set_listener_position(const Vector& pos)
 }
 
 void
-SoundManager::set_listener_velocity(const Vector& vel)
-{
-  alListener3f(AL_VELOCITY, vel.x, vel.y, 0);
-}
-
-void
 SoundManager::set_listener_orientation(const Vector& at, const Vector& up)
 {
   ALfloat orientation[]={at.x, at.y, 1.0, up.x, up.y, 0.0};

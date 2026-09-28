@@ -36,7 +36,6 @@ public:
   virtual void ignite() override;
 
   virtual std::string get_class() const override { return "mole"; }
-  virtual std::string get_display_name() const override { return "Mole"; }
 
 private:
   enum MoleState {

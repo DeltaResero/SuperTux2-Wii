@@ -38,7 +38,6 @@ public:
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
   virtual std::string get_class() const override { return "magicblock"; }
-  virtual std::string get_display_name() const override { return "Magic Tile"; }
 
 private:
   bool m_is_solid;

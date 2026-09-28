@@ -605,16 +605,6 @@ TileMap::get_alpha() const
 }
 
 void
-TileMap::move_by(const Vector& shift)
-{
-  if (!get_path()) {
-    init_path_pos(m_offset);
-  }
-  get_path()->move_by(shift);
-  m_offset += shift;
-}
-
-void
 TileMap::update_effective_solid()
 {
   bool old = m_effective_solid;

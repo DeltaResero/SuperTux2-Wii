@@ -72,7 +72,6 @@ public:
   virtual void draw(DrawingContext& context) = 0;
 
   virtual std::string get_class() const { return "game-object"; }
-  virtual std::string get_display_name() const { return "Unknown object"; }
 
   /** If true only a single object of this type is allowed in a
       given GameObjectManager */
@@ -112,20 +111,6 @@ public:
       }
     }
     return nullptr;
-  }
-
-  void add_component(std::unique_ptr<GameObjectComponent> component) {
-    m_components.emplace_back(std::move(component));
-  }
-
-  void remove_component(GameObjectComponent* component) {
-    auto it = std::find_if(m_components.begin(), m_components.end(),
-                           [component](const std::unique_ptr<GameObjectComponent>& lhs){
-                             return lhs.get() == component;
-                           });
-    if (it != m_components.end()) {
-      m_components.erase(it);
-    }
   }
 
 private:

@@ -31,13 +31,11 @@ public:
 
   virtual bool is_freezable() const override;
   virtual std::string get_class() const override { return "igel"; }
-  virtual std::string get_display_name() const override { return "Igel"; }
 
 protected:
   //  virtual bool collision_squished(GameObject& object) override;
   // Enable this and the igel will no longer be butt-jumpable when frozen.
   // Remember to enable it in .cpp too!
-  void be_normal(); /**< switch to state STATE_NORMAL */
   void turn_around(); /**< reverse direction, assumes we are in STATE_NORMAL */
   bool can_see(const MovingObject& o) const; /**< check if we can see o */
 
