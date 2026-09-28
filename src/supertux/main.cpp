@@ -160,7 +160,7 @@ void PhysfsSubsystem::find_datadir() const
     std::string basepath = basepath_c ? basepath_c : "./";
     SDL_free(basepath_c);
 
-    if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.stxt")))
+    if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.txt")))
     {
       datadir = BUILD_DATA_DIR;
       // Add config dir for supplemental files
