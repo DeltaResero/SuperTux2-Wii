@@ -273,43 +273,6 @@ Savegame::save()
   writer.end_list("supertux-savegame");
 }
 
-WorldmapState
-Savegame::get_worldmap_state(const std::string& name)
-{
-  WorldmapState result;
-
-  SquirrelVM& vm = SquirrelVirtualMachine::current()->get_vm();
-  SQInteger oldtop = sq_gettop(vm.get_vm());
-
-  try
-  {
-    sq_pushroottable(vm.get_vm());
-    vm.get_table_entry("state");
-    vm.get_or_create_table_entry("worlds");
-
-    // if a non-canonical entry is present, replace them with a canonical one
-    if (name != "/levels/world2/worldmap.stwm") {
-      std::string old_map_filename = name.substr(1);
-      if (vm.has_property(old_map_filename.c_str())) {
-        vm.rename_table_entry(old_map_filename.c_str(), name.c_str());
-      }
-    }
-
-    vm.get_or_create_table_entry(name);
-    vm.get_or_create_table_entry("levels");
-
-    result.level_states = get_level_states(vm);
-  }
-  catch(const std::exception& err)
-  {
-    log_warning << err.what() << std::endl;
-  }
-
-  sq_settop(vm.get_vm(), oldtop);
-
-  return result;
-}
-
 LevelsetState
 Savegame::get_levelset_state(const std::string& basedir)
 {

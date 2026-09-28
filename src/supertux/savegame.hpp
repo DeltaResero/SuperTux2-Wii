@@ -51,17 +51,6 @@ public:
   LevelState get_level_state(const std::string& filename) const;
 };
 
-struct WorldmapState
-{
-public:
-  WorldmapState() :
-    filename(),
-    level_states()
-  {}
-  std::string filename;
-  std::vector<LevelState> level_states;
-};
-
 class Savegame final
 {
 public:
@@ -79,8 +68,6 @@ public:
   void set_levelset_state(const std::string& basedir,
                           const std::string& level_filename,
                           bool solved);
-
-  WorldmapState get_worldmap_state(const std::string& name);
 
   void save();
 

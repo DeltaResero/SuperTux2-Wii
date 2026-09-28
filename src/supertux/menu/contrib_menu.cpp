@@ -27,7 +27,6 @@
 #include "supertux/levelset.hpp"
 #include "supertux/menu/contrib_levelset_menu.hpp"
 #include "supertux/player_status.hpp"
-#include "supertux/savegame.hpp"
 #include "supertux/world.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
@@ -66,26 +65,8 @@ ContribMenu::ContribMenu() :
       std::unique_ptr<World> world = World::from_directory(*it);
       if (!world->hide_from_contribs())
       {
-        auto savegame = Savegame::from_file(world->get_savegame_filename());
-
         if (world->is_levelset())
         {
-          int level_count = 0;
-          int solved_count = 0;
-
-          const auto& state = savegame->get_levelset_state(world->get_basedir());
-          for (const auto& level_state : state.level_states)
-          {
-            if (level_state.filename.empty())
-              continue;
-
-            if (level_state.solved)
-            {
-              solved_count += 1;
-            }
-            level_count += 1;
-          }
-
           std::ostringstream title;
           title << "[" << world->get_title() << "]";
           std::ostringstream desc;
@@ -95,22 +76,6 @@ ContribMenu::ContribMenu() :
         }
         else if (world->is_worldmap())
         {
-          int level_count = 0;
-          int solved_count = 0;
-
-          const auto& state = savegame->get_worldmap_state(world->get_worldmap_filename());
-          for (const auto& level_state : state.level_states)
-          {
-            if (level_state.filename.empty())
-              continue;
-
-            if (level_state.solved)
-            {
-              solved_count += 1;
-            }
-            level_count += 1;
-          }
-
           std::ostringstream title;
           title << world->get_title();
           std::ostringstream desc;
