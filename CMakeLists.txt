@@ -319,11 +319,6 @@ endif()
 
 include_directories(BEFORE SYSTEM ${PHYSFS_INCLUDE_DIR})
 
-
-#find_package(ICONV REQUIRED)
-#include_directories(SYSTEM ${ICONV_INCLUDE_DIR})
-#link_libraries(${ICONV_LIBRARY})
-
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   ## Find revision of WC
   mark_as_advanced(GIT_EXECUTABLE)
