@@ -126,7 +126,7 @@ SCrystallo::active_update(float dt_sec)
       m_dir == Direction::LEFT ? "left" : "right", -1);
     WalkingBadguy::active_update(dt_sec, targetwalk, 2.f);
     break;
-	}
+  }
 }
 
 bool

@@ -264,13 +264,13 @@ Statistics::draw_endseq_panel(DrawingContext& context, Statistics* best_stats, c
   context.color().draw_text(Resources::normal_font, "Badguys", Vector(col2_x - 16.0f, static_cast<float>(row4_y)), ALIGN_RIGHT, LAYER_HUD, Statistics::header_color);
   context.color().draw_text(Resources::normal_font, frags_to_string(m_badguys, m_total_badguys), Vector(col2_x, static_cast<float>(row4_y)), ALIGN_LEFT, LAYER_HUD, tcolor);
   if (best_stats) {
-	int badguys_best = (best_stats->m_badguys > m_badguys) ? best_stats->m_badguys : m_badguys;
-	int total_badguys_best = (best_stats->m_total_badguys > m_total_badguys) ? best_stats->m_total_badguys : m_total_badguys;
-        if (badguys_best >= total_badguys_best)
-          tcolor = Statistics::perfect_color;
-        else
-          tcolor = Statistics::text_color;
-	context.color().draw_text(Resources::normal_font, frags_to_string(badguys_best, total_badguys_best), Vector(col3_x, row4_y), ALIGN_LEFT, LAYER_HUD, tcolor);
+    int badguys_best = (best_stats->m_badguys > m_badguys) ? best_stats->m_badguys : m_badguys;
+    int total_badguys_best = (best_stats->m_total_badguys > m_total_badguys) ? best_stats->m_total_badguys : m_total_badguys;
+    if (badguys_best >= total_badguys_best)
+      tcolor = Statistics::perfect_color;
+    else
+      tcolor = Statistics::text_color;
+    context.color().draw_text(Resources::normal_font, frags_to_string(badguys_best, total_badguys_best), Vector(col3_x, row4_y), ALIGN_LEFT, LAYER_HUD, tcolor);
   }
 
   if (m_secrets >= m_total_secrets)

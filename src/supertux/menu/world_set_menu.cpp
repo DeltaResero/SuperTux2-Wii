@@ -44,8 +44,8 @@ void WorldSetMenu::menu_action(MenuItem& item)
     }
 
     case WORLDSET_CONTRIB:
-	    MenuManager::instance().push_menu(MenuStorage::CONTRIB_MENU);
-	    break;
+      MenuManager::instance().push_menu(MenuStorage::CONTRIB_MENU);
+      break;
   }
 }
 

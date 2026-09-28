@@ -184,9 +184,9 @@ UnstableTile::update(float dt_sec)
 
     case STATE_SLOWFALL:
       if (slowfall_timer >= dt_sec)
-	      slowfall_timer -= dt_sec;
+        slowfall_timer -= dt_sec;
       else /* Switch to normal falling procedure */
-	      fall_down();
+        fall_down();
       m_col.set_movement(physic.get_movement(dt_sec));
       break;
 

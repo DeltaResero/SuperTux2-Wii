@@ -316,7 +316,7 @@ TextScroller::update(float dt_sec)
     // close when done
     if (m_finished && !m_fading)
     {
-	  m_fading = true;
+      m_fading = true;
       ScreenManager::current()->pop_screen(std::unique_ptr<ScreenFade>(new FadeToBlack(FadeToBlack::FADEOUT, 0.25f)));
     }
   }

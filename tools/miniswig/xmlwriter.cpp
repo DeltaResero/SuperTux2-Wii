@@ -39,7 +39,7 @@ void XmlWriter::openTag(const char* name)
 void XmlWriter::closeTag(const char* name)
 {
     if(sections.size() == 0)
-	throw std::runtime_error("got closeSection without prior openSection.");
+        throw std::runtime_error("got closeSection without prior openSection.");
 
     const std::string& lastsection = sections.back();
     if (lastsection != name) {
@@ -77,5 +77,5 @@ void XmlWriter::newLine()
 void XmlWriter::closeTag()
 {
     if (closetag != "")
-	out << closetag << "\n";
+        out << closetag << "\n";
 }

@@ -72,7 +72,7 @@ MainMenu::menu_action(MenuItem& item)
       std::unique_ptr<World> world = World::from_directory("levels/misc");
       GameManager::current()->start_level(*world, "credits.stl");
     }
-	  break;
+    break;
 
     case MNID_QUITMAINMENU:
       MenuManager::instance().clear_menu_stack();
