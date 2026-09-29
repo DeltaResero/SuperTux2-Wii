@@ -22,6 +22,7 @@
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
+#include "math/util.hpp"
 #include "object/coin.hpp"
 #include "object/camera.hpp"
 #include "object/particles.hpp"
@@ -468,7 +469,7 @@ IceCrusher::eye_position(bool right) const
                   static_cast<float>(m_sprite->get_width()) / 64.0f * 2.0f - (right ? 1 : -1) * // Amplitude dependent on size
                   static_cast<float>(m_sprite->get_width()) / 64.0f * 2.0f, // Offset to keep eyes visible
 
-                  cosf((right ? 3.1415f : 0.0f) + // Eyes spin out of phase of eachother
+                  cosf((right ? math::PI : 0.0f) + // Eyes spin out of phase of eachother
                   (state == RECOVERING ? get_pos().y / 13 : get_pos().x / 13) - // Phase factor due to y position
                        (ic_size==NORMAL ? RECOVER_SPEED_NORMAL : RECOVER_SPEED_LARGE) + cooldown_timer * 13.0f) * //Phase factor due to cooldown timer
                   static_cast<float>(m_sprite->get_width()) / 64.0f * 2.0f -  // Amplitude dependent on size
