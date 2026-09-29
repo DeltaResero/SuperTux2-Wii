@@ -16,7 +16,7 @@
 
 #include "util/reader_object.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <sexp/value.hpp>
 #include <stdexcept>
 

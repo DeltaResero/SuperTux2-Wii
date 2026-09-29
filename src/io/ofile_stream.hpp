@@ -14,30 +14,21 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_OFILE_STREAMBUF_HPP
-#define HEADER_SUPERTUX_PHYSFS_OFILE_STREAMBUF_HPP
+#ifndef HEADER_SUPERTUX_IO_OFILE_STREAM_HPP
+#define HEADER_SUPERTUX_IO_OFILE_STREAM_HPP
 
-#include <streambuf>
+#include <fstream>
+#include <string>
 
-struct PHYSFS_File;
-
-class OFileStreambuf final : public std::streambuf
+/** Creates a file relative to the write directory; throws if it can't */
+class OFileStream final : public std::ofstream
 {
 public:
-  OFileStreambuf(const std::string& filename);
-  ~OFileStreambuf() override;
-
-protected:
-  virtual int overflow(int c) override;
-  virtual int sync() override;
+  OFileStream(const std::string& filename);
 
 private:
-  PHYSFS_File* file;
-  char buf[1024];
-
-private:
-  OFileStreambuf(const OFileStreambuf&) = delete;
-  OFileStreambuf& operator=(const OFileStreambuf&) = delete;
+  OFileStream(const OFileStream&) = delete;
+  OFileStream& operator=(const OFileStream&) = delete;
 };
 
 #endif

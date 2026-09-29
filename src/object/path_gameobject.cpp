@@ -16,7 +16,7 @@
 
 #include "object/path_gameobject.hpp"
 
-#include <boost/optional.hpp>
+#include <optional>
 
 #include "gui/menu_manager.hpp"
 #include "object/path.hpp"
@@ -48,7 +48,7 @@ PathStyle PathStyle_from_string(const std::string& text)
 } // namespace
 
 PathGameObject::PathGameObject(const Vector& pos) :
-  m_path(new Path(pos)),
+  m_path(std::make_unique<Path>(pos)),
   m_style(PathStyle::NONE),
   m_edge_sprite(),
   m_node_sprite()
@@ -69,7 +69,7 @@ PathGameObject::PathGameObject(const ReaderMapping& mapping, bool backward_compa
   }
   else
   {
-    boost::optional<ReaderMapping> path_mapping;
+    std::optional<ReaderMapping> path_mapping;
     if (mapping.get("path", path_mapping))
     {
       m_path->read(*path_mapping);
@@ -104,11 +104,11 @@ PathGameObject::draw(DrawingContext& context)
 {
   if (m_style == PathStyle::SOLID)
   {
-    boost::optional<Vector> previous_node;
+    std::optional<Vector> previous_node;
 
     // FIXME: temporary workaround for compiler warning
     previous_node = Vector();
-    previous_node = boost::none;
+    previous_node = std::nullopt;
 
     for (const auto& node : m_path->get_nodes())
     {
@@ -143,7 +143,7 @@ PathGameObject::draw(DrawingContext& context)
     const Color node_color = Color::BLUE;
     const Color edge_color = Color::MAGENTA;
 
-    boost::optional<Vector> previous_node;
+    std::optional<Vector> previous_node;
     for (const auto& node : m_path->get_nodes())
     {
       if (previous_node)

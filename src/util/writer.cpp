@@ -16,12 +16,12 @@
 
 #include "util/writer.hpp"
 
-#include "physfs/ofile_stream.hpp"
+#include "io/ofile_stream.hpp"
 #include "util/log.hpp"
 
 Writer::Writer(const std::string& filename) :
   m_filename(filename),
-  out(new OFileStream(filename)),
+  out(std::make_unique<OFileStream>(filename)),
   indent_depth(0),
   lists()
 {
@@ -33,7 +33,6 @@ Writer::~Writer()
   if (lists.size() > 0) {
     log_warning << m_filename << ": Not all sections closed in Writer" << std::endl;
   }
-  delete out;
 }
 
 void

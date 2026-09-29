@@ -16,7 +16,8 @@
 
 #include "supertux/menu/contrib_levelset_menu.hpp"
 
-#include <assert.h>
+#include <cassert>
+#include <memory>
 #include <sstream>
 
 #include "audio/sound_manager.hpp"
@@ -35,7 +36,7 @@ ContribLevelsetMenu::ContribLevelsetMenu(std::unique_ptr<World> world) :
 {
   assert(m_world->is_levelset());
 
-  m_levelset = std::unique_ptr<Levelset>(new Levelset(m_world->get_basedir()));
+  m_levelset = std::make_unique<Levelset>(m_world->get_basedir());
 
   auto savegame = Savegame::from_file(m_world->get_savegame_filename());
   LevelsetState state = savegame->get_levelset_state(m_world->get_basedir());

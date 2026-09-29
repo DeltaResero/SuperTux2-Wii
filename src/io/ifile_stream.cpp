@@ -14,25 +14,25 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
-#define HEADER_SUPERTUX_PHYSFS_IFILE_STREAM_HPP
+#include "io/ifile_stream.hpp"
 
-#include <memory>
-#include <istream>
+#include <stdexcept>
 
-class IFileStream final : public std::istream
+#include "util/file_system.hpp"
+
+IFileStream::IFileStream(const std::string& filename) :
+  std::ifstream()
 {
-protected:
-  std::unique_ptr<std::streambuf> sb;
+  if (filename.empty())
+    throw std::runtime_error("Couldn't open file: empty filename");
 
-public:
-  IFileStream(const std::string& filename);
+  const std::string path = FileSystem::find(filename);
+  if (path.empty())
+    throw std::runtime_error("Couldn't open file '" + filename + "': not found");
 
-private:
-  IFileStream(const IFileStream&) = delete;
-  IFileStream& operator=(const IFileStream&) = delete;
-};
-
-#endif
+  open(path, std::ios::in | std::ios::binary);
+  if (!is_open())
+    throw std::runtime_error("Couldn't open file '" + path + "'");
+}
 
 /* EOF */

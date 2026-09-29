@@ -26,7 +26,7 @@ template<typename T>
 class GameObjectIterator
 {
 public:
-  typedef std::vector<std::unique_ptr<GameObject> >::const_iterator Iterator;
+  using Iterator = std::vector<std::unique_ptr<GameObject> >::const_iterator;
 
 public:
   GameObjectIterator(Iterator it, Iterator end) :

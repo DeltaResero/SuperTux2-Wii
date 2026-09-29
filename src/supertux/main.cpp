@@ -18,13 +18,12 @@
 
 #include <config.h>
 #include <version.h>
+#include <filesystem>
 #include <fstream>
+#include <memory>
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <boost/filesystem.hpp>
-#include <boost/locale.hpp>
-#include <physfs.h>
 
 #ifdef WIN32
 #include <codecvt>
@@ -35,7 +34,6 @@
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "object/spawnpoint.hpp"
-#include "physfs/physfs_sdl.hpp"
 #include "sprite/sprite_data.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/command_line_arguments.hpp"
@@ -101,7 +99,7 @@ ConfigSubsystem::~ConfigSubsystem()
 }
 
 Main::Main() :
-  m_physfs_subsystem(),
+  m_filesystem_subsystem(),
   m_config_subsystem(),
   m_sdl_subsystem(),
   m_console_buffer(),
@@ -120,29 +118,17 @@ Main::Main() :
 {
 }
 
-PhysfsSubsystem::PhysfsSubsystem(const char* argv0,
-                boost::optional<std::string> forced_datadir,
-                boost::optional<std::string> forced_userdir) :
+FileSystemSubsystem::FileSystemSubsystem(std::optional<std::string> forced_datadir,
+                                         std::optional<std::string> forced_userdir) :
   m_forced_datadir(std::move(forced_datadir)),
   m_forced_userdir(std::move(forced_userdir))
 {
-  if (!PHYSFS_init(argv0))
-  {
-    std::stringstream msg;
-    msg << "Couldn't initialize physfs: " << PHYSFS_getLastErrorCode();
-    throw std::runtime_error(msg.str());
-  }
-  else
-  {
-    // allow symbolic links
-    PHYSFS_permitSymbolicLinks(1);
-
-    find_userdir();
-    find_datadir();
-  }
+  FileSystem::clear_search_paths();
+  find_userdir();
+  find_datadir();
 }
 
-void PhysfsSubsystem::find_datadir() const
+void FileSystemSubsystem::find_datadir() const
 {
   std::string datadir;
   if (m_forced_datadir)
@@ -164,7 +150,7 @@ void PhysfsSubsystem::find_datadir() const
     {
       datadir = BUILD_DATA_DIR;
       // Add config dir for supplemental files
-      PHYSFS_mount(boost::filesystem::canonical(BUILD_CONFIG_DATA_DIR).string().c_str(), nullptr, 1);
+      FileSystem::add_search_path(std::filesystem::canonical(BUILD_CONFIG_DATA_DIR).string());
     }
     else
     {
@@ -175,13 +161,18 @@ void PhysfsSubsystem::find_datadir() const
     }
   }
 
-  if (!PHYSFS_mount(boost::filesystem::canonical(datadir).string().c_str(), nullptr, 1))
+  const std::string datapath = std::filesystem::canonical(datadir).string();
+  if (!FileSystem::is_directory(datapath))
   {
-    log_warning << "Couldn't add '" << datadir << "' to physfs searchpath: " << PHYSFS_getLastErrorCode() << std::endl;
+    log_warning << "Couldn't add '" << datadir << "' to the search path: not a directory" << std::endl;
+  }
+  else
+  {
+    FileSystem::add_search_path(datapath);
   }
 }
 
-void PhysfsSubsystem::find_userdir() const
+void FileSystemSubsystem::find_userdir() const
 {
   std::string userdir;
   if (m_forced_userdir)
@@ -194,39 +185,41 @@ void PhysfsSubsystem::find_userdir() const
   }
   else
   {
-  userdir = PHYSFS_getPrefDir("SuperTux","supertux2");
+#ifdef _WIN32
+  char* prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
+#else
+  // Outside Windows, older builds saved without an organisation folder.
+  char* prefpath = SDL_GetPrefPath(nullptr, "supertux2");
+#endif
+  userdir = prefpath ? prefpath : std::string();
+  SDL_free(prefpath);
   }
-//Kept for backwards-compatability only, hence the silence
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-std::string physfs_userdir = PHYSFS_getUserDir();
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+//Kept for backwards-compatability only
+const char* home = getenv("HOME");
+if (!home) home = getenv("USERPROFILE");
+std::string home_dir = home ? home : std::string();
 
 #ifndef __HAIKU__
 #ifdef _WIN32
-std::string olduserdir = FileSystem::join(physfs_userdir, PACKAGE_NAME);
+std::string olduserdir = FileSystem::join(home_dir, PACKAGE_NAME);
 #else
-std::string olduserdir = FileSystem::join(physfs_userdir, "." PACKAGE_NAME);
+std::string olduserdir = FileSystem::join(home_dir, "." PACKAGE_NAME);
 #endif
-if (FileSystem::is_directory(olduserdir)) {
-  boost::filesystem::path olduserpath(olduserdir);
-  boost::filesystem::path userpath(userdir);
+if (!home_dir.empty() && FileSystem::is_directory(olduserdir)) {
+  std::filesystem::path olduserpath(olduserdir);
+  std::filesystem::path userpath(userdir);
 
-  boost::filesystem::directory_iterator end_itr;
+  std::filesystem::directory_iterator end_itr;
 
   bool success = true;
 
   // cycle through the directory
-  for (boost::filesystem::directory_iterator itr(olduserpath); itr != end_itr; ++itr) {
+  for (std::filesystem::directory_iterator itr(olduserpath); itr != end_itr; ++itr) {
   try
   {
-    boost::filesystem::rename(itr->path().string().c_str(), userpath / itr->path().filename());
+    std::filesystem::rename(itr->path().string().c_str(), userpath / itr->path().filename());
   }
-  catch (const boost::filesystem::filesystem_error& err)
+  catch (const std::filesystem::filesystem_error& err)
   {
     success = false;
     log_warning << "Failed to move contents of config directory: " << err.what() << std::endl;
@@ -235,9 +228,9 @@ if (FileSystem::is_directory(olduserdir)) {
   if (success) {
     try
     {
-      boost::filesystem::remove_all(olduserpath);
+      std::filesystem::remove_all(olduserpath);
     }
-    catch (const boost::filesystem::filesystem_error& err)
+    catch (const std::filesystem::filesystem_error& err)
     {
       success = false;
       log_warning << "Failed to remove old config directory: " << err.what();
@@ -257,33 +250,29 @@ if (FileSystem::is_directory(olduserdir)) {
   }
 
 
-  if (!PHYSFS_setWriteDir(userdir.c_str()))
+  if (!FileSystem::is_directory(userdir))
   {
-    std::ostringstream msg;
-    msg << "Failed to use userdir directory '"
-        <<  userdir << "': errorcode: " << PHYSFS_getLastErrorCode();
-    throw std::runtime_error(msg.str());
+    throw std::runtime_error("Failed to use userdir directory '" + userdir + "'");
   }
 
-  PHYSFS_mount(userdir.c_str(), nullptr, 0);
+  FileSystem::set_write_dir(userdir);
+  // Prepended so a file in the userdir shadows the shipped one.
+  FileSystem::add_search_path(userdir, true);
 }
 
-void PhysfsSubsystem::print_search_path()
+void FileSystemSubsystem::print_search_path()
 {
-  const char* writedir = PHYSFS_getWriteDir();
-  log_info << "PhysfsWriteDir: " << (writedir ? writedir : "(null)") << std::endl;
-  log_info << "PhysfsSearchPath:" << std::endl;
-  char** searchpath = PHYSFS_getSearchPath();
-  for (char** i = searchpath; *i != nullptr; ++i)
+  log_info << "WriteDir: " << FileSystem::get_write_dir() << std::endl;
+  log_info << "SearchPath:" << std::endl;
+  for (const auto& path : FileSystem::get_search_paths())
   {
-    log_info << "  " << *i << std::endl;
+    log_info << "  " << path << std::endl;
   }
-  PHYSFS_freeList(searchpath);
 }
 
-PhysfsSubsystem::~PhysfsSubsystem()
+FileSystemSubsystem::~FileSystemSubsystem()
 {
-  PHYSFS_deinit();
+  FileSystem::clear_search_paths();
 }
 
 SDLSubsystem::SDLSubsystem()
@@ -335,11 +324,11 @@ Main::init_video()
 void
 Main::launch_game(const CommandLineArguments& args)
 {
-  m_sdl_subsystem.reset(new SDLSubsystem());
-  m_console_buffer.reset(new ConsoleBuffer());
+  m_sdl_subsystem = std::make_unique<SDLSubsystem>();
+  m_console_buffer = std::make_unique<ConsoleBuffer>();
 
   s_timelog.log("controller");
-  m_input_manager.reset(new InputManager(g_config->keyboard_config, g_config->joystick_config));
+  m_input_manager = std::make_unique<InputManager>(g_config->keyboard_config, g_config->joystick_config);
 
   s_timelog.log("commandline");
 
@@ -348,38 +337,38 @@ Main::launch_game(const CommandLineArguments& args)
   m_video_system = VideoSystem::create(g_config->video);
   init_video();
 
-  m_ttf_surface_manager.reset(new TTFSurfaceManager());
+  m_ttf_surface_manager = std::make_unique<TTFSurfaceManager>();
 
   s_timelog.log("audio");
-  m_sound_manager.reset(new SoundManager());
+  m_sound_manager = std::make_unique<SoundManager>();
   m_sound_manager->enable_sound(g_config->sound_enabled);
   m_sound_manager->enable_music(g_config->music_enabled);
   m_sound_manager->set_sound_volume(g_config->sound_volume);
   m_sound_manager->set_music_volume(g_config->music_volume);
 
   s_timelog.log("scripting");
-  m_squirrel_virtual_machine.reset(new SquirrelVirtualMachine(g_config->enable_script_debugger));
+  m_squirrel_virtual_machine = std::make_unique<SquirrelVirtualMachine>(g_config->enable_script_debugger);
 
   s_timelog.log("resources");
-  m_tile_manager.reset(new TileManager());
-  m_sprite_manager.reset(new SpriteManager());
-  m_resources.reset(new Resources());
+  m_tile_manager = std::make_unique<TileManager>();
+  m_sprite_manager = std::make_unique<SpriteManager>();
+  m_resources = std::make_unique<Resources>();
 
-  m_console.reset(new Console(*m_console_buffer));
+  m_console = std::make_unique<Console>(*m_console_buffer);
 
   s_timelog.log(nullptr);
 
   m_savegame = std::make_unique<Savegame>(std::string());
 
-  m_game_manager.reset(new GameManager());
-  m_screen_manager.reset(new ScreenManager(*m_video_system, *m_input_manager));
+  m_game_manager = std::make_unique<GameManager>();
+  m_screen_manager = std::make_unique<ScreenManager>(*m_video_system, *m_input_manager);
 
   if (!args.filenames.empty())
   {
     for(const auto& start_level : args.filenames)
     {
-      // we have a normal path specified at commandline, not a physfs path.
-      // So we simply mount that path here...
+      // A real path on the command line, so put its folder on the search path
+      // and open it by name.
       std::string dir = FileSystem::dirname(start_level);
       const std::string filename = FileSystem::basename(start_level);
       const std::string fileProtocol = "file://";
@@ -388,7 +377,7 @@ Main::launch_game(const CommandLineArguments& args)
         dir = dir.replace(position, fileProtocol.length(), "");
       }
       log_debug << "Adding dir: " << dir << std::endl;
-      PHYSFS_mount(dir.c_str(), nullptr, true);
+      FileSystem::add_search_path(dir);
 
       if (StringUtil::has_suffix(start_level, ".stwm"))
       {
@@ -397,8 +386,7 @@ Main::launch_game(const CommandLineArguments& args)
       }
       else
       { // launch game
-        std::unique_ptr<GameSession> session (
-          new GameSession(filename, *m_savegame));
+        auto session = std::make_unique<GameSession>(filename, *m_savegame);
 
         g_config->random_seed = session->get_demo_random_seed(g_config->start_demo);
         gameRandom.seed(g_config->random_seed);
@@ -406,12 +394,12 @@ Main::launch_game(const CommandLineArguments& args)
 
         if (args.sector || args.spawnpoint)
         {
-          std::string sectorname = args.sector.get_value_or("main");
+          std::string sectorname = args.sector.value_or("main");
 
           const auto& spawnpoints = session->get_current_sector().get_objects_by_type<SpawnPointMarker>();
           std::string default_spawnpoint = (spawnpoints.begin() != spawnpoints.end()) ?
             "" : spawnpoints.begin()->get_name();
-          std::string spawnpointname = args.spawnpoint.get_value_or(default_spawnpoint);
+          std::string spawnpointname = args.spawnpoint.value_or(default_spawnpoint);
 
           session->set_start_point(sectorname, spawnpointname);
           session->restart_level();
@@ -447,8 +435,6 @@ Main::run(int argc, char** argv)
 
 
 #ifdef WIN32
-  //SDL is used instead of PHYSFS because both create the same path in app data
-  //However, PHYSFS is not yet initizlized, and this should be run before anything is initialized
   std::string prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
 
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -465,14 +451,9 @@ Main::run(int argc, char** argv)
   // Create and install global locale - this can fail on some situations:
   // - with bad values for env vars (LANG, LC_ALL, ...)
   // - targets where libstdc++ uses its generic locales code (https://gcc.gnu.org/legacy-ml/libstdc++/2003-02/msg00345.html)
-  // NOTE: when moving to C++ >= 17, keep the try-catch block, but use std::locale:global(std::locale(""));
-  //
-  // This should not be necessary on *nix, so only try it on Windows.
   try
   {
-    std::locale::global(boost::locale::generator().generate(""));
-    // Make boost.filesystem use it
-    boost::filesystem::path::imbue(std::locale());
+    std::locale::global(std::locale::classic());
   }
   catch(const std::runtime_error& err)
   {
@@ -496,11 +477,11 @@ Main::run(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    m_physfs_subsystem.reset(new PhysfsSubsystem(argv[0], args.datadir, args.userdir));
-    m_physfs_subsystem->print_search_path();
+    m_filesystem_subsystem = std::make_unique<FileSystemSubsystem>(args.datadir, args.userdir);
+    m_filesystem_subsystem->print_search_path();
 
     s_timelog.log("config");
-    m_config_subsystem.reset(new ConfigSubsystem());
+    m_config_subsystem = std::make_unique<ConfigSubsystem>();
     args.merge_into(*g_config);
 
     switch (args.get_action())

@@ -28,7 +28,7 @@
 #include "object/text_object.hpp"
 #include "object/text_array_item.hpp"
 
-typedef size_t ta_index;
+using ta_index = size_t;
 
 /** A text array object intended for narration */
 class TextArrayObject final : public GameObject,

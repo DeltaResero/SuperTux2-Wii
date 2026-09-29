@@ -16,7 +16,7 @@
 
 #include "object/particlesystem.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"

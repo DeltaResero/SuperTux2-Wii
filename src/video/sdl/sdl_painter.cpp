@@ -19,8 +19,8 @@
 #include <SDL.h>
 #include <algorithm>
 #include <array>
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #include "supertux/globals.hpp"
 #include "math/util.hpp"

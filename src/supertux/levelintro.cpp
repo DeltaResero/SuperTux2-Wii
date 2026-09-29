@@ -29,7 +29,7 @@
 #include "supertux/sector.hpp"
 #include "video/compositor.hpp"
 
-#include <boost/format.hpp>
+#include <format>
 
 LevelIntro::LevelIntro(const Level& level, const Statistics* best_level_statistics, const PlayerStatus& player_status) :
   m_level(level),
@@ -132,7 +132,7 @@ LevelIntro::draw(Compositor& compositor)
 
   std::string author = m_level.get_author();
   if ((!author.empty()) && (author != "SuperTux Team")) {
-    std::string author_text = str(boost::format("contributed by %s") % author);
+    std::string author_text = std::format("contributed by {}", author);
     context.color().draw_center_text(Resources::small_font, author_text, Vector(0, static_cast<float>(py)), LAYER_FOREGROUND1, s_author_color);
     py += static_cast<int>(Resources::small_font->get_height());
   }

@@ -16,7 +16,7 @@
 
 #include "badguy/iceflame.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"

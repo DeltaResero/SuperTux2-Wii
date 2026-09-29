@@ -76,7 +76,7 @@ MainMenu::menu_action(MenuItem& item)
 
     case MNID_QUITMAINMENU:
       MenuManager::instance().clear_menu_stack();
-      ScreenManager::current()->quit(std::unique_ptr<ScreenFade>(new FadeToBlack(FadeToBlack::FADEOUT, 0.25f)));
+      ScreenManager::current()->quit(std::make_unique<FadeToBlack>(FadeToBlack::FADEOUT, 0.25f));
       SoundManager::current()->stop_music(0.25);
       break;
   }

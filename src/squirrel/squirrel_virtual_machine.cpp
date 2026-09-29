@@ -21,10 +21,10 @@
 #include <sqstdmath.h>
 #include <sqstdstring.h>
 #include <cstring>
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/wrapper.hpp"
 #include "squirrel/squirrel_error.hpp"
 #include "squirrel/squirrel_thread_queue.hpp"

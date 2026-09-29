@@ -19,7 +19,7 @@
 #include <sexp/parser.hpp>
 #include <sstream>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 

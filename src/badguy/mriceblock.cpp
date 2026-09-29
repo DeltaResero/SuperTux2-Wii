@@ -16,7 +16,7 @@
 
 #include "badguy/mriceblock.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"
@@ -181,7 +181,7 @@ MrIceBlock::collision_squished(GameObject& object)
           break;
         }
       }
-      BOOST_FALLTHROUGH;
+      [[fallthrough]];
 
     case ICESTATE_NORMAL:
       {

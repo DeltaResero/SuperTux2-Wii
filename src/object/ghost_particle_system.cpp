@@ -17,7 +17,7 @@
 #include "object/ghost_particle_system.hpp"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 #include "math/random.hpp"
 #include "supertux/globals.hpp"

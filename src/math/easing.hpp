@@ -20,7 +20,7 @@
 #define EASING_H
 
 #include <string>
-#include <string.h>
+#include <cstring>
 
 extern "C" {
 
@@ -91,7 +91,7 @@ double BounceEaseIn(double p);
 double BounceEaseOut(double p);
 double BounceEaseInOut(double p);
 
-typedef double(*easing)(double);
+using easing = double(*)(double);
 easing getEasingByName(const EasingMode& ease_type);
 const char* getEasingName(const EasingMode& ease_type);
 

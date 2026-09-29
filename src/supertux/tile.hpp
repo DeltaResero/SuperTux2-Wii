@@ -20,7 +20,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_TILE_HPP
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 #include "math/rectf.hpp"
 #include "video/color.hpp"

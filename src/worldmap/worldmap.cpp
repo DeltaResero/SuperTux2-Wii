@@ -17,7 +17,6 @@
 
 #include "worldmap/worldmap.hpp"
 
-#include <physfs.h>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
@@ -27,7 +26,7 @@
 #include "object/display_effect.hpp"
 #include "object/music_object.hpp"
 #include "object/tilemap.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/worldmap.hpp"
 #include "sprite/sprite.hpp"
 #include "squirrel/squirrel_environment.hpp"
@@ -68,7 +67,7 @@
 namespace worldmap {
 
 WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::string& force_spawnpoint_) :
-  m_squirrel_environment(new SquirrelEnvironment(SquirrelVirtualMachine::current()->get_vm(), "worldmap")),
+  m_squirrel_environment(std::make_unique<SquirrelEnvironment>(SquirrelVirtualMachine::current()->get_vm(), "worldmap")),
   m_camera(new Camera),
   m_enter_level(false),
   m_tux(),

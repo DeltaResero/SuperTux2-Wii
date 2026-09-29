@@ -16,13 +16,12 @@
 
 #include "supertux/menu/contrib_menu.hpp"
 
-#include <physfs.h>
+#include <memory>
 #include <sstream>
 
 #include "gui/item_action.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
-#include "physfs/util.hpp"
 #include "supertux/game_manager.hpp"
 #include "supertux/levelset.hpp"
 #include "supertux/menu/contrib_levelset_menu.hpp"
@@ -37,13 +36,10 @@ ContribMenu::ContribMenu() :
   // Generating contrib levels list by making use of Level Subset
   std::vector<std::string> level_worlds;
 
-  std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
-    files(PHYSFS_enumerateFiles("levels"),
-          PHYSFS_freeList);
-  for (const char* const* filename = files.get(); *filename != nullptr; ++filename)
+  for (const std::string& filename : FileSystem::enumerate("levels"))
   {
-    std::string filepath = FileSystem::join("levels", *filename);
-    if (physfsutil::is_directory(filepath))
+    std::string filepath = FileSystem::join("levels", filename);
+    if (FileSystem::is_directory(FileSystem::find(filepath)))
     {
       level_worlds.push_back(filepath);
     }
@@ -58,7 +54,7 @@ ContribMenu::ContribMenu() :
     try
     {
       auto levelset =
-        std::unique_ptr<Levelset>(new Levelset(*it, /* recursively = */ true));
+        std::make_unique<Levelset>(*it, /* recursively = */ true);
       if (levelset->get_num_levels() == 0)
         continue;
 
@@ -114,7 +110,7 @@ ContribMenu::menu_action(MenuItem& item)
     }
     else
     {
-      MenuManager::instance().push_menu(std::unique_ptr<Menu>(new ContribLevelsetMenu(std::move(world))));
+      MenuManager::instance().push_menu(std::make_unique<ContribLevelsetMenu>(std::move(world)));
     }
   }
 }

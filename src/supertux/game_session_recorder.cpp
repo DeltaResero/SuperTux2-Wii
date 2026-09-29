@@ -17,6 +17,7 @@
 #include "supertux/game_session_recorder.hpp"
 
 #include <fstream>
+#include <memory>
 
 #include "control/input_manager.hpp"
 #include "math/random.hpp"
@@ -57,7 +58,7 @@ GameSessionRecorder::start_recording()
 void
 GameSessionRecorder::record_demo(const std::string& filename)
 {
-  m_capture_demo_stream.reset(new std::ofstream(filename.c_str()));
+  m_capture_demo_stream = std::make_unique<std::ofstream>(filename.c_str());
   if (!m_capture_demo_stream->good()) {
     std::stringstream msg;
     msg << "Couldn't open demo file '" << filename << "' for writing.";
@@ -104,7 +105,7 @@ GameSessionRecorder::play_demo(const std::string& filename)
   m_playback_demo_stream.reset();
   m_demo_controller.reset();
 
-  m_playback_demo_stream.reset(new std::ifstream(filename.c_str()));
+  m_playback_demo_stream = std::make_unique<std::ifstream>(filename.c_str());
   if (!m_playback_demo_stream->good()) {
     std::stringstream msg;
     msg << "Couldn't open demo file '" << filename << "' for reading.";
@@ -128,7 +129,7 @@ void
 GameSessionRecorder::reset_demo_controller()
 {
   if (!m_demo_controller) {
-    m_demo_controller.reset(new CodeController());
+    m_demo_controller = std::make_unique<CodeController>();
   }
 
   auto game_session = GameSession::current();

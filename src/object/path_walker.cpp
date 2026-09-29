@@ -16,8 +16,8 @@
 
 #include "object/path_walker.hpp"
 
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
 #include "math/bezier.hpp"
 #include "math/random.hpp"

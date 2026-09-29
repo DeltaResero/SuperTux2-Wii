@@ -132,7 +132,7 @@ MobileController::update()
   SDL_TouchID device = SDL_GetTouchDevice(0);
 
   if (device == 0)
-    throw new std::runtime_error("Error getting touchscreen info: " + std::string(SDL_GetError()));
+    throw std::runtime_error("Error getting touchscreen info: " + std::string(SDL_GetError()));
 
   int num_touches = SDL_GetNumTouchFingers(device);
 

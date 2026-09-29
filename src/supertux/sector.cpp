@@ -16,7 +16,6 @@
 
 #include "supertux/sector.hpp"
 
-#include <physfs.h>
 #include <algorithm>
 
 #include "audio/sound_manager.hpp"
@@ -40,7 +39,7 @@
 #include "object/text_object.hpp"
 #include "object/tilemap.hpp"
 #include "object/vertical_stripes.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/sector.hpp"
 #include "squirrel/squirrel_environment.hpp"
 #include "supertux/colorscheme.hpp"
@@ -71,8 +70,8 @@ Sector::Sector(Level& parent) :
   m_fully_constructed(false),
   m_init_script(),
   m_foremost_layer(),
-  m_squirrel_environment(new SquirrelEnvironment(SquirrelVirtualMachine::current()->get_vm(), "sector")),
-  m_collision_system(new CollisionSystem(*this)),
+  m_squirrel_environment(std::make_unique<SquirrelEnvironment>(SquirrelVirtualMachine::current()->get_vm(), "sector")),
+  m_collision_system(std::make_unique<CollisionSystem>(*this)),
   m_gravity(10.0)
 {
   Savegame* savegame = GameSession::current() ? &GameSession::current()->get_savegame() : nullptr;
@@ -246,7 +245,7 @@ Sector::activate(const Vector& player_pos)
   //Run default.nut just before init script
   //Check to see if it's in a levelset (info file)
   std::string basedir = FileSystem::dirname(get_level().m_filename);
-  if (PHYSFS_exists((basedir + "/info").c_str())) {
+  if (!FileSystem::find(basedir + "/info").empty()) {
     try {
       IFileStream in(basedir + "/default.nut");
       m_squirrel_environment->run_script(in, "default.nut");

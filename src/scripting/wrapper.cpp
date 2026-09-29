@@ -6,7 +6,7 @@
 
 #include "scripting/wrapper.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <sstream>
 

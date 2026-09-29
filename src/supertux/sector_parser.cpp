@@ -17,7 +17,6 @@
 #include "supertux/sector_parser.hpp"
 
 #include <iostream>
-#include <physfs.h>
 #include <sexp/value.hpp>
 
 #include "badguy/jumpy.hpp"
@@ -37,6 +36,7 @@
 #include "supertux/sector.hpp"
 #include "supertux/tile.hpp"
 #include "supertux/tile_manager.hpp"
+#include "util/file_system.hpp"
 #include "util/reader_collection.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -150,7 +150,7 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
     if (backgroundimage == "arctis2.jpg") backgroundimage = "arctis.jpg";
     if (backgroundimage == "ocean.png") backgroundimage = "ocean.jpg";
     backgroundimage = "images/background/" + backgroundimage;
-    if (!PHYSFS_exists(backgroundimage.c_str())) {
+    if (FileSystem::find(backgroundimage).empty()) {
       log_warning << "Background image \"" << backgroundimage << "\" not found. Ignoring." << std::endl;
       backgroundimage = "";
     }
@@ -249,7 +249,7 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
   }
 
   // read reset-points (now spawn-points)
-  boost::optional<ReaderMapping> resetpoints;
+  std::optional<ReaderMapping> resetpoints;
   if (reader.get("reset-points", resetpoints)) {
     auto iter = resetpoints->get_iter();
     while (iter.next()) {
@@ -266,7 +266,7 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
   }
 
   // read objects
-  boost::optional<ReaderCollection> objects;
+  std::optional<ReaderCollection> objects;
   if (reader.get("objects", objects)) {
     for (auto const& obj : objects->get_objects())
     {

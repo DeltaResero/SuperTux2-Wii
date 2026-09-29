@@ -19,10 +19,11 @@
 
 #include "util/string_util.hpp"
 
-#include <math.h>
+#include <cmath>
+#include <numbers>
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 
 // Modeled after the line y = x
 double LinearInterpolation(double p)
@@ -147,19 +148,19 @@ double QuinticEaseInOut(double p)
 // Modeled after quarter-cycle of sine wave
 double SineEaseIn(double p)
 {
-  return sin((p - 1) * M_PI_2) + 1;
+  return sin((p - 1) * (std::numbers::pi / 2)) + 1;
 }
 
 // Modeled after quarter-cycle of sine wave (different phase)
 double SineEaseOut(double p)
 {
-  return sin(p * M_PI_2);
+  return sin(p * (std::numbers::pi / 2));
 }
 
 // Modeled after half sine wave
 double SineEaseInOut(double p)
 {
-  return 0.5 * (1 - cos(p * M_PI));
+  return 0.5 * (1 - cos(p * std::numbers::pi));
 }
 
 // Modeled after shifted quadrant IV of unit circle
@@ -221,13 +222,13 @@ double ExponentialEaseInOut(double p)
 // Modeled after the damped sine wave y = sin(13pi/2*x)*pow(2, 10 * (x - 1))
 double ElasticEaseIn(double p)
 {
-  return sin(13 * M_PI_2 * p) * pow(2, 10 * (p - 1));
+  return sin(13 * (std::numbers::pi / 2) * p) * pow(2, 10 * (p - 1));
 }
 
 // Modeled after the damped sine wave y = sin(-13pi/2*(x + 1))*pow(2, -10x) + 1
 double ElasticEaseOut(double p)
 {
-  return sin(-13 * M_PI_2 * (p + 1)) * pow(2, -10 * p) + 1;
+  return sin(-13 * (std::numbers::pi / 2) * (p + 1)) * pow(2, -10 * p) + 1;
 }
 
 // Modeled after the piecewise exponentially-damped sine wave:
@@ -237,25 +238,25 @@ double ElasticEaseInOut(double p)
 {
   if(p < 0.5)
   {
-    return 0.5 * sin(13 * M_PI_2 * (2 * p)) * pow(2, 10 * ((2 * p) - 1));
+    return 0.5 * sin(13 * (std::numbers::pi / 2) * (2 * p)) * pow(2, 10 * ((2 * p) - 1));
   }
   else
   {
-    return 0.5 * (sin(-13 * M_PI_2 * ((2 * p - 1) + 1)) * pow(2, -10 * (2 * p - 1)) + 2);
+    return 0.5 * (sin(-13 * (std::numbers::pi / 2) * ((2 * p - 1) + 1)) * pow(2, -10 * (2 * p - 1)) + 2);
   }
 }
 
 // Modeled after the overshooting cubic y = x^3-x*sin(x*pi)
 double BackEaseIn(double p)
 {
-  return p * p * p - p * sin(p * M_PI);
+  return p * p * p - p * sin(p * std::numbers::pi);
 }
 
 // Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*sin((1-x)*pi))
 double BackEaseOut(double p)
 {
   double f = (1 - p);
-  return 1 - (f * f * f - f * sin(f * M_PI));
+  return 1 - (f * f * f - f * sin(f * std::numbers::pi));
 }
 
 // Modeled after the piecewise overshooting cubic function:
@@ -266,12 +267,12 @@ double BackEaseInOut(double p)
   if(p < 0.5)
   {
     double f = 2 * p;
-    return 0.5 * (f * f * f - f * sin(f * M_PI));
+    return 0.5 * (f * f * f - f * sin(f * std::numbers::pi));
   }
   else
   {
     double f = (1 - (2*p - 1));
-    return 0.5 * (1 - (f * f * f - f * sin(f * M_PI))) + 0.5;
+    return 0.5 * (1 - (f * f * f - f * sin(f * std::numbers::pi))) + 0.5;
   }
 }
 

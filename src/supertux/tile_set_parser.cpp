@@ -131,7 +131,7 @@ TileSetParser::parse_tile(const ReaderMapping& reader)
   }
 
   std::vector<SurfacePtr> surfaces;
-  boost::optional<ReaderMapping> images_mapping;
+  std::optional<ReaderMapping> images_mapping;
   if (reader.get("images", images_mapping)) {
     surfaces = parse_imagespecs(*images_mapping);
   }
@@ -218,7 +218,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
     if (shared_surface)
     {
       std::vector<SurfacePtr> surfaces;
-      boost::optional<ReaderMapping> surfaces_mapping;
+      std::optional<ReaderMapping> surfaces_mapping;
       if (reader.get("image", surfaces_mapping) ||
          reader.get("images", surfaces_mapping)) {
         surfaces = parse_imagespecs(*surfaces_mapping);
@@ -257,7 +257,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
           int y = static_cast<int>(32 * (i / width));
 
           std::vector<SurfacePtr> surfaces;
-          boost::optional<ReaderMapping> surfaces_mapping;
+          std::optional<ReaderMapping> surfaces_mapping;
           if (reader.get("image", surfaces_mapping) ||
              reader.get("images", surfaces_mapping)) {
             surfaces = parse_imagespecs(*surfaces_mapping, Rect(x, y, Size(32, 32)));
@@ -277,7 +277,7 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
 
 std::vector<SurfacePtr>
   TileSetParser::parse_imagespecs(const ReaderMapping& images_mapping,
-                                  const boost::optional<Rect>& surface_region) const
+                                  const std::optional<Rect>& surface_region) const
 {
   std::vector<SurfacePtr> surfaces;
 

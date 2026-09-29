@@ -40,7 +40,7 @@ Compositor::~Compositor()
 DrawingContext&
 Compositor::make_context(bool overlay)
 {
-  m_drawing_contexts.emplace_back(new DrawingContext(m_video_system, m_obst, overlay));
+  m_drawing_contexts.push_back(std::make_unique<DrawingContext>(m_video_system, m_obst, overlay));
   return *m_drawing_contexts.back();
 }
 

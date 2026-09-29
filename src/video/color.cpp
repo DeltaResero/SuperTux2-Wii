@@ -16,7 +16,7 @@
 
 #include "video/color.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 const Color Color::BLACK(0.0, 0.0, 0.0);
 const Color Color::RED(1.0, 0.0, 0.0);

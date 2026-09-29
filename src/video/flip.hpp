@@ -24,7 +24,7 @@ enum
   HORIZONTAL_FLIP = (1<<2),
 };
 
-typedef unsigned int Flip;
+using Flip = unsigned int;
 
 #endif
 

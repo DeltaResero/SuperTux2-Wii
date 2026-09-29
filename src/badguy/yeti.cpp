@@ -17,7 +17,7 @@
 
 #include "badguy/yeti.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/yeti_stalactite.hpp"

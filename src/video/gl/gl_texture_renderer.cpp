@@ -17,6 +17,8 @@
 
 #include "video/gl/gl_texture_renderer.hpp"
 
+#include <memory>
+
 #include "supertux/globals.hpp"
 #include "util/log.hpp"
 #include "video/drawing_request.hpp"
@@ -49,8 +51,8 @@ GLTextureRenderer::prepare()
 {
   if (!m_texture)
   {
-    m_texture.reset(new GLTexture(m_size.width / m_downscale,
-                                  m_size.height / m_downscale));
+    m_texture = std::make_shared<GLTexture>(m_size.width / m_downscale,
+                                            m_size.height / m_downscale);
 
     if (m_video_system.get_context().supports_framebuffer())
     {

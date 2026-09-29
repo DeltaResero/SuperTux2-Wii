@@ -69,7 +69,7 @@ private:
     std::vector<SurfacePtr> surfaces;
   };
 
-  typedef std::map <std::string, std::unique_ptr<Action> > Actions;
+  using Actions = std::map <std::string, std::unique_ptr<Action> >;
 
   void parse_action(const ReaderMapping& mapping);
   /** Get an action */

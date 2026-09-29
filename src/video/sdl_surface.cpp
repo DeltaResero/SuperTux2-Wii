@@ -22,7 +22,7 @@
 #include <SDL_image.h>
 #include <savepng.h>
 
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_file.hpp"
 #include "util/log.hpp"
 
 SDLSurfacePtr
@@ -77,7 +77,7 @@ SDLSurfacePtr
 SDLSurface::from_file(const std::string& filename)
 {
   log_debug << "loading image: " << filename << std::endl;
-  SDLSurfacePtr surface(IMG_Load_RW(get_physfs_SDLRWops(filename), 1));
+  SDLSurfacePtr surface(IMG_Load_RW(get_SDLRWops(filename), 1));
   if (!surface)
   {
     std::ostringstream msg;
@@ -98,7 +98,7 @@ SDLSurface::save_png(const SDL_Surface& surface, const std::string& filename)
   SDLSurfacePtr tmp(SDL_PNGFormatAlpha(const_cast<SDL_Surface*>(&surface)));
   SDL_RWops* ops;
   try {
-    ops = get_writable_physfs_SDLRWops(filename);
+    ops = get_writable_SDLRWops(filename);
   } catch (std::exception& e) {
     log_warning << "Could not get SDLRWops for " << filename << ": " <<
       e.what() << std::endl;

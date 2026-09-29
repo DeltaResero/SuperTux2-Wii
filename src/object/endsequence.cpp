@@ -16,6 +16,8 @@
 
 #include "object/endsequence.hpp"
 
+#include <memory>
+
 #include "object/player.hpp"
 #include "supertux/sector.hpp"
 
@@ -51,7 +53,7 @@ EndSequence::start()
   isdone = false;
 
   Player& tux = Sector::get().get_player();
-  end_sequence_controller.reset(new CodeController());
+  end_sequence_controller = std::make_unique<CodeController>();
   tux.set_controller(end_sequence_controller.get());
   tux.set_speedlimit(230); //MAX_WALK_XM
 

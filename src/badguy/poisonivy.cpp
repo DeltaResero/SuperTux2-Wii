@@ -16,7 +16,7 @@
 
 #include "badguy/poisonivy.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "math/random.hpp"
 #include "object/sprite_particle.hpp"

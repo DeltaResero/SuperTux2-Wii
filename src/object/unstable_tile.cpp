@@ -19,6 +19,8 @@
 
 #include "object/unstable_tile.hpp"
 
+#include <memory>
+
 #include "object/explosion.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
@@ -149,7 +151,7 @@ UnstableTile::revive()
   m_col.set_pos(m_original_pos);
   m_col.set_movement(Vector(0.0f, 0.0f));
   m_revive_timer.stop();
-  m_respawn.reset(new FadeHelper(&m_alpha, FADE_IN_TIME, 1.f));
+  m_respawn = std::make_unique<FadeHelper>(&m_alpha, FADE_IN_TIME, 1.f);
   m_sprite->set_action("normal");
 }
 

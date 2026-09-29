@@ -55,14 +55,13 @@ distributions.
 * C++ OpenGL library (choose one of the two options below):
   - [GLEW](http://glew.sourceforge.net/) or
   - [glbinding](https://github.com/hpicgs/glbinding)
-* [Boost](http://www.boost.org) smart_ptr and format headers, along with date_time and filesystem libraries
 * [libogg and libvorbis](https://www.xiph.org/)
 * [FreeType](https://www.freetype.org/)
 * [GLM](https://github.com/g-truc/glm)
 * [ZLib](https://www.zlib.net/)
 
 **Note I:** for any of the above listed libraries (OpenGL, SDL2, SDL2_image,
-OpenAL, GLEW/glbinding, Boost, libogg and libvorbis), you should
+OpenAL, GLEW/glbinding, libogg and libvorbis), you should
 also have development headers installed. Debian-based distributions have `-devel`
 packages containing the mentioned headers, on Arch Linux these should be included
 in the library package.
@@ -80,7 +79,7 @@ For ease of use, here are some installation lines for some Linux distributions:
 
 - Ubuntu 18.04/20.04:
   ```
-  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libboost-all-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libglew-dev libglm-dev zlib1g-dev
+  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libglew-dev libglm-dev zlib1g-dev
   ```
 
 ### Linux/UNIX using CMake

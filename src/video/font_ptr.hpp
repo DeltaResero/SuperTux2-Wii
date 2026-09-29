@@ -20,7 +20,7 @@
 #include <memory>
 
 class Font;
-typedef std::shared_ptr<Font> FontPtr;
+using FontPtr = std::shared_ptr<Font>;
 
 #endif
 

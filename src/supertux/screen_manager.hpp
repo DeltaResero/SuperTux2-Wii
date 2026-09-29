@@ -26,6 +26,7 @@
 #include "control/mobile_controller.hpp"
 #include "squirrel/squirrel_thread_queue.hpp"
 #include "supertux/screen.hpp"
+#include "supertux/screen_fade.hpp"
 #include "util/currenton.hpp"
 
 class Compositor;
@@ -34,7 +35,6 @@ class DrawingContext;
 class InputManager;
 class MenuManager;
 class MenuStorage;
-class ScreenFade;
 class VideoSystem;
 
 /**

@@ -87,7 +87,7 @@ Config::load()
   config_mapping.get("transitions_enabled", transitions_enabled);
   config_mapping.get("random_seed", random_seed);
 
-  boost::optional<ReaderMapping> config_video_mapping;
+  std::optional<ReaderMapping> config_video_mapping;
   if (config_mapping.get("video", config_video_mapping))
   {
     config_video_mapping->get("fullscreen", use_fullscreen);
@@ -118,7 +118,7 @@ Config::load()
 
   }
 
-  boost::optional<ReaderMapping> config_audio_mapping;
+  std::optional<ReaderMapping> config_audio_mapping;
   if (config_mapping.get("audio", config_audio_mapping))
   {
     config_audio_mapping->get("sound_enabled", sound_enabled);
@@ -127,16 +127,16 @@ Config::load()
     config_audio_mapping->get("music_volume", music_volume);
   }
 
-  boost::optional<ReaderMapping> config_control_mapping;
+  std::optional<ReaderMapping> config_control_mapping;
   if (config_mapping.get("control", config_control_mapping))
   {
-    boost::optional<ReaderMapping> keymap_mapping;
+    std::optional<ReaderMapping> keymap_mapping;
     if (config_control_mapping->get("keymap", keymap_mapping))
     {
       keyboard_config.read(*keymap_mapping);
     }
 
-    boost::optional<ReaderMapping> joystick_mapping;
+    std::optional<ReaderMapping> joystick_mapping;
     if (config_control_mapping->get("joystick", joystick_mapping))
     {
       joystick_config.read(*joystick_mapping);

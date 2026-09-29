@@ -16,7 +16,7 @@
 
 #include "supertux/menu/menu_storage.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "supertux/menu/cheat_menu.hpp"
 #include "supertux/menu/debug_menu.hpp"
@@ -61,19 +61,19 @@ MenuStorage::create(MenuId menu_id)
       return std::make_unique<MainMenu>();
 
     case OPTIONS_MENU:
-      return std::unique_ptr<Menu>(new OptionsMenu(true));
+      return std::make_unique<OptionsMenu>(true);
 
     case INGAME_OPTIONS_MENU:
-      return std::unique_ptr<Menu>(new OptionsMenu(false));
+      return std::make_unique<OptionsMenu>(false);
 
     case PROFILE_MENU:
       return std::make_unique<ProfileMenu>();
 
     case KEYBOARD_MENU:
-      return std::unique_ptr<Menu>(new KeyboardMenu(*InputManager::current()));
+      return std::make_unique<KeyboardMenu>(*InputManager::current());
 
     case JOYSTICK_MENU:
-      return std::unique_ptr<Menu>(new JoystickMenu(*InputManager::current()));
+      return std::make_unique<JoystickMenu>(*InputManager::current());
 
     case WORLDMAP_MENU:
       return std::make_unique<WorldmapMenu>();

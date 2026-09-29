@@ -16,8 +16,8 @@
 
 #include "object/custom_particle_system.hpp"
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #include "collision/collision.hpp"
 #include "gui/menu_manager.hpp"

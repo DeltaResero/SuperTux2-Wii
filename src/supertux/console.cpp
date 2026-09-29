@@ -16,8 +16,10 @@
 
 #include "supertux/console.hpp"
 
+#include <iostream>
+
 #include "math/sizef.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "squirrel/squirrel_util.hpp"
 #include "supertux/gameconfig.hpp"
@@ -305,7 +307,7 @@ sq_insert_command(std::list<std::string>& cmds, HSQUIRRELVM vm, const std::strin
   switch (sq_gettype(vm, -1)) {
     case OT_INSTANCE:
       key_string+=".";
-      if (search_prefix.substr(0, key_string.length()) == key_string) {
+      if (search_prefix.starts_with(key_string)) {
         sq_getclass(vm, -1);
         sq_insert_commands(cmds, vm, key_string, search_prefix);
         sq_pop(vm, 1);
@@ -314,7 +316,7 @@ sq_insert_command(std::list<std::string>& cmds, HSQUIRRELVM vm, const std::strin
     case OT_TABLE:
     case OT_CLASS:
       key_string+=".";
-      if (search_prefix.substr(0, key_string.length()) == key_string) {
+      if (search_prefix.starts_with(key_string)) {
         sq_insert_commands(cmds, vm, key_string, search_prefix);
       }
       break;
@@ -326,7 +328,7 @@ sq_insert_command(std::list<std::string>& cmds, HSQUIRRELVM vm, const std::strin
       break;
   }
 
-  if (key_string.substr(0, search_prefix.length()) == search_prefix) {
+  if (key_string.starts_with(search_prefix)) {
     cmds.push_back(key_string);
   }
 
@@ -426,7 +428,7 @@ Console::parse(const std::string& s)
   // split line into list of args
   std::vector<std::string> args;
   size_t end = 0;
-  while (1) {
+  while (true) {
     size_t start = s.find_first_not_of(" ,", end);
     end = s.find_first_of(" ,", start);
     if (start == s.npos) break;

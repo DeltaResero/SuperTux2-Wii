@@ -21,7 +21,7 @@
 #include <cmath>
 #include <sstream>
 
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_file.hpp"
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"

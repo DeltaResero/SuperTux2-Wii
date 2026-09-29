@@ -16,7 +16,8 @@
 
 #include "supertux/menu/profile_menu.hpp"
 
-#include <boost/format.hpp>
+#include <filesystem>
+#include <format>
 #include <sstream>
 
 #include "gui/dialog.hpp"
@@ -26,7 +27,6 @@
 #include "supertux/globals.hpp"
 #include "util/file_system.hpp"
 
-#include <physfs.h>
 
 ProfileMenu::ProfileMenu()
 {
@@ -37,11 +37,11 @@ ProfileMenu::ProfileMenu()
     std::ostringstream out;
     if (i == g_config->profile)
     {
-      out << str(boost::format("[Profile %s]") %i);
+      out << std::format("[Profile {}]", i);
     }
     else
     {
-      out << str(boost::format("Profile %s") %i);
+      out << std::format("Profile {}", i);
     }
     add_entry(i, out.str());
   }
@@ -82,15 +82,13 @@ void
 ProfileMenu::delete_savegames(int idx) const
 {
   const auto& profile_path = "profile" + std::to_string(idx);
-  std::unique_ptr<char*, decltype(&PHYSFS_freeList)>
-    files(PHYSFS_enumerateFiles(profile_path.c_str()),
-          PHYSFS_freeList);
-  for (const char* const* filename = files.get(); *filename != nullptr; ++filename)
+  std::error_code ec;
+  for (const std::string& filename : FileSystem::enumerate(profile_path))
   {
-    std::string filepath = FileSystem::join(profile_path.c_str(), *filename);
-    PHYSFS_delete(filepath.c_str());
+    std::string filepath = FileSystem::join(profile_path, filename);
+    std::filesystem::remove(FileSystem::write_path(filepath), ec);
   }
-  PHYSFS_delete(profile_path.c_str());
+  std::filesystem::remove(FileSystem::write_path(profile_path), ec);
 }
 
 /* EOF */

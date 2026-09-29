@@ -18,7 +18,7 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_OBJECT_FACTORY_HPP
 #define HEADER_SUPERTUX_SUPERTUX_OBJECT_FACTORY_HPP
 
-#include <assert.h>
+#include <cassert>
 #include <map>
 #include <memory>
 #include <functional>
@@ -32,8 +32,8 @@ class GameObject;
 class ObjectFactory
 {
 private:
-  typedef std::function<std::unique_ptr<GameObject> (const ReaderMapping&)> FactoryFunction;
-  typedef std::map<std::string, FactoryFunction> Factories;
+  using FactoryFunction = std::function<std::unique_ptr<GameObject> (const ReaderMapping&)>;
+  using Factories = std::map<std::string, FactoryFunction>;
   Factories factories;
 
 public:

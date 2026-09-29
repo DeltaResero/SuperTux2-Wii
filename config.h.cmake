@@ -14,8 +14,6 @@
 #define _SQ64
 #endif
 
-#cmakedefine WORDS_BIGENDIAN
-
 #cmakedefine HAVE_OPENGL
 
 #define BUILD_DATA_DIR "${BUILD_DATA_DIR}"

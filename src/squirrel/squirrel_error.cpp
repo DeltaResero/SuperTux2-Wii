@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-SquirrelError::SquirrelError(HSQUIRRELVM v, const std::string& message_) throw() :
+SquirrelError::SquirrelError(HSQUIRRELVM v, const std::string& message_) noexcept :
   message()
 {
   std::ostringstream msg;
@@ -38,11 +38,11 @@ SquirrelError::SquirrelError(HSQUIRRELVM v, const std::string& message_) throw()
   message = msg.str();
 }
 
-SquirrelError::~SquirrelError() throw()
+SquirrelError::~SquirrelError() noexcept
 {}
 
 const char*
-SquirrelError::what() const throw()
+SquirrelError::what() const noexcept
 {
   return message.c_str();
 }

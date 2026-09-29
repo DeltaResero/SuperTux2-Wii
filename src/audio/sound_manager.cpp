@@ -17,7 +17,7 @@
 #include "audio/sound_manager.hpp"
 
 #include <SDL.h>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 #include <sstream>
 #include <memory>

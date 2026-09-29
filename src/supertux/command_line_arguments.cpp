@@ -16,12 +16,13 @@
 
 #include "supertux/command_line_arguments.hpp"
 
-#include <boost/format.hpp>
+#include <format>
+#include <iostream>
 #include <config.h>
-#include <physfs.h>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/gameconfig.hpp"
+#include "util/file_system.hpp"
 #include "version.h"
 
 CommandLineArguments::CommandLineArguments() :
@@ -56,12 +57,8 @@ CommandLineArguments::print_datadir() const
 {
   // Print the datadir searchpath to stdout, one path per
   // line. Then exit. Intended for use by the supertux-editor.
-  char **sp;
-  sp = PHYSFS_getSearchPath();
-  if (sp)
-    for (size_t sp_index = 0; sp[sp_index]; sp_index++)
-      std::cout << sp[sp_index] << std::endl;
-  PHYSFS_freeList(sp);
+  for (const std::string& path : FileSystem::get_search_paths())
+    std::cout << path << std::endl;
 }
 
 void
@@ -86,7 +83,7 @@ void
 CommandLineArguments::print_help(const char* arg0) const
 {
   std::cerr
-    << boost::format("Usage: %s [OPTIONS] [LEVELFILE]") % arg0 << "\n" << "\n"
+    << std::format("Usage: {} [OPTIONS] [LEVELFILE]", arg0) << "\n" << "\n"
     << "General Options:" << "\n"
     << "  -h, --help                   Show this help message and quit" << "\n"
     << "  -v, --version                Show SuperTux version and quit" << "\n"
@@ -377,7 +374,7 @@ CommandLineArguments::parse_args(int argc, char** argv)
     }
     else
     {
-      throw std::runtime_error((boost::format("Unknown option '%1%''. Use --help to see a list of options") % arg).str());
+      throw std::runtime_error(std::format("Unknown option '{}''. Use --help to see a list of options", arg));
     }
   }
 

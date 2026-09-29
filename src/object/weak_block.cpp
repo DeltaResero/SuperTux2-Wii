@@ -17,7 +17,7 @@
 
 #include "object/weak_block.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"

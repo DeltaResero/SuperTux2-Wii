@@ -17,11 +17,11 @@
 #include "video/texture_manager.hpp"
 
 #include <SDL_image.h>
-#include <assert.h>
+#include <cassert>
 #include <sstream>
 
 #include "math/rect.hpp"
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_file.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_document.hpp"
@@ -95,7 +95,7 @@ TextureManager::~TextureManager()
 }
 
 TexturePtr
-TextureManager::get(const ReaderMapping& mapping, const boost::optional<Rect>& region)
+TextureManager::get(const ReaderMapping& mapping, const std::optional<Rect>& region)
 {
   std::string filename;
   if (!mapping.get("file", filename))
@@ -107,7 +107,7 @@ TextureManager::get(const ReaderMapping& mapping, const boost::optional<Rect>& r
     filename = FileSystem::join(mapping.get_doc().get_directory(), filename);
   }
 
-  boost::optional<Rect> rect;
+  std::optional<Rect> rect;
   std::vector<int> rect_v;
   if (mapping.get("rect", rect_v))
   {
@@ -202,7 +202,7 @@ TextureManager::get(const std::string& _filename)
 
 TexturePtr
 TextureManager::get(const std::string& _filename,
-                    const boost::optional<Rect>& rect,
+                    const std::optional<Rect>& rect,
                     const Sampler& sampler)
 {
   std::string filename = FileSystem::normalize(_filename);

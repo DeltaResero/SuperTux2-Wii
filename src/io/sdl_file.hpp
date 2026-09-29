@@ -1,5 +1,5 @@
 //  SuperTux
-//  Copyright (C) 2018 Ingo Ruhnke <grumbel@gmail.com>
+//  Copyright (C) 2006 Matthias Braun <matze@braunis.de>
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -14,22 +14,18 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_UTIL_HPP
-#define HEADER_SUPERTUX_PHYSFS_UTIL_HPP
+#ifndef HEADER_SUPERTUX_IO_SDL_FILE_HPP
+#define HEADER_SUPERTUX_IO_SDL_FILE_HPP
 
+#include <SDL.h>
 #include <string>
 
-namespace physfsutil {
-
-/** Convert 'path' to it's canonical name, i.e. normalize it and add a
-    '/' to the front) */
-std::string realpath(const std::string& path);
-
-/** Returns true if the given path is a directory or a symlink
-    pointing to a directory */
-bool is_directory(const std::string& path);
-
-} // namespace physfsutil
+/** The returned SDL_RWops object must be freed with SDL_RWclose(),
+    SDL library functions have a flag to perform that call
+    automatically. Do not use 'delete' or 'free()' on it.
+    See: https://wiki.libsdl.org/SDL_RWclose */
+SDL_RWops* get_SDLRWops(const std::string& filename);
+SDL_RWops* get_writable_SDLRWops(const std::string& filename);
 
 #endif
 

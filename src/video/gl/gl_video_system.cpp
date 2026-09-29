@@ -16,6 +16,8 @@
 
 #include "video/gl/gl_video_system.hpp"
 
+#include <memory>
+
 #include "math/rect.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
@@ -63,21 +65,21 @@ GLVideoSystem::GLVideoSystem(bool use_opengl33core) :
 #else
   if (use_opengl33core)
   {
-    m_context.reset(new GL33CoreContext(*this));
+    m_context = std::make_unique<GL33CoreContext>(*this);
   }
   else
   {
-    m_context.reset(new GL20Context);
+    m_context = std::make_unique<GL20Context>();
   }
 #endif
 
   assert_gl();
 
-  m_texture_manager.reset(new TextureManager);
+  m_texture_manager = std::make_unique<TextureManager>();
 
   assert_gl();
 
-  m_renderer.reset(new GLScreenRenderer(*this));
+  m_renderer = std::make_unique<GLScreenRenderer>(*this);
 
   assert_gl();
 
@@ -255,10 +257,10 @@ GLVideoSystem::apply_config()
 
   m_viewport = Viewport::from_size(target_size, m_desktop_size);
 
-  m_lightmap.reset(new GLTextureRenderer(*this, m_viewport.get_screen_size(), 5));
+  m_lightmap = std::make_unique<GLTextureRenderer>(*this, m_viewport.get_screen_size(), 5);
   if (m_use_opengl33core)
   {
-    m_back_renderer.reset(new GLTextureRenderer(*this, m_viewport.get_screen_size(), 1));
+    m_back_renderer = std::make_unique<GLTextureRenderer>(*this, m_viewport.get_screen_size(), 1);
   }
 }
 

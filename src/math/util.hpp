@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_MATH_UTIL_HPP
 #define HEADER_SUPERTUX_MATH_UTIL_HPP
 
+#include <numbers>
+
 namespace math {
 
 template<class T>
@@ -36,10 +38,10 @@ const T& clamp(const T& val, const T& min, const T& max)
   }
 }
 
-constexpr float TAU = 6.28318530717958647693f;
-constexpr float PI = 3.14159265358979323846f;
-constexpr float PI_2 = 1.57079632679489661923f;
-constexpr float PI_4 = 0.78539816339744830962f;
+constexpr float TAU = std::numbers::pi_v<float> * 2;
+constexpr float PI = std::numbers::pi_v<float>;
+constexpr float PI_2 = std::numbers::pi_v<float> / 2;
+constexpr float PI_4 = std::numbers::pi_v<float> / 4;
 
 inline float degrees(float rad)
 {

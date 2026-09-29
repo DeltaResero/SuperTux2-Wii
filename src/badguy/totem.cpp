@@ -16,7 +16,7 @@
 
 #include "badguy/totem.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"

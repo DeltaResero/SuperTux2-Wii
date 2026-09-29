@@ -41,7 +41,7 @@
 #include "video/compositor.hpp"
 #include "video/drawing_context.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 #include <chrono>
 #include <iostream>
 
@@ -116,7 +116,7 @@ ScreenManager::ScreenManager(VideoSystem& video_system, InputManager& input_mana
   m_video_system(video_system),
   m_input_manager(input_manager),
   m_menu_storage(new MenuStorage),
-  m_menu_manager(new MenuManager()),
+  m_menu_manager(std::make_unique<MenuManager>()),
   m_controller_hud(new ControllerHUD),
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   m_mobile_controller(),
@@ -125,7 +125,7 @@ ScreenManager::ScreenManager(VideoSystem& video_system, InputManager& input_mana
   elapsed_ticks(0),
   ms_per_step(static_cast<Uint32>(1000.0f / LOGICAL_FPS)),
   seconds_per_step(static_cast<float>(ms_per_step) / 1000.0f),
-  m_fps_statistics(new FPS_Stats()),
+  m_fps_statistics(std::make_unique<FPS_Stats>()),
   m_speed(1.0),
   m_actions(),
   m_screen_fade(),

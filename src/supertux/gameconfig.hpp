@@ -25,9 +25,8 @@
 #include "math/vector.hpp"
 #include "video/video_system.hpp"
 
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/optional.hpp>
+#include <optional>
+#include <ctime>
 
 class Config final
 {
@@ -76,7 +75,7 @@ public:
   std::string record_demo;
 
   /** this variable is set if tux should spawn somewhere which isn't the "main" spawn point*/
-  boost::optional<Vector> tux_spawn_pos;
+  std::optional<Vector> tux_spawn_pos;
 
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;
@@ -93,18 +92,10 @@ public:
   bool custom_mouse_cursor;
 
   bool is_christmas() const {
-    try
-    {
-      using namespace boost::gregorian;
-      using namespace boost::posix_time;
-      date today = second_clock::local_time().date();
-      date saint_nicholas_day(today.year(), Dec, 6);
-      return today >= saint_nicholas_day;
-    }
-    catch(...)
-    {
-      return false;
-    }
+    const std::time_t now = std::time(nullptr);
+    const std::tm* const today = std::localtime(&now);
+    // From Saint Nicholas Day to the end of the year; tm_mon counts December as 11.
+    return today != nullptr && today->tm_mon == 11 && today->tm_mday >= 6;
   }
 };
 

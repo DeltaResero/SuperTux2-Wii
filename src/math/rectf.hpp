@@ -17,7 +17,7 @@
 #ifndef HEADER_SUPERTUX_MATH_RECTF_HPP
 #define HEADER_SUPERTUX_MATH_RECTF_HPP
 
-#include <assert.h>
+#include <cassert>
 #include <iosfwd>
 
 #include "math/anchor_point.hpp"

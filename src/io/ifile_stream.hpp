@@ -14,23 +14,21 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HEADER_SUPERTUX_PHYSFS_OFILE_STREAM_HPP
-#define HEADER_SUPERTUX_PHYSFS_OFILE_STREAM_HPP
+#ifndef HEADER_SUPERTUX_IO_IFILE_STREAM_HPP
+#define HEADER_SUPERTUX_IO_IFILE_STREAM_HPP
 
-#include <memory>
-#include <ostream>
+#include <fstream>
+#include <string>
 
-class OFileStream final : public std::ostream
+/** Opens a search-path-relative name for reading; throws if it can't */
+class IFileStream final : public std::ifstream
 {
-protected:
-  std::unique_ptr<std::streambuf> sb;
-
 public:
-  OFileStream(const std::string& filename);
+  IFileStream(const std::string& filename);
 
 private:
-  OFileStream(const OFileStream&) = delete;
-  OFileStream& operator=(const OFileStream&) = delete;
+  IFileStream(const IFileStream&) = delete;
+  IFileStream& operator=(const IFileStream&) = delete;
 };
 
 #endif

@@ -17,7 +17,7 @@
 #ifndef HEADER_SUPERTUX_UTIL_DYNAMIC_SCOPED_REF_HPP
 #define HEADER_SUPERTUX_UTIL_DYNAMIC_SCOPED_REF_HPP
 
-#include <assert.h>
+#include <cassert>
 
 template<typename T> class DynamicScopedRefGuard;
 

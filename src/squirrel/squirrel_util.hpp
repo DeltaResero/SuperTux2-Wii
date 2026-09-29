@@ -17,7 +17,7 @@
 #ifndef HEADER_SUPERTUX_SQUIRREL_SQUIRREL_UTIL_HPP
 #define HEADER_SUPERTUX_SQUIRREL_SQUIRREL_UTIL_HPP
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <memory>
 #include <sstream>
@@ -27,7 +27,7 @@
 #include "squirrel/squirrel_error.hpp"
 #include "scripting/wrapper.hpp"
 
-typedef std::vector<HSQOBJECT> ScriptList;
+using ScriptList = std::vector<HSQOBJECT>;
 
 std::string squirrel2string(HSQUIRRELVM vm, SQInteger i);
 void print_squirrel_stack(HSQUIRRELVM vm);

@@ -16,11 +16,11 @@
 
 #include "video/video_system.hpp"
 
-#include <assert.h>
-#include <boost/optional.hpp>
+#include <cassert>
+#include <optional>
 #include <config.h>
+#include <filesystem>
 #include <iomanip>
-#include <physfs.h>
 #include <sstream>
 
 #include "util/file_system.hpp"
@@ -157,25 +157,28 @@ VideoSystem::do_take_screenshot()
   }
 
   const std::string screenshots_dir = "/screenshots";
-  if (!PHYSFS_exists(screenshots_dir.c_str())) {
-    if (!PHYSFS_mkdir(screenshots_dir.c_str())) {
+  if (FileSystem::find(screenshots_dir).empty()) {
+    const std::string path = FileSystem::write_path(screenshots_dir);
+    std::error_code ec;
+    std::filesystem::create_directories(path, ec);
+    if (path.empty() || ec) {
       log_warning << "Creating '" << screenshots_dir << "' failed" << std::endl;
       return;
     }
   }
 
-  auto find_filename = [&]() -> boost::optional<std::string>
+  auto find_filename = [&]() -> std::optional<std::string>
     {
       for (int num = 0; num < 1000000; ++num)
       {
         std::ostringstream oss;
         oss << "screenshot" << std::setw(6) << std::setfill('0') << num << ".png";
         const std::string screenshot_filename = FileSystem::join(screenshots_dir, oss.str());
-        if (!PHYSFS_exists(screenshot_filename.c_str())) {
+        if (FileSystem::find(screenshot_filename).empty()) {
           return screenshot_filename;
         }
       }
-      return boost::none;
+      return std::nullopt;
     };
 
   auto filename = find_filename();

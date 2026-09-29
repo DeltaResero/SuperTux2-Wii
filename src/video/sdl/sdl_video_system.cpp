@@ -16,6 +16,7 @@
 
 #include "video/sdl/sdl_video_system.hpp"
 
+#include <memory>
 #include <sstream>
 
 #include "math/rect.hpp"
@@ -38,8 +39,8 @@ SDLVideoSystem::SDLVideoSystem() :
 {
   create_window();
 
-  m_renderer.reset(new SDLScreenRenderer(*this, m_sdl_renderer.get()));
-  m_texture_manager.reset(new TextureManager);
+  m_renderer = std::make_unique<SDLScreenRenderer>(*this, m_sdl_renderer.get());
+  m_texture_manager = std::make_unique<TextureManager>();
 
   apply_config();
 }
@@ -92,7 +93,7 @@ SDLVideoSystem::apply_config()
     m_viewport = Viewport::from_size(target_size, m_desktop_size);
   }
 
-  m_lightmap.reset(new SDLTextureRenderer(*this, m_sdl_renderer.get(), m_viewport.get_screen_size(), 5));
+  m_lightmap = std::make_unique<SDLTextureRenderer>(*this, m_sdl_renderer.get(), m_viewport.get_screen_size(), 5);
 }
 
 Renderer&

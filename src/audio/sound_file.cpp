@@ -20,8 +20,8 @@
 
 #include <config.h>
 
-#include <string.h>
-#include <physfs.h>
+#include <cstring>
+#include <fstream>
 #include <sstream>
 #include <unordered_map>
 
@@ -36,6 +36,17 @@
 namespace {
 
 const std::string& get_fallback_path(const std::string& file_path);
+
+std::unique_ptr<std::istream> open_file(const std::string& filename)
+{
+  const std::string path = FileSystem::find(filename);
+  if (path.empty())
+    return {};
+  auto file = std::make_unique<std::ifstream>(path, std::ios::in | std::ios::binary);
+  if (!file->is_open())
+    return {};
+  return file;
+}
 
 ReaderDocument doc_from_file_fallback(std::string& filename)
 {
@@ -76,20 +87,18 @@ std::unique_ptr<SoundFile> load_music_file(const std::string& filename_original)
     std::string basedir = FileSystem::dirname(filename);
     raw_music_file = FileSystem::normalize(basedir + raw_music_file);
 
-    auto file = PHYSFS_openRead(raw_music_file.c_str());
+    auto file = open_file(raw_music_file);
     if (!file) {
-      std::stringstream msg;
-      msg << "Couldn't open '" << raw_music_file << "': " << PHYSFS_getLastErrorCode();
-      throw SoundError(msg.str());
+      throw SoundError("Couldn't open '" + raw_music_file + "': not found");
     }
-    auto format = SoundFile::get_file_format(file, raw_music_file);
+    auto format = SoundFile::get_file_format(*file, raw_music_file);
     if (format == SoundFile::FORMAT_WAV)
     {
-      return std::make_unique<WavSoundFile>(file);
+      return std::make_unique<WavSoundFile>(std::move(file));
     }
     else
     {
-      return std::make_unique<OggSoundFile>(file, loop_begin, loop_at);
+      return std::make_unique<OggSoundFile>(std::move(file), loop_begin, loop_at);
     }
   }
 }
@@ -102,40 +111,34 @@ std::unique_ptr<SoundFile> load_sound_file(const std::string& filename)
     return load_music_file(filename);
   }
 
-  auto file = PHYSFS_openRead(filename.c_str());
+  auto file = open_file(filename);
   if (!file) {
-    file = PHYSFS_openRead(get_fallback_path(filename).c_str());
+    file = open_file(get_fallback_path(filename));
     if (!file) {
-      std::stringstream msg;
-      msg << "Couldn't open '" << filename << "': " <<
-        PHYSFS_getLastErrorCode() << ", using dummy sound file.";
-      throw SoundError(msg.str());
+      throw SoundError("Couldn't open '" + filename + "': not found, using dummy sound file.");
     }
   }
 
-  auto format = SoundFile::get_file_format(file, filename);
+  auto format = SoundFile::get_file_format(*file, filename);
   if (format == SoundFile::FORMAT_WAV)
   {
-    return std::make_unique<WavSoundFile>(file);
+    return std::make_unique<WavSoundFile>(std::move(file));
   }
   else
   {
-    return std::make_unique<OggSoundFile>(file, 0, -1);
+    return std::make_unique<OggSoundFile>(std::move(file), 0, -1);
   }
 }
 
 SoundFile::FileFormat
-SoundFile::get_file_format(PHYSFS_File* file, const std::string& filename)
+SoundFile::get_file_format(std::istream& file, const std::string& filename)
 {
   try {
     char magic[4];
-    if (PHYSFS_readBytes(file, magic, sizeof(magic)) < static_cast<std::make_signed<size_t>::type>(sizeof(magic)))
+    if (!file.read(magic, sizeof(magic)))
       throw SoundError("Couldn't read magic, file too short");
-    if (PHYSFS_seek(file, 0) == 0) {
-      std::stringstream msg;
-      msg << "Couldn't seek through sound file: " << PHYSFS_getLastErrorCode();
-      throw SoundError(msg.str());
-    }
+    if (!file.seekg(0))
+      throw SoundError("Couldn't seek through sound file");
 
     if (strncmp(magic, "RIFF", 4) == 0)
       return FileFormat::FORMAT_WAV;

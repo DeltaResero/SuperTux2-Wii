@@ -17,7 +17,7 @@
 #ifndef HEADER_SUPERTUX_MATH_VECTOR_HPP
 #define HEADER_SUPERTUX_MATH_VECTOR_HPP
 
-#include <math.h>
+#include <cmath>
 #include <iosfwd>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>

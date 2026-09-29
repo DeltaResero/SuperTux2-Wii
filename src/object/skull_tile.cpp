@@ -16,6 +16,8 @@
 
 #include "object/skull_tile.hpp"
 
+#include <memory>
+
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
@@ -73,7 +75,7 @@ SkullTile::update(float dt_sec)
         m_alpha = 0.f;
         m_revive_timer.stop();
         falling = false;
-        m_respawn.reset(new FadeHelper(&m_alpha, FADETIME, 1.f));
+        m_respawn = std::make_unique<FadeHelper>(&m_alpha, FADETIME, 1.f);
         physic.enable_gravity(false);
         m_col.set_pos(m_original_pos);
         physic.set_velocity(Vector(0.0f, 0.0f));

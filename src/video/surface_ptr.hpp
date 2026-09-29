@@ -20,7 +20,7 @@
 #include <memory>
 
 class Surface;
-typedef std::shared_ptr<Surface> SurfacePtr;
+using SurfacePtr = std::shared_ptr<Surface>;
 
 #endif
 

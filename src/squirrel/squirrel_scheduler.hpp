@@ -53,7 +53,7 @@ private:
 private:
   SquirrelVM& m_vm;
 
-  typedef std::vector<ScheduleEntry> ScheduleHeap;
+  using ScheduleHeap = std::vector<ScheduleEntry>;
   ScheduleHeap schedule;
 
 private:

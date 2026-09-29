@@ -139,7 +139,7 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
   ExposedObject<Player, scripting::Player>(this),
   m_deactivated(false),
   m_controller(&InputManager::current()->get_controller()),
-  m_scripting_controller(new CodeController()),
+  m_scripting_controller(std::make_unique<CodeController>()),
   m_player_status(player_status),
   m_duck(false),
   m_dead(false),
@@ -191,7 +191,7 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
   m_physic(),
   m_visible(true),
   m_grabbed_object(nullptr),
-  m_grabbed_object_remove_listener(new GrabListener(*this)),
+  m_grabbed_object_remove_listener(std::make_unique<GrabListener>(*this)),
   // if/when we have complete penny gfx, we can
   // load those instead of Tux's sprite in the
   // constructor
@@ -1092,7 +1092,7 @@ Player::handle_input()
   {
     if (m_water_jump)
     {
-      swim(0,0,0);
+      swim(0,0,false);
     }
   }
 

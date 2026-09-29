@@ -18,7 +18,7 @@
 #ifndef HEADER_SUPERTUX_COLLISION_COLLISION_OBJECT_HPP
 #define HEADER_SUPERTUX_COLLISION_COLLISION_OBJECT_HPP
 
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 #include <unordered_set>
 
