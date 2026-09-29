@@ -129,8 +129,10 @@ WillOWisp::active_update(float dt_sec)
       break;
 
     case STATE_VANISHING: {
-      Vector dir_ = glm::normalize(dist);
-      m_col.set_movement(dir_ * dt_sec * m_flyspeed);
+      if (glm::length(dist) >= 1) {
+        Vector dir_ = glm::normalize(dist);
+        m_col.set_movement(dir_ * dt_sec * m_flyspeed);
+      }
       if (m_sprite->animation_done()) {
         remove_me();
       }
