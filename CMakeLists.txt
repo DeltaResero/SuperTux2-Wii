@@ -53,12 +53,6 @@ include(CheckCXXCompilerFlag)
 
 set(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 set(BUILD_CONFIG_DATA_DIR "${CMAKE_BINARY_DIR}/data")
-## Check endianess
-
-# FIXME: Any reason why we need this?
-include(TestBigEndian)
-test_big_endian(WORDS_BIGENDIAN)
-
 ## Add definitions
 if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
   add_definitions(-DRELEASE)

@@ -19,6 +19,7 @@
 #include <config.h>
 
 #include <assert.h>
+#include <bit>
 
 OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> file_, double loop_begin_, double loop_at_) :
   m_file(std::move(file_)),
@@ -60,11 +61,7 @@ OggSoundFile::read(void* _buffer, size_t buffer_size)
   size_t totalBytesRead = 0;
 
   while (buffer_size>0) {
-#ifdef WORDS_BIGENDIAN
-    int bigendian = 1;
-#else
-    int bigendian = 0;
-#endif
+    constexpr int bigendian = (std::endian::native == std::endian::big) ? 1 : 0;
 
     size_t bytes_to_read    = buffer_size;
     if (m_loop_at > 0) {

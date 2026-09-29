@@ -22,6 +22,8 @@
 #include <stdint.h>
 #include <assert.h>
 #include <algorithm>
+#include <bit>
+#include <utility>
 
 #include "audio/sound_error.hpp"
 #include "util/log.hpp"
@@ -153,20 +155,18 @@ WavSoundFile::read(void* buffer, size_t buffer_size)
   if (!m_file->read(static_cast<char*>(buffer), static_cast<std::streamsize>(readsize)))
     throw SoundError("read error while reading samples");
 
-#ifdef WORDS_BIGENDIAN
-  if (m_bits_per_sample != 16)
-    return readsize;
-  char *tmp = (char*)buffer;
-
-  for (size_t i = 0; i < readsize / 2; i++)
+  // Samples are little endian on disk, so 16 bit ones need swapping here.
+  if constexpr (std::endian::native == std::endian::big)
   {
-    char c     = tmp[2*i];
-    tmp[2*i]   = tmp[2*i+1];
-    tmp[2*i+1] = c;
+    if (m_bits_per_sample == 16)
+    {
+      char* tmp = static_cast<char*>(buffer);
+      for (size_t i = 0; i < readsize / 2; i++)
+      {
+        std::swap(tmp[2*i], tmp[2*i+1]);
+      }
+    }
   }
-
-  *(char *)buffer = *tmp;
-#endif
 
   return readsize;
 }
