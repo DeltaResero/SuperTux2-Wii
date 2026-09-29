@@ -17,6 +17,7 @@
 #include "supertux/command_line_arguments.hpp"
 
 #include <format>
+#include <iostream>
 #include <config.h>
 #include <physfs.h>
 
