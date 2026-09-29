@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/wrapper.hpp"
 #include "squirrel/squirrel_error.hpp"
 #include "squirrel/squirrel_thread_queue.hpp"

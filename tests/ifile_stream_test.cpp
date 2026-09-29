@@ -20,14 +20,13 @@
 #include <fstream>
 #include <iostream>
 
-#include <physfs.h>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
+#include "util/file_system.hpp"
 
 TEST(IFileStreamTest, test)
 {
-  PHYSFS_init("ifile_stream_test");
-  PHYSFS_mount("../tests/data", nullptr, 1);
+  FileSystem::add_search_path("../tests/data");
 
   IFileStream in("test.dat");
 

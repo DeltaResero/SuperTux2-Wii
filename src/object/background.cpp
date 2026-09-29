@@ -16,11 +16,11 @@
 
 #include "object/background.hpp"
 
-#include <physfs.h>
 
 #include "supertux/d_scope.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
+#include "util/file_system.hpp"
 #include "util/reader.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
@@ -403,7 +403,7 @@ std::unordered_map<std::string, std::string> fallback_paths = {
 SurfacePtr
 Background::load_background(const std::string& image_path)
 {
-  if (PHYSFS_exists(image_path.c_str()))
+  if (!FileSystem::find(image_path).empty())
     // No need to search fallback paths
     return Surface::from_file(image_path);
 

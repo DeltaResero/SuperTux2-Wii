@@ -18,9 +18,8 @@
 #include "supertux/savegame.hpp"
 
 #include <algorithm>
-#include <physfs.h>
+#include <filesystem>
 
-#include "physfs/util.hpp"
 #include "squirrel/serialize.hpp"
 #include "squirrel/squirrel_util.hpp"
 #include "squirrel/squirrel_virtual_machine.hpp"
@@ -121,13 +120,13 @@ Savegame::load()
 
   clear_state_table();
 
-  if (!PHYSFS_exists(m_filename.c_str()))
+  if (FileSystem::find(m_filename).empty())
   {
     log_info << m_filename << " doesn't exist, not loading state" << std::endl;
   }
   else
   {
-    if (physfsutil::is_directory(m_filename))
+    if (FileSystem::is_directory(FileSystem::find(m_filename)))
     {
       log_info << m_filename << " is a directory, not loading state" << std::endl;
       return;
@@ -215,18 +214,21 @@ Savegame::save()
 
   { // make sure the savegame directory exists
     std::string dirname = FileSystem::dirname(m_filename);
-    if (!PHYSFS_exists(dirname.c_str()))
+    if (FileSystem::find(dirname).empty())
     {
-      if (!PHYSFS_mkdir(dirname.c_str()))
+      const std::string path = FileSystem::write_path(dirname);
+      std::error_code ec;
+      std::filesystem::create_directories(path, ec);
+      if (path.empty() || ec)
       {
         std::ostringstream msg;
         msg << "Couldn't create directory for savegames '"
-            << dirname << "': " <<PHYSFS_getLastErrorCode();
+            << dirname << "': " << (path.empty() ? "no write directory set" : ec.message());
         throw std::runtime_error(msg.str());
       }
     }
 
-    if (!physfsutil::is_directory(dirname))
+    if (!FileSystem::is_directory(FileSystem::find(dirname)))
     {
       std::ostringstream msg;
       msg << "Savegame path '" << dirname << "' is not a directory";

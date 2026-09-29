@@ -17,7 +17,6 @@
 
 #include "worldmap/worldmap.hpp"
 
-#include <physfs.h>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
@@ -27,7 +26,7 @@
 #include "object/display_effect.hpp"
 #include "object/music_object.hpp"
 #include "object/tilemap.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "scripting/worldmap.hpp"
 #include "sprite/sprite.hpp"
 #include "squirrel/squirrel_environment.hpp"

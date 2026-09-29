@@ -17,12 +17,12 @@
 #include "object/camera.hpp"
 
 #include <math.h>
-#include <physfs.h>
 
 #include "math/util.hpp"
 #include "object/player.hpp"
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"
+#include "util/file_system.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
@@ -292,7 +292,7 @@ Camera::update(float dt_sec)
 void
 Camera::reload_config()
 {
-  if (PHYSFS_exists("camera.cfg")) {
+  if (!FileSystem::find("camera.cfg").empty()) {
     try {
       m_config->load("camera.cfg");
       log_info << "Loaded camera.cfg." << std::endl;

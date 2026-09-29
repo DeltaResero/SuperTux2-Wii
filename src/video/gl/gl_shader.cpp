@@ -19,7 +19,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "video/glutil.hpp"
 
 std::unique_ptr<GLShader>

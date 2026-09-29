@@ -17,13 +17,13 @@
 #include "object/moving_sprite.hpp"
 
 #include <math.h>
-#include <physfs.h>
 
 #include "math/random.hpp"
 #include "math/util.hpp"
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
+#include "util/file_system.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 
@@ -51,7 +51,7 @@ MovingSprite::MovingSprite(const ReaderMapping& reader, const std::string& sprit
   reader.get("sprite", m_sprite_name);
 
   //Make the sprite go default when the sprite file is invalid
-  if (m_sprite_name.empty() || !PHYSFS_exists(m_sprite_name.c_str())) {
+  if (m_sprite_name.empty() || FileSystem::find(m_sprite_name).empty()) {
     m_sprite = SpriteManager::current()->create(m_default_sprite_name);
   } else {
     m_sprite = SpriteManager::current()->create(m_sprite_name);

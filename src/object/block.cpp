@@ -14,7 +14,6 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <physfs.h>
 
 #include "object/block.hpp"
 
@@ -30,6 +29,7 @@
 #include "sprite/sprite_manager.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/sector.hpp"
+#include "util/file_system.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 
@@ -50,7 +50,7 @@ Block::Block(const ReaderMapping& mapping, const std::string& sprite_file) :
 
   std::string sf;
   mapping.get("sprite", sf);
-  if (sf.empty() || !PHYSFS_exists(sf.c_str())) {
+  if (sf.empty() || FileSystem::find(sf).empty()) {
     sf = sprite_file;
   }
   m_sprite = SpriteManager::current()->create(sf);

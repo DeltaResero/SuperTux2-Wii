@@ -17,22 +17,23 @@
 #ifndef HEADER_SUPERTUX_AUDIO_WAV_SOUND_FILE_HPP
 #define HEADER_SUPERTUX_AUDIO_WAV_SOUND_FILE_HPP
 
-#include <physfs.h>
+#include <istream>
+#include <memory>
 
 #include "audio/sound_file.hpp"
 
 class WavSoundFile final : public SoundFile
 {
 public:
-  WavSoundFile(PHYSFS_file* file);
+  WavSoundFile(std::unique_ptr<std::istream> file);
   ~WavSoundFile() override;
 
   virtual size_t read(void* buffer, size_t buffer_size) override;
   virtual void reset() override;
 
 private:
-  PHYSFS_file* m_file;
-  PHYSFS_sint64 m_datastart;
+  std::unique_ptr<std::istream> m_file;
+  std::streampos m_datastart;
 
 private:
   WavSoundFile(const WavSoundFile&) = delete;

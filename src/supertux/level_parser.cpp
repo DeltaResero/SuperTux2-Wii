@@ -16,7 +16,6 @@
 
 #include "supertux/level_parser.hpp"
 
-#include <physfs.h>
 #include <sstream>
 
 #include "supertux/level.hpp"

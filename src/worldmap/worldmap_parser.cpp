@@ -16,7 +16,6 @@
 
 #include "worldmap/worldmap_parser.hpp"
 
-#include <physfs.h>
 
 #include "object/ambient_light.hpp"
 #include "object/background.hpp"
@@ -24,7 +23,6 @@
 #include "object/music_object.hpp"
 #include "object/path_gameobject.hpp"
 #include "object/tilemap.hpp"
-#include "physfs/util.hpp"
 #include "supertux/tile_manager.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
@@ -43,6 +41,23 @@
 
 namespace worldmap {
 
+namespace {
+
+/** The normalized name with a leading slash, as the search path addresses it */
+std::string realpath(const std::string& path)
+{
+  std::string result = FileSystem::normalize(path);
+  if (result.empty()) {
+    return "/";
+  } else if (result[0] != '/') {
+    return '/' + result;
+  } else  {
+    return result;
+  }
+}
+
+} // namespace
+
 WorldMapParser::WorldMapParser(WorldMap& worldmap) :
   m_worldmap(worldmap)
 {
@@ -51,7 +66,7 @@ WorldMapParser::WorldMapParser(WorldMap& worldmap) :
 void
 WorldMapParser::load_worldmap(const std::string& filename)
 {
-  m_worldmap.m_map_filename = physfsutil::realpath(filename);
+  m_worldmap.m_map_filename = realpath(filename);
   m_worldmap.m_levels_path = FileSystem::dirname(m_worldmap.m_map_filename);
 
   try {
@@ -170,12 +185,12 @@ WorldMapParser::load_level_information(LevelTile& level)
     if (m_worldmap.m_levels_path == "./")
       filename = level.get_level_filename();
 
-    if (!PHYSFS_exists(filename.c_str()))
+    if (FileSystem::find(filename).empty())
     {
       log_warning << "Level file '" << filename << "' does not exist. Skipping." << std::endl;
       return;
     }
-    if (physfsutil::is_directory(filename))
+    if (FileSystem::is_directory(FileSystem::find(filename)))
     {
       log_warning << "Level file '" << filename << "' is a directory. Skipping." << std::endl;
       return;

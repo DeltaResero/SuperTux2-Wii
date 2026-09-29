@@ -16,6 +16,7 @@
 
 #include "util/file_system.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <sstream>
 #include <stdexcept>
@@ -30,6 +31,88 @@
 namespace fs = std::filesystem;
 
 namespace FileSystem {
+
+namespace {
+
+std::vector<std::string> s_search_paths;
+std::string s_write_dir;
+
+/** A leading slash means the root of a search path entry, not of the host */
+std::string strip_root(const std::string& filename)
+{
+  const std::string::size_type start = filename.find_first_not_of('/');
+  if (start == std::string::npos) return std::string();
+  return filename.substr(start);
+}
+
+} // namespace
+
+void add_search_path(const std::string& directory, bool prepend)
+{
+  if (prepend)
+    s_search_paths.insert(s_search_paths.begin(), directory);
+  else
+    s_search_paths.push_back(directory);
+}
+
+void clear_search_paths()
+{
+  s_search_paths.clear();
+}
+
+std::vector<std::string> get_search_paths()
+{
+  return s_search_paths;
+}
+
+void set_write_dir(const std::string& directory)
+{
+  s_write_dir = directory;
+}
+
+std::string get_write_dir()
+{
+  return s_write_dir;
+}
+
+std::string find(const std::string& filename)
+{
+  const std::string relative = strip_root(filename);
+  if (relative.empty()) return std::string();
+
+  for (const auto& base : s_search_paths)
+  {
+    const std::string candidate = join(base, relative);
+    if (exists(candidate)) return candidate;
+  }
+  return std::string();
+}
+
+std::string write_path(const std::string& filename)
+{
+  if (s_write_dir.empty()) return std::string();
+  return join(s_write_dir, strip_root(filename));
+}
+
+std::vector<std::string> enumerate(const std::string& directory)
+{
+  const std::string relative = strip_root(directory);
+  std::vector<std::string> names;
+
+  for (const auto& base : s_search_paths)
+  {
+    std::error_code ec;
+    fs::directory_iterator it(relative.empty() ? base : join(base, relative), ec);
+    if (ec) continue;
+
+    for (const auto& entry : it)
+      names.push_back(entry.path().filename().string());
+  }
+
+  std::sort(names.begin(), names.end());
+  names.erase(std::unique(names.begin(), names.end()), names.end());
+  return names;
+}
 
 bool exists(const std::string& path)
 {

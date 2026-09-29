@@ -20,7 +20,7 @@
 #include "math/random.hpp"
 #include "object/camera.hpp"
 #include "object/player.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/console.hpp"
 #include "supertux/debug.hpp"
 #include "supertux/game_manager.hpp"

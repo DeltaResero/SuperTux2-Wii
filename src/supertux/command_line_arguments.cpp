@@ -19,10 +19,10 @@
 #include <format>
 #include <iostream>
 #include <config.h>
-#include <physfs.h>
 
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "supertux/gameconfig.hpp"
+#include "util/file_system.hpp"
 #include "version.h"
 
 CommandLineArguments::CommandLineArguments() :
@@ -57,12 +57,8 @@ CommandLineArguments::print_datadir() const
 {
   // Print the datadir searchpath to stdout, one path per
   // line. Then exit. Intended for use by the supertux-editor.
-  char **sp;
-  sp = PHYSFS_getSearchPath();
-  if (sp)
-    for (size_t sp_index = 0; sp[sp_index]; sp_index++)
-      std::cout << sp[sp_index] << std::endl;
-  PHYSFS_freeList(sp);
+  for (const std::string& path : FileSystem::get_search_paths())
+    std::cout << path << std::endl;
 }
 
 void

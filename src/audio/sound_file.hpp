@@ -17,10 +17,10 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SOUND_FILE_HPP
 #define HEADER_SUPERTUX_AUDIO_SOUND_FILE_HPP
 
+#include <istream>
 #include <memory>
 #include <string>
 
-struct PHYSFS_File;
 
 class SoundFile
 {
@@ -31,7 +31,7 @@ public:
   };
 
 public:
-  static FileFormat get_file_format(PHYSFS_File* file, const std::string& filename);
+  static FileFormat get_file_format(std::istream& file, const std::string& filename);
 
 public:
   SoundFile() :

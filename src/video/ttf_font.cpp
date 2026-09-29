@@ -22,7 +22,7 @@
 #include <sstream>
 
 #include "util/line_iterator.hpp"
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_file.hpp"
 #include "video/canvas.hpp"
 #include "video/surface.hpp"
 #include "video/ttf_surface_manager.hpp"
@@ -35,7 +35,7 @@ TTFFont::TTFFont(const std::string& filename, int font_size, float line_spacing,
   m_shadow_size(shadow_size),
   m_border(border)
 {
-  m_font = TTF_OpenFontRW(get_physfs_SDLRWops(m_filename), 1, font_size);
+  m_font = TTF_OpenFontRW(get_SDLRWops(m_filename), 1, font_size);
   if (!m_font)
   {
     std::ostringstream msg;

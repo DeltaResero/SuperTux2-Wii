@@ -21,7 +21,7 @@
 #include <sstream>
 
 #include "math/rect.hpp"
-#include "physfs/physfs_sdl.hpp"
+#include "io/sdl_file.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "util/reader_document.hpp"

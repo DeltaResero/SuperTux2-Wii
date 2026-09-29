@@ -47,17 +47,16 @@ private:
   Config m_config;
 };
 
-class PhysfsSubsystem final
+class FileSystemSubsystem final
 {
 private:
   std::optional<std::string> m_forced_datadir;
   std::optional<std::string> m_forced_userdir;
 
 public:
-  PhysfsSubsystem(const char* argv0,
-                  std::optional<std::string> forced_datadir,
-                  std::optional<std::string> forced_userdir);
-  ~PhysfsSubsystem();
+  FileSystemSubsystem(std::optional<std::string> forced_datadir,
+                      std::optional<std::string> forced_userdir);
+  ~FileSystemSubsystem();
   void find_datadir() const;
   void find_userdir() const;
   static void print_search_path();
@@ -86,7 +85,7 @@ private:
 
 private:
   // Using pointers allows us to initialize them whenever we want
-  std::unique_ptr<PhysfsSubsystem> m_physfs_subsystem;
+  std::unique_ptr<FileSystemSubsystem> m_filesystem_subsystem;
   std::unique_ptr<ConfigSubsystem> m_config_subsystem;
   std::unique_ptr<SDLSubsystem> m_sdl_subsystem;
   std::unique_ptr<ConsoleBuffer> m_console_buffer;

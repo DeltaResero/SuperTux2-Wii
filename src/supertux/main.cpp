@@ -23,7 +23,6 @@
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <physfs.h>
 
 #ifdef WIN32
 #include <codecvt>
@@ -34,7 +33,6 @@
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "object/spawnpoint.hpp"
-#include "physfs/physfs_sdl.hpp"
 #include "sprite/sprite_data.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/command_line_arguments.hpp"
@@ -100,7 +98,7 @@ ConfigSubsystem::~ConfigSubsystem()
 }
 
 Main::Main() :
-  m_physfs_subsystem(),
+  m_filesystem_subsystem(),
   m_config_subsystem(),
   m_sdl_subsystem(),
   m_console_buffer(),
@@ -119,29 +117,17 @@ Main::Main() :
 {
 }
 
-PhysfsSubsystem::PhysfsSubsystem(const char* argv0,
-                std::optional<std::string> forced_datadir,
-                std::optional<std::string> forced_userdir) :
+FileSystemSubsystem::FileSystemSubsystem(std::optional<std::string> forced_datadir,
+                                         std::optional<std::string> forced_userdir) :
   m_forced_datadir(std::move(forced_datadir)),
   m_forced_userdir(std::move(forced_userdir))
 {
-  if (!PHYSFS_init(argv0))
-  {
-    std::stringstream msg;
-    msg << "Couldn't initialize physfs: " << PHYSFS_getLastErrorCode();
-    throw std::runtime_error(msg.str());
-  }
-  else
-  {
-    // allow symbolic links
-    PHYSFS_permitSymbolicLinks(1);
-
-    find_userdir();
-    find_datadir();
-  }
+  FileSystem::clear_search_paths();
+  find_userdir();
+  find_datadir();
 }
 
-void PhysfsSubsystem::find_datadir() const
+void FileSystemSubsystem::find_datadir() const
 {
   std::string datadir;
   if (m_forced_datadir)
@@ -163,7 +149,7 @@ void PhysfsSubsystem::find_datadir() const
     {
       datadir = BUILD_DATA_DIR;
       // Add config dir for supplemental files
-      PHYSFS_mount(std::filesystem::canonical(BUILD_CONFIG_DATA_DIR).string().c_str(), nullptr, 1);
+      FileSystem::add_search_path(std::filesystem::canonical(BUILD_CONFIG_DATA_DIR).string());
     }
     else
     {
@@ -174,13 +160,18 @@ void PhysfsSubsystem::find_datadir() const
     }
   }
 
-  if (!PHYSFS_mount(std::filesystem::canonical(datadir).string().c_str(), nullptr, 1))
+  const std::string datapath = std::filesystem::canonical(datadir).string();
+  if (!FileSystem::is_directory(datapath))
   {
-    log_warning << "Couldn't add '" << datadir << "' to physfs searchpath: " << PHYSFS_getLastErrorCode() << std::endl;
+    log_warning << "Couldn't add '" << datadir << "' to the search path: not a directory" << std::endl;
+  }
+  else
+  {
+    FileSystem::add_search_path(datapath);
   }
 }
 
-void PhysfsSubsystem::find_userdir() const
+void FileSystemSubsystem::find_userdir() const
 {
   std::string userdir;
   if (m_forced_userdir)
@@ -193,25 +184,27 @@ void PhysfsSubsystem::find_userdir() const
   }
   else
   {
-  userdir = PHYSFS_getPrefDir("SuperTux","supertux2");
+#ifdef _WIN32
+  char* prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
+#else
+  // Outside Windows, older builds saved without an organisation folder.
+  char* prefpath = SDL_GetPrefPath(nullptr, "supertux2");
+#endif
+  userdir = prefpath ? prefpath : std::string();
+  SDL_free(prefpath);
   }
-//Kept for backwards-compatability only, hence the silence
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-std::string physfs_userdir = PHYSFS_getUserDir();
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+//Kept for backwards-compatability only
+const char* home = getenv("HOME");
+if (!home) home = getenv("USERPROFILE");
+std::string home_dir = home ? home : std::string();
 
 #ifndef __HAIKU__
 #ifdef _WIN32
-std::string olduserdir = FileSystem::join(physfs_userdir, PACKAGE_NAME);
+std::string olduserdir = FileSystem::join(home_dir, PACKAGE_NAME);
 #else
-std::string olduserdir = FileSystem::join(physfs_userdir, "." PACKAGE_NAME);
+std::string olduserdir = FileSystem::join(home_dir, "." PACKAGE_NAME);
 #endif
-if (FileSystem::is_directory(olduserdir)) {
+if (!home_dir.empty() && FileSystem::is_directory(olduserdir)) {
   std::filesystem::path olduserpath(olduserdir);
   std::filesystem::path userpath(userdir);
 
@@ -256,33 +249,29 @@ if (FileSystem::is_directory(olduserdir)) {
   }
 
 
-  if (!PHYSFS_setWriteDir(userdir.c_str()))
+  if (!FileSystem::is_directory(userdir))
   {
-    std::ostringstream msg;
-    msg << "Failed to use userdir directory '"
-        <<  userdir << "': errorcode: " << PHYSFS_getLastErrorCode();
-    throw std::runtime_error(msg.str());
+    throw std::runtime_error("Failed to use userdir directory '" + userdir + "'");
   }
 
-  PHYSFS_mount(userdir.c_str(), nullptr, 0);
+  FileSystem::set_write_dir(userdir);
+  // Prepended so a file in the userdir shadows the shipped one.
+  FileSystem::add_search_path(userdir, true);
 }
 
-void PhysfsSubsystem::print_search_path()
+void FileSystemSubsystem::print_search_path()
 {
-  const char* writedir = PHYSFS_getWriteDir();
-  log_info << "PhysfsWriteDir: " << (writedir ? writedir : "(null)") << std::endl;
-  log_info << "PhysfsSearchPath:" << std::endl;
-  char** searchpath = PHYSFS_getSearchPath();
-  for (char** i = searchpath; *i != nullptr; ++i)
+  log_info << "WriteDir: " << FileSystem::get_write_dir() << std::endl;
+  log_info << "SearchPath:" << std::endl;
+  for (const auto& path : FileSystem::get_search_paths())
   {
-    log_info << "  " << *i << std::endl;
+    log_info << "  " << path << std::endl;
   }
-  PHYSFS_freeList(searchpath);
 }
 
-PhysfsSubsystem::~PhysfsSubsystem()
+FileSystemSubsystem::~FileSystemSubsystem()
 {
-  PHYSFS_deinit();
+  FileSystem::clear_search_paths();
 }
 
 SDLSubsystem::SDLSubsystem()
@@ -377,8 +366,8 @@ Main::launch_game(const CommandLineArguments& args)
   {
     for(const auto& start_level : args.filenames)
     {
-      // we have a normal path specified at commandline, not a physfs path.
-      // So we simply mount that path here...
+      // A real path on the command line, so put its folder on the search path
+      // and open it by name.
       std::string dir = FileSystem::dirname(start_level);
       const std::string filename = FileSystem::basename(start_level);
       const std::string fileProtocol = "file://";
@@ -387,7 +376,7 @@ Main::launch_game(const CommandLineArguments& args)
         dir = dir.replace(position, fileProtocol.length(), "");
       }
       log_debug << "Adding dir: " << dir << std::endl;
-      PHYSFS_mount(dir.c_str(), nullptr, true);
+      FileSystem::add_search_path(dir);
 
       if (StringUtil::has_suffix(start_level, ".stwm"))
       {
@@ -446,8 +435,6 @@ Main::run(int argc, char** argv)
 
 
 #ifdef WIN32
-  //SDL is used instead of PHYSFS because both create the same path in app data
-  //However, PHYSFS is not yet initizlized, and this should be run before anything is initialized
   std::string prefpath = SDL_GetPrefPath("SuperTux", "supertux2");
 
   std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -490,8 +477,8 @@ Main::run(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    m_physfs_subsystem.reset(new PhysfsSubsystem(argv[0], args.datadir, args.userdir));
-    m_physfs_subsystem->print_search_path();
+    m_filesystem_subsystem.reset(new FileSystemSubsystem(args.datadir, args.userdir));
+    m_filesystem_subsystem->print_search_path();
 
     s_timelog.log("config");
     m_config_subsystem.reset(new ConfigSubsystem());

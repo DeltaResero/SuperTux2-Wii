@@ -14,14 +14,22 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "physfs/ofile_stream.hpp"
+#include "io/ofile_stream.hpp"
 
-#include "physfs/ofile_streambuf.hpp"
+#include <stdexcept>
+
+#include "util/file_system.hpp"
 
 OFileStream::OFileStream(const std::string& filename) :
-  std::ostream(nullptr), sb(new OFileStreambuf(filename))
+  std::ofstream()
 {
-  init(sb.get());
+  const std::string path = FileSystem::write_path(filename);
+  if (path.empty())
+    throw std::runtime_error("Couldn't open file '" + filename + "': no write directory set");
+
+  open(path, std::ios::out | std::ios::binary | std::ios::trunc);
+  if (!is_open())
+    throw std::runtime_error("Couldn't open file '" + path + "'");
 }
 
 /* EOF */

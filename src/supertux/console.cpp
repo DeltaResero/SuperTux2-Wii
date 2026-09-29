@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "math/sizef.hpp"
-#include "physfs/ifile_stream.hpp"
+#include "io/ifile_stream.hpp"
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "squirrel/squirrel_util.hpp"
 #include "supertux/gameconfig.hpp"
