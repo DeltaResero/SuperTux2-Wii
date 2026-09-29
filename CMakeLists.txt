@@ -124,18 +124,6 @@ option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection
 
 ## Add lots of dependencies to compiler switches
 
-if(WIN32)
-  option(ENABLE_BOOST_STATIC_LIBS "Use boost static libraries" ON)
-else(WIN32)
-  option(ENABLE_BOOST_STATIC_LIBS "Use boost static libraries" OFF)
-endif(WIN32)
-if(ENABLE_BOOST_STATIC_LIBS)
-  set(Boost_USE_STATIC_LIBS TRUE)
-else(ENABLE_BOOST_STATIC_LIBS)
-  set(Boost_USE_STATIC_LIBS FALSE)
-endif(ENABLE_BOOST_STATIC_LIBS)
-find_package(Boost REQUIRED COMPONENTS filesystem date_time locale)
-
 find_package(glm QUIET)
 if(glm_FOUND)
   if(TARGET glm::glm)
@@ -563,11 +551,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
           "-Wint-in-bool-context "
           )
       endif()
-      if(Boost_VERSION VERSION_LESS 1.65)
-        string(CONCAT SUPERTUX2_EXTRA_WARNING_FLAGS
-          "${SUPERTUX2_EXTRA_WARNING_FLAGS} "
-          "-Wno-implicit-fallthrough ")
-      endif()
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
       string(CONCAT SUPERTUX2_EXTRA_WARNING_FLAGS
         "${SUPERTUX2_EXTRA_WARNING_FLAGS} "
@@ -664,7 +647,7 @@ if(WIN32)
 else()
   add_executable(supertux2 src/main.cpp)
 endif(WIN32)
-target_link_libraries(supertux2 supertux2_lib Boost::filesystem Boost::locale)
+target_link_libraries(supertux2 supertux2_lib)
 
 set_target_properties(supertux2_lib PROPERTIES OUTPUT_NAME supertux2_lib)
 set_target_properties(supertux2_lib PROPERTIES COMPILE_FLAGS "${SUPERTUX2_EXTRA_WARNING_FLAGS}")
@@ -707,7 +690,6 @@ else()
   target_link_libraries(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
-target_link_libraries(supertux2_lib PUBLIC Boost::filesystem Boost::date_time Boost::locale)
 if(USE_SYSTEM_PHYSFS)
   target_link_libraries(supertux2_lib PUBLIC ${PHYSFS_LIBRARY})
 else()
@@ -898,10 +880,6 @@ mark_as_advanced(
   CMAKE_INSTALL_PREFIX
   EXECUTABLE_OUTPUT_PATH
   LIBRARY_OUTPUT_PATH
-  )
-
-mark_as_advanced(
-  Boost_INCLUDE_DIR
   )
 
 mark_as_advanced(
