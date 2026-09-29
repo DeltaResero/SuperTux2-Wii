@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_UTIL_WRITER_HPP
 #define HEADER_SUPERTUX_UTIL_WRITER_HPP
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -43,7 +44,7 @@ private:
 
 private:
   std::string m_filename;
-  std::ostream* out;
+  std::unique_ptr<std::ostream> out;
   int indent_depth;
   std::vector<std::string> lists;
 
