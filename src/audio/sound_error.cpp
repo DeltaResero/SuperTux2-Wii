@@ -16,16 +16,16 @@
 
 #include "audio/sound_error.hpp"
 
-SoundError::SoundError(const std::string& message) throw() :
+SoundError::SoundError(const std::string& message) noexcept :
   m_message(message)
 {
 }
 
-SoundError::~SoundError() throw()
+SoundError::~SoundError() noexcept
 {}
 
 const char*
-SoundError::what() const throw()
+SoundError::what() const noexcept
 {
   return m_message.c_str();
 }

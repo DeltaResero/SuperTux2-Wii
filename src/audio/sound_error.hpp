@@ -23,12 +23,12 @@
 class SoundError final : public std::exception
 {
 public:
-  SoundError(const std::string& message) throw();
+  SoundError(const std::string& message) noexcept;
   SoundError(const SoundError&) = default;
   SoundError& operator=(const SoundError&) = default;
-  ~SoundError() throw() override;
+  ~SoundError() noexcept override;
 
-  virtual const char* what() const throw() override;
+  virtual const char* what() const noexcept override;
 
 private:
   std::string m_message;
