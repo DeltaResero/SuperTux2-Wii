@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <memory>
 
 #include "squirrel/serialize.hpp"
 #include "squirrel/squirrel_util.hpp"
@@ -91,7 +92,7 @@ LevelsetState::get_level_state(const std::string& filename) const
 std::unique_ptr<Savegame>
 Savegame::from_file(const std::string& filename)
 {
-  std::unique_ptr<Savegame> savegame(new Savegame(filename));
+  std::unique_ptr<Savegame> savegame = std::make_unique<Savegame>(filename);
   savegame->load();
   return savegame;
 }

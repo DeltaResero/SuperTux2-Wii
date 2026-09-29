@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 
 #include "math/util.hpp"
 #include "object/player.hpp"
@@ -106,7 +107,7 @@ BicyclePlatform::BicyclePlatform(const ReaderMapping& reader) :
         if (!uid) {
           log_fatal << "no path-ref entry for BicyclePlatform" << std::endl;
         } else {
-          m_walker.reset(new PathWalker(uid, true));
+          m_walker = std::make_unique<PathWalker>(uid, true);
         }
       });
   }

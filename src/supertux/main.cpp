@@ -20,6 +20,7 @@
 #include <version.h>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -323,11 +324,11 @@ Main::init_video()
 void
 Main::launch_game(const CommandLineArguments& args)
 {
-  m_sdl_subsystem.reset(new SDLSubsystem());
-  m_console_buffer.reset(new ConsoleBuffer());
+  m_sdl_subsystem = std::make_unique<SDLSubsystem>();
+  m_console_buffer = std::make_unique<ConsoleBuffer>();
 
   s_timelog.log("controller");
-  m_input_manager.reset(new InputManager(g_config->keyboard_config, g_config->joystick_config));
+  m_input_manager = std::make_unique<InputManager>(g_config->keyboard_config, g_config->joystick_config);
 
   s_timelog.log("commandline");
 
@@ -336,31 +337,31 @@ Main::launch_game(const CommandLineArguments& args)
   m_video_system = VideoSystem::create(g_config->video);
   init_video();
 
-  m_ttf_surface_manager.reset(new TTFSurfaceManager());
+  m_ttf_surface_manager = std::make_unique<TTFSurfaceManager>();
 
   s_timelog.log("audio");
-  m_sound_manager.reset(new SoundManager());
+  m_sound_manager = std::make_unique<SoundManager>();
   m_sound_manager->enable_sound(g_config->sound_enabled);
   m_sound_manager->enable_music(g_config->music_enabled);
   m_sound_manager->set_sound_volume(g_config->sound_volume);
   m_sound_manager->set_music_volume(g_config->music_volume);
 
   s_timelog.log("scripting");
-  m_squirrel_virtual_machine.reset(new SquirrelVirtualMachine(g_config->enable_script_debugger));
+  m_squirrel_virtual_machine = std::make_unique<SquirrelVirtualMachine>(g_config->enable_script_debugger);
 
   s_timelog.log("resources");
-  m_tile_manager.reset(new TileManager());
-  m_sprite_manager.reset(new SpriteManager());
-  m_resources.reset(new Resources());
+  m_tile_manager = std::make_unique<TileManager>();
+  m_sprite_manager = std::make_unique<SpriteManager>();
+  m_resources = std::make_unique<Resources>();
 
-  m_console.reset(new Console(*m_console_buffer));
+  m_console = std::make_unique<Console>(*m_console_buffer);
 
   s_timelog.log(nullptr);
 
   m_savegame = std::make_unique<Savegame>(std::string());
 
-  m_game_manager.reset(new GameManager());
-  m_screen_manager.reset(new ScreenManager(*m_video_system, *m_input_manager));
+  m_game_manager = std::make_unique<GameManager>();
+  m_screen_manager = std::make_unique<ScreenManager>(*m_video_system, *m_input_manager);
 
   if (!args.filenames.empty())
   {
@@ -385,8 +386,7 @@ Main::launch_game(const CommandLineArguments& args)
       }
       else
       { // launch game
-        std::unique_ptr<GameSession> session (
-          new GameSession(filename, *m_savegame));
+        auto session = std::make_unique<GameSession>(filename, *m_savegame);
 
         g_config->random_seed = session->get_demo_random_seed(g_config->start_demo);
         gameRandom.seed(g_config->random_seed);
@@ -477,11 +477,11 @@ Main::run(int argc, char** argv)
       return EXIT_FAILURE;
     }
 
-    m_filesystem_subsystem.reset(new FileSystemSubsystem(args.datadir, args.userdir));
+    m_filesystem_subsystem = std::make_unique<FileSystemSubsystem>(args.datadir, args.userdir);
     m_filesystem_subsystem->print_search_path();
 
     s_timelog.log("config");
-    m_config_subsystem.reset(new ConfigSubsystem());
+    m_config_subsystem = std::make_unique<ConfigSubsystem>();
     args.merge_into(*g_config);
 
     switch (args.get_action())

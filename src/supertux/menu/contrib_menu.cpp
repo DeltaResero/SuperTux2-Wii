@@ -16,6 +16,7 @@
 
 #include "supertux/menu/contrib_menu.hpp"
 
+#include <memory>
 #include <sstream>
 
 #include "gui/item_action.hpp"
@@ -53,7 +54,7 @@ ContribMenu::ContribMenu() :
     try
     {
       auto levelset =
-        std::unique_ptr<Levelset>(new Levelset(*it, /* recursively = */ true));
+        std::make_unique<Levelset>(*it, /* recursively = */ true);
       if (levelset->get_num_levels() == 0)
         continue;
 

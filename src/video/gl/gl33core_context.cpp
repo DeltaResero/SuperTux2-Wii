@@ -16,6 +16,8 @@
 
 #include "video/gl/gl33core_context.hpp"
 
+#include <memory>
+
 #include "supertux/globals.hpp"
 #include "video/color.hpp"
 #include "video/gl/gl_program.hpp"
@@ -36,12 +38,12 @@ GL33CoreContext::GL33CoreContext(GLVideoSystem& video_system) :
 {
   assert_gl();
 
-  m_program.reset(new GLProgram);
-  m_vertex_arrays.reset(new GLVertexArrays(*this));
-  m_white_texture.reset(new GLTexture(1, 1, Color::WHITE));
-  m_black_texture.reset(new GLTexture(1, 1, Color::BLACK));
-  m_grey_texture.reset(new GLTexture(1, 1, Color::from_rgba8888(128, 128, 0, 0)));
-  m_transparent_texture.reset(new GLTexture(1, 1, Color(1.0f, 0, 0, 0)));
+  m_program = std::make_unique<GLProgram>();
+  m_vertex_arrays = std::make_unique<GLVertexArrays>(*this);
+  m_white_texture = std::make_unique<GLTexture>(1, 1, Color::WHITE);
+  m_black_texture = std::make_unique<GLTexture>(1, 1, Color::BLACK);
+  m_grey_texture = std::make_unique<GLTexture>(1, 1, Color::from_rgba8888(128, 128, 0, 0));
+  m_transparent_texture = std::make_unique<GLTexture>(1, 1, Color(1.0f, 0, 0, 0));
 
   assert_gl();
 }

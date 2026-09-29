@@ -16,6 +16,7 @@
 
 #include "object/path_object.hpp"
 
+#include <memory>
 #include <optional>
 
 #include "object/path_gameobject.hpp"
@@ -47,13 +48,13 @@ PathObject::init_path(const ReaderMapping& mapping, bool running_default)
   {
     auto& path_gameobject = d_gameobject_manager->add<PathGameObject>(*path_mapping, true);
     m_path_uid = path_gameobject.get_uid();
-    m_walker.reset(new PathWalker(m_path_uid, running));
+    m_walker = std::make_unique<PathWalker>(m_path_uid, running);
   }
   else if (mapping.get("path-ref", path_ref))
   {
     d_gameobject_manager->request_name_resolve(path_ref, [this, running](UID uid){
         m_path_uid = uid;
-        m_walker.reset(new PathWalker(uid, running));
+        m_walker = std::make_unique<PathWalker>(uid, running);
       });
   }
 }
@@ -63,7 +64,7 @@ PathObject::init_path_pos(const Vector& pos, bool running)
 {
   auto& path_gameobject = d_gameobject_manager->add<PathGameObject>(pos);
   m_path_uid = path_gameobject.get_uid();
-  m_walker.reset(new PathWalker(path_gameobject.get_uid(), running));
+  m_walker = std::make_unique<PathWalker>(path_gameobject.get_uid(), running);
 }
 
 PathGameObject*

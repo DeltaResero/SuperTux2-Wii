@@ -22,6 +22,7 @@
 #include "util/reader_mapping.hpp"
 #include "util/string_util.hpp"
 
+#include <memory>
 #include <sstream>
 
 SpriteManager::SpriteManager() :
@@ -46,7 +47,7 @@ SpriteManager::create(const std::string& name)
     data = i->second.get();
   }
 
-  return SpritePtr(new Sprite(*data));
+  return std::make_unique<Sprite>(*data);
 }
 
 SpriteData*

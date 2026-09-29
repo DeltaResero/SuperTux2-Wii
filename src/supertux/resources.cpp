@@ -17,6 +17,8 @@
 
 #include "supertux/resources.hpp"
 
+#include <memory>
+
 #include "gui/mousecursor.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
@@ -47,25 +49,25 @@ void
 Resources::load()
 {
   // Load the mouse-cursor
-  mouse_cursor.reset(new MouseCursor(SpriteManager::current()->create("images/engine/menu/mousecursor.sprite")));
+  mouse_cursor = std::make_unique<MouseCursor>(SpriteManager::current()->create("images/engine/menu/mousecursor.sprite"));
   MouseCursor::set_current(mouse_cursor.get());
 
   if (g_debug.get_use_bitmap_fonts())
   {
-    console_font.reset(new BitmapFont(BitmapFont::FIXED, "fonts/andale12.stf", 1));
-    fixed_font.reset(new BitmapFont(BitmapFont::FIXED, "fonts/white.stf"));
-    normal_font.reset(new BitmapFont(BitmapFont::VARIABLE, "fonts/white.stf"));
-    small_font.reset(new BitmapFont(BitmapFont::VARIABLE, "fonts/white-small.stf", 1));
-    big_font.reset(new BitmapFont(BitmapFont::VARIABLE, "fonts/white-big.stf", 3));
+    console_font = std::make_shared<BitmapFont>(BitmapFont::FIXED, "fonts/andale12.stf", 1);
+    fixed_font = std::make_shared<BitmapFont>(BitmapFont::FIXED, "fonts/white.stf");
+    normal_font = std::make_shared<BitmapFont>(BitmapFont::VARIABLE, "fonts/white.stf");
+    small_font = std::make_shared<BitmapFont>(BitmapFont::VARIABLE, "fonts/white-small.stf", 1);
+    big_font = std::make_shared<BitmapFont>(BitmapFont::VARIABLE, "fonts/white-big.stf", 3);
   }
   else
   {
-    console_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 12, 1.25f, 0, 1));
+    console_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 12, 1.25f, 0, 1);
 
-    fixed_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 18, 1.25f, 2, 1));
+    fixed_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 18, 1.25f, 2, 1);
     normal_font = fixed_font;
-    small_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 10, 1.25f, 2, 1));
-    big_font.reset(new TTFFont("fonts/SuperTux-Medium.ttf", 22, 1.25f, 2, 1));
+    small_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 10, 1.25f, 2, 1);
+    big_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 22, 1.25f, 2, 1);
   }
 
   /* Load menu images */
