@@ -36,7 +36,7 @@ TTFSurface::create(const TTFFont& font, const std::string& text)
   if (!text_surface)
   {
     log_warning << "Couldn't render text '" << text << "' :" << SDL_GetError();
-    return std::make_shared<TTFSurface>(SurfacePtr(), Vector(0.0f, 0.0f));
+    return std::make_shared<TTFSurface>(SurfacePtr());
   }
 
   // FIXME: handle shadow offset
@@ -110,12 +110,11 @@ TTFSurface::create(const TTFFont& font, const std::string& text)
 #endif
 
   SurfacePtr result = Surface::from_texture(VideoSystem::current()->new_texture(*target));
-  return std::make_shared<TTFSurface>(result, Vector(0, 0));
+  return std::make_shared<TTFSurface>(result);
 }
 
-TTFSurface::TTFSurface(const SurfacePtr& surface, const Vector& offset) :
-  m_surface(surface),
-  m_offset(offset)
+TTFSurface::TTFSurface(const SurfacePtr& surface) :
+  m_surface(surface)
 {
 }
 

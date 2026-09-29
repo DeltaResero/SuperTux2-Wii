@@ -90,7 +90,12 @@ TitleScreen::setup()
   if (Sector::current() != &sector) {
     auto& music = sector.get_singleton_by_type<MusicObject>();
     music.play_music(LEVEL_MUSIC);
-    sector.activate(sector.get_player().get_pos());
+    // activate() drops a small Tux by a tile from a spawnpoint, so undo that for where he stands
+    const Player& tux = sector.get_player();
+    Vector spawn = tux.get_pos();
+    if (!tux.is_big())
+      spawn.y -= 32;
+    sector.activate(spawn);
   }
 
   MenuManager::instance().set_menu(MenuStorage::MAIN_MENU);

@@ -23,6 +23,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <cstdio>
+#include <vector>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/wrapper.hpp"
@@ -48,18 +49,33 @@ __attribute__((__format__ (__printf__, 2, 0)))
 #endif
 void printfunc(HSQUIRRELVM, const char* fmt, ...)
 {
-  char buf[4096];
-  char separator[] = "\n";
+  // Squirrel's print and error text both land here; only a long one goes to the heap
+  char line[256];
   va_list arglist;
   va_start(arglist, fmt);
-  vsnprintf(buf, sizeof(buf), fmt, arglist);
+  va_list overflow;
+  va_copy(overflow, arglist);
+  const int length = vsnprintf(line, sizeof(line), fmt, arglist);
+  va_end(arglist);
+
+  std::vector<char> rest;
+  char* buf = line;
+  if (length >= static_cast<int>(sizeof(line))) {
+    rest.resize(static_cast<size_t>(length) + 1);
+    vsnprintf(rest.data(), rest.size(), fmt, overflow);
+    buf = rest.data();
+  }
+  va_end(overflow);
+  if (length < 0)
+    return;
+
+  char separator[] = "\n";
   char* ptr = strtok(buf, separator);
   while (ptr != nullptr)
   {
     ConsoleBuffer::output << "[SCRIPTING] " << ptr << std::endl;
     ptr = strtok(nullptr, separator);
   }
-  va_end(arglist);
 }
 
 } // namespace

@@ -20,7 +20,6 @@
 #include <memory>
 #include <string>
 
-#include "math/vector.hpp"
 #include "video/surface_ptr.hpp"
 
 class TTFFont;
@@ -35,7 +34,7 @@ public:
   static TTFSurfacePtr create(const TTFFont& font, const std::string& text);
 
 public:
-  TTFSurface(const SurfacePtr& surface, const Vector& offset);
+  TTFSurface(const SurfacePtr& surface);
 
   SurfacePtr get_surface() { return m_surface; }
 
@@ -43,7 +42,6 @@ public:
 
 private:
   SurfacePtr m_surface;
-  Vector m_offset;
 
 private:
   TTFSurface(const TTFSurface&) = delete;
