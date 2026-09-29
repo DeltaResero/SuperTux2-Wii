@@ -17,7 +17,8 @@
 #ifndef HEADER_SUPERTUX_UTIL_READER_MAPPING_HPP
 #define HEADER_SUPERTUX_UTIL_READER_MAPPING_HPP
 
-#include <boost/optional.hpp>
+#include <cstdint>
+#include <optional>
 
 #include "util/reader_iterator.hpp"
 
@@ -36,11 +37,11 @@ public:
 
   ReaderIterator get_iter() const;
 
-  bool get(const char* key, bool& value, const boost::optional<bool>& default_value = boost::none) const;
-  bool get(const char* key, int& value, const boost::optional<int>& default_value = boost::none) const;
-  bool get(const char* key, uint32_t& value, const boost::optional<uint32_t>& default_value = boost::none) const;
-  bool get(const char* key, float& value, const boost::optional<float>& default_value = boost::none) const;
-  bool get(const char* key, std::string& value, const boost::optional<const char*>& default_value = boost::none) const;
+  bool get(const char* key, bool& value, const std::optional<bool>& default_value = std::nullopt) const;
+  bool get(const char* key, int& value, const std::optional<int>& default_value = std::nullopt) const;
+  bool get(const char* key, uint32_t& value, const std::optional<uint32_t>& default_value = std::nullopt) const;
+  bool get(const char* key, float& value, const std::optional<float>& default_value = std::nullopt) const;
+  bool get(const char* key, std::string& value, const std::optional<const char*>& default_value = std::nullopt) const;
 
   bool get(const char* key, std::vector<bool>& value) const;
   bool get(const char* key, std::vector<int>& value) const;
@@ -48,8 +49,8 @@ public:
   bool get(const char* key, std::vector<std::string>& value) const;
   bool get(const char* key, std::vector<unsigned int>& value) const;
 
-  bool get(const char* key, boost::optional<ReaderMapping>&) const;
-  bool get(const char* key, boost::optional<ReaderCollection>&) const;
+  bool get(const char* key, std::optional<ReaderMapping>&) const;
+  bool get(const char* key, std::optional<ReaderCollection>&) const;
 
 
   /** Read a custom data format, such an as enum. The data is stored
@@ -58,7 +59,7 @@ public:
 
       mapping.get_custom("style", value, Style_from_string, Style::DEFAULT); */
   template<typename C, typename F>
-  bool get_custom(const char* key, C& value, F from_string, boost::optional<decltype(C())> default_value = boost::none) const
+  bool get_custom(const char* key, C& value, F from_string, std::optional<decltype(C())> default_value = std::nullopt) const
   {
     std::string text;
     if (!get(key, text))

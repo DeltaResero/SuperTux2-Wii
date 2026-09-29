@@ -86,7 +86,7 @@ BonusBlock::BonusBlock(const ReaderMapping& mapping) :
 
       if (m_contents == Content::CUSTOM)
       {
-        boost::optional<ReaderCollection> content_collection;
+        std::optional<ReaderCollection> content_collection;
         if (!mapping.get("custom-contents", content_collection))
         {
           log_warning << "bonusblock is missing 'custom-contents' tag" << std::endl;

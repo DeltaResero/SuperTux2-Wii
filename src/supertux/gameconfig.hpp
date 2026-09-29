@@ -25,7 +25,7 @@
 #include "math/vector.hpp"
 #include "video/video_system.hpp"
 
-#include <boost/optional.hpp>
+#include <optional>
 #include <ctime>
 
 class Config final
@@ -75,7 +75,7 @@ public:
   std::string record_demo;
 
   /** this variable is set if tux should spawn somewhere which isn't the "main" spawn point*/
-  boost::optional<Vector> tux_spawn_pos;
+  std::optional<Vector> tux_spawn_pos;
 
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;
