@@ -20,7 +20,6 @@
 
 #include "video/blend.hpp"
 #include "video/color.hpp"
-#include "video/flip.hpp"
 
 class PaintStyle final
 {
@@ -28,8 +27,7 @@ public:
   PaintStyle() :
     m_color(Color::WHITE),
     m_alpha(1.0f),
-    m_blend(),
-    m_flip(NO_FLIP)
+    m_blend()
   {}
 
   PaintStyle& set_color(const Color& color) {
@@ -45,7 +43,6 @@ private:
   Color m_color;
   float m_alpha;
   Blend m_blend;
-  Flip m_flip;
 };
 
 #endif
