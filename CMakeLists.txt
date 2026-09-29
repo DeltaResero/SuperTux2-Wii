@@ -165,7 +165,6 @@ if(WIN32)
     find_library(SDL2_LIBRARIES NAMES SDL2 PATHS "${DEPENDENCY_FOLDER}/lib")
     find_library(SDL2IMAGE_LIBRARIES NAMES SDL2_image PATHS "${DEPENDENCY_FOLDER}/lib")
     find_library(SDL2MAIN_LIBRARIES NAMES SDL2main PATHS "${DEPENDENCY_FOLDER}/lib")
-    find_path(PHYSFS_INCLUDE_DIR NAMES physfs.h PATHS "${DEPENDENCY_FOLDER}/include/physfs")
   endif(VCPKG_BUILD)
 
 else(WIN32)
@@ -248,64 +247,6 @@ include_directories(SYSTEM ${OPENAL_INCLUDE_DIR})
 
 find_package(OggVorbis REQUIRED)
 include_directories(SYSTEM ${VORBIS_INCLUDE_DIR})
-
-include(CheckSymbolExists)
-
-find_package(PhysFS)
-if(PHYSFS_LIBRARY)
-  set(CMAKE_REQUIRED_LIBRARIES ${PHYSFS_LIBRARY})
-  check_symbol_exists("PHYSFS_getPrefDir" "${PHYSFS_INCLUDE_DIR}/physfs.h" HAVE_PHYSFS_GETPREFDIR)
-endif()
-if(HAVE_PHYSFS_GETPREFDIR)
-  set(USE_SYSTEM_PHYSFS ON CACHE BOOL "Use preinstalled physfs (must support getPrefDir)")
-else(HAVE_PHYSFS_GETPREFDIR)
-  set(USE_SYSTEM_PHYSFS OFF CACHE BOOL "Use preinstalled physfs (must support getPrefDir)")
-endif(HAVE_PHYSFS_GETPREFDIR)
-
-if(NOT USE_SYSTEM_PHYSFS)
-  if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/physfs/CMakeLists.txt)
-    message(FATAL_ERROR "physfs submodule is not checked out or ${CMAKE_CURRENT_SOURCE_DIR}/external/physfs/CMakeLists.txt is missing")
-  endif()
-
-  if(WIN32)
-    set(PHYSFS_BUILD_SHARED TRUE)
-    set(PHYSFS_BUILD_STATIC FALSE)
-  else(WIN32)
-    set(PHYSFS_BUILD_SHARED FALSE)
-    set(PHYSFS_BUILD_STATIC TRUE)
-  endif()
-
-  set(PHYSFS_PREFIX ${CMAKE_BINARY_DIR}/physfs/)
-  ExternalProject_Add(physfs
-    SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/physfs/"
-    BUILD_BYPRODUCTS
-    "${PHYSFS_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}physfs${CMAKE_SHARED_LIBRARY_SUFFIX}"
-    "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/physfs${CMAKE_LINK_LIBRARY_SUFFIX}"
-    "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}"
-    CMAKE_ARGS
-    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-    -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-    -DCMAKE_INSTALL_PREFIX=${PHYSFS_PREFIX}
-    -DLIB_SUFFIX=${LIB_SUFFIX}
-    -DPHYSFS_BUILD_SHARED=${PHYSFS_BUILD_SHARED}
-    -DPHYSFS_BUILD_STATIC=${PHYSFS_BUILD_STATIC}
-    -DPHYSFS_BUILD_TEST=FALSE)
-
-  if(WIN32)
-    add_library(physfs_lib SHARED IMPORTED)
-    set_target_properties(physfs_lib PROPERTIES IMPORTED_LOCATION "${PHYSFS_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}physfs${CMAKE_SHARED_LIBRARY_SUFFIX}")
-    set_target_properties(physfs_lib PROPERTIES IMPORTED_IMPLIB "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/physfs${CMAKE_LINK_LIBRARY_SUFFIX}")
-  else()
-    add_library(physfs_lib STATIC IMPORTED)
-    set_target_properties(physfs_lib PROPERTIES IMPORTED_LOCATION "${PHYSFS_PREFIX}/lib${LIB_SUFFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}physfs${CMAKE_STATIC_LIBRARY_SUFFIX}")
-  endif()
-  set(PHYSFS_INCLUDE_DIR "${PHYSFS_PREFIX}/include/")
-endif()
-
-include_directories(BEFORE SYSTEM ${PHYSFS_INCLUDE_DIR})
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   ## Find revision of WC
@@ -690,12 +631,6 @@ else()
   target_link_libraries(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
-if(USE_SYSTEM_PHYSFS)
-  target_link_libraries(supertux2_lib PUBLIC ${PHYSFS_LIBRARY})
-else()
-  add_dependencies(supertux2_lib physfs)
-  target_link_libraries(supertux2_lib PUBLIC physfs_lib)
-endif()
 
 if(HAVE_OPENGL)
   target_link_libraries(supertux2_lib PUBLIC ${OPENGL_LIBRARY})
@@ -769,10 +704,7 @@ install(TARGETS supertux2 DESTINATION ${INSTALL_SUBDIR_BIN})
 if(WIN32)
   get_property(SQUIRREL_LIB_PATH TARGET squirrel_lib PROPERTY IMPORTED_LOCATION)
   get_property(SQSTDLIB_LIB_PATH TARGET sqstdlib_lib PROPERTY IMPORTED_LOCATION)
-  if(NOT USE_SYSTEM_PHYSFS)
-    get_property(PHYSFS_LIB_PATH TARGET physfs_lib PROPERTY IMPORTED_LOCATION)
-  endif()
-  install(FILES ${SQUIRREL_LIB_PATH} ${SQSTDLIB_LIB_PATH} ${PHYSFS_LIB_PATH} DESTINATION ${INSTALL_SUBDIR_BIN})
+  install(FILES ${SQUIRREL_LIB_PATH} ${SQSTDLIB_LIB_PATH} DESTINATION ${INSTALL_SUBDIR_BIN})
 endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE DESTINATION ${INSTALL_SUBDIR_DOC})
@@ -831,7 +763,7 @@ set(CPACK_PACKAGE_VENDOR "SuperTux Devel Team")
 set(CPACK_PACKAGE_CONTACT "SuperTux Devel Team <supertux-devel@lists.lethargik.org>")
 set(CPACK_SOURCE_IGNORE_FILES "/\\\\.git/;${CMAKE_BINARY_DIR};/\\\\..*")
 set(CPACK_DEBIAN_PACKAGE_NAME "supertux2")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libgl1-mesa-glx | libgl1, libogg0 (>= 1.1.3), libopenal0a, libphysfs-1.0-0, libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libstdc++6 (>= 4.1.2), libvorbis0a (>= 1.1.2), libvorbisfile3 (>= 1.1.2)")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libgl1-mesa-glx | libgl1, libogg0 (>= 1.1.3), libopenal0a, libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libstdc++6 (>= 4.1.2), libvorbis0a (>= 1.1.2), libvorbisfile3 (>= 1.1.2)")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Classic 2D jump 'n run sidescroller with Tux\n SuperTux is a classic 2D jump 'n run sidescroller game in a similar\n style like the original SuperMario games. This release of SuperTux\n features 9 enemies, 26 playable levels, software and OpenGL rendering\n modes, configurable joystick and keyboard input, new music and\n completely redone graphics.\n .\n This is a development snapshot of SuperTux. It may suffer from\n critical bugs and has not been fully tested. \n .\n Homepage: http://supertux.lethargik.org/")
 set(CPACK_DEBIAN_PACKAGE_SECTION "games")
 set(CPACK_RPM_PACKAGE_NAME "supertux2")
@@ -913,9 +845,4 @@ mark_as_advanced(
   VORBISFILE_LIBRARY
   VORBIS_INCLUDE_DIR
   VORBIS_LIBRARY
-  )
-
-mark_as_advanced(
-  PHYSFS_INCLUDE_DIR
-  PHYSFS_LIBRARY
   )
