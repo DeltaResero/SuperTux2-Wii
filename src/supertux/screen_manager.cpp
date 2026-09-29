@@ -41,7 +41,7 @@
 #include "video/compositor.hpp"
 #include "video/drawing_context.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 #include <chrono>
 #include <iostream>
 

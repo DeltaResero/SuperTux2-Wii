@@ -17,7 +17,7 @@
 #include "video/texture_manager.hpp"
 
 #include <SDL_image.h>
-#include <assert.h>
+#include <cassert>
 #include <sstream>
 
 #include "math/rect.hpp"

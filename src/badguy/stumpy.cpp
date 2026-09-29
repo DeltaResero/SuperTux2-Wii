@@ -16,7 +16,7 @@
 
 #include "badguy/stumpy.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "math/random.hpp"

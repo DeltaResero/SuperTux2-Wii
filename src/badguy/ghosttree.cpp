@@ -17,7 +17,7 @@
 #include "badguy/ghosttree.hpp"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/root.hpp"

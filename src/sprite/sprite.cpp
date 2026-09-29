@@ -16,7 +16,7 @@
 
 #include "sprite/sprite.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "supertux/globals.hpp"
 #include "util/log.hpp"

@@ -17,7 +17,7 @@
 
 #include "badguy/zeekling.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "math/random.hpp"
 #include "object/player.hpp"

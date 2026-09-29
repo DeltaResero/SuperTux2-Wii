@@ -16,7 +16,7 @@
 
 #include "badguy/mrtree.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/poisonivy.hpp"

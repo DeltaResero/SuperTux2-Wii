@@ -17,7 +17,7 @@
 #include "video/gl/gl_painter.hpp"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 #include "math/util.hpp"
 #include "supertux/globals.hpp"

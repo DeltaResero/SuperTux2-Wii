@@ -18,7 +18,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_TILE_SET_HPP
 
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 #include "math/fwd.hpp"

@@ -16,7 +16,7 @@
 
 #include "object/camera.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "math/util.hpp"
 #include "object/player.hpp"

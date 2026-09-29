@@ -20,7 +20,7 @@
 #define EASING_H
 
 #include <string>
-#include <string.h>
+#include <cstring>
 
 extern "C" {
 

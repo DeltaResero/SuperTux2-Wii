@@ -18,9 +18,9 @@
 
 #include <config.h>
 
-#include <string.h>
-#include <stdint.h>
-#include <assert.h>
+#include <cstring>
+#include <cstdint>
+#include <cassert>
 #include <algorithm>
 #include <bit>
 #include <utility>

@@ -18,7 +18,7 @@
 
 #include <config.h>
 
-#include <assert.h>
+#include <cassert>
 #include <bit>
 
 OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> file_, double loop_begin_, double loop_at_) :

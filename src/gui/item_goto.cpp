@@ -16,7 +16,7 @@
 
 #include "gui/item_goto.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "gui/menu_manager.hpp"
 

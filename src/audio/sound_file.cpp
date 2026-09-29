@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <string.h>
+#include <cstring>
 #include <fstream>
 #include <sstream>
 #include <unordered_map>

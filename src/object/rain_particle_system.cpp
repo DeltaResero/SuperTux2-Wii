@@ -16,8 +16,8 @@
 
 #include "object/rain_particle_system.hpp"
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #include "math/easing.hpp"
 #include "math/random.hpp"

@@ -23,7 +23,7 @@
 // to verify its availability in CMakeLists.txt, if one is so inclined.
 #ifdef __GLIBC__
 #include <execinfo.h>
-#include <signal.h>
+#include <csignal>
 #include <unistd.h>
 #endif
 

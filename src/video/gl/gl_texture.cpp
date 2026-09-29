@@ -16,7 +16,7 @@
 
 #include "video/gl/gl_texture.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "video/glutil.hpp"
 #include "video/sampler.hpp"

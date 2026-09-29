@@ -16,7 +16,7 @@
 
 #include "supertux/menu/contrib_levelset_menu.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <sstream>
 
 #include "audio/sound_manager.hpp"

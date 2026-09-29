@@ -17,7 +17,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GL_GL_VERTEX_ARRAYS_HPP
 #define HEADER_SUPERTUX_VIDEO_GL_GL_VERTEX_ARRAYS_HPP
 
-#include <stddef.h>
+#include <cstddef>
 
 #include "video/gl.hpp"
 

@@ -16,7 +16,7 @@
 
 #include "object/moving_sprite.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "math/random.hpp"
 #include "math/util.hpp"

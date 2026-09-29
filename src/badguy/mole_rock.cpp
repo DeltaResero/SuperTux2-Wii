@@ -16,7 +16,7 @@
 
 #include "badguy/mole_rock.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "sprite/sprite.hpp"

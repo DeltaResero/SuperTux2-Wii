@@ -16,7 +16,7 @@
 
 #include "video/video_system.hpp"
 
-#include <assert.h>
+#include <cassert>
 #include <optional>
 #include <config.h>
 #include <filesystem>

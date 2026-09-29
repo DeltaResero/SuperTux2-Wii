@@ -21,8 +21,8 @@
 #include <sqstdmath.h>
 #include <sqstdstring.h>
 #include <cstring>
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
 
 #include "io/ifile_stream.hpp"
 #include "scripting/wrapper.hpp"

@@ -16,8 +16,8 @@
 
 #include "object/snow_particle_system.hpp"
 
-#include <assert.h>
-#include <math.h>
+#include <cassert>
+#include <cmath>
 
 #include "math/random.hpp"
 #include "supertux/sector.hpp"

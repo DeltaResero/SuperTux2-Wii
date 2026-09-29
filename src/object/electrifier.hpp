@@ -20,7 +20,7 @@
 #include "supertux/game_object.hpp"
 #include "supertux/timer.hpp"
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 
 /** Changes all tiles sharing an ID of a key in a TileChangeMap to the
     key's assigned value(another tile ID) for a given amount of time,

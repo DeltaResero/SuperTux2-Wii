@@ -16,7 +16,7 @@
 
 #include "supertux/menu/menu_storage.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 #include "supertux/menu/cheat_menu.hpp"
 #include "supertux/menu/debug_menu.hpp"

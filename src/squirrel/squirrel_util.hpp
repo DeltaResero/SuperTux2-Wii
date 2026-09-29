@@ -17,7 +17,7 @@
 #ifndef HEADER_SUPERTUX_SQUIRREL_SQUIRREL_UTIL_HPP
 #define HEADER_SUPERTUX_SQUIRREL_SQUIRREL_UTIL_HPP
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <memory>
 #include <sstream>

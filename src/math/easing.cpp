@@ -19,11 +19,11 @@
 
 #include "util/string_util.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <numbers>
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 
 // Modeled after the line y = x
 double LinearInterpolation(double p)

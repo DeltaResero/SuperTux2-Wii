@@ -17,7 +17,7 @@
 #include "string_util.hpp"
 
 #include <string>
-#include <string.h>
+#include <cstring>
 
 bool
 StringUtil::has_suffix(const std::string& data, const std::string& suffix)

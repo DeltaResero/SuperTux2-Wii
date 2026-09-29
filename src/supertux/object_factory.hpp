@@ -18,7 +18,7 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_OBJECT_FACTORY_HPP
 #define HEADER_SUPERTUX_SUPERTUX_OBJECT_FACTORY_HPP
 
-#include <assert.h>
+#include <cassert>
 #include <map>
 #include <memory>
 #include <functional>

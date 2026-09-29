@@ -17,8 +17,8 @@
 #ifndef HEADER_SUPERTUX_UTIL_UID_HPP
 #define HEADER_SUPERTUX_UTIL_UID_HPP
 
-#include <assert.h>
-#include <stdint.h>
+#include <cassert>
+#include <cstdint>
 #include <functional>
 #include <iosfwd>
 

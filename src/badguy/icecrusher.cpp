@@ -18,7 +18,7 @@
 #include "badguy/icecrusher.hpp"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
