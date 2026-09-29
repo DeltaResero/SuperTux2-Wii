@@ -22,8 +22,7 @@
 bool
 StringUtil::has_suffix(const std::string& data, const std::string& suffix)
 {
-  return data.length() >= suffix.length()
-         && data.compare(data.length() - suffix.length(), suffix.length(), suffix) == 0;
+  return data.ends_with(suffix);
 }
 
 bool

@@ -411,9 +411,9 @@ Background::load_background(const std::string& image_path)
   const std::string& default_dir = "images/background/";
   const std::string& default_dir2 = "/images/background/";
   std::string new_path = image_path;
-  if (image_path.substr(0, default_dir.length()) == default_dir)
+  if (image_path.starts_with(default_dir))
     new_path.erase(0, default_dir.length());
-  else if (image_path.substr(0, default_dir2.length()) == default_dir2)
+  else if (image_path.starts_with(default_dir2))
     new_path.erase(0, default_dir2.length());
   auto it = fallback_paths.find(new_path);
   if (it == fallback_paths.end())

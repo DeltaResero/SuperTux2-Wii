@@ -1092,7 +1092,7 @@ Player::handle_input()
   {
     if (m_water_jump)
     {
-      swim(0,0,0);
+      swim(0,0,false);
     }
   }
 

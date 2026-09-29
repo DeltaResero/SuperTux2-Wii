@@ -361,7 +361,7 @@ Tile::check_position_unisolid (const Rectf& obj_bbox,
 
     default:
       assert(false);
-      return 0;
+      return false;
   }
 
   // delta_x, delta_y: Gradient aware version of SHIFT_DELTA. Here, we set the
