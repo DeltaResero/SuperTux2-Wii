@@ -177,7 +177,7 @@ public:
 private:
   const TileSet* m_tileset;
 
-  typedef std::vector<uint32_t> Tiles;
+  using Tiles = std::vector<uint32_t>;
   Tiles m_tiles;
 
   /* read solid: In *general*, is this a solid layer? effective solid:

@@ -95,7 +95,7 @@ private:
   SurfacePtr m_statistics_backdrop;
 
   // scripts
-  typedef std::vector<HSQOBJECT> ScriptList;
+  using ScriptList = std::vector<HSQOBJECT>;
   ScriptList m_scripts;
 
   Sector* m_currentsector;

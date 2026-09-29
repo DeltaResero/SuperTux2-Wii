@@ -34,11 +34,11 @@ public:
 private:
   Physic physic;
 
-  typedef enum {
+  enum WaterDropState {
     WDS_FALLING,
     WDS_SPLASH,
     WDS_PUDDLE
-  } WaterDropState;
+  };
 
   WaterDropState wd_state;
 

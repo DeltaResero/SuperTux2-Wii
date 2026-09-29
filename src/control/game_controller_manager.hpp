@@ -26,7 +26,7 @@ class InputManager;
 struct SDL_ControllerAxisEvent;
 struct SDL_ControllerButtonEvent;
 struct _SDL_GameController;
-typedef struct _SDL_GameController SDL_GameController;
+using SDL_GameController = struct _SDL_GameController;
 
 class GameControllerManager final
 {

@@ -21,7 +21,7 @@
 
 class Sprite;
 
-typedef std::unique_ptr<Sprite> SpritePtr;
+using SpritePtr = std::unique_ptr<Sprite>;
 
 #endif
 
