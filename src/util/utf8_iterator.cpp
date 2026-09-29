@@ -75,7 +75,7 @@ uint32_t decode_utf8(const std::string& text, size_t& p)
     if (p+3 >= text.size()) throw std::range_error("Malformed utf-8 sequence");
     uint32_t c2 = static_cast<unsigned char>(text[p+1]);
     uint32_t c3 = static_cast<unsigned char>(text[p+2]);
-    uint32_t c4 = static_cast<unsigned char>(text[p+4]);
+    uint32_t c4 = static_cast<unsigned char>(text[p+3]);
     if (!has_multibyte_mark(static_cast<unsigned char>(c2))) throw std::runtime_error("Malformed utf-8 sequence");
     if (!has_multibyte_mark(static_cast<unsigned char>(c3))) throw std::runtime_error("Malformed utf-8 sequence");
     if (!has_multibyte_mark(static_cast<unsigned char>(c4))) throw std::runtime_error("Malformed utf-8 sequence");
@@ -96,10 +96,8 @@ UTF8Iterator::UTF8Iterator(const std::string& text_) :
   try {
     chr = decode_utf8(text, pos);
   } catch (std::exception&) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-    log_debug << "Malformed utf-8 sequence beginning with " << *(reinterpret_cast<const uint32_t*>(text.c_str() + pos)) << " found " << std::endl;
-#pragma GCC diagnostic pop
+    log_debug << "Malformed utf-8 sequence at byte " << pos << " starting with "
+              << static_cast<unsigned>(static_cast<unsigned char>(text[pos])) << std::endl;
     chr = 0;
   }
 }
@@ -115,10 +113,8 @@ UTF8Iterator::operator++() {
     try {
       chr = decode_utf8(text, pos);
     } catch (std::exception&) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-      log_debug << "Malformed utf-8 sequence beginning with " << *(reinterpret_cast<const uint32_t*>(text.c_str() + pos)) << " found " << std::endl;
-#pragma GCC diagnostic pop
+      log_debug << "Malformed utf-8 sequence at byte " << pos << " starting with "
+                << static_cast<unsigned>(static_cast<unsigned char>(text[pos])) << std::endl;
       chr = 0;
       ++pos;
     }
