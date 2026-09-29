@@ -48,7 +48,7 @@ PathStyle PathStyle_from_string(const std::string& text)
 } // namespace
 
 PathGameObject::PathGameObject(const Vector& pos) :
-  m_path(new Path(pos)),
+  m_path(std::make_unique<Path>(pos)),
   m_style(PathStyle::NONE),
   m_edge_sprite(),
   m_node_sprite()

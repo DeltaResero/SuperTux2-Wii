@@ -164,7 +164,7 @@ TextScroller::parse_content(const ReaderCollection& collection)
     if (item.get_name() == "image")
     {
       std::string image_file = item.get_sexp().as_array()[1].as_string();
-      m_lines.emplace_back(new InfoBoxLine('!', image_file));
+      m_lines.push_back(std::make_unique<InfoBoxLine>('!', image_file));
     }
     else if (item.get_name() == "person")
     {
@@ -182,25 +182,25 @@ TextScroller::parse_content(const ReaderCollection& collection)
           log_warning << "[" << collection.get_doc().get_filename() << "] Simple person entry shouldn't specify images" << std::endl;
         }
 
-        m_lines.emplace_back(new InfoBoxLine(' ', name + " (" + info + ")")); // NOLINT
+        m_lines.push_back(std::make_unique<InfoBoxLine>(' ', name + " (" + info + ")")); // NOLINT
       } else {
         if (item.get_mapping().get("name", name)) {
-          m_lines.emplace_back(new InfoBoxLine('\t', name));
+          m_lines.push_back(std::make_unique<InfoBoxLine>('\t', name));
         }
 
         if (item.get_mapping().get("image", image_file) && !simple) {
-          m_lines.emplace_back(new InfoBoxLine('!', image_file));
+          m_lines.push_back(std::make_unique<InfoBoxLine>('!', image_file));
         }
 
         if (item.get_mapping().get("info", info)) {
-          m_lines.emplace_back(new InfoBoxLine(' ', info));
+          m_lines.push_back(std::make_unique<InfoBoxLine>(' ', info));
         }
       }
     }
     else if (item.get_name() == "blank")
     {
       // Empty line
-      m_lines.emplace_back(new InfoBoxLine('\t', ""));
+      m_lines.push_back(std::make_unique<InfoBoxLine>('\t', ""));
     }
     else if (item.get_name() == "text")
     {
@@ -215,18 +215,18 @@ TextScroller::parse_content(const ReaderCollection& collection)
       }
 
       if (type == "normal")
-        m_lines.emplace_back(new InfoBoxLine('\t', string));
+        m_lines.push_back(std::make_unique<InfoBoxLine>('\t', string));
       else if (type == "normal-left")
-        m_lines.emplace_back(new InfoBoxLine('#', string));
+        m_lines.push_back(std::make_unique<InfoBoxLine>('#', string));
       else if (type == "small")
-        m_lines.emplace_back(new InfoBoxLine(' ', string));
+        m_lines.push_back(std::make_unique<InfoBoxLine>(' ', string));
       else if (type == "heading")
-        m_lines.emplace_back(new InfoBoxLine('-', string));
+        m_lines.push_back(std::make_unique<InfoBoxLine>('-', string));
       else if (type == "reference")
-        m_lines.emplace_back(new InfoBoxLine('*', string));
+        m_lines.push_back(std::make_unique<InfoBoxLine>('*', string));
       else {
         log_warning << "[" << item.get_doc().get_filename() << "] Unknown text type '" << type << "'" << std::endl;
-        m_lines.emplace_back(new InfoBoxLine('\t', string));
+        m_lines.push_back(std::make_unique<InfoBoxLine>('\t', string));
       }
     }
     else
@@ -317,7 +317,7 @@ TextScroller::update(float dt_sec)
     if (m_finished && !m_fading)
     {
       m_fading = true;
-      ScreenManager::current()->pop_screen(std::unique_ptr<ScreenFade>(new FadeToBlack(FadeToBlack::FADEOUT, 0.25f)));
+      ScreenManager::current()->pop_screen(std::make_unique<FadeToBlack>(FadeToBlack::FADEOUT, 0.25f));
     }
   }
 }

@@ -70,8 +70,8 @@ Sector::Sector(Level& parent) :
   m_fully_constructed(false),
   m_init_script(),
   m_foremost_layer(),
-  m_squirrel_environment(new SquirrelEnvironment(SquirrelVirtualMachine::current()->get_vm(), "sector")),
-  m_collision_system(new CollisionSystem(*this)),
+  m_squirrel_environment(std::make_unique<SquirrelEnvironment>(SquirrelVirtualMachine::current()->get_vm(), "sector")),
+  m_collision_system(std::make_unique<CollisionSystem>(*this)),
   m_gravity(10.0)
 {
   Savegame* savegame = GameSession::current() ? &GameSession::current()->get_savegame() : nullptr;

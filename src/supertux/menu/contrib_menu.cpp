@@ -110,7 +110,7 @@ ContribMenu::menu_action(MenuItem& item)
     }
     else
     {
-      MenuManager::instance().push_menu(std::unique_ptr<Menu>(new ContribLevelsetMenu(std::move(world))));
+      MenuManager::instance().push_menu(std::make_unique<ContribLevelsetMenu>(std::move(world)));
     }
   }
 }

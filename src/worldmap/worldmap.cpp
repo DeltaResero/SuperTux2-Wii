@@ -67,7 +67,7 @@
 namespace worldmap {
 
 WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::string& force_spawnpoint_) :
-  m_squirrel_environment(new SquirrelEnvironment(SquirrelVirtualMachine::current()->get_vm(), "worldmap")),
+  m_squirrel_environment(std::make_unique<SquirrelEnvironment>(SquirrelVirtualMachine::current()->get_vm(), "worldmap")),
   m_camera(new Camera),
   m_enter_level(false),
   m_tux(),
