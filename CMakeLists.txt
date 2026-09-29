@@ -384,7 +384,7 @@ include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/sexp-cpp/include
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/SDL_SavePNG/)
 
 if(WIN32)
-  add_definitions(-D_USE_MATH_DEFINES -DNOMINMAX)
+  add_definitions(-DNOMINMAX)
   add_definitions(-DWIN32)
 endif(WIN32)
 
