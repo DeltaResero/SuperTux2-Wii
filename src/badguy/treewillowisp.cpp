@@ -27,7 +27,7 @@
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 
-static const std::string TREEWILLOSOUND = "sounds/willowisp.wav";
+static const std::string TREEWILLOSOUND = "sounds/willowisp.flac";
 
 TreeWillOWisp::TreeWillOWisp(GhostTree* tree_, const Vector& pos,
                              float radius_, float speed_) :

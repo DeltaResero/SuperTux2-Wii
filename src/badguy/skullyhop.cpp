@@ -20,7 +20,7 @@
 #include "sprite/sprite.hpp"
 
 namespace {
-static const std::string SKULLYHOP_SOUND = "sounds/hop.ogg";
+static const std::string SKULLYHOP_SOUND = "sounds/hop.flac";
 }
 
 SkullyHop::SkullyHop(const ReaderMapping& reader) :

@@ -24,7 +24,7 @@
 #include "util/reader_mapping.hpp"
 
 namespace {
-const std::string BUTTON_SOUND = "sounds/switch.ogg";
+const std::string BUTTON_SOUND = "sounds/switch.flac";
 //14 -> 8
 }
 

@@ -27,7 +27,7 @@
 /* Trampoline will accelerate Tux to to VY_BOUNCE, if
  * he jumps on it to VY_TRIGGER. */
 namespace {
-const std::string BOUNCE_SOUND = "sounds/trampoline.wav";
+const std::string BOUNCE_SOUND = "sounds/trampoline.flac";
 const float VY_TRIGGER = -900; //negative, upwards
 const float VY_BOUNCE = -500;
 }

@@ -58,8 +58,8 @@ Block::Block(const ReaderMapping& mapping, const std::string& sprite_file) :
 
   m_col.m_bbox.set_size(32, 32.1f);
   set_group(COLGROUP_STATIC);
-  SoundManager::current()->preload("sounds/upgrade.wav");
-  SoundManager::current()->preload("sounds/brick.wav");
+  SoundManager::current()->preload("sounds/upgrade.flac");
+  SoundManager::current()->preload("sounds/brick.flac");
 }
 
 HitResponse

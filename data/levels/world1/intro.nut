@@ -231,7 +231,7 @@ function shake_bush_thread(table)
   table.wait(0.2);
   table.Effect.fade_out(0.1);
   table.wait(0.3);
-  table.play_sound("sounds/thud.ogg");
+  table.play_sound("sounds/thud.flac");
   Tux.activate();
   Tux.kill(false);
   Tux.deactivate();

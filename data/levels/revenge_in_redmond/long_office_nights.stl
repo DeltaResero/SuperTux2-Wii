@@ -674,7 +674,7 @@
       )
     )
     (powerup
-      (script "play_sound(\"sounds/ticking.wav\");
+      (script "play_sound(\"sounds/ticking.flac\");
 door_wall2.fade(0, 1);")
       (disable-physics #t)
       (sprite "/images/decal/retro/coffee.png")
@@ -682,7 +682,7 @@ door_wall2.fade(0, 1);")
       (y 1216)
     )
     (powerup
-      (script "play_sound(\"sounds/ticking.wav\");
+      (script "play_sound(\"sounds/ticking.flac\");
 door_wall1.fade(0, 1);")
       (disable-physics #t)
       (sprite "/images/decal/retro/mints.png")

@@ -24,7 +24,7 @@
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 
-static const std::string FLAME_SOUND = "sounds/flame.wav";
+static const std::string FLAME_SOUND = "sounds/flame.flac";
 
 Flame::Flame(const ReaderMapping& reader, const std::string& sprite) :
   BadGuy(reader, sprite, LAYER_FLOATINGOBJECTS,
@@ -88,7 +88,7 @@ Flame::kill_fall()
 void
 Flame::freeze()
 {
-  SoundManager::current()->play("sounds/sizzle.ogg", get_pos());
+  SoundManager::current()->play("sounds/sizzle.flac", get_pos());
   m_sprite->set_action("fade", 1);
   Sector::get().add<SpriteParticle>("images/particles/smoke.sprite",
                                          "default",

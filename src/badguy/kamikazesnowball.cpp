@@ -23,7 +23,7 @@
 namespace{
   static const float KAMIKAZE_SPEED = 200;
   static const float LEAFSHOT_SPEED = 400;
-  const std::string SPLAT_SOUND = "sounds/splat.wav";
+  const std::string SPLAT_SOUND = "sounds/splat.flac";
 }
 
 KamikazeSnowball::KamikazeSnowball(const ReaderMapping& reader) :

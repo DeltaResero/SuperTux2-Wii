@@ -51,9 +51,9 @@ WeakBlock::WeakBlock(const ReaderMapping& mapping) :
   lightsprite->set_color(Color(0.3f, 0.2f, 0.1f));
 
   if (m_sprite_name == "images/objects/weak_block/strawbox.sprite") {
-    SoundManager::current()->preload("sounds/fire.ogg"); // TODO: use own sound?
+    SoundManager::current()->preload("sounds/fire.flac"); // TODO: use own sound?
   } else if (m_sprite_name == "images/objects/weak_block/meltbox.sprite") {
-    SoundManager::current()->preload("sounds/sizzle.ogg");
+    SoundManager::current()->preload("sounds/sizzle.flac");
   }
 }
 
@@ -179,9 +179,9 @@ WeakBlock::startBurning()
   state = STATE_BURNING;
   m_sprite->set_action("burning", 1);
   if (m_sprite_name == "images/objects/weak_block/meltbox.sprite") {
-    SoundManager::current()->play("sounds/sizzle.ogg");
+    SoundManager::current()->play("sounds/sizzle.flac");
   } else if (m_sprite_name == "images/objects/weak_block/strawbox.sprite") {
-    SoundManager::current()->play("sounds/fire.ogg");
+    SoundManager::current()->play("sounds/fire.flac");
   }
 }
 

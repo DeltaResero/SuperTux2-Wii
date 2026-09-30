@@ -36,7 +36,7 @@ InfoBlock::InfoBlock(const ReaderMapping& mapping) :
     log_warning << "No message in InfoBlock" << std::endl;
   }
   //stopped = false;
-  //ringing = new AmbientSound(get_pos(), 0.5, 300, 1, "sounds/phone.wav");
+  //ringing = new AmbientSound(get_pos(), 0.5, 300, 1, "sounds/phone.flac");
   //Sector::get().add_object(ringing);
 
   // Split text string lines into a vector

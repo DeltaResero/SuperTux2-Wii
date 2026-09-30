@@ -91,66 +91,66 @@ These are just more code.
 
 == Sounds ==
 
-* bigjump.wav - self-made by wansti
-* brick.wav - replaced with a self-made sound submitted by Yaniel, GPLv2+CC-by-sa
-* coin.wav - Replaced by a self-made, almost identical sound by wansti
-* crystallo-pop.ogg - remixed by weluvgoatz, originally created by fluerescence, licensed under CC0, from https://freesound.org/people/fleurescence/sounds/573153/
-* crystallo-shardhit.ogg - remixed by weluvgoatz, originally created by cyoung510, licensed under CC0, from https://freesound.org/people/cyoung510/sounds/521242/
-* crystallo-shatter.ogg - remixed by weluvgoatz, originally created by C_Rogers, licensed under CC0, from https://freesound.org/people/C_Rogers/sounds/203377/
-* dartfire.wav - self-made by sommer
-* darthit.wav - self-made by sommer
-* door.wav - self-made by gwater (Jun 30 2006 13:42:40 <gwater> ok it's my squeaky step, but it kind of sounds like a door.)
-* empty.wav - 0-length wav file
-* explosion.wav - Replaced by a self-made sound (GPLv2+/CC-by-SA) by sommer 17:34, 7 June 2007 (UTC)
-* fall.wav - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
-* fire.ogg - submitted as CC-BY 3.0 by artisticdude from http://opengameart.org
-* fire-flower.wav - submitted as GPL by Bastian Zapf
-* fireworks.wav - submitted as GPL by Ricardo Cruz
-* fizz.wav - replaced by some white noise made with audacity, WolfgangB
-* flame.wav - self-made by MatzeB
-* flip.wav - replaced by wansti "new backflip sound (not perfect but much better than the old one)"
-* grow.ogg - self-made by wansti, replaced grow.wav
-* gulp.wav - CC0, source http://freesound.org/people/Q.K./sounds/56271/
-* hop.ogg - self-made by WolfgangB GPLv2+CC-by-sa
-* hurt.wav - self-made by MatzeB
-* iceblock_bump.wav - replaced with a self-made sound by Some_Person
-* invincible_start.ogg - self-made sound by Wansti
-* jump.wav - self-made by wansti
-* kick.wav - replaced with a self-made sound by Some_Person
-* kill.wav - copy of hurt.wav
-* lava.wav - submitted as GPL by Bastian Zapf
-* lifeup.wav - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
-* lightning.wav - sampled by Some_Person from http://www.pdsounds.org/sounds/storm_thunderbolts
-* locked.ogg - self-made by WolfgangB GPLv2+CC-by-sa
-* mr_tree.ogg - self-made by gwater
-* mr_treehit.ogg - self-made by gwater
-* phone.wav - self-made by gwater (unused ATM, was used in infoblock.cpp)
-* rain.wav - submitted as CC-BY 3.0 by DoKashiteru from http://opengameart.org
-* saw.wav Mill1.wav from LinCity-NG (Data is dual licensed under under the GPL and CC-by-sa-v2 ), created by Paulo Morfeo http://svn.berlios.de/viewcvs/lincity-ng/trunk/data/sounds/Mill1.wav
-* shoot.wav - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
-* skid.wav - replaced with a self-made sound by wansti
-* splash.ogg - Based on 'Fish Splashing-SoundBible.com-250179430' sound bible, by blastwavefx.com, released under CC-BY-SA 3.0
+* bigjump.flac - self-made by wansti
+* brick.flac - replaced with a self-made sound submitted by Yaniel, GPLv2+CC-by-sa
+* coin.flac - Replaced by a self-made, almost identical sound by wansti
+* crystallo-pop.flac - remixed by weluvgoatz, originally created by fluerescence, licensed under CC0, from https://freesound.org/people/fleurescence/sounds/573153/
+* crystallo-shardhit.flac - remixed by weluvgoatz, originally created by cyoung510, licensed under CC0, from https://freesound.org/people/cyoung510/sounds/521242/
+* crystallo-shatter.flac - remixed by weluvgoatz, originally created by C_Rogers, licensed under CC0, from https://freesound.org/people/C_Rogers/sounds/203377/
+* dartfire.flac - self-made by sommer
+* darthit.flac - self-made by sommer
+* door.flac - self-made by gwater (Jun 30 2006 13:42:40 <gwater> ok it's my squeaky step, but it kind of sounds like a door.)
+* empty.flac - 0-length sound file
+* explosion.flac - Replaced by a self-made sound (GPLv2+/CC-by-SA) by sommer 17:34, 7 June 2007 (UTC)
+* fall.flac - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
+* fire.flac - submitted as CC-BY 3.0 by artisticdude from http://opengameart.org
+* fire-flower.flac - submitted as GPL by Bastian Zapf
+* fireworks.flac - submitted as GPL by Ricardo Cruz
+* fizz.flac - replaced by some white noise made with audacity, WolfgangB
+* flame.flac - self-made by MatzeB
+* flip.flac - replaced by wansti "new backflip sound (not perfect but much better than the old one)"
+* grow.flac - self-made by wansti, replaced grow2.flac
+* gulp.flac - CC0, source http://freesound.org/people/Q.K./sounds/56271/
+* hop.flac - self-made by WolfgangB GPLv2+CC-by-sa
+* hurt.flac - self-made by MatzeB
+* iceblock_bump.flac - replaced with a self-made sound by Some_Person
+* invincible_start.flac - self-made sound by Wansti
+* jump.flac - self-made by wansti
+* kick.flac - replaced with a self-made sound by Some_Person
+* kill.flac - copy of hurt.flac
+* lava.flac - submitted as GPL by Bastian Zapf
+* lifeup.flac - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
+* lightning.flac - sampled by Some_Person from http://www.pdsounds.org/sounds/storm_thunderbolts
+* locked.flac - self-made by WolfgangB GPLv2+CC-by-sa
+* mr_tree.flac - self-made by gwater
+* mr_treehit.flac - self-made by gwater
+* phone.flac - self-made by gwater (unused ATM, was used in infoblock.cpp)
+* rain.flac - submitted as CC-BY 3.0 by DoKashiteru from http://opengameart.org
+* saw.flac Mill1.wav from LinCity-NG (Data is dual licensed under under the GPL and CC-by-sa-v2 ), created by Paulo Morfeo http://svn.berlios.de/viewcvs/lincity-ng/trunk/data/sounds/Mill1.wav
+* shoot.flac - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
+* skid.flac - replaced with a self-made sound by wansti
+* splash.flac - Based on 'Fish Splashing-SoundBible.com-250179430' sound bible, by blastwavefx.com, released under CC-BY-SA 3.0
     and on 'Water vaporizing on hot Stones' by Natalie from pdsounds.org, released under public domain
     Mix by Marianne Gagnon, released under CC-BY-SA 3.0
-* splash.wav - sound created by soundscalpel.com, licensed under CC-by http://freesound.org/people/soundscalpel.com/sounds/110393/
-* squish.wav - replaced with a self-made sound by Some_Person
-* stomp.wav - replaced with a self-made sound by Some_Person
-* switch.ogg - self-made by WolfgangB GPLv2+CC-by-sa
-* tada.ogg - created by plasterbrain, licensed under CC0, from https://freesound.org/people/plasterbrain/sounds/397355/
-* thunder.wav - sampled by Some_Person from http://www.pdsounds.org/sounds/storm_thunderbolts
-* ticking.wav - self-made by sommer
-* totem.ogg - self-made by WolfgangB GPLv2+CC-by-sa
-* trampoline.wav - self-made by wansti
-* tree_howling.ogg - added by MatzeB
-* tree_suck.ogg - added by MatzeB
-* turnkey.ogg - self-made by WolfgangB GPLv2+CC-by-sa
-* upgrade.wav - replaced with Yaniel's sound
-* warp.wav - submitted as GPL by Ricardo Cruz
-* waterfall.wav - submitted as GPL by Bastian Zapf
-* welldone.ogg - Copyright 2013 by Iwan Gabovitch, multi-licensed under Creative Commons Attribution 3.0 license and/or GPLv3+
-* willocatch.wav - added by MatzeB
-* willowisp.wav - self-made by wansti
-* wood.wav - self-made by wansti
-* yeti_finish.ogg - self-made by MatzeB
-* yeti_gna.wav - self-made by MatzeB
-* yeti_roar.wav - self-made by MatzeB
+* splash2.flac - sound created by soundscalpel.com, licensed under CC-by http://freesound.org/people/soundscalpel.com/sounds/110393/
+* squish.flac - replaced with a self-made sound by Some_Person
+* stomp.flac - replaced with a self-made sound by Some_Person
+* switch.flac - self-made by WolfgangB GPLv2+CC-by-sa
+* tada.flac - created by plasterbrain, licensed under CC0, from https://freesound.org/people/plasterbrain/sounds/397355/
+* thunder.flac - sampled by Some_Person from http://www.pdsounds.org/sounds/storm_thunderbolts
+* ticking.flac - self-made by sommer
+* totem.flac - self-made by WolfgangB GPLv2+CC-by-sa
+* trampoline.flac - self-made by wansti
+* tree_howling.flac - added by MatzeB
+* tree_suck.flac - added by MatzeB
+* turnkey.flac - self-made by WolfgangB GPLv2+CC-by-sa
+* upgrade.flac - replaced with Yaniel's sound
+* warp.flac - submitted as GPL by Ricardo Cruz
+* waterfall.flac - submitted as GPL by Bastian Zapf
+* welldone.flac - Copyright 2013 by Iwan Gabovitch, multi-licensed under Creative Commons Attribution 3.0 license and/or GPLv3+
+* willocatch.flac - added by MatzeB
+* willowisp.flac - self-made by wansti
+* wood.flac - self-made by wansti
+* yeti_finish.flac - self-made by MatzeB
+* yeti_gna.flac - self-made by MatzeB
+* yeti_roar.flac - self-made by MatzeB

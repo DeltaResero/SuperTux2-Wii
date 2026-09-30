@@ -26,7 +26,7 @@ InvisibleBlock::InvisibleBlock(const ReaderMapping& mapping) :
    Block(mapping, "images/objects/bonus_block/invisibleblock.sprite"),
    visible(false)
 {
-  SoundManager::current()->preload("sounds/brick.wav");
+  SoundManager::current()->preload("sounds/brick.flac");
 }
 
 void
@@ -62,7 +62,7 @@ InvisibleBlock::collision(GameObject& other, const CollisionHit& hit_)
 void
 InvisibleBlock::hit(Player& player)
 {
-  SoundManager::current()->play("sounds/brick.wav");
+  SoundManager::current()->play("sounds/brick.flac");
 
   if (visible)
     return;

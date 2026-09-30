@@ -205,7 +205,7 @@
     )
     (powerup
       (script "snowman.goto_node(1)
-play_sound(\"sounds/ticking.wav\");")
+play_sound(\"sounds/ticking.flac\");")
       (disable-physics #t)
       (sprite "/images/objects/crystals/crystal_2.sprite")
       (x 7200)

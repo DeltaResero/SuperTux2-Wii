@@ -24,7 +24,7 @@ namespace {
 const float VERTICAL_SPEED = -450;   /**< y-speed when jumping */
 const float HORIZONTAL_SPEED = 320; /**< x-speed when jumping */
 const float TOAD_RECOVER_TIME = 0.5; /**< time to stand still before starting a (new) jump */
-static const std::string HOP_SOUND = "sounds/hop.ogg";
+static const std::string HOP_SOUND = "sounds/hop.flac";
 }
 
 Toad::Toad(const ReaderMapping& reader) :

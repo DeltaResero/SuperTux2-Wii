@@ -44,7 +44,7 @@ function query(item){return status[item];}
 function fire_bonus(){
   Tux.deactivate();
   Tux.add_bonus("fireflower");
-  play_sound("sounds/fire-flower.wav");
+  play_sound("sounds/fire-flower.flac");
   print("fire bonus added\n");
   wait(1);
   Effect.fade_out(2);
@@ -55,7 +55,7 @@ function fire_bonus(){
 function ice_bonus(){
   Tux.deactivate();
   Tux.add_bonus("iceflower");
-  play_sound("sounds/fire-flower.wav");
+  play_sound("sounds/fire-flower.flac");
   print("ice bonus added\n");
   wait(1);
   Effect.fade_out(2);

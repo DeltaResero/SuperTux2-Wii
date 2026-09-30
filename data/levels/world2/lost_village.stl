@@ -9,7 +9,7 @@
       (color 0.6 0.6 0.6 0.6)
     )
     (ambient-sound
-      (sample "sounds/saw.wav")
+      (sample "sounds/saw.flac")
       (distance_factor 0.1)
       (distance_bias 200)
       (volume 200)

@@ -133,7 +133,7 @@ BonusBlock::BonusBlock(const ReaderMapping& mapping) :
   }
 
   if (m_contents == Content::LIGHT || m_contents == Content::LIGHT_ON) {
-    SoundManager::current()->preload("sounds/switch.ogg");
+    SoundManager::current()->preload("sounds/switch.flac");
     m_lightsprite = Surface::from_file("/images/objects/lightmap_light/bonusblock_light.png");
     if (m_contents == Content::LIGHT_ON) {
       m_sprite->set_action("on");
@@ -213,7 +213,7 @@ BonusBlock::collision(GameObject& other, const CollisionHit& hit_)
 void
 BonusBlock::try_open(Player* player)
 {
-  SoundManager::current()->play("sounds/brick.wav");
+  SoundManager::current()->play("sounds/brick.flac");
   if (m_sprite->get_action() == "empty")
     return;
 
@@ -291,7 +291,7 @@ BonusBlock::try_open(Player* player)
         m_sprite->set_action("off");
       else
         m_sprite->set_action("on");
-      SoundManager::current()->play("sounds/switch.ogg");
+      SoundManager::current()->play("sounds/switch.flac");
       break;
     }
     case Content::TRAMPOLINE:
@@ -317,7 +317,7 @@ BonusBlock::try_open(Player* player)
   }
 
   if (play_upgrade_sound)
-    SoundManager::current()->play("sounds/upgrade.wav", upgrade_sound_gain);
+    SoundManager::current()->play("sounds/upgrade.flac", upgrade_sound_gain);
 
   if (!m_script.empty()) { // scripts always run if defined
     Sector::get().run_script(m_script, "BonusBlockScript");
@@ -335,7 +335,7 @@ BonusBlock::try_open(Player* player)
 void
 BonusBlock::try_drop(Player *player)
 {
-  SoundManager::current()->play("sounds/brick.wav");
+  SoundManager::current()->play("sounds/brick.flac");
   if (m_sprite->get_action() == "empty")
     return;
 
@@ -445,7 +445,7 @@ BonusBlock::try_drop(Player *player)
   }
 
   if (play_upgrade_sound)
-    SoundManager::current()->play("sounds/upgrade.wav", upgrade_sound_gain);
+    SoundManager::current()->play("sounds/upgrade.flac", upgrade_sound_gain);
 
   if (!m_script.empty()) { // scripts always run if defined
     Sector::get().run_script(m_script, "powerup-script");
@@ -474,7 +474,7 @@ BonusBlock::raise_growup_bonus(Player* player, const BonusType& bonus, const Dir
   }
 
   Sector::get().add<SpecialRiser>(get_pos(), std::move(obj));
-  SoundManager::current()->play("sounds/upgrade.wav", upgrade_sound_gain);
+  SoundManager::current()->play("sounds/upgrade.flac", upgrade_sound_gain);
 }
 
 void
@@ -488,7 +488,7 @@ BonusBlock::drop_growup_bonus(Player* player, const std::string& bonus_sprite_na
   {
     Sector::get().add<PowerUp>(get_pos() + Vector(0, 32), bonus_sprite_name);
   }
-  SoundManager::current()->play("sounds/upgrade.wav", upgrade_sound_gain);
+  SoundManager::current()->play("sounds/upgrade.flac", upgrade_sound_gain);
   countdown = true;
 }
 
@@ -549,7 +549,7 @@ BonusBlock::preload_contents(int d)
   {
     case 6: // Light
     case 15: // Light (On)
-      SoundManager::current()->preload("sounds/switch.ogg");
+      SoundManager::current()->preload("sounds/switch.flac");
       m_lightsprite=Surface::from_file("/images/objects/lightmap_light/bonusblock_light.png");
       break;
 

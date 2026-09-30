@@ -25,7 +25,7 @@
 #include "util/reader_mapping.hpp"
 
 namespace {
-const std::string ROCK_SOUND = "sounds/brick.wav"; //TODO use own sound.
+const std::string ROCK_SOUND = "sounds/brick.flac"; //TODO use own sound.
 }
 
 static const float GROUND_FRICTION = 0.1f; // Amount of friction to apply while on ground.

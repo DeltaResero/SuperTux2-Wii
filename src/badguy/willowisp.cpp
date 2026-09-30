@@ -30,7 +30,7 @@
 static const float FLYSPEED = 64.0f; /**< speed in px per second */
 static const float TRACK_RANGE = 384.0f; /**< at what distance to start tracking the player */
 static const float VANISH_RANGE = 512.0f; /**< at what distance to stop tracking and vanish */
-static const std::string SOUNDFILE = "sounds/willowisp.wav";
+static const std::string SOUNDFILE = "sounds/willowisp.flac";
 
 WillOWisp::WillOWisp(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/willowisp/willowisp.sprite", LAYER_FLOATINGOBJECTS,
@@ -71,7 +71,7 @@ WillOWisp::WillOWisp(const ReaderMapping& reader) :
 
   m_countMe = false;
   SoundManager::current()->preload(SOUNDFILE);
-  SoundManager::current()->preload("sounds/warp.wav");
+  SoundManager::current()->preload("sounds/warp.flac");
 
   m_lightsprite->set_color(Color(m_color.red * 0.2f,
                                  m_color.green * 0.2f,
@@ -230,7 +230,7 @@ WillOWisp::collision_player(Player& player, const CollisionHit& ) {
   } else {
     GameSession::current()->respawn(m_target_sector, m_target_spawnpoint);
   }
-  SoundManager::current()->play("sounds/warp.wav");
+  SoundManager::current()->play("sounds/warp.flac");
 
   return CONTINUE;
 }

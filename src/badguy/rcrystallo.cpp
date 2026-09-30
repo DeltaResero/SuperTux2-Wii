@@ -32,7 +32,7 @@ RCrystallo::RCrystallo(const ReaderMapping& reader) :
   walk_speed = 80;
   max_drop_height = 16;
   reader.get("radius", m_radius, 100.0f);
-  SoundManager::current()->preload("sounds/crystallo-shatter.ogg");
+  SoundManager::current()->preload("sounds/crystallo-shatter.flac");
 }
 
 void
@@ -149,7 +149,7 @@ RCrystallo::kill_fall()
   m_physic.set_gravity_modifier(1.f);
   if (state == RCRYSTALLO_FALLING)
   {
-    SoundManager::current()->play("sounds/crystallo-shatter.ogg", get_pos());
+    SoundManager::current()->play("sounds/crystallo-shatter.flac", get_pos());
     if (is_valid())
     {
       remove_me();

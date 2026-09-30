@@ -42,7 +42,7 @@ ShortFuse::ShortFuse(const ReaderMapping& reader) :
   //Replace sprite
   m_sprite = SpriteManager::current()->create( m_sprite_name );
 
-  SoundManager::current()->preload("sounds/firecracker.ogg");
+  SoundManager::current()->preload("sounds/firecracker.flac");
 }
 
 void

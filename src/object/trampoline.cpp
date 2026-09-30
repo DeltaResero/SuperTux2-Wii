@@ -28,7 +28,7 @@
 /* Trampoline will accelerate Tux to to VY_INITIAL, if
  * he jumps on it to VY_MIN. */
 namespace {
-const std::string TRAMPOLINE_SOUND = "sounds/trampoline.wav";
+const std::string TRAMPOLINE_SOUND = "sounds/trampoline.flac";
 const float VY_MIN = -900; //negative, upwards
 const float VY_INITIAL = -500;
 }
