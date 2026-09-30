@@ -35,7 +35,7 @@ OggSoundFile::OggSoundFile(std::unique_ptr<std::istream> file_, double loop_begi
   m_channels = vi->channels;
   m_rate = static_cast<int>(vi->rate);
   m_bits_per_sample = 16;
-  m_size = static_cast<size_t> (ov_pcm_total(&m_vorbis_file, -1) * 2);
+  m_size = static_cast<size_t> (ov_pcm_total(&m_vorbis_file, -1) * m_channels * 2);
 
   double samples_begin = loop_begin_ * m_rate;
   double sample_loop   = loop_at_ * m_rate;
