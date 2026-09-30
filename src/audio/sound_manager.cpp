@@ -444,7 +444,8 @@ SoundManager::update()
 
     source->update();
 
-    if (!source->playing()) {
+    // A paused sound isn't finished, unpausing the game resumes it
+    if (!source->playing() && !source->paused()) {
       it = m_sources.erase(it);
     } else {
       ++it;
