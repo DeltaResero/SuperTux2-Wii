@@ -168,7 +168,7 @@ Bomb::ungrab(MovingObject& object, Direction dir_)
 void Bomb::stop_looping_sounds()
 {
   if (ticking) {
-    ticking->stop();
+    ticking->pause();
   }
 }
 

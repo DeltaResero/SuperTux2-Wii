@@ -129,7 +129,7 @@ Dart::is_flammable() const
 void Dart::stop_looping_sounds()
 {
   if (sound_source) {
-    sound_source->stop();
+    sound_source->pause();
   }
 }
 

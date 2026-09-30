@@ -116,7 +116,7 @@ Flame::is_flammable() const
 void Flame::stop_looping_sounds()
 {
   if (sound_source) {
-    sound_source->stop();
+    sound_source->pause();
   }
 }
 

@@ -281,7 +281,7 @@ WillOWisp::set_state(const std::string& new_state)
 void WillOWisp::stop_looping_sounds()
 {
   if (m_sound_source) {
-    m_sound_source->stop();
+    m_sound_source->pause();
   }
 }
 

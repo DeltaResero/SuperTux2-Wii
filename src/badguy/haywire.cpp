@@ -197,7 +197,10 @@ Haywire::deactivate()
 {
   // stop ticking/grunting sounds, in case we are deactivated before actually
   // exploding (see https://github.com/SuperTux/supertux/issues/1260)
-  stop_looping_sounds();
+  if (ticking)
+    ticking->stop();
+  if (grunting)
+    grunting->stop();
 }
 
 void
@@ -276,10 +279,10 @@ Haywire::stop_exploding()
 void Haywire::stop_looping_sounds()
 {
   if (ticking) {
-    ticking->stop();
+    ticking->pause();
   }
   if (grunting) {
-    grunting->stop();
+    grunting->pause();
   }
 }
 
