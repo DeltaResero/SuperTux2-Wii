@@ -68,7 +68,11 @@ public:
   {
   }
 
-  virtual void set_reference_distance(float ) override
+  virtual void set_placed_range() override
+  {
+  }
+
+  virtual void set_close_range() override
   {
   }
 

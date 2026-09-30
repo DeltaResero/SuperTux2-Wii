@@ -162,7 +162,7 @@ WillOWisp::activate()
   m_sound_source->set_position(get_pos());
   m_sound_source->set_looping(true);
   m_sound_source->set_gain(1.0f);
-  m_sound_source->set_reference_distance(32);
+  m_sound_source->set_close_range();
   m_sound_source->play();
 }
 

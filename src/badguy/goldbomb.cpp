@@ -123,7 +123,7 @@ GoldBomb::collision_squished(GameObject& object)
     ticking->set_position(get_pos());
     ticking->set_looping(true);
     ticking->set_gain(1.0f);
-    ticking->set_reference_distance(32);
+    ticking->set_close_range();
     ticking->play();
   }
   return true;

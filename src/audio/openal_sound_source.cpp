@@ -16,13 +16,28 @@
 
 #include "audio/openal_sound_source.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 #include "audio/sound_manager.hpp"
 #include "util/log.hpp"
+
+namespace {
+
+// OpenAL Soft sends a mono source at angle a to each ear as 0.5 +- 0.5 sin(t) + PAN_FRONT cos(t), with t = a * PAN_STRETCH
+const float PAN_FRONT = 0.0956f;
+const float PAN_STRETCH = 1.5f;
+
+} // namespace
 
 OpenALSoundSource::OpenALSoundSource() :
   m_source(),
   m_gain(1.0f),
-  m_volume(1.0f)
+  m_volume(1.0f),
+  m_placement(Placement::NONE),
+  m_position(),
+  m_positioned(false),
+  m_full(false)
 {
   alGenSources(1, &m_source);
 
@@ -30,7 +45,7 @@ OpenALSoundSource::OpenALSoundSource() :
   // the caller won't handle an object in an invalid state thinking it's clean
   SoundManager::check_al_error("Couldn't create audio source: ");
 
-  set_reference_distance(128);
+  alSourcef(m_source, AL_REFERENCE_DISTANCE, 128);
 }
 
 OpenALSoundSource::~OpenALSoundSource()
@@ -137,7 +152,12 @@ OpenALSoundSource::set_relative(bool relative)
 void
 OpenALSoundSource::set_position(const Vector& position)
 {
-  alSource3f(m_source, AL_POSITION, position.x, position.y, 0);
+  m_position = position;
+  m_positioned = true;
+  if (m_placement == Placement::NONE)
+    alSource3f(m_source, AL_POSITION, position.x, position.y, 0);
+  else
+    apply_placement();
 }
 
 void
@@ -149,8 +169,8 @@ OpenALSoundSource::set_velocity(const Vector& velocity)
 void
 OpenALSoundSource::set_gain(float gain)
 {
-  alSourcef(m_source, AL_GAIN, gain * m_volume);
   m_gain = gain;
+  apply_placement();
 }
 
 void
@@ -160,16 +180,51 @@ OpenALSoundSource::set_pitch(float pitch)
 }
 
 void
-OpenALSoundSource::set_reference_distance(float distance)
+OpenALSoundSource::set_placed_range()
 {
-  alSourcef(m_source, AL_REFERENCE_DISTANCE, distance);
+  m_placement = Placement::PLACED;
+  // The gain can go past 1 to make up for OpenAL's own pan holding a centred sound down
+  alSourcef(m_source, AL_MAX_GAIN, 2.0f);
+  apply_placement();
+}
+
+void
+OpenALSoundSource::set_close_range()
+{
+  m_placement = Placement::CLOSE;
+  alSourcef(m_source, AL_MAX_GAIN, 2.0f);
+  apply_placement();
 }
 
 void
 OpenALSoundSource::set_volume(float volume)
 {
   m_volume = volume;
-  alSourcef(m_source, AL_GAIN, m_gain * m_volume);
+  apply_placement();
+}
+
+void
+OpenALSoundSource::apply_placement()
+{
+  if (m_placement == Placement::NONE || !m_positioned) {
+    alSourcef(m_source, AL_GAIN, m_gain * m_volume);
+    return;
+  }
+
+  float left, right;
+  SoundManager::current()->get_placement(m_position, m_placement == Placement::CLOSE, m_full, left, right);
+  const float near_ear = std::min(std::max(left, right) * m_gain, 1.0f) * m_volume;
+  const float far_ear = std::min(std::min(left, right) * m_gain, 1.0f) * m_volume;
+
+  // Turns the source until OpenAL's pan gives this far to near balance, then sets the gain for the near ear
+  const float balance = (near_ear > 0.0f) ? (near_ear - far_ear) / (near_ear + far_ear) : 0.0f;
+  const float lift = 2.0f * PAN_FRONT * balance;
+  const float turn = std::atan(lift) + std::asin(balance / std::sqrt(1.0f + lift * lift));
+  const float angle = std::copysign(turn / PAN_STRETCH, right - left);
+
+  alSourcei(m_source, AL_SOURCE_RELATIVE, AL_TRUE);
+  alSource3f(m_source, AL_POSITION, std::sin(angle), 0.0f, -std::cos(angle));
+  alSourcef(m_source, AL_GAIN, near_ear / (0.5f + 0.5f * std::sin(turn) + PAN_FRONT * std::cos(turn)));
 }
 
 /* EOF */

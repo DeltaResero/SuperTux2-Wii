@@ -76,6 +76,12 @@ public:
   void set_listener_position(const Vector& position);
   void set_listener_orientation(const Vector& at, const Vector& up);
 
+  /** Where Tux is, the point placed sounds fade and lean from */
+  void set_player_position(const Vector& position);
+
+  /** How much of its gain each ear hears of a sound at position, given its range and whether it was stereo */
+  void get_placement(const Vector& position, bool close, bool full, float& left, float& right) const;
+
   void enable_music(bool music_enabled);
   void play_music(const std::string& filename, float fadetime);
   void play_music(const std::string& filename, bool fade = false);
@@ -121,6 +127,8 @@ private:
   bool m_music_enabled;
   int m_music_volume;
   std::string m_current_music;
+
+  Vector m_player_position;
 
 private:
   SoundManager(const SoundManager&) = delete;

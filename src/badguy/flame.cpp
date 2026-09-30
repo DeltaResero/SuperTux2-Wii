@@ -68,8 +68,9 @@ Flame::activate()
   sound_source = SoundManager::current()->create_sound_source(FLAME_SOUND);
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
-  sound_source->set_gain(1.0f);
-  sound_source->set_reference_distance(32);
+  // Louder than vanilla's, where a flame circling Tux could barely be heard
+  sound_source->set_gain(4.0f);
+  sound_source->set_close_range();
   sound_source->play();
 }
 

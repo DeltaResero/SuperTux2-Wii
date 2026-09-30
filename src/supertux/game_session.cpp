@@ -390,6 +390,7 @@ GameSession::update(float dt_sec, const Controller& controller)
 
   // update sounds
   SoundManager::current()->set_listener_position(m_currentsector->get_camera().get_center());
+  SoundManager::current()->set_player_position(m_currentsector->get_player().get_bbox().get_middle());
 
   /* Handle music: */
   if (m_end_sequence)

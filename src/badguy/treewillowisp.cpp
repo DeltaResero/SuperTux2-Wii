@@ -58,7 +58,7 @@ TreeWillOWisp::activate()
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
   sound_source->set_gain(1.0f);
-  sound_source->set_reference_distance(32);
+  sound_source->set_close_range();
   sound_source->play();
 }
 

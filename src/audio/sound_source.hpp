@@ -39,7 +39,10 @@ public:
   virtual void set_pitch(float pitch) = 0;
   virtual void set_position(const Vector& position) = 0;
   virtual void set_velocity(const Vector& velocity) = 0;
-  virtual void set_reference_distance(float distance) = 0;
+  /** Loudest beside Tux and gone by where enemies stop running */
+  virtual void set_placed_range() = 0;
+  /** Carries only a short way, for a fuse, a flame or a wisp */
+  virtual void set_close_range() = 0;
 
 private:
   SoundSource(const SoundSource&) = delete;

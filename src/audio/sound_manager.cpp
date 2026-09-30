@@ -17,15 +17,56 @@
 #include "audio/sound_manager.hpp"
 
 #include <SDL.h>
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <stdexcept>
 #include <sstream>
 #include <memory>
+#include <set>
 
 #include "audio/dummy_sound_source.hpp"
 #include "audio/sound_file.hpp"
 #include "audio/stream_sound_source.hpp"
+#include "math/util.hpp"
+#include "util/file_system.hpp"
 #include "util/log.hpp"
+
+namespace {
+
+// Within this of Tux a sound plays at full volume in both ears
+const float BESIDE_TUX = 100.0f;
+
+// About two screen widths, and BadGuy's X_OFFSCREEN_DISTANCE, so a sound is gone by the time its enemy stops running
+const float PLACED_RANGE = 1280.0f;
+
+// How far a fuse, a flame or a wisp carries
+const float CLOSE_RANGE = 480.0f;
+
+// Vanilla's listener setback, reference distances and OpenAL Soft's pan, 0.5 +- 0.5 sin(t) + FRONT cos(t) per ear
+const float VANILLA_SETBACK = 300.0f;
+const float VANILLA_PLACED_REFERENCE = 128.0f;
+const float VANILLA_CLOSE_REFERENCE = 32.0f;
+const float VANILLA_PAN_FRONT = 0.0956f;
+const float VANILLA_PAN_STRETCH = 1.5f;
+
+// These were stereo files, which vanilla's OpenAL never placed and so played at full volume
+const float FULL_LEVEL = 1.0f;
+
+// The far ear stays within 10 dB of the near one, as a sound in one ear alone is uncomfortable to hear
+const float FAR_EAR_FLOOR = 0.316f;
+
+bool was_stereo(const std::string& filename)
+{
+  static const std::set<std::string> names = {
+    "cracking", "crystallo-shardhit", "crystallo-shatter", "fall", "fire", "firecracker",
+    "grunts", "icecrash", "sizzle", "squish", "stomp"
+  };
+  const std::string name = FileSystem::basename(filename);
+  return names.count(name.substr(0, name.rfind('.'))) > 0;
+}
+
+} // namespace
 
 SoundManager::SoundManager() :
   m_device(alcOpenDevice(nullptr)),
@@ -38,7 +79,8 @@ SoundManager::SoundManager() :
   m_music_source(),
   m_music_enabled(false),
   m_music_volume(0),
-  m_current_music()
+  m_current_music(),
+  m_player_position()
 {
   try {
     if (m_device == nullptr) {
@@ -136,6 +178,7 @@ SoundManager::intern_create_sound_source(const std::string& filename)
       log_debug << "Playing \"" << filename <<
         "\" as StreamSoundSource, file size: " << file->m_size << std::endl;
       auto stream_source = std::make_unique<StreamSoundSource>();
+      stream_source->m_full = was_stereo(filename);
       stream_source->set_sound_file(std::move(file));
       stream_source->set_volume(static_cast<float>(m_sound_volume) / 100.0f);
       return std::unique_ptr<OpenALSoundSource>(stream_source.release());
@@ -143,6 +186,7 @@ SoundManager::intern_create_sound_source(const std::string& filename)
   }
 
   alSourcei(source->m_source, AL_BUFFER, buffer);
+  source->m_full = was_stereo(filename);
   return source;
 }
 
@@ -201,6 +245,7 @@ SoundManager::play(const std::string& filename, const Vector& pos,
     if (pos.x < 0 || pos.y < 0) {
       source->set_relative(true);
     } else {
+      source->set_placed_range();
       source->set_position(pos);
     }
     source->play();
@@ -422,10 +467,51 @@ SoundManager::set_listener_position(const Vector& pos)
 }
 
 void
+SoundManager::set_player_position(const Vector& position)
+{
+  m_player_position = position;
+  for (auto& source : m_sources) {
+    if (source->m_placement != OpenALSoundSource::Placement::NONE)
+      source->apply_placement();
+  }
+}
+
+void
 SoundManager::set_listener_orientation(const Vector& at, const Vector& up)
 {
   ALfloat orientation[]={at.x, at.y, 1.0, up.x, up.y, 0.0};
   alListenerfv(AL_ORIENTATION, orientation);
+}
+
+void
+SoundManager::get_placement(const Vector& position, bool close, bool full, float& left, float& right) const
+{
+  const float dx = position.x - m_player_position.x;
+  const float dy = position.y - m_player_position.y;
+
+  // Fades in a straight line from beside Tux to nothing at the sound's range
+  const float range = close ? CLOSE_RANGE : PLACED_RANGE;
+  const float distance = std::sqrt(dx * dx + dy * dy);
+  const float fade = std::clamp(1.0f - (distance - BESIDE_TUX) / (range - BESIDE_TUX), 0.0f, 1.0f);
+
+  float near_ear, far_ear;
+  if (!full) {
+    // Vanilla's own fall off and pan for a mono sound, so it carries and leans the way it did before fading out
+    const float reference = close ? VANILLA_CLOSE_REFERENCE : VANILLA_PLACED_REFERENCE;
+    const float heard = reference / std::sqrt(dx * dx + dy * dy + VANILLA_SETBACK * VANILLA_SETBACK);
+    const float turn = std::min(VANILLA_PAN_STRETCH * std::atan2(std::abs(dx), VANILLA_SETBACK), math::PI_2);
+    near_ear = heard * fade * (0.5f + 0.5f * std::sin(turn) + VANILLA_PAN_FRONT * std::cos(turn));
+    far_ear = heard * fade * (0.5f - 0.5f * std::sin(turn) + VANILLA_PAN_FRONT * std::cos(turn));
+  } else {
+    // A stereo sound vanilla never placed keeps its full volume beside Tux, and the far ear fades out gently
+    const float lean = std::clamp((std::abs(dx) - BESIDE_TUX) / (range - BESIDE_TUX), 0.0f, 1.0f);
+    near_ear = FULL_LEVEL * fade;
+    far_ear = near_ear * (1.0f - lean);
+  }
+
+  far_ear = std::max(far_ear, near_ear * FAR_EAR_FLOOR);
+  left = (dx > 0.0f) ? far_ear : near_ear;
+  right = (dx > 0.0f) ? near_ear : far_ear;
 }
 
 void

@@ -20,6 +20,7 @@
 #include <al.h>
 
 #include "audio/sound_source.hpp"
+#include "math/vector.hpp"
 
 class OpenALSoundSource : public SoundSource
 {
@@ -39,7 +40,8 @@ public:
   virtual void set_pitch(float pitch) override;
   virtual void set_position(const Vector& position) override;
   virtual void set_velocity(const Vector& position) override;
-  virtual void set_reference_distance(float distance) override;
+  virtual void set_placed_range() override;
+  virtual void set_close_range() override;
 
   virtual void set_volume(float volume);
 
@@ -48,10 +50,23 @@ public:
   virtual void resume();
   virtual void update();
 
+private:
+  enum class Placement { NONE, PLACED, CLOSE };
+
+  /** Sets both ears' volume from SoundManager::get_placement, where OpenAL alone pans much harder */
+  void apply_placement();
+
 protected:
   ALuint m_source;
   float m_gain;
   float m_volume;
+
+private:
+  Placement m_placement;
+  Vector m_position;
+  bool m_positioned;
+  /** A sound vanilla played at full volume, having been a stereo file */
+  bool m_full;
 
 private:
   OpenALSoundSource(const OpenALSoundSource&) = delete;
