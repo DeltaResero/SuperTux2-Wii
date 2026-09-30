@@ -28,6 +28,14 @@ namespace {
 const float PAN_FRONT = 0.0956f;
 const float PAN_STRETCH = 1.5f;
 
+// A quarter of a dB as a fraction, a change in one ear too small to hear
+const float HEARD_STEP = 0.029f;
+
+bool sounds_the_same(float level, float sent)
+{
+  return std::abs(level - sent) <= sent * HEARD_STEP;
+}
+
 } // namespace
 
 OpenALSoundSource::OpenALSoundSource() :
@@ -38,7 +46,9 @@ OpenALSoundSource::OpenALSoundSource() :
   m_close_range(CLOSE_RANGE),
   m_position(),
   m_positioned(false),
-  m_full(false)
+  m_full(false),
+  m_sent_left(-1.0f),
+  m_sent_right(-1.0f)
 {
   alGenSources(1, &m_source);
 
@@ -148,6 +158,7 @@ void
 OpenALSoundSource::set_relative(bool relative)
 {
   alSourcei(m_source, AL_SOURCE_RELATIVE, relative ? AL_TRUE : AL_FALSE);
+  m_sent_left = -1.0f;
 }
 
 void
@@ -210,19 +221,29 @@ OpenALSoundSource::apply_placement()
 {
   if (m_placement == Placement::NONE || !m_positioned) {
     alSourcef(m_source, AL_GAIN, m_gain * m_volume);
+    m_sent_left = -1.0f;
     return;
   }
 
   float left, right;
   SoundManager::current()->get_placement(m_position, m_placement == Placement::CLOSE, m_close_range, m_full, left, right);
-  const float near_ear = std::min(std::max(left, right) * m_gain, 1.0f) * m_volume;
-  const float far_ear = std::min(std::min(left, right) * m_gain, 1.0f) * m_volume;
+  const float left_ear = std::min(left * m_gain, 1.0f) * m_volume;
+  const float right_ear = std::min(right * m_gain, 1.0f) * m_volume;
+
+  // Leaves OpenAL alone until an ear changes by enough to hear
+  if (sounds_the_same(left_ear, m_sent_left) && sounds_the_same(right_ear, m_sent_right))
+    return;
+  m_sent_left = left_ear;
+  m_sent_right = right_ear;
+
+  const float near_ear = std::max(left_ear, right_ear);
+  const float far_ear = std::min(left_ear, right_ear);
 
   // Turns the source until OpenAL's pan gives this far to near balance, then sets the gain for the near ear
   const float balance = (near_ear > 0.0f) ? (near_ear - far_ear) / (near_ear + far_ear) : 0.0f;
   const float lift = 2.0f * PAN_FRONT * balance;
   const float turn = std::atan(lift) + std::asin(balance / std::sqrt(1.0f + lift * lift));
-  const float angle = std::copysign(turn / PAN_STRETCH, right - left);
+  const float angle = std::copysign(turn / PAN_STRETCH, right_ear - left_ear);
 
   alSourcei(m_source, AL_SOURCE_RELATIVE, AL_TRUE);
   alSource3f(m_source, AL_POSITION, std::sin(angle), 0.0f, -std::cos(angle));

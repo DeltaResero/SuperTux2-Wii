@@ -69,6 +69,9 @@ private:
   bool m_positioned;
   /** A sound vanilla played at full volume, having been a stereo file */
   bool m_full;
+  /** Each ear's level OpenAL was last given, below zero before the first */
+  float m_sent_left;
+  float m_sent_right;
 
 private:
   OpenALSoundSource(const OpenALSoundSource&) = delete;
