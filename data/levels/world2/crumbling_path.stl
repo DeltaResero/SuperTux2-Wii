@@ -1358,7 +1358,7 @@
       (bottom_color 1 0.8 0)
     )
     (music
-      (file "/music/forest2.ogg")
+      (file "music/forest/forest2.ogg")
     )
     (spawnpoint
       (name "secret")
@@ -1645,7 +1645,7 @@
       (bottom_color 1 0.8 0)
     )
     (music
-      (file "/music/forest/forest2.ogg")
+      (file "music/forest/forest2.ogg")
     )
     (secretarea
       (message "You found a secret area!")

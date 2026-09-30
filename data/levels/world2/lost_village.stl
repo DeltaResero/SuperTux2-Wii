@@ -197,7 +197,7 @@
       (y 488)
     )
     (music
-      (file "forest\\shallow-green.music")
+      (file "/music/forest/shallow-green.music")
     )
     (particles-rain
     )
