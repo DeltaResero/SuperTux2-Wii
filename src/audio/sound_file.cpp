@@ -37,6 +37,7 @@
 namespace {
 
 const std::string& get_fallback_path(const std::string& file_path);
+std::string get_flac_path(const std::string& file_path);
 
 std::unique_ptr<std::istream> open_file(const std::string& filename)
 {
@@ -115,6 +116,8 @@ std::unique_ptr<SoundFile> load_sound_file(const std::string& filename)
   auto file = open_file(filename);
   if (!file) {
     file = open_file(get_fallback_path(filename));
+    if (!file)
+      file = open_file(get_flac_path(filename));
     if (!file) {
       throw SoundError("Couldn't open '" + filename + "': not found, using dummy sound file.");
     }
@@ -262,6 +265,20 @@ const std::string& get_fallback_path(const std::string& file_path)
     return it->second;
   // No fallback path found
   return file_path;
+}
+
+// Levels made for mainline SuperTux ask for the sound effects by their .wav and .ogg names
+std::string get_flac_path(const std::string& file_path)
+{
+  if (!StringUtil::has_suffix(file_path, ".wav") && !StringUtil::has_suffix(file_path, ".ogg"))
+    return file_path;
+
+  std::string flac_path = file_path.substr(0, file_path.size() - 4);
+  // These shared a name with an OGG, so their FLACs end in 2
+  const std::string file_name = FileSystem::basename(file_path);
+  if (file_name == "grow.wav" || file_name == "splash.wav")
+    flac_path += "2";
+  return flac_path + ".flac";
 }
 
 } // namespace
