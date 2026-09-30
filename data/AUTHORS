@@ -94,6 +94,9 @@ These are just more code.
 * bigjump.flac - self-made by wansti
 * brick.flac - replaced with a self-made sound submitted by Yaniel, GPLv2+CC-by-sa
 * coin.flac - Replaced by a self-made, almost identical sound by wansti
+* coin2.flac - made by LMH
+* coins_cleared.flac - made by rubberduck
+* cracking.flac - made by LMH
 * crystallo-pop.flac - remixed by weluvgoatz, originally created by fluerescence, licensed under CC0, from https://freesound.org/people/fleurescence/sounds/573153/
 * crystallo-shardhit.flac - remixed by weluvgoatz, originally created by cyoung510, licensed under CC0, from https://freesound.org/people/cyoung510/sounds/521242/
 * crystallo-shatter.flac - remixed by weluvgoatz, originally created by C_Rogers, licensed under CC0, from https://freesound.org/people/C_Rogers/sounds/203377/
@@ -101,19 +104,25 @@ These are just more code.
 * darthit.flac - self-made by sommer
 * door.flac - self-made by gwater (Jun 30 2006 13:42:40 <gwater> ok it's my squeaky step, but it kind of sounds like a door.)
 * empty.flac - 0-length sound file
+* excellent.flac - from Bill Kendrick's original Super Tux (its sound effects came from royalty free CDs and FTP sites)
 * explosion.flac - Replaced by a self-made sound (GPLv2+/CC-by-SA) by sommer 17:34, 7 June 2007 (UTC)
 * fall.flac - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
 * fire.flac - submitted as CC-BY 3.0 by artisticdude from http://opengameart.org
 * fire-flower.flac - submitted as GPL by Bastian Zapf
+* firecracker.flac - made by LMH, licensed under CC-BY-SA 3.0
 * fireworks.flac - submitted as GPL by Ricardo Cruz
 * fizz.flac - replaced by some white noise made with audacity, WolfgangB
 * flame.flac - self-made by MatzeB
 * flip.flac - replaced by wansti "new backflip sound (not perfect but much better than the old one)"
-* grow.flac - self-made by wansti, replaced grow2.flac
+* flop.flac - made by Benjamin "GiBy" Leduc
+* grow.flac - made by remaxim
+* grow2.flac - Tux's voice by Daniel Alston, cleaned up by wansti
+* grunts.flac - made by LMH
 * gulp.flac - CC0, source http://freesound.org/people/Q.K./sounds/56271/
 * hop.flac - self-made by WolfgangB GPLv2+CC-by-sa
 * hurt.flac - self-made by MatzeB
 * iceblock_bump.flac - replaced with a self-made sound by Some_Person
+* icecrash.flac - made by LMH, edited by windowsdylan, licensed under CC-BY-SA 3.0
 * invincible_start.flac - self-made sound by Wansti
 * jump.flac - self-made by wansti
 * kick.flac - replaced with a self-made sound by Some_Person
@@ -125,18 +134,26 @@ These are just more code.
 * mr_tree.flac - self-made by gwater
 * mr_treehit.flac - self-made by gwater
 * phone.flac - self-made by gwater (unused ATM, was used in infoblock.cpp)
+* pop.flac - made by LMH, licensed under CC-BY-SA 3.0
+* pshit.flac - made by Benjamin "GiBy" Leduc
 * rain.flac - submitted as CC-BY 3.0 by DoKashiteru from http://opengameart.org
+* retro_fall.flac - the fall sound from Bill Kendrick's original Super Tux (its sound effects came from royalty free CDs and FTP sites)
+* savebell2.flac - made by remaxim
+* savebell_low.flac - added by Tobias Markus, source unknown
 * saw.flac Mill1.wav from LinCity-NG (Data is dual licensed under under the GPL and CC-by-sa-v2 ), created by Paulo Morfeo http://svn.berlios.de/viewcvs/lincity-ng/trunk/data/sounds/Mill1.wav
 * shoot.flac - added Fri May 14 05:24:24 2004 UTC by sik0fewl. Message was "added sounds from Nathan McCoy" -sommer 22:43, 4 Jan 2007 (CET)
-* skid.flac - replaced with a self-made sound by wansti
+* sizzle.flac - made by LMH, licensed under CC-BY-SA 3.0
+* skid.flac - made by remaxim
 * splash.flac - Based on 'Fish Splashing-SoundBible.com-250179430' sound bible, by blastwavefx.com, released under CC-BY-SA 3.0
     and on 'Water vaporizing on hot Stones' by Natalie from pdsounds.org, released under public domain
     Mix by Marianne Gagnon, released under CC-BY-SA 3.0
 * splash2.flac - sound created by soundscalpel.com, licensed under CC-by http://freesound.org/people/soundscalpel.com/sounds/110393/
+* splat.flac - self-made by wansti with mashed potatoes and a bean bag
 * squish.flac - replaced with a self-made sound by Some_Person
 * stomp.flac - replaced with a self-made sound by Some_Person
 * switch.flac - self-made by WolfgangB GPLv2+CC-by-sa
 * tada.flac - created by plasterbrain, licensed under CC0, from https://freesound.org/people/plasterbrain/sounds/397355/
+* thud.flac - added by Tobias Markus, source unknown
 * thunder.flac - sampled by Some_Person from http://www.pdsounds.org/sounds/storm_thunderbolts
 * ticking.flac - self-made by sommer
 * totem.flac - self-made by WolfgangB GPLv2+CC-by-sa
