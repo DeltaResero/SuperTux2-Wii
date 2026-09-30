@@ -242,6 +242,15 @@ include_directories(SYSTEM ${OPENAL_INCLUDE_DIR})
 find_package(OggVorbis REQUIRED)
 include_directories(SYSTEM ${VORBIS_INCLUDE_DIR})
 
+if(VCPKG_BUILD)
+  find_package(FLAC CONFIG REQUIRED)
+  set(FLAC_TARGET FLAC::FLAC)
+else()
+  include(FindPkgConfig)
+  pkg_check_modules(FLAC REQUIRED IMPORTED_TARGET flac)
+  set(FLAC_TARGET PkgConfig::FLAC)
+endif()
+
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
   ## Find revision of WC
   mark_as_advanced(GIT_EXECUTABLE)
@@ -625,6 +634,7 @@ else()
   target_link_libraries(supertux2_lib PUBLIC ${OPENAL_LIBRARY})
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${OGGVORBIS_LIBRARIES})
+target_link_libraries(supertux2_lib PUBLIC ${FLAC_TARGET})
 
 if(HAVE_OPENGL)
   target_link_libraries(supertux2_lib PUBLIC ${OPENGL_LIBRARY})

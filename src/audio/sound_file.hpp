@@ -27,7 +27,8 @@ class SoundFile
 public:
   enum FileFormat {
     FORMAT_WAV,
-    FORMAT_OGG
+    FORMAT_OGG,
+    FORMAT_FLAC
   };
 
 public:

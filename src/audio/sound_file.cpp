@@ -25,6 +25,7 @@
 #include <sstream>
 #include <unordered_map>
 
+#include "audio/flac_sound_file.hpp"
 #include "audio/ogg_sound_file.hpp"
 #include "audio/sound_error.hpp"
 #include "audio/wav_sound_file.hpp"
@@ -124,6 +125,10 @@ std::unique_ptr<SoundFile> load_sound_file(const std::string& filename)
   {
     return std::make_unique<WavSoundFile>(std::move(file));
   }
+  else if (format == SoundFile::FORMAT_FLAC)
+  {
+    return std::make_unique<FlacSoundFile>(std::move(file));
+  }
   else
   {
     return std::make_unique<OggSoundFile>(std::move(file), 0, -1);
@@ -144,6 +149,8 @@ SoundFile::get_file_format(std::istream& file, const std::string& filename)
       return FileFormat::FORMAT_WAV;
     else if (strncmp(magic, "OggS", 4) == 0)
       return FileFormat::FORMAT_OGG;
+    else if (strncmp(magic, "fLaC", 4) == 0)
+      return FileFormat::FORMAT_FLAC;
     else
       throw SoundError("Unknown file format");
   } catch(std::exception& e) {
