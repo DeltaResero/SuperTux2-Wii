@@ -93,6 +93,9 @@ WillOWisp::finish_construction()
 void
 WillOWisp::active_update(float dt_sec)
 {
+  // Every state, not just tracking: Tux moving changes how loud it is too
+  m_sound_source->set_position(get_pos());
+
   auto player = get_nearest_player();
   if (!player) return;
   Vector p1 = m_col.m_bbox.get_middle();
@@ -119,7 +122,6 @@ WillOWisp::active_update(float dt_sec)
         /* We somehow landed right on top of the player without colliding.
          * Sit tight and avoid a division by zero. */
       }
-      m_sound_source->set_position(get_pos());
       break;
 
     case STATE_WARPING:
@@ -161,8 +163,10 @@ WillOWisp::activate()
   m_sound_source = SoundManager::current()->create_sound_source(SOUNDFILE);
   m_sound_source->set_position(get_pos());
   m_sound_source->set_looping(true);
-  m_sound_source->set_gain(1.0f);
-  m_sound_source->set_close_range();
+  // Louder than vanilla's, where a wisp beside Tux could barely be heard
+  m_sound_source->set_gain(2.0f);
+  // Shorter than other close sounds, or wisps are heard from well off screen
+  m_sound_source->set_close_range(350.0f);
   m_sound_source->play();
 }
 

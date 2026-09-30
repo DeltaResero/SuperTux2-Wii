@@ -77,7 +77,7 @@ public:
   {
   }
 
-  virtual void set_close_range() override
+  virtual void set_close_range(float ) override
   {
   }
 

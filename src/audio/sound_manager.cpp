@@ -40,9 +40,6 @@ const float BESIDE_TUX = 100.0f;
 // About two screen widths, and BadGuy's X_OFFSCREEN_DISTANCE, so a sound is gone by the time its enemy stops running
 const float PLACED_RANGE = 1280.0f;
 
-// How far a fuse, a flame or a wisp carries
-const float CLOSE_RANGE = 480.0f;
-
 // Vanilla's listener setback, reference distances and OpenAL Soft's pan, 0.5 +- 0.5 sin(t) + FRONT cos(t) per ear
 const float VANILLA_SETBACK = 300.0f;
 const float VANILLA_PLACED_REFERENCE = 128.0f;
@@ -484,13 +481,13 @@ SoundManager::set_listener_orientation(const Vector& at, const Vector& up)
 }
 
 void
-SoundManager::get_placement(const Vector& position, bool close, bool full, float& left, float& right) const
+SoundManager::get_placement(const Vector& position, bool close, float close_range, bool full, float& left, float& right) const
 {
   const float dx = position.x - m_player_position.x;
   const float dy = position.y - m_player_position.y;
 
   // Fades in a straight line from beside Tux to nothing at the sound's range
-  const float range = close ? CLOSE_RANGE : PLACED_RANGE;
+  const float range = close ? close_range : PLACED_RANGE;
   const float distance = std::sqrt(dx * dx + dy * dy);
   const float fade = std::clamp(1.0f - (distance - BESIDE_TUX) / (range - BESIDE_TUX), 0.0f, 1.0f);
 

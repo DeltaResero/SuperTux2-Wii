@@ -42,7 +42,7 @@ public:
   virtual void set_position(const Vector& position) override;
   virtual void set_velocity(const Vector& position) override;
   virtual void set_placed_range() override;
-  virtual void set_close_range() override;
+  virtual void set_close_range(float range) override;
 
   virtual void set_volume(float volume);
 
@@ -63,6 +63,8 @@ protected:
 
 private:
   Placement m_placement;
+  /** How far a close sound carries */
+  float m_close_range;
   Vector m_position;
   bool m_positioned;
   /** A sound vanilla played at full volume, having been a stereo file */

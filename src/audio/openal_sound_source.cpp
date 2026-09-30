@@ -35,6 +35,7 @@ OpenALSoundSource::OpenALSoundSource() :
   m_gain(1.0f),
   m_volume(1.0f),
   m_placement(Placement::NONE),
+  m_close_range(CLOSE_RANGE),
   m_position(),
   m_positioned(false),
   m_full(false)
@@ -189,9 +190,10 @@ OpenALSoundSource::set_placed_range()
 }
 
 void
-OpenALSoundSource::set_close_range()
+OpenALSoundSource::set_close_range(float range)
 {
   m_placement = Placement::CLOSE;
+  m_close_range = range;
   alSourcef(m_source, AL_MAX_GAIN, 2.0f);
   apply_placement();
 }
@@ -212,7 +214,7 @@ OpenALSoundSource::apply_placement()
   }
 
   float left, right;
-  SoundManager::current()->get_placement(m_position, m_placement == Placement::CLOSE, m_full, left, right);
+  SoundManager::current()->get_placement(m_position, m_placement == Placement::CLOSE, m_close_range, m_full, left, right);
   const float near_ear = std::min(std::max(left, right) * m_gain, 1.0f) * m_volume;
   const float far_ear = std::min(std::min(left, right) * m_gain, 1.0f) * m_volume;
 
