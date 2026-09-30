@@ -347,9 +347,12 @@ GameSession::update(float dt_sec, const Controller& controller)
       sector = m_level->get_sector(m_start_sector);
     }
     assert(m_currentsector != nullptr);
+    // A star carried through keeps its music rather than restarting it over the level's
+    const MusicType music_type = m_pastinvincibility ?
+      m_currentsector->get_singleton_by_type<MusicObject>().get_music_type() : LEVEL_MUSIC;
     m_currentsector->stop_looping_sounds();
     sector->activate(m_newspawnpoint);
-    sector->get_singleton_by_type<MusicObject>().play_music(LEVEL_MUSIC);
+    sector->get_singleton_by_type<MusicObject>().play_music(music_type);
     m_currentsector = sector;
     m_currentsector->play_looping_sounds();
 
