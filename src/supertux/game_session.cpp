@@ -392,15 +392,18 @@ GameSession::update(float dt_sec, const Controller& controller)
   if (m_end_sequence)
     return;
 
-  if (m_currentsector->get_player().m_invincible_timer.started()) {
-    if (m_currentsector->get_player().m_invincible_timer.get_timeleft() <=
-       TUX_INVINCIBLE_TIME_WARNING) {
-      m_currentsector->get_singleton_by_type<MusicObject>().play_music(HERRING_WARNING_MUSIC);
-    } else {
-      m_currentsector->get_singleton_by_type<MusicObject>().play_music(HERRING_MUSIC);
+  auto& music = m_currentsector->get_singleton_by_type<MusicObject>();
+  const Player& tux = m_currentsector->get_player();
+  if (tux.m_invincible_timer.started()) {
+    if (tux.m_invincible_timer.get_timeleft() <= TUX_INVINCIBLE_TIME_WARNING) {
+      if (music.get_music_type() != HERRING_WARNING_MUSIC)
+        music.play_music(HERRING_WARNING_MUSIC);
+    } else if (music.get_music_type() != HERRING_MUSIC) {
+      music.play_music(HERRING_MUSIC);
     }
-  } else if (m_currentsector->get_singleton_by_type<MusicObject>().get_music_type() != LEVEL_MUSIC) {
-    m_currentsector->get_singleton_by_type<MusicObject>().play_music(LEVEL_MUSIC);
+  } else if (music.get_music_type() != LEVEL_MUSIC && !tux.is_dying()) {
+    // Dying stops the star's timer, so without this the level music starts over the death fade
+    music.play_music(LEVEL_MUSIC);
   }
   if (reset_button) {
     reset_button = false;
