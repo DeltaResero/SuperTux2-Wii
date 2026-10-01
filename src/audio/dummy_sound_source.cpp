@@ -81,6 +81,10 @@ public:
   {
   }
 
+  virtual void set_lean_only() override
+  {
+  }
+
 private:
   bool is_playing;
 

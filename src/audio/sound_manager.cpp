@@ -63,6 +63,14 @@ bool was_stereo(const std::string& filename)
   return names.count(name.substr(0, name.rfind('.'))) > 0;
 }
 
+// Vanilla's pan for a mono sound dx to the side of Tux
+void vanilla_pan(float dx, float& near_ear, float& far_ear)
+{
+  const float turn = std::min(VANILLA_PAN_STRETCH * std::atan2(std::abs(dx), VANILLA_SETBACK), math::PI_2);
+  near_ear = 0.5f + 0.5f * std::sin(turn) + VANILLA_PAN_FRONT * std::cos(turn);
+  far_ear = 0.5f - 0.5f * std::sin(turn) + VANILLA_PAN_FRONT * std::cos(turn);
+}
+
 } // namespace
 
 SoundManager::SoundManager() :
@@ -496,9 +504,9 @@ SoundManager::get_placement(const Vector& position, bool close, float close_rang
     // Vanilla's own fall off and pan for a mono sound, so it carries and leans the way it did before fading out
     const float reference = close ? VANILLA_CLOSE_REFERENCE : VANILLA_PLACED_REFERENCE;
     const float heard = reference / std::sqrt(dx * dx + dy * dy + VANILLA_SETBACK * VANILLA_SETBACK);
-    const float turn = std::min(VANILLA_PAN_STRETCH * std::atan2(std::abs(dx), VANILLA_SETBACK), math::PI_2);
-    near_ear = heard * fade * (0.5f + 0.5f * std::sin(turn) + VANILLA_PAN_FRONT * std::cos(turn));
-    far_ear = heard * fade * (0.5f - 0.5f * std::sin(turn) + VANILLA_PAN_FRONT * std::cos(turn));
+    vanilla_pan(dx, near_ear, far_ear);
+    near_ear *= heard * fade;
+    far_ear *= heard * fade;
   } else {
     // A stereo sound vanilla never placed keeps its full volume beside Tux, and the far ear fades out gently
     const float lean = std::clamp((std::abs(dx) - BESIDE_TUX) / (range - BESIDE_TUX), 0.0f, 1.0f);
@@ -506,6 +514,17 @@ SoundManager::get_placement(const Vector& position, bool close, float close_rang
     far_ear = near_ear * (1.0f - lean);
   }
 
+  far_ear = std::max(far_ear, near_ear * FAR_EAR_FLOOR);
+  left = (dx > 0.0f) ? far_ear : near_ear;
+  right = (dx > 0.0f) ? near_ear : far_ear;
+}
+
+void
+SoundManager::get_lean(const Vector& position, float& left, float& right) const
+{
+  const float dx = position.x - m_player_position.x;
+  float near_ear, far_ear;
+  vanilla_pan(dx, near_ear, far_ear);
   far_ear = std::max(far_ear, near_ear * FAR_EAR_FLOOR);
   left = (dx > 0.0f) ? far_ear : near_ear;
   right = (dx > 0.0f) ? near_ear : far_ear;

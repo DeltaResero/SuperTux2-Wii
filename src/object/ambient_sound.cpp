@@ -16,11 +16,13 @@
 
 #include "object/ambient_sound.hpp"
 
+#include <algorithm>
 #include <limits>
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "object/camera.hpp"
+#include "object/player.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
@@ -92,6 +94,7 @@ AmbientSound::start_playing()
 
     sound_source->set_gain(0);
     sound_source->set_looping(true);
+    sound_source->set_lean_only();
     currentvolume=targetvolume=1e-20f;
     sound_source->play();
   } catch(std::exception& e) {
@@ -136,8 +139,13 @@ AmbientSound::update(float dt_sec)
 
     if (sound_source != nullptr) {
 
-      // set the volume
-      sound_source->set_gain(currentvolume*maximumvolume);
+      // From the nearest point of the area to Tux, so inside it the sound is in both ears
+      const Vector tux = Sector::get().get_player().get_bbox().get_middle();
+      sound_source->set_position(Vector(std::clamp(tux.x, m_col.m_bbox.get_left(), m_col.m_bbox.get_right()),
+                                        std::clamp(tux.y, m_col.m_bbox.get_top(), m_col.m_bbox.get_bottom())));
+
+      // OpenAL capped a source at full volume before, and levels set volume 200 counting on it
+      sound_source->set_gain(std::min(currentvolume * maximumvolume, 1.0f));
 
       if (sqrdistance>=silence_distance && currentvolume < 1e-3f)
         stop_playing();
@@ -194,6 +202,20 @@ AmbientSound::collision(GameObject& other, const CollisionHit& hit_)
 void
 AmbientSound::draw(DrawingContext& context)
 {
+}
+
+void
+AmbientSound::stop_looping_sounds()
+{
+  if (sound_source)
+    sound_source->pause();
+}
+
+void
+AmbientSound::play_looping_sounds()
+{
+  if (sound_source)
+    sound_source->play();
 }
 
 /* EOF */

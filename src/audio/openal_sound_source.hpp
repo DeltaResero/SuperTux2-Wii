@@ -43,6 +43,7 @@ public:
   virtual void set_velocity(const Vector& position) override;
   virtual void set_placed_range() override;
   virtual void set_close_range(float range) override;
+  virtual void set_lean_only() override;
 
   virtual void set_volume(float volume);
 
@@ -51,7 +52,7 @@ public:
   virtual void update();
 
 private:
-  enum class Placement { NONE, PLACED, CLOSE };
+  enum class Placement { NONE, PLACED, CLOSE, LEAN };
 
   /** Sets both ears' volume from SoundManager::get_placement, where OpenAL alone pans much harder */
   void apply_placement();

@@ -210,6 +210,14 @@ OpenALSoundSource::set_close_range(float range)
 }
 
 void
+OpenALSoundSource::set_lean_only()
+{
+  m_placement = Placement::LEAN;
+  alSourcef(m_source, AL_MAX_GAIN, 2.0f);
+  apply_placement();
+}
+
+void
 OpenALSoundSource::set_volume(float volume)
 {
   m_volume = volume;
@@ -226,7 +234,10 @@ OpenALSoundSource::apply_placement()
   }
 
   float left, right;
-  SoundManager::current()->get_placement(m_position, m_placement == Placement::CLOSE, m_close_range, m_full, left, right);
+  if (m_placement == Placement::LEAN)
+    SoundManager::current()->get_lean(m_position, left, right);
+  else
+    SoundManager::current()->get_placement(m_position, m_placement == Placement::CLOSE, m_close_range, m_full, left, right);
   const float left_ear = std::min(left * m_gain, 1.0f) * m_volume;
   const float right_ear = std::min(right * m_gain, 1.0f) * m_volume;
 

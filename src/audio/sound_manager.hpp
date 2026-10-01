@@ -82,6 +82,9 @@ public:
   /** How much of its gain each ear hears of a sound at position, given its range and whether it was stereo */
   void get_placement(const Vector& position, bool close, float close_range, bool full, float& left, float& right) const;
 
+  /** Each ear's share of a sound at position from vanilla's pan alone, for one that sets its own volume */
+  void get_lean(const Vector& position, float& left, float& right) const;
+
   void enable_music(bool music_enabled);
   void play_music(const std::string& filename, float fadetime);
   void play_music(const std::string& filename, bool fade = false);

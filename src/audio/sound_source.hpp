@@ -48,6 +48,8 @@ public:
   virtual void set_placed_range() = 0;
   /** Carries only a short way and is gone by range pixels from Tux */
   virtual void set_close_range(float range = CLOSE_RANGE) = 0;
+  /** Only leans toward its side of Tux, for a sound that sets its own volume */
+  virtual void set_lean_only() = 0;
 
 private:
   SoundSource(const SoundSource&) = delete;
