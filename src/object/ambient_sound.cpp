@@ -178,7 +178,8 @@ AmbientSound::set_pos(const Vector& pos)
 void
 AmbientSound::set_pos(float x, float y)
 {
-  m_col.m_bbox.set_pos(Vector(x, y));
+  // Moves where the collision step will put it too, or a trigger moving it would be undone
+  MovingObject::set_pos(Vector(x, y));
 }
 
 float
