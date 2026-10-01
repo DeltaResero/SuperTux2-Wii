@@ -17,7 +17,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_HURTING_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_HURTING_PLATFORM_HPP
 
+#include "audio/sound_source.hpp"
 #include "object/platform.hpp"
+#include "supertux/timer.hpp"
 
 /** Platform that hurts Tux and Badguys when touched */
 class HurtingPlatform final : public Platform
@@ -26,7 +28,25 @@ public:
   HurtingPlatform(const ReaderMapping& reader);
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
+  virtual void update(float dt_sec) override;
   virtual std::string get_class() const override { return "hurting_platform"; }
+
+  virtual void stop_looping_sounds() override;
+  virtual void play_looping_sounds() override;
+
+private:
+  std::unique_ptr<SoundSource> play_saw_sound(const std::string& file, bool looping) const;
+
+private:
+  /** Uses the saw blade sprite, the only hurting platform that whirrs */
+  bool m_saw;
+  /** It stood still at some point, so it spins up when it starts */
+  bool m_was_still;
+  /** The spin up and the whirr it leads into, playing only while the saw moves */
+  std::unique_ptr<SoundSource> m_start_source;
+  std::unique_ptr<SoundSource> m_sound_source;
+  /** When the whirr takes over from the spin up */
+  Timer m_whirr_timer;
 
 private:
   HurtingPlatform(const HurtingPlatform&) = delete;

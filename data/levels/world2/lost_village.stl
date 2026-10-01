@@ -8,16 +8,6 @@
     (ambient-light
       (color 0.6 0.6 0.6 0.6)
     )
-    (ambient-sound
-      (sample "sounds/saw.flac")
-      (distance_factor 0.1)
-      (distance_bias 200)
-      (volume 200)
-      (width 660.7677)
-      (height 213.7371)
-      (x 1248)
-      (y 832)
-    )
     (background
       (color 1 1 1)
       (speed 0)
