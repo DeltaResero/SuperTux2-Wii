@@ -11,9 +11,10 @@
     )
     (ambient-sound
       (sample "/sounds/waterfall.flac")
-      (distance_factor 20)
-      (distance_bias 20)
-      (volume 4)
+      (distance_factor 0.008)
+      (distance_bias 0)
+      (silence_distance 2250000)
+      (volume 0.316)
       (width 608)
       (height 352)
       (x 320)
