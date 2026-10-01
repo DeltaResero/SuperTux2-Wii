@@ -109,6 +109,9 @@ GameSession::restart_level(bool after_death)
 
   InputManager::current()->reset();
 
+  // The old level stays alive until the next restart and nothing else would stop its looping sounds
+  if (m_currentsector)
+    m_currentsector->stop_looping_sounds();
   m_currentsector = nullptr;
 
   const std::string base_dir = FileSystem::dirname(m_levelfile);
