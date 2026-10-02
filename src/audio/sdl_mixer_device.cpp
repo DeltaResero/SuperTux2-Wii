@@ -21,6 +21,7 @@
 #include <memory>
 #include <stdexcept>
 
+#include "audio/sdl_music.hpp"
 #include "audio/sdl_sound_source.hpp"
 #include "audio/sound_file.hpp"
 #include "util/log.hpp"
@@ -40,21 +41,25 @@ const int CHANNELS = 64;
 
 SDLMixerDevice::SDLMixerDevice() :
   m_open(false),
+  m_rate(RATE),
   m_chunks(),
   m_listener(0.0f, 0.0f),
   m_channel_plays(),
   m_plays(0),
-  m_sources()
+  m_sources(),
+  m_music_source()
 {
   if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
     log_warning << "Couldn't initialize audio device: " << SDL_GetError() << std::endl;
     return;
   }
-  if (Mix_OpenAudio(RATE, MIX_DEFAULT_FORMAT, 2, FRAGMENT) < 0) {
+  // The music is written straight into the mix, so the samples have to stay 16 bit stereo
+  if (Mix_OpenAudioDevice(RATE, AUDIO_S16SYS, 2, FRAGMENT, nullptr, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE) < 0) {
     log_warning << "Couldn't initialize audio device: " << Mix_GetError() << std::endl;
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     return;
   }
+  Mix_QuerySpec(&m_rate, nullptr, nullptr);
   Mix_AllocateChannels(CHANNELS);
   m_channel_plays.assign(CHANNELS, 0);
   m_open = true;
@@ -65,7 +70,8 @@ SDLMixerDevice::~SDLMixerDevice()
   if (!m_open)
     return;
 
-  // No channel can still be playing a chunk that's freed
+  // No channel can still be playing a chunk that's freed, nor the mixer reading the music
+  set_music(nullptr);
   Mix_HaltChannel(-1);
   for (const auto& chunk : m_chunks) {
     Mix_FreeChunk(chunk.second.chunk);
@@ -135,6 +141,101 @@ SDLMixerDevice::preload(const std::string& filename)
     get_chunk(filename);
   } catch(std::exception& e) {
     log_warning << "Error while preloading sound file: " << e.what() << std::endl;
+  }
+}
+
+void
+SDLMixerDevice::set_music(std::unique_ptr<SDLMusic> music)
+{
+  Mix_HookMusic(nullptr, nullptr);
+  m_music_source = std::move(music);
+  if (m_music_source)
+    Mix_HookMusic(SDLMusic::feed, m_music_source.get());
+}
+
+void
+SDLMixerDevice::play_music(const std::string& filename, float fadetime, float volume)
+{
+  auto newmusic = std::make_unique<SDLMusic>(load_sound_file(filename), m_rate);
+  newmusic->set_volume(volume);
+  if (fadetime > 0)
+    newmusic->set_fading(SDLMusic::FadingOn, fadetime);
+  newmusic->play();
+
+  set_music(std::move(newmusic));
+}
+
+void
+SDLMixerDevice::keep_music_playing()
+{
+  if (m_music_source == nullptr)
+    return;
+
+  if (m_music_source->paused())
+  {
+    m_music_source->resume();
+  }
+  else if (!m_music_source->playing())
+  {
+    m_music_source->play();
+  }
+}
+
+void
+SDLMixerDevice::stop_music(float fadetime)
+{
+  if (fadetime > 0) {
+    if (m_music_source
+        && m_music_source->get_fade_state() != SDLMusic::FadingOff)
+      m_music_source->set_fading(SDLMusic::FadingOff, fadetime);
+  } else {
+    set_music(nullptr);
+  }
+}
+
+void
+SDLMixerDevice::pause_music(float fadetime)
+{
+  if (m_music_source == nullptr)
+    return;
+
+  if (fadetime > 0) {
+    if (m_music_source
+        && m_music_source->get_fade_state() != SDLMusic::FadingPause)
+      m_music_source->set_fading(SDLMusic::FadingPause, fadetime);
+  } else {
+    m_music_source->pause();
+  }
+}
+
+void
+SDLMixerDevice::resume_music(float fadetime)
+{
+  if (m_music_source == nullptr)
+    return;
+
+  if (fadetime > 0) {
+    if (m_music_source
+        && m_music_source->get_fade_state() != SDLMusic::FadingResume) {
+      m_music_source->set_fading(SDLMusic::FadingResume, fadetime);
+      m_music_source->resume();
+    }
+  } else {
+    m_music_source->resume();
+  }
+}
+
+void
+SDLMixerDevice::set_music_volume(float volume)
+{
+  if (m_music_source != nullptr) m_music_source->set_volume(volume);
+}
+
+void
+SDLMixerDevice::update()
+{
+  if (m_music_source) {
+    m_music_source->update();
   }
 }
 
