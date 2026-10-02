@@ -57,7 +57,7 @@ bool was_stereo(const std::string& filename)
 {
   static const std::set<std::string> names = {
     "cracking", "crystallo-shardhit", "crystallo-shatter", "fall", "fire", "firecracker",
-    "grunts", "icecrash", "sizzle", "squish", "stomp"
+    "grunts", "icecrash", "sizzle", "squish", "stomp", "trampoline"
   };
   const std::string name = FileSystem::basename(filename);
   return names.count(name.substr(0, name.rfind('.'))) > 0;
