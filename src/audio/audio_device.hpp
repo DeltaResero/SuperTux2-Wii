@@ -40,6 +40,18 @@ public:
   /** Reads a short sound in now, so the first time it plays doesn't stall */
   virtual void preload(const std::string& filename) = 0;
 
+  /** Starts filename looping at volume, fading in over fadetime seconds. Throws if it can't be read */
+  virtual void play_music(const std::string& filename, float fadetime, float volume) = 0;
+  /** Makes sure the loaded track is running, resuming it if it's paused or playing it if it stopped */
+  virtual void keep_music_playing() = 0;
+  /** Fades the track out over fadetime seconds, or drops it at once for 0 */
+  virtual void stop_music(float fadetime) = 0;
+  virtual void pause_music(float fadetime) = 0;
+  virtual void resume_music(float fadetime) = 0;
+  virtual void set_music_volume(float volume) = 0;
+  /** Whether a track is loaded, playing or not */
+  virtual bool has_music() const = 0;
+
   virtual void set_listener_position(const Vector& position) = 0;
   virtual void set_listener_orientation(const Vector& at, const Vector& up) = 0;
 

@@ -37,7 +37,8 @@ const size_t STREAM_FROM = 100000;
 OpenALDevice::OpenALDevice() :
   m_device(alcOpenDevice(nullptr)),
   m_context(alcCreateContext(m_device, nullptr)),
-  m_buffers()
+  m_buffers(),
+  m_music_source()
 {
   try {
     if (m_device == nullptr) {
@@ -64,6 +65,9 @@ OpenALDevice::OpenALDevice() :
 
 OpenALDevice::~OpenALDevice()
 {
+  // The music streams through buffers of its own, which go before the context
+  m_music_source.reset();
+
   for (const auto& buffer : m_buffers) {
     alDeleteBuffers(1, &buffer.second);
   }
@@ -157,6 +161,87 @@ OpenALDevice::preload(const std::string& filename)
 }
 
 void
+OpenALDevice::play_music(const std::string& filename, float fadetime, float volume)
+{
+  auto newmusic = std::make_unique<StreamSoundSource>();
+  newmusic->set_sound_file(load_sound_file(filename));
+  newmusic->set_looping(true);
+  newmusic->set_relative(true);
+  newmusic->set_volume(volume);
+  if (fadetime > 0)
+    newmusic->set_fading(StreamSoundSource::FadingOn, fadetime);
+  newmusic->play();
+
+  m_music_source = std::move(newmusic);
+}
+
+void
+OpenALDevice::keep_music_playing()
+{
+  if (m_music_source == nullptr)
+    return;
+
+  if (m_music_source->paused())
+  {
+    m_music_source->resume();
+  }
+  else if (!m_music_source->playing())
+  {
+    m_music_source->play();
+  }
+}
+
+void
+OpenALDevice::stop_music(float fadetime)
+{
+  if (fadetime > 0) {
+    if (m_music_source
+        && m_music_source->get_fade_state() != StreamSoundSource::FadingOff)
+      m_music_source->set_fading(StreamSoundSource::FadingOff, fadetime);
+  } else {
+    m_music_source.reset();
+  }
+}
+
+void
+OpenALDevice::pause_music(float fadetime)
+{
+  if (m_music_source == nullptr)
+    return;
+
+  if (fadetime > 0) {
+    if (m_music_source
+        && m_music_source->get_fade_state() != StreamSoundSource::FadingPause)
+      m_music_source->set_fading(StreamSoundSource::FadingPause, fadetime);
+  } else {
+    m_music_source->pause();
+  }
+}
+
+void
+OpenALDevice::resume_music(float fadetime)
+{
+  if (m_music_source == nullptr)
+    return;
+
+  if (fadetime > 0) {
+    if (m_music_source
+        && m_music_source->get_fade_state() != StreamSoundSource::FadingResume) {
+      m_music_source->set_fading(StreamSoundSource::FadingResume, fadetime);
+      m_music_source->resume();
+    }
+  } else {
+    m_music_source->resume();
+  }
+}
+
+void
+OpenALDevice::set_music_volume(float volume)
+{
+  if (m_music_source != nullptr) m_music_source->set_volume(volume);
+}
+
+void
 OpenALDevice::set_listener_position(const Vector& pos)
 {
   alListener3f(AL_POSITION, pos.x, pos.y, -300);
@@ -172,6 +257,11 @@ OpenALDevice::set_listener_orientation(const Vector& at, const Vector& up)
 void
 OpenALDevice::update()
 {
+  // check streaming sounds
+  if (m_music_source) {
+    m_music_source->update();
+  }
+
   if (m_context)
   {
     alcProcessContext(m_context);
