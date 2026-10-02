@@ -44,9 +44,22 @@ public:
     is_playing = false;
   }
 
+  virtual void resume() override
+  {
+  }
+
   virtual bool playing() const override
   {
     return is_playing;
+  }
+
+  virtual bool paused() const override
+  {
+    return false;
+  }
+
+  virtual void update() override
+  {
   }
 
   virtual void set_looping(bool ) override
@@ -58,6 +71,10 @@ public:
   }
 
   virtual void set_gain(float ) override
+  {
+  }
+
+  virtual void set_volume(float ) override
   {
   }
 
@@ -85,6 +102,10 @@ public:
   {
   }
 
+  virtual void update_placement() override
+  {
+  }
+
 private:
   bool is_playing;
 
@@ -96,6 +117,11 @@ private:
 std::unique_ptr<SoundSource> create_dummy_sound_source()
 {
   return std::make_unique<DummySoundSource>();
+}
+
+bool is_dummy_sound_source(const SoundSource& source)
+{
+  return dynamic_cast<const DummySoundSource*>(&source) != nullptr;
 }
 
 /* EOF */
