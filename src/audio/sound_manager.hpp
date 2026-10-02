@@ -19,6 +19,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -58,11 +59,11 @@ public:
   std::unique_ptr<SoundSource> create_sound_source(const std::string& filename);
 
   /** Convenience functions to simply play a sound at a given position. */
-  void play(const std::string& name, const Vector& pos = Vector(-1, -1),
+  void play(const std::string& name, const std::optional<Vector>& pos = std::nullopt,
     const float gain = 0.5f);
   void play(const std::string& name, const float gain)
   {
-    play(name, Vector(-1, -1), gain);
+    play(name, std::nullopt, gain);
   }
 
 

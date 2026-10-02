@@ -233,7 +233,7 @@ SoundManager::preload(const std::string& filename)
 }
 
 void
-SoundManager::play(const std::string& filename, const Vector& pos,
+SoundManager::play(const std::string& filename, const std::optional<Vector>& pos,
   const float gain)
 {
   if (!m_sound_enabled)
@@ -247,11 +247,11 @@ SoundManager::play(const std::string& filename, const Vector& pos,
     std::unique_ptr<OpenALSoundSource> source(intern_create_sound_source(filename));
     source->set_gain(gain);
 
-    if (pos.x < 0 || pos.y < 0) {
+    if (!pos) {
       source->set_relative(true);
     } else {
       source->set_placed_range();
-      source->set_position(pos);
+      source->set_position(*pos);
     }
     source->play();
     m_sources.push_back(std::move(source));
