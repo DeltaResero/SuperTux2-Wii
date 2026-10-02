@@ -161,7 +161,7 @@
       (y 780.1)
     )
     (music
-      (file "/music/antarctic/airship_remix.ogg")
+      (file "/music/antarctic/airship_remix.music")
     )
     (sequencetrigger
       (sequence "endsequence")

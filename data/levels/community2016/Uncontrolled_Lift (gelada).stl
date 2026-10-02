@@ -240,7 +240,7 @@ Wait!")
       (y 166)
     )
     (music
-      (file "music/forest/wisphunt.ogg")
+      (file "music/forest/wisphunt.music")
     )
     (particles-snow
       (z-pos 200)
