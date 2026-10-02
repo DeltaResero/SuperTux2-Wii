@@ -24,6 +24,12 @@
 
 class SoundSource;
 
+/** Which library plays the sound, not in capitals as al.h defines OPENAL */
+enum class AudioBackend { Automatic, OpenAL, SdlMixer };
+
+/** The backend named on the command line. Throws for a name this build doesn't have */
+AudioBackend audio_backend_from_string(const std::string& name);
+
 /** The sound library under SoundManager, which keeps everything that doesn't depend on it */
 class AudioDevice
 {

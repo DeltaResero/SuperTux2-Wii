@@ -16,6 +16,8 @@
 
 #include "audio/sound_manager.hpp"
 
+#include <config.h>
+
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -26,8 +28,13 @@
 
 #include "audio/dummy_sound_source.hpp"
 #include "audio/openal_device.hpp"
+#ifdef ENABLE_SDL_MIXER
+#include "audio/sdl_mixer_device.hpp"
+#endif
 #include "audio/sound_source.hpp"
 #include "math/util.hpp"
+#include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
 
@@ -70,10 +77,19 @@ void vanilla_pan(float dx, float& near_ear, float& far_ear)
   far_ear = 0.5f - 0.5f * std::sin(turn) + VANILLA_PAN_FRONT * std::cos(turn);
 }
 
+std::unique_ptr<AudioDevice> open_device()
+{
+#ifdef ENABLE_SDL_MIXER
+  if (g_config && g_config->audio_backend == AudioBackend::SdlMixer)
+    return std::make_unique<SDLMixerDevice>();
+#endif
+  return std::make_unique<OpenALDevice>();
+}
+
 } // namespace
 
 SoundManager::SoundManager() :
-  m_device(std::make_unique<OpenALDevice>()),
+  m_device(open_device()),
   m_sound_enabled(false),
   m_sound_volume(0),
   m_sources(),

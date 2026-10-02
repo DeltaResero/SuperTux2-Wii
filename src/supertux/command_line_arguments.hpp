@@ -20,6 +20,7 @@
 #include <optional>
 #include <vector>
 
+#include "audio/audio_device.hpp"
 #include "math/size.hpp"
 #include "math/vector.hpp"
 #include "util/log.hpp"
@@ -62,6 +63,7 @@ public:
   std::optional<bool> show_player_pos;
   std::optional<bool> sound_enabled;
   std::optional<bool> music_enabled;
+  std::optional<AudioBackend> audio_backend;
 
   // std::optional<int> random_seed;
 

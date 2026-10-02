@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include "control/joystick_config.hpp"
+#include "audio/audio_device.hpp"
 #include "control/keyboard_config.hpp"
 #include "math/size.hpp"
 #include "math/vector.hpp"
@@ -66,6 +67,8 @@ public:
   bool music_enabled;
   int sound_volume;
   int music_volume;
+  /** Which sound library plays, chosen on the command line */
+  AudioBackend audio_backend;
 
   /** initial random seed.  0 ==> set from time() */
   int random_seed;
