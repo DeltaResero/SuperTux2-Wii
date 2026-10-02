@@ -26,9 +26,10 @@
 #include "audio/audio_device.hpp"
 #include "math/vector.hpp"
 
+class SDLMusic;
 class SDLSoundSource;
 
-/** SDL_mixer, with every sound read whole, as it can only play a sound it holds */
+/** SDL_mixer, with every sound read whole, as it can only play a sound it holds, and the music fed to it as it plays */
 class SDLMixerDevice final : public AudioDevice
 {
 public:
@@ -40,19 +41,18 @@ public:
   std::unique_ptr<SoundSource> create_source(const std::string& filename, bool full) override;
   void preload(const std::string& filename) override;
 
-  // SDL_mixer doesn't play the music yet
-  void play_music(const std::string& , float , float ) override {}
-  void keep_music_playing() override {}
-  void stop_music(float ) override {}
-  void pause_music(float ) override {}
-  void resume_music(float ) override {}
-  void set_music_volume(float ) override {}
-  bool has_music() const override { return false; }
+  void play_music(const std::string& filename, float fadetime, float volume) override;
+  void keep_music_playing() override;
+  void stop_music(float fadetime) override;
+  void pause_music(float fadetime) override;
+  void resume_music(float fadetime) override;
+  void set_music_volume(float volume) override;
+  bool has_music() const override { return m_music_source != nullptr; }
 
   void set_listener_position(const Vector& position) override;
   void set_listener_orientation(const Vector& , const Vector& ) override {}
 
-  void update() override {}
+  void update() override;
 
   const Vector& get_listener_position() const { return m_listener; }
 
@@ -74,8 +74,12 @@ private:
 
   const Chunk& get_chunk(const std::string& filename);
 
+  /** Swaps in a new track, or none, while SDL_mixer isn't reading the old one */
+  void set_music(std::unique_ptr<SDLMusic> music);
+
 private:
   bool m_open;
+  int m_rate;
   std::map<std::string, Chunk> m_chunks;
   Vector m_listener;
 
@@ -84,6 +88,8 @@ private:
   unsigned m_plays;
 
   std::vector<SDLSoundSource*> m_sources;
+
+  std::unique_ptr<SDLMusic> m_music_source;
 
 private:
   SDLMixerDevice(const SDLMixerDevice&) = delete;
