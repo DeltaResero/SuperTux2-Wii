@@ -26,6 +26,13 @@
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 
+namespace {
+
+// Vanilla played a coin in the middle of the screen at this, heard from 300 px back and falling off from 128
+const float COIN_GAIN = 128.0f / 300.0f;
+
+} // namespace
+
 Coin::Coin(const Vector& pos) :
   MovingSprite(pos, "images/objects/coin/coin.sprite", LAYER_OBJECTS - 1, COLGROUP_TOUCHABLE),
   PathObject(),
@@ -154,7 +161,9 @@ Coin::collect()
   sound_timer.start(1);
 
   std::unique_ptr<SoundSource> soundSource = SoundManager::current()->create_sound_source("sounds/coin.flac");
-  soundSource->set_position(get_pos());
+  // Tux is always on the coin, so it plays in both ears
+  soundSource->set_relative(true);
+  soundSource->set_gain(COIN_GAIN);
   soundSource->set_pitch(pitch);
   soundSource->play();
   SoundManager::current()->manage_source(std::move(soundSource));
