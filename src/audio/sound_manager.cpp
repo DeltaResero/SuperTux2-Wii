@@ -26,8 +26,7 @@
 
 #include "audio/dummy_sound_source.hpp"
 #include "audio/openal_device.hpp"
-#include "audio/sound_file.hpp"
-#include "audio/stream_sound_source.hpp"
+#include "audio/sound_source.hpp"
 #include "math/util.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
@@ -79,7 +78,6 @@ SoundManager::SoundManager() :
   m_sound_volume(0),
   m_sources(),
   m_update_list(),
-  m_music_source(),
   m_music_enabled(false),
   m_music_volume(0),
   m_current_music(),
@@ -96,7 +94,6 @@ SoundManager::SoundManager() :
 SoundManager::~SoundManager()
 {
   // The device owns the buffers the sources play, so they go first
-  m_music_source.reset();
   m_sources.clear();
   m_device.reset();
 }
@@ -178,22 +175,22 @@ SoundManager::manage_source(std::unique_ptr<SoundSource> source)
 }
 
 void
-SoundManager::register_for_update(StreamSoundSource* sss)
+SoundManager::register_for_update(SoundSource* source)
 {
-  if (sss)
+  if (source)
   {
-    m_update_list.push_back(sss);
+    m_update_list.push_back(source);
   }
 }
 
 void
-SoundManager::remove_from_update(StreamSoundSource* sss)
+SoundManager::remove_from_update(SoundSource* source)
 {
-  if (sss)
+  if (source)
   {
     auto it = m_update_list.begin();
     while (it != m_update_list.end()) {
-      if (*it == sss) {
+      if (*it == source) {
         it = m_update_list.erase(it);
       } else {
         ++it;
@@ -221,22 +218,14 @@ SoundManager::enable_music(bool enable)
   if (m_music_enabled) {
     play_music(m_current_music);
   } else {
-    if (m_music_source) {
-      m_music_source.reset();
-    }
+    m_device->stop_music(0);
   }
 }
 
 void
 SoundManager::stop_music(float fadetime)
 {
-  if (fadetime > 0) {
-    if (m_music_source
-       && m_music_source->get_fade_state() != StreamSoundSource::FadingOff)
-      m_music_source->set_fading(StreamSoundSource::FadingOff, fadetime);
-  } else {
-    m_music_source.reset();
-  }
+  m_device->stop_music(fadetime);
   m_current_music = "";
 }
 
@@ -244,22 +233,15 @@ void
 SoundManager::set_music_volume(int volume)
 {
   m_music_volume = volume;
-  if (m_music_source != nullptr) m_music_source->set_volume(static_cast<float>(volume) / 100.0f);
+  m_device->set_music_volume(static_cast<float>(volume) / 100.0f);
 }
 
 void
 SoundManager::play_music(const std::string& filename, float fadetime)
 {
-  if (filename == m_current_music && m_music_source != nullptr)
+  if (filename == m_current_music && m_device->has_music())
   {
-    if (m_music_source->paused())
-    {
-      m_music_source->resume();
-    }
-    else if (!m_music_source->playing())
-    {
-      m_music_source->play();
-    }
+    m_device->keep_music_playing();
     return;
   }
   m_current_music = filename;
@@ -267,21 +249,12 @@ SoundManager::play_music(const std::string& filename, float fadetime)
     return;
 
   if (filename.empty()) {
-    m_music_source.reset();
+    m_device->stop_music(0);
     return;
   }
 
   try {
-    auto newmusic = std::make_unique<StreamSoundSource>();
-    newmusic->set_sound_file(load_sound_file(filename));
-    newmusic->set_looping(true);
-    newmusic->set_relative(true);
-    newmusic->set_volume(static_cast<float>(m_music_volume) / 100.0f);
-    if (fadetime > 0)
-      newmusic->set_fading(StreamSoundSource::FadingOn, fadetime);
-    newmusic->play();
-
-    m_music_source = std::move(newmusic);
+    m_device->play_music(filename, fadetime, static_cast<float>(m_music_volume) / 100.0f);
   } catch(std::exception& e) {
     log_warning << "Couldn't play music file '" << filename << "': " << e.what() << std::endl;
     // When this happens, previous music continued playing, stop it, just in case.
@@ -298,16 +271,7 @@ SoundManager::play_music(const std::string& filename, bool fade)
 void
 SoundManager::pause_music(float fadetime)
 {
-  if (m_music_source == nullptr)
-    return;
-
-  if (fadetime > 0) {
-    if (m_music_source
-       && m_music_source->get_fade_state() != StreamSoundSource::FadingPause)
-      m_music_source->set_fading(StreamSoundSource::FadingPause, fadetime);
-  } else {
-    m_music_source->pause();
-  }
+  m_device->pause_music(fadetime);
 }
 
 void
@@ -350,18 +314,7 @@ SoundManager::set_sound_volume(int volume)
 void
 SoundManager::resume_music(float fadetime)
 {
-  if (m_music_source == nullptr)
-    return;
-
-  if (fadetime > 0) {
-    if (m_music_source
-       && m_music_source->get_fade_state() != StreamSoundSource::FadingResume) {
-      m_music_source->set_fading(StreamSoundSource::FadingResume, fadetime);
-      m_music_source->resume();
-    }
-  } else {
-    m_music_source->resume();
-  }
+  m_device->resume_music(fadetime);
 }
 
 void
@@ -457,11 +410,6 @@ SoundManager::update()
       ++it;
     }
   }
-  // check streaming sounds
-  if (m_music_source) {
-    m_music_source->update();
-  }
-
   m_device->update();
 
   //run update() for stream_sound_source

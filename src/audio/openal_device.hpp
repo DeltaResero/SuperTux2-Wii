@@ -27,8 +27,9 @@
 #include "audio/audio_device.hpp"
 
 class SoundFile;
+class StreamSoundSource;
 
-/** OpenAL itself, with the buffer of every short sound already read */
+/** OpenAL itself, with the buffer of every short sound already read and the music */
 class OpenALDevice final : public AudioDevice
 {
 public:
@@ -39,6 +40,14 @@ public:
 
   std::unique_ptr<SoundSource> create_source(const std::string& filename, bool full) override;
   void preload(const std::string& filename) override;
+
+  void play_music(const std::string& filename, float fadetime, float volume) override;
+  void keep_music_playing() override;
+  void stop_music(float fadetime) override;
+  void pause_music(float fadetime) override;
+  void resume_music(float fadetime) override;
+  void set_music_volume(float volume) override;
+  bool has_music() const override { return m_music_source != nullptr; }
 
   void set_listener_position(const Vector& position) override;
   void set_listener_orientation(const Vector& at, const Vector& up) override;
@@ -58,6 +67,7 @@ private:
   ALCcontext* m_context;
 
   std::map<std::string, ALuint> m_buffers;
+  std::unique_ptr<StreamSoundSource> m_music_source;
 
 private:
   OpenALDevice(const OpenALDevice&) = delete;

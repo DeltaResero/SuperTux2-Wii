@@ -27,7 +27,6 @@
 
 class AudioDevice;
 class SoundSource;
-class StreamSoundSource;
 
 class SoundManager final : public Currenton<SoundManager>
 {
@@ -88,11 +87,11 @@ public:
   std::string get_current_music() const { return m_current_music; }
   void update();
 
-  /** Tell soundmanager to call update() for stream_sound_source. */
-  void register_for_update(StreamSoundSource* sss);
+  /** Tell soundmanager to call update() for a source, such as a stream_sound_source. */
+  void register_for_update(SoundSource* source);
 
-  /** Unsubscribe from updates for stream_sound_source. */
-  void remove_from_update(StreamSoundSource* sss);
+  /** Unsubscribe a source from updates. */
+  void remove_from_update(SoundSource* source);
 
 private:
   /** creates a new sound source, might throw exceptions, never returns nullptr */
@@ -105,9 +104,7 @@ private:
 
   std::vector<std::unique_ptr<SoundSource> > m_sources;
 
-  std::vector<StreamSoundSource*> m_update_list;
-
-  std::unique_ptr<StreamSoundSource> m_music_source;
+  std::vector<SoundSource*> m_update_list;
 
   bool m_music_enabled;
   int m_music_volume;
