@@ -22,6 +22,7 @@
 class SoundSource;
 
 std::unique_ptr<SoundSource> create_dummy_sound_source();
+bool is_dummy_sound_source(const SoundSource& source);
 
 #endif
 

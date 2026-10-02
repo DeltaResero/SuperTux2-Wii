@@ -17,35 +17,20 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SOUND_MANAGER_HPP
 #define HEADER_SUPERTUX_AUDIO_SOUND_MANAGER_HPP
 
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
-#include <al.h>
-#include <alc.h>
-
 #include "math/vector.hpp"
 #include "util/currenton.hpp"
 
-class SoundFile;
+class AudioDevice;
 class SoundSource;
 class StreamSoundSource;
-class OpenALSoundSource;
 
 class SoundManager final : public Currenton<SoundManager>
 {
-  friend class OpenALSoundSource;
-  friend class StreamSoundSource;
-
-private:
-  static ALuint load_file_into_buffer(SoundFile& file);
-  static ALenum get_sample_format(const SoundFile& file);
-
-  static void print_openal_version();
-  static void check_al_error(const char* message);
-
 public:
   SoundManager();
   ~SoundManager() override;
@@ -99,7 +84,7 @@ public:
   void stop_sounds();
   void set_sound_volume(int volume);
 
-  bool is_audio_enabled() const { return m_device != nullptr && m_context != nullptr; }
+  bool is_audio_enabled() const;
   std::string get_current_music() const { return m_current_music; }
   void update();
 
@@ -111,18 +96,14 @@ public:
 
 private:
   /** creates a new sound source, might throw exceptions, never returns nullptr */
-  std::unique_ptr<OpenALSoundSource> intern_create_sound_source(const std::string& filename);
-
-  void check_alc_error(const char* message) const;
+  std::unique_ptr<SoundSource> intern_create_sound_source(const std::string& filename);
 
 private:
-  ALCdevice* m_device;
-  ALCcontext* m_context;
+  std::unique_ptr<AudioDevice> m_device;
   bool m_sound_enabled;
   int m_sound_volume;
 
-  std::map<std::string, ALuint> m_buffers;
-  std::vector<std::unique_ptr<OpenALSoundSource> > m_sources;
+  std::vector<std::unique_ptr<SoundSource> > m_sources;
 
   std::vector<StreamSoundSource*> m_update_list;
 

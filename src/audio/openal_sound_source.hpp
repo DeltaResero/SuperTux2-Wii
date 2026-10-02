@@ -24,7 +24,7 @@
 
 class OpenALSoundSource : public SoundSource
 {
-  friend class SoundManager;
+  friend class OpenALDevice;
 
 public:
   OpenALSoundSource();
@@ -45,11 +45,12 @@ public:
   virtual void set_close_range(float range) override;
   virtual void set_lean_only() override;
 
-  virtual void set_volume(float volume);
+  virtual void set_volume(float volume) override;
+  virtual void update_placement() override;
 
-  virtual bool paused() const;
-  virtual void resume();
-  virtual void update();
+  virtual bool paused() const override;
+  virtual void resume() override;
+  virtual void update() override;
 
 private:
   enum class Placement { NONE, PLACED, CLOSE, LEAN };
