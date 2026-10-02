@@ -40,6 +40,7 @@ CommandLineArguments::CommandLineArguments() :
   show_player_pos(),
   sound_enabled(),
   music_enabled(),
+  audio_backend(),
   filenames(),
   enable_script_debugger(),
   start_demo(),
@@ -103,6 +104,7 @@ CommandLineArguments::print_help(const char* arg0) const
     << "Audio Options:" << "\n"
     << "  --disable-sound              Disable sound effects" << "\n"
     << "  --disable-music              Disable music" << "\n"
+    << "  --audio-backend BACKEND      Use openal, sdl, or auto to play sound" << "\n"
     << "\n"
     << "Game Options:" << "\n"
     << "  --show-fps                   Display framerate in levels" << "\n"
@@ -275,6 +277,18 @@ CommandLineArguments::parse_args(int argc, char** argv)
         video = VideoSystem::get_video_system(argv[i]);
       }
     }
+    else if (arg == "--audio-backend")
+    {
+      i += 1;
+      if (i >= argc)
+      {
+        throw std::runtime_error("Need to specify a backend for audio-backend argument");
+      }
+      else
+      {
+        audio_backend = audio_backend_from_string(argv[i]);
+      }
+    }
     else if (arg == "--show-fps")
     {
       show_fps = true;
@@ -399,6 +413,7 @@ CommandLineArguments::merge_into(Config& config)
   merge_option(show_player_pos)
   merge_option(sound_enabled)
   merge_option(music_enabled)
+  merge_option(audio_backend)
   merge_option(enable_script_debugger)
   merge_option(start_demo)
   merge_option(record_demo)
