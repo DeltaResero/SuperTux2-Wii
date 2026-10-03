@@ -39,7 +39,7 @@ SDLStream::SDLStream(std::unique_ptr<SoundFile> file, int rate, bool looping, si
   m_just_reset(false),
   m_step(resample_step(m_file->m_rate, rate, 1.0f)),
   m_fraction(0),
-  m_source(2, 0.0f),
+  m_source(2, 0),
   m_position(1),
   m_bytes(),
   m_ring(),
@@ -89,21 +89,18 @@ SDLStream::read_file()
   for (size_t i = 0; i < frames; ++i) {
     for (size_t ch = 0; ch < 2; ++ch) {
       const size_t at = i * channels + (m_stereo ? ch : 0);
-      float sample;
-      if (width == 2) {
-        Sint16 value;
-        std::memcpy(&value, &m_bytes[at * 2], 2);
-        sample = static_cast<float>(value) / 32768.0f;
-      } else {
-        sample = (static_cast<float>(static_cast<unsigned char>(m_bytes[at])) - 128.0f) / 128.0f;
-      }
+      Sint16 sample;
+      if (width == 2)
+        std::memcpy(&sample, &m_bytes[at * 2], 2);
+      else
+        sample = static_cast<Sint16>((static_cast<unsigned char>(m_bytes[at]) - 128) * 256);
       m_source[start + i * 2 + ch] = sample;
     }
   }
 
   // Silence after the last sample lets the resampler finish it
   if (m_ended)
-    m_source.resize(m_source.size() + 4, 0.0f);
+    m_source.resize(m_source.size() + 4, 0);
   return frames > 0 || m_ended || m_just_reset;
 }
 
@@ -112,6 +109,8 @@ SDLStream::fill()
 {
   size_t at = m_written.load(std::memory_order_relaxed);
   size_t room = m_frames - (at - m_taken.load(std::memory_order_acquire));
+  // Where the next frame goes in the ring, kept as it goes because a division for every frame costs more than the copy
+  size_t slot = at % m_frames;
 
   while (room > 0) {
     // The curve needs the sample before and the two after where it is
@@ -125,16 +124,24 @@ SDLStream::fill()
       continue;
     }
 
-    // Resampled as OpenAL Soft does, so a sound at another rate comes out as it does there
-    const auto w = lagrange_weights(static_cast<float>(m_fraction) / 65536.0f);
-    const float* in = &m_source[(m_position - 1) * 2];
-    Sint16* out = &m_ring[(at % m_frames) * 2];
-    for (size_t ch = 0; ch < 2; ++ch) {
-      const float value = w[0] * in[ch] + w[1] * in[2 + ch] + w[2] * in[4 + ch] + w[3] * in[6 + ch];
-      out[ch] = static_cast<Sint16>(std::clamp(std::lround(value * 32768.0f), -32768L, 32767L));
+    const Sint16* in = &m_source[(m_position - 1) * 2];
+    Sint16* out = &m_ring[slot * 2];
+    if (m_step == SAME_RATE && m_fraction == 0) {
+      // At the mixer's own rate the curve lands right on each sample, so it's copied as it is
+      out[0] = in[2];
+      out[1] = in[3];
+    } else {
+      // Resampled as OpenAL Soft does, so a sound at another rate comes out as it does there
+      const auto w = lagrange_weights(static_cast<float>(m_fraction) / 65536.0f);
+      for (size_t ch = 0; ch < 2; ++ch) {
+        const float value = w[0] * in[ch] + w[1] * in[2 + ch] + w[2] * in[4 + ch] + w[3] * in[6 + ch];
+        out[ch] = static_cast<Sint16>(std::clamp(std::lround(value), -32768L, 32767L));
+      }
     }
     ++at;
     --room;
+    if (++slot == m_frames)
+      slot = 0;
 
     m_fraction += m_step;
     m_position += m_fraction >> 16;

@@ -23,13 +23,6 @@
 #include "audio/sdl_samples.hpp"
 #include "audio/sdl_stream.hpp"
 
-namespace {
-
-// A step of exactly one sample, in 16.16 fixed point
-const uint32_t SAME_RATE = 1 << 16;
-
-} // namespace
-
 SDLVoice::SDLVoice(std::shared_ptr<SDLSamples> sound, uint32_t step, bool looping) :
   m_sound(std::move(sound)),
   m_samples(m_sound->data()),

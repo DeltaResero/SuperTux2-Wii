@@ -44,6 +44,9 @@ inline uint32_t resample_step(int rate, int mixer_rate, float pitch)
   return static_cast<uint32_t>(std::lround(static_cast<float>(rate) / static_cast<float>(mixer_rate) * pitch * 65536.0f));
 }
 
+/** A step of exactly one sample, a sound at the mixer's own rate */
+constexpr uint32_t SAME_RATE = 1 << 16;
+
 /** A sound read from its file a little at a time, for SDL_mixer to play as it goes.
     It's read and resampled on the main thread, and taken by SDL_mixer's own thread. */
 class SDLStream final
@@ -86,8 +89,8 @@ private:
   uint32_t m_step;
   uint32_t m_fraction;
 
-  /** The file's samples waiting to be resampled, stereo floats, and where in them the next one comes from */
-  std::vector<float> m_source;
+  /** The file's samples waiting to be resampled, in stereo, and where in them the next one comes from */
+  std::vector<Sint16> m_source;
   size_t m_position;
   std::vector<char> m_bytes;
 
