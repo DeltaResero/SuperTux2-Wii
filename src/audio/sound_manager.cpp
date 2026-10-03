@@ -27,7 +27,9 @@
 #include <set>
 
 #include "audio/dummy_sound_source.hpp"
+#ifdef ENABLE_OPENAL
 #include "audio/openal_device.hpp"
+#endif
 #ifdef ENABLE_SDL_MIXER
 #include "audio/sdl_mixer_device.hpp"
 #endif
@@ -83,7 +85,11 @@ std::unique_ptr<AudioDevice> open_device()
   if (g_config && g_config->audio_backend == AudioBackend::SdlMixer)
     return std::make_unique<SDLMixerDevice>();
 #endif
+#ifdef ENABLE_OPENAL
   return std::make_unique<OpenALDevice>();
+#else
+  return std::make_unique<SDLMixerDevice>();
+#endif
 }
 
 } // namespace

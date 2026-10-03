@@ -24,15 +24,21 @@ AudioBackend audio_backend_from_string(const std::string& name)
 {
   if (name == "auto")
     return AudioBackend::Automatic;
+#ifdef ENABLE_OPENAL
   if (name == "openal")
     return AudioBackend::OpenAL;
+#endif
 #ifdef ENABLE_SDL_MIXER
   if (name == "sdl")
     return AudioBackend::SdlMixer;
+#endif
 
+#if defined(ENABLE_OPENAL) && defined(ENABLE_SDL_MIXER)
   throw std::runtime_error("invalid audio backend '" + name + "', valid values are 'auto', 'openal' and 'sdl'");
-#else
+#elif defined(ENABLE_OPENAL)
   throw std::runtime_error("invalid audio backend '" + name + "', valid values are 'auto' and 'openal'");
+#else
+  throw std::runtime_error("invalid audio backend '" + name + "', valid values are 'auto' and 'sdl'");
 #endif
 }
 

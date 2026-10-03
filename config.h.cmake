@@ -16,6 +16,8 @@
 
 #cmakedefine HAVE_OPENGL
 
+#cmakedefine ENABLE_OPENAL
+
 #cmakedefine ENABLE_SDL_MIXER
 
 #define BUILD_DATA_DIR "${BUILD_DATA_DIR}"
