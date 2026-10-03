@@ -62,6 +62,20 @@ public:
   /** Whether channel is still playing the play it was claimed for */
   bool carries(int channel, unsigned play) const;
 
+  /** A sound read whole at its own rate, for one played faster or slower */
+  struct Samples
+  {
+    std::vector<Sint16> data{};
+    int channels = 1;
+    int rate = 0;
+  };
+  const Samples& get_samples(const std::string& filename);
+
+  /** The silence a channel plays while an SDLVoice writes over it */
+  Mix_Chunk* get_silence() const { return m_silence; }
+
+  int get_rate() const { return m_rate; }
+
   void add_source(SDLSoundSource& source);
   void remove_source(SDLSoundSource& source);
 
@@ -88,6 +102,9 @@ private:
   unsigned m_plays;
 
   std::vector<SDLSoundSource*> m_sources;
+
+  std::map<std::string, std::unique_ptr<Samples>> m_samples;
+  Mix_Chunk* m_silence;
 
   std::unique_ptr<SDLMusic> m_music_source;
 

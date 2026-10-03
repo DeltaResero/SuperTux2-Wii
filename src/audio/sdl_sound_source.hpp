@@ -17,17 +17,21 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SDL_SOUND_SOURCE_HPP
 #define HEADER_SUPERTUX_AUDIO_SDL_SOUND_SOURCE_HPP
 
+#include <memory>
+#include <string>
+
 #include "audio/sound_source.hpp"
 #include "math/vector.hpp"
 
 struct Mix_Chunk;
 class SDLMixerDevice;
+class SDLVoice;
 
 /** A sound on an SDL_mixer channel, given each ear's level the OpenAL backend would play it at */
 class SDLSoundSource final : public SoundSource
 {
 public:
-  SDLSoundSource(SDLMixerDevice& device, Mix_Chunk* chunk, bool stereo, bool full);
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, Mix_Chunk* chunk, bool stereo, bool full);
   ~SDLSoundSource() override;
 
   virtual void play() override;
@@ -53,6 +57,9 @@ public:
   /** For a sound nothing places, which OpenAL hears from wherever the listener is */
   void listener_moved();
 
+  /** Lets go of the channel of a sound played at another pitch once it's over, between frames */
+  void release_finished_voice();
+
 private:
   enum class Placement { NONE, PLACED, CLOSE, LEAN };
 
@@ -65,6 +72,7 @@ private:
 
 private:
   SDLMixerDevice& m_device;
+  std::string m_filename;
   Mix_Chunk* m_chunk;
   bool m_stereo;
   /** A sound vanilla played at full volume, having been a stereo file */
@@ -72,6 +80,9 @@ private:
 
   int m_channel;
   unsigned m_play;
+  float m_pitch;
+  /** Feeds the channel when the sound plays at another pitch, which SDL_mixer can't do itself */
+  std::unique_ptr<SDLVoice> m_voice;
   bool m_looping;
   bool m_relative;
   bool m_stopped;
