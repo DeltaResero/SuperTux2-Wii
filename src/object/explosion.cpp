@@ -37,7 +37,6 @@ Explosion::Explosion(const Vector& pos, float p_push_strength,
   lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
 {
   SoundManager::current()->preload("sounds/explosion.flac");
-  SoundManager::current()->preload("sounds/firecracker.flac");
   set_pos(get_pos() - (m_col.m_bbox.get_middle() - get_pos()));
   lightsprite->set_blend(Blend::ADD);
   lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
@@ -52,7 +51,6 @@ Explosion::Explosion(const ReaderMapping& reader) :
   lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
 {
   SoundManager::current()->preload("sounds/explosion.flac");
-  SoundManager::current()->preload("sounds/firecracker.flac");
   lightsprite->set_blend(Blend::ADD);
   lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
 }
