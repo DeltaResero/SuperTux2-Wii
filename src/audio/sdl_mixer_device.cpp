@@ -96,16 +96,11 @@ SDLMixerDevice::~SDLMixerDevice()
 }
 
 const SDLMixerDevice::Chunk&
-SDLMixerDevice::get_chunk(const std::string& filename)
+SDLMixerDevice::hold(const std::string& filename, std::unique_ptr<SoundFile> file)
 {
-  auto it = m_chunks.find(filename);
-  if (it != m_chunks.end())
-    return it->second;
-
   // A chunk holds the mixer's own format, so the sound is read through the music's resampler, as OpenAL plays it
-  std::unique_ptr<SoundFile> file(load_sound_file(filename));
   const bool stereo = file->m_channels == 2;
-  SDLStream stream(std::move(file), m_rate, false);
+  SDLStream stream(std::move(file), m_rate, false, READ_AHEAD);
   std::vector<Sint16> samples;
   std::vector<Sint16> part(4096 * 2);
   while (const size_t got = stream.read(part.data(), 4096)) {
@@ -157,15 +152,29 @@ SDLMixerDevice::get_samples(const std::string& filename)
 std::unique_ptr<SoundSource>
 SDLMixerDevice::create_source(const std::string& filename, bool full)
 {
-  const Chunk& chunk = get_chunk(filename);
+  auto it = m_chunks.find(filename);
+  if (it != m_chunks.end())
+    return std::make_unique<SDLSoundSource>(*this, filename, it->second.chunk, it->second.stereo, full);
+
+  // Like OpenAL, a long sound is read from its file as it plays instead of being held
+  std::unique_ptr<SoundFile> file(load_sound_file(filename));
+  if (file->m_size >= STREAM_FROM)
+    return std::make_unique<SDLSoundSource>(*this, filename, std::move(file), full);
+
+  const Chunk& chunk = hold(filename, std::move(file));
   return std::make_unique<SDLSoundSource>(*this, filename, chunk.chunk, chunk.stereo, full);
 }
 
 void
 SDLMixerDevice::preload(const std::string& filename)
 {
+  if (m_chunks.find(filename) != m_chunks.end())
+    return;
+
   try {
-    get_chunk(filename);
+    std::unique_ptr<SoundFile> file(load_sound_file(filename));
+    if (file->m_size < STREAM_FROM)
+      hold(filename, std::move(file));
   } catch(std::exception& e) {
     log_warning << "Error while preloading sound file: " << e.what() << std::endl;
   }
@@ -265,9 +274,8 @@ SDLMixerDevice::update()
     m_music_source->update();
   }
 
-  // A sound played at another pitch keeps its channel until it's let go here
   for (auto* source : m_sources) {
-    source->release_finished_voice();
+    source->keep_up();
   }
 }
 

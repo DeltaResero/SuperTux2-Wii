@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_AUDIO_AUDIO_DEVICE_HPP
 #define HEADER_SUPERTUX_AUDIO_AUDIO_DEVICE_HPP
 
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -33,6 +34,10 @@ AudioBackend audio_backend_from_string(const std::string& name);
 /** The sound library under SoundManager, which keeps everything that doesn't depend on it */
 class AudioDevice
 {
+public:
+  /** A sound this big or bigger streams from its file instead of being held whole */
+  static constexpr size_t STREAM_FROM = 100000;
+
 public:
   AudioDevice() {}
   virtual ~AudioDevice() {}

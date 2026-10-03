@@ -49,7 +49,8 @@ inline uint32_t resample_step(int rate, int mixer_rate, float pitch)
 class SDLStream final
 {
 public:
-  SDLStream(std::unique_ptr<SoundFile> file, int rate, bool looping);
+  /** Reads the sound up to seconds ahead of where it's playing */
+  SDLStream(std::unique_ptr<SoundFile> file, int rate, bool looping, size_t seconds);
   ~SDLStream();
 
   /** Reads ahead until the buffer is full, on the main thread */
@@ -61,6 +62,12 @@ public:
   /** Whether the file was stereo, as OpenAL plays a mono one quieter */
   bool stereo() const { return m_stereo; }
 
+  /** Whether a sound that doesn't loop has been read to its end and all of it taken, on the main thread */
+  bool finished() const;
+
+  /** Writes the next stretch of the sound over a channel's silence, on SDL_mixer's thread */
+  static void SDLCALL feed(int channel, void* stream, int len, void* sdl_stream);
+
 private:
   /** Appends the file's next samples to m_source, starting it over at its end when looping */
   bool read_file();
@@ -70,6 +77,8 @@ private:
   bool m_stereo;
   bool m_looping;
   bool m_ended;
+  /** Whether everything up to the end has been resampled into the buffer */
+  bool m_complete;
   /** Whether the file was just started over, so an empty read after it means it's empty */
   bool m_just_reset;
 

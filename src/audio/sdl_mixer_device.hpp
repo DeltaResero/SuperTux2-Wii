@@ -28,10 +28,15 @@
 
 class SDLMusic;
 class SDLSoundSource;
+class SoundFile;
 
-/** SDL_mixer, with every sound read whole, as it can only play a sound it holds, and the music fed to it as it plays */
+/** SDL_mixer, holding the short sounds whole and feeding it the long ones and the music as they play */
 class SDLMixerDevice final : public AudioDevice
 {
+public:
+  /** How far ahead a long sound is read, in seconds, a few times the wait between updates */
+  static constexpr size_t READ_AHEAD = 1;
+
 public:
   SDLMixerDevice();
   ~SDLMixerDevice() override;
@@ -86,7 +91,8 @@ private:
     bool stereo;
   };
 
-  const Chunk& get_chunk(const std::string& filename);
+  /** Reads a short sound whole and keeps it */
+  const Chunk& hold(const std::string& filename, std::unique_ptr<SoundFile> file);
 
   /** Swaps in a new track, or none, while SDL_mixer isn't reading the old one */
   void set_music(std::unique_ptr<SDLMusic> music);

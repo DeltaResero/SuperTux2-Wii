@@ -27,13 +27,6 @@
 #include "math/vector.hpp"
 #include "util/log.hpp"
 
-namespace {
-
-// A sound this big or bigger streams from its file instead of being held whole
-const size_t STREAM_FROM = 100000;
-
-} // namespace
-
 OpenALDevice::OpenALDevice() :
   m_device(alcOpenDevice(nullptr)),
   m_context(alcCreateContext(m_device, nullptr)),

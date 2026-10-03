@@ -25,13 +25,18 @@
 
 struct Mix_Chunk;
 class SDLMixerDevice;
+class SDLStream;
 class SDLVoice;
+class SoundFile;
 
 /** A sound on an SDL_mixer channel, given each ear's level the OpenAL backend would play it at */
 class SDLSoundSource final : public SoundSource
 {
 public:
+  /** A short sound, held whole by the device */
   SDLSoundSource(SDLMixerDevice& device, const std::string& filename, Mix_Chunk* chunk, bool stereo, bool full);
+  /** A long sound, read from its file as it plays */
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::unique_ptr<SoundFile> file, bool full);
   ~SDLSoundSource() override;
 
   virtual void play() override;
@@ -57,13 +62,19 @@ public:
   /** For a sound nothing places, which OpenAL hears from wherever the listener is */
   void listener_moved();
 
-  /** Lets go of the channel of a sound played at another pitch once it's over, between frames */
-  void release_finished_voice();
+  /** Reads a long sound further ahead, and lets go of the channel once a sound fed to it is over, between frames */
+  void keep_up();
 
 private:
   enum class Placement { NONE, PLACED, CLOSE, LEAN };
 
   bool holds_channel() const;
+
+  /** Whether a sound fed to the channel has ended, though the channel's still playing its silence */
+  bool over() const;
+
+  /** Starts reading a long sound from the top, returning false if the file's gone */
+  bool start_stream();
 
   /** Works out each ear's level, returning false when a placed sound hasn't changed enough to hear */
   bool work_out_levels();
@@ -73,7 +84,10 @@ private:
 private:
   SDLMixerDevice& m_device;
   std::string m_filename;
+  /** The sound held whole, or null for a long one read as it plays */
   Mix_Chunk* m_chunk;
+  /** A long sound's file, until it first plays */
+  std::unique_ptr<SoundFile> m_file;
   bool m_stereo;
   /** A sound vanilla played at full volume, having been a stereo file */
   bool m_full;
@@ -83,6 +97,8 @@ private:
   float m_pitch;
   /** Feeds the channel when the sound plays at another pitch, which SDL_mixer can't do itself */
   std::unique_ptr<SDLVoice> m_voice;
+  /** Feeds the channel a long sound as it's read */
+  std::unique_ptr<SDLStream> m_stream;
   bool m_looping;
   bool m_relative;
   bool m_stopped;

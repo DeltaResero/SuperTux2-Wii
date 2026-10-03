@@ -30,10 +30,13 @@ const float CENTRE = 0.5956f;
 // OpenAL Soft eases a change of level in over this many samples, which keeps a fade's steps from clicking
 const size_t EASE = 64;
 
+// About as far ahead as the OpenAL backend's stream reads, in seconds
+const size_t AHEAD = 3;
+
 } // namespace
 
 SDLMusic::SDLMusic(std::unique_ptr<SoundFile> file, int rate) :
-  m_stream(std::move(file), rate, true),
+  m_stream(std::move(file), rate, true, AHEAD),
   m_state(State::INITIAL),
   m_fade_state(NoFading),
   m_fade_start_time(),

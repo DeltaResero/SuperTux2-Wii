@@ -28,16 +28,14 @@ namespace {
 // How much of the file is read at a time
 const size_t BLOCK = 4096;
 
-// About as far ahead as the OpenAL backend's stream reads, in seconds
-const size_t AHEAD = 3;
-
 } // namespace
 
-SDLStream::SDLStream(std::unique_ptr<SoundFile> file, int rate, bool looping) :
+SDLStream::SDLStream(std::unique_ptr<SoundFile> file, int rate, bool looping, size_t seconds) :
   m_file(std::move(file)),
   m_stereo(m_file->m_channels == 2),
   m_looping(looping),
   m_ended(false),
+  m_complete(false),
   m_just_reset(false),
   m_step(resample_step(m_file->m_rate, rate, 1.0f)),
   m_fraction(0),
@@ -45,7 +43,7 @@ SDLStream::SDLStream(std::unique_ptr<SoundFile> file, int rate, bool looping) :
   m_position(1),
   m_bytes(),
   m_ring(),
-  m_frames(static_cast<size_t>(rate) * AHEAD),
+  m_frames(static_cast<size_t>(rate) * seconds),
   m_written(0),
   m_taken(0)
 {
@@ -120,8 +118,10 @@ SDLStream::fill()
     if (m_source.size() / 2 < m_position + 3) {
       m_source.erase(m_source.begin(), m_source.begin() + static_cast<std::ptrdiff_t>((m_position - 1) * 2));
       m_position = 1;
-      if (!read_file())
+      if (!read_file()) {
+        m_complete = true;
         break;
+      }
       continue;
     }
 
@@ -158,6 +158,23 @@ SDLStream::read(Sint16* out, size_t frames)
 
   m_taken.store(taken + count, std::memory_order_release);
   return count;
+}
+
+bool
+SDLStream::finished() const
+{
+  return m_complete && m_taken.load(std::memory_order_acquire) == m_written.load(std::memory_order_relaxed);
+}
+
+void SDLCALL
+SDLStream::feed(int , void* stream, int len, void* sdl_stream)
+{
+  auto out = static_cast<Sint16*>(stream);
+  const size_t frames = static_cast<size_t>(len) / (2 * sizeof(Sint16));
+  const size_t got = static_cast<SDLStream*>(sdl_stream)->read(out, frames);
+
+  // Silence past the end, or if the main thread fell behind
+  std::memset(out + got * 2, 0, (frames - got) * 2 * sizeof(Sint16));
 }
 
 /* EOF */

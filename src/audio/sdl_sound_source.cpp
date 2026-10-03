@@ -23,8 +23,10 @@
 #include "audio/sdl_mixer_device.hpp"
 #include "audio/sdl_stream.hpp"
 #include "audio/sdl_voice.hpp"
+#include "audio/sound_file.hpp"
 #include "audio/sound_manager.hpp"
 #include "math/util.hpp"
+#include "util/log.hpp"
 
 namespace {
 
@@ -60,12 +62,14 @@ SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filena
   m_device(device),
   m_filename(filename),
   m_chunk(chunk),
+  m_file(),
   m_stereo(stereo),
   m_full(full),
   m_channel(-1),
   m_play(0),
   m_pitch(1.0f),
   m_voice(),
+  m_stream(),
   m_looping(false),
   m_relative(false),
   m_stopped(false),
@@ -87,6 +91,12 @@ SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filena
   work_out_levels();
 }
 
+SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::unique_ptr<SoundFile> file, bool full) :
+  SDLSoundSource(device, filename, nullptr, file->m_channels == 2, full)
+{
+  m_file = std::move(file);
+}
+
 SDLSoundSource::~SDLSoundSource()
 {
   stop();
@@ -97,6 +107,26 @@ bool
 SDLSoundSource::holds_channel() const
 {
   return m_device.carries(m_channel, m_play);
+}
+
+bool
+SDLSoundSource::over() const
+{
+  return (m_voice && m_voice->finished()) || (m_stream && m_stream->finished());
+}
+
+bool
+SDLSoundSource::start_stream()
+{
+  try {
+    // The file's read again for another play
+    std::unique_ptr<SoundFile> file = m_file ? std::move(m_file) : load_sound_file(m_filename);
+    m_stream = std::make_unique<SDLStream>(std::move(file), m_device.get_rate(), m_looping, SDLMixerDevice::READ_AHEAD);
+    return true;
+  } catch(std::exception& e) {
+    log_warning << "Couldn't play sound " << m_filename << ": " << e.what() << std::endl;
+    return false;
+  }
 }
 
 void
@@ -119,19 +149,24 @@ SDLSoundSource::play()
       return;
   }
 
-  // The channel plays silence for the voice to write over, which it does before the panning goes on
+  // The channel plays silence for a voice or a long sound to write over, which they do before the panning goes on
   m_voice.reset();
+  m_stream.reset();
   if (m_pitch != 1.0f) {
     const auto& samples = m_device.get_samples(m_filename);
     m_voice = std::make_unique<SDLVoice>(samples.data.data(), samples.data.size() / static_cast<size_t>(samples.channels),
                                          samples.channels, resample_step(samples.rate, m_device.get_rate(), m_pitch),
                                          m_looping);
     Mix_RegisterEffect(m_channel, SDLVoice::feed, nullptr, m_voice.get());
+  } else if (m_chunk == nullptr) {
+    if (!start_stream())
+      return;
+    Mix_RegisterEffect(m_channel, SDLStream::feed, nullptr, m_stream.get());
   }
 
   // A channel loses its panning when its last sound ends, so it's always sent again
   send_levels(true);
-  if (m_voice)
+  if (m_voice || m_stream)
     Mix_PlayChannel(m_channel, m_device.get_silence(), -1);
   else
     Mix_PlayChannel(m_channel, m_chunk, m_looping ? -1 : 0);
@@ -143,6 +178,8 @@ SDLSoundSource::stop()
   if (holds_channel())
     Mix_HaltChannel(m_channel);
   m_voice.reset();
+  m_stream.reset();
+  m_file.reset();
   m_channel = -1;
   m_stopped = true;
 }
@@ -166,7 +203,7 @@ SDLSoundSource::resume()
 bool
 SDLSoundSource::playing() const
 {
-  return holds_channel() && Mix_Paused(m_channel) == 0 && !(m_voice && m_voice->finished());
+  return holds_channel() && Mix_Paused(m_channel) == 0 && !over();
 }
 
 bool
@@ -262,10 +299,13 @@ SDLSoundSource::update_placement()
 }
 
 void
-SDLSoundSource::release_finished_voice()
+SDLSoundSource::keep_up()
 {
-  // Halting takes the voice off the channel, so it's safe to keep until the next play
-  if (m_voice && m_voice->finished() && holds_channel())
+  if (m_stream)
+    m_stream->fill();
+
+  // Halting takes the voice or stream off the channel, so they're safe to keep until the next play
+  if (over() && holds_channel())
     Mix_HaltChannel(m_channel);
 }
 
