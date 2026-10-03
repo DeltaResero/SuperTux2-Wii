@@ -21,6 +21,8 @@
 #include <cmath>
 
 #include "audio/sdl_mixer_device.hpp"
+#include "audio/sdl_stream.hpp"
+#include "audio/sdl_voice.hpp"
 #include "audio/sound_manager.hpp"
 #include "math/util.hpp"
 
@@ -54,13 +56,16 @@ float pan(float turn, float tilt, float side)
 
 } // namespace
 
-SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, Mix_Chunk* chunk, bool stereo, bool full) :
+SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filename, Mix_Chunk* chunk, bool stereo, bool full) :
   m_device(device),
+  m_filename(filename),
   m_chunk(chunk),
   m_stereo(stereo),
   m_full(full),
   m_channel(-1),
   m_play(0),
+  m_pitch(1.0f),
+  m_voice(),
   m_looping(false),
   m_relative(false),
   m_stopped(false),
@@ -114,9 +119,22 @@ SDLSoundSource::play()
       return;
   }
 
+  // The channel plays silence for the voice to write over, which it does before the panning goes on
+  m_voice.reset();
+  if (m_pitch != 1.0f) {
+    const auto& samples = m_device.get_samples(m_filename);
+    m_voice = std::make_unique<SDLVoice>(samples.data.data(), samples.data.size() / static_cast<size_t>(samples.channels),
+                                         samples.channels, resample_step(samples.rate, m_device.get_rate(), m_pitch),
+                                         m_looping);
+    Mix_RegisterEffect(m_channel, SDLVoice::feed, nullptr, m_voice.get());
+  }
+
   // A channel loses its panning when its last sound ends, so it's always sent again
   send_levels(true);
-  Mix_PlayChannel(m_channel, m_chunk, m_looping ? -1 : 0);
+  if (m_voice)
+    Mix_PlayChannel(m_channel, m_device.get_silence(), -1);
+  else
+    Mix_PlayChannel(m_channel, m_chunk, m_looping ? -1 : 0);
 }
 
 void
@@ -124,6 +142,7 @@ SDLSoundSource::stop()
 {
   if (holds_channel())
     Mix_HaltChannel(m_channel);
+  m_voice.reset();
   m_channel = -1;
   m_stopped = true;
 }
@@ -147,7 +166,7 @@ SDLSoundSource::resume()
 bool
 SDLSoundSource::playing() const
 {
-  return holds_channel() && Mix_Paused(m_channel) == 0;
+  return holds_channel() && Mix_Paused(m_channel) == 0 && !(m_voice && m_voice->finished());
 }
 
 bool
@@ -190,9 +209,13 @@ SDLSoundSource::set_volume(float volume)
 }
 
 void
-SDLSoundSource::set_pitch(float )
+SDLSoundSource::set_pitch(float pitch)
 {
-  // SDL_mixer can't change how fast a sound plays
+  m_pitch = pitch;
+  if (m_voice) {
+    const auto& samples = m_device.get_samples(m_filename);
+    m_voice->set_step(resample_step(samples.rate, m_device.get_rate(), m_pitch));
+  }
 }
 
 void
@@ -236,6 +259,14 @@ SDLSoundSource::update_placement()
 {
   if (m_placement != Placement::NONE)
     refresh();
+}
+
+void
+SDLSoundSource::release_finished_voice()
+{
+  // Halting takes the voice off the channel, so it's safe to keep until the next play
+  if (m_voice && m_voice->finished() && holds_channel())
+    Mix_HaltChannel(m_channel);
 }
 
 void

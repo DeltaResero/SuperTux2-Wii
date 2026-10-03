@@ -39,7 +39,7 @@ SDLStream::SDLStream(std::unique_ptr<SoundFile> file, int rate, bool looping) :
   m_looping(looping),
   m_ended(false),
   m_just_reset(false),
-  m_step(static_cast<uint32_t>(std::lround(static_cast<float>(m_file->m_rate) / static_cast<float>(rate) * 65536.0f))),
+  m_step(resample_step(m_file->m_rate, rate, 1.0f)),
   m_fraction(0),
   m_source(2, 0.0f),
   m_position(1),
@@ -125,16 +125,12 @@ SDLStream::fill()
       continue;
     }
 
-    // OpenAL Soft's default resampler, a 4 point Lagrange curve, so a sound at another rate comes out as it does there
-    const float mu = static_cast<float>(m_fraction) / 65536.0f;
-    const float c0 = -mu * (mu - 1.0f) * (mu - 2.0f) / 6.0f;
-    const float c1 = (mu + 1.0f) * (mu - 1.0f) * (mu - 2.0f) / 2.0f;
-    const float c2 = -(mu + 1.0f) * mu * (mu - 2.0f) / 2.0f;
-    const float c3 = (mu + 1.0f) * mu * (mu - 1.0f) / 6.0f;
+    // Resampled as OpenAL Soft does, so a sound at another rate comes out as it does there
+    const auto w = lagrange_weights(static_cast<float>(m_fraction) / 65536.0f);
     const float* in = &m_source[(m_position - 1) * 2];
     Sint16* out = &m_ring[(at % m_frames) * 2];
     for (size_t ch = 0; ch < 2; ++ch) {
-      const float value = c0 * in[ch] + c1 * in[2 + ch] + c2 * in[4 + ch] + c3 * in[6 + ch];
+      const float value = w[0] * in[ch] + w[1] * in[2 + ch] + w[2] * in[4 + ch] + w[3] * in[6 + ch];
       out[ch] = static_cast<Sint16>(std::clamp(std::lround(value * 32768.0f), -32768L, 32767L));
     }
     ++at;

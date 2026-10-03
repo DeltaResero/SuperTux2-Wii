@@ -17,7 +17,9 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SDL_STREAM_HPP
 #define HEADER_SUPERTUX_AUDIO_SDL_STREAM_HPP
 
+#include <array>
 #include <atomic>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -25,6 +27,22 @@
 #include <SDL_stdinc.h>
 
 class SoundFile;
+
+/** OpenAL Soft's default resampler, a 4 point Lagrange curve: how much the sample before a point mu of the way along,
+    the two either side of it and the one after count */
+inline std::array<float, 4> lagrange_weights(float mu)
+{
+  return { -mu * (mu - 1.0f) * (mu - 2.0f) / 6.0f,
+           (mu + 1.0f) * (mu - 1.0f) * (mu - 2.0f) / 2.0f,
+           -(mu + 1.0f) * mu * (mu - 2.0f) / 2.0f,
+           (mu + 1.0f) * mu * (mu - 1.0f) / 6.0f };
+}
+
+/** OpenAL Soft's step through a sound at rate played at mixer_rate and pitch, 16.16 fixed point */
+inline uint32_t resample_step(int rate, int mixer_rate, float pitch)
+{
+  return static_cast<uint32_t>(std::lround(static_cast<float>(rate) / static_cast<float>(mixer_rate) * pitch * 65536.0f));
+}
 
 /** A sound read from its file a little at a time, for SDL_mixer to play as it goes.
     It's read and resampled on the main thread, and taken by SDL_mixer's own thread. */

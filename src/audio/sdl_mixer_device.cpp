@@ -49,6 +49,8 @@ SDLMixerDevice::SDLMixerDevice() :
   m_channel_plays(),
   m_plays(0),
   m_sources(),
+  m_samples(),
+  m_silence(nullptr),
   m_music_source()
 {
   if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
@@ -64,6 +66,15 @@ SDLMixerDevice::SDLMixerDevice() :
   Mix_QuerySpec(&m_rate, nullptr, nullptr);
   Mix_AllocateChannels(CHANNELS);
   m_channel_plays.assign(CHANNELS, 0);
+
+  const Uint32 silence = FRAGMENT * 2 * sizeof(Sint16);
+  auto data = static_cast<Uint8*>(SDL_calloc(1, silence));
+  m_silence = (data != nullptr) ? Mix_QuickLoad_RAW(data, silence) : nullptr;
+  if (m_silence != nullptr)
+    m_silence->allocated = 1;
+  else
+    SDL_free(data);
+
   m_open = true;
 }
 
@@ -78,6 +89,8 @@ SDLMixerDevice::~SDLMixerDevice()
   for (const auto& chunk : m_chunks) {
     Mix_FreeChunk(chunk.second.chunk);
   }
+  if (m_silence != nullptr)
+    Mix_FreeChunk(m_silence);
   Mix_CloseAudio();
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
@@ -117,11 +130,35 @@ SDLMixerDevice::get_chunk(const std::string& filename)
   return m_chunks.emplace(filename, Chunk{chunk, stereo}).first->second;
 }
 
+const SDLMixerDevice::Samples&
+SDLMixerDevice::get_samples(const std::string& filename)
+{
+  auto it = m_samples.find(filename);
+  if (it != m_samples.end())
+    return *it->second;
+
+  std::unique_ptr<SoundFile> file(load_sound_file(filename));
+  auto samples = std::make_unique<Samples>();
+  samples->channels = file->m_channels;
+  samples->rate = file->m_rate;
+  std::vector<char> bytes(file->m_size);
+  const size_t got = file->read(bytes.data(), bytes.size());
+  if (file->m_bits_per_sample == 8) {
+    samples->data.resize(got);
+    for (size_t i = 0; i < got; ++i)
+      samples->data[i] = static_cast<Sint16>((static_cast<unsigned char>(bytes[i]) - 128) * 256);
+  } else {
+    samples->data.resize(got / sizeof(Sint16));
+    std::memcpy(samples->data.data(), bytes.data(), samples->data.size() * sizeof(Sint16));
+  }
+  return *m_samples.emplace(filename, std::move(samples)).first->second;
+}
+
 std::unique_ptr<SoundSource>
 SDLMixerDevice::create_source(const std::string& filename, bool full)
 {
   const Chunk& chunk = get_chunk(filename);
-  return std::make_unique<SDLSoundSource>(*this, chunk.chunk, chunk.stereo, full);
+  return std::make_unique<SDLSoundSource>(*this, filename, chunk.chunk, chunk.stereo, full);
 }
 
 void
@@ -226,6 +263,11 @@ SDLMixerDevice::update()
 {
   if (m_music_source) {
     m_music_source->update();
+  }
+
+  // A sound played at another pitch keeps its channel until it's let go here
+  for (auto* source : m_sources) {
+    source->release_finished_voice();
   }
 }
 
