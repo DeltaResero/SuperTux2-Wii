@@ -20,17 +20,25 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 
 #include <SDL_stdinc.h>
 
-/** A sound held whole at its own rate, played by writing it over the silence an SDL_mixer channel plays.
+class SDLSamples;
+
+/** A sound at its own rate, played by writing it over the silence an SDL_mixer channel plays.
     It's resampled as it goes, the way OpenAL plays a sound at another rate or pitch, which SDL_mixer can't do itself. */
 class SDLVoice final
 {
 public:
-  SDLVoice(const Sint16* samples, size_t frames, int channels, uint32_t step, bool looping);
+  SDLVoice(std::shared_ptr<SDLSamples> sound, uint32_t step, bool looping);
 
   void set_step(uint32_t step) { m_step = step; }
+
+  const SDLSamples& get_sound() const { return *m_sound; }
+
+  /** Reads the sound on as far as output_frames of the mixer's past where the voice has got to, on the main thread */
+  void read_ahead(size_t output_frames);
 
   /** Whether a sound that doesn't loop has played to its end */
   bool finished() const { return m_finished; }
@@ -43,6 +51,8 @@ private:
   float sample(ptrdiff_t frame, int channel) const;
 
 private:
+  /** Kept for as long as the voice plays it */
+  std::shared_ptr<SDLSamples> m_sound;
   const Sint16* m_samples;
   size_t m_frames;
   int m_channels;
@@ -54,6 +64,8 @@ private:
   uint32_t m_fraction;
   bool m_looped;
 
+  /** Where the voice had got to after its last stretch, for the main thread to read ahead of */
+  std::atomic<size_t> m_reached;
   std::atomic<bool> m_finished;
 
 private:

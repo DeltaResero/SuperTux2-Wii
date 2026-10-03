@@ -18,11 +18,11 @@
 
 #include <SDL.h>
 #include <algorithm>
-#include <cstring>
 #include <memory>
 #include <stdexcept>
 
 #include "audio/sdl_music.hpp"
+#include "audio/sdl_samples.hpp"
 #include "audio/sdl_sound_source.hpp"
 #include "audio/sound_file.hpp"
 #include "util/log.hpp"
@@ -48,6 +48,7 @@ SDLMixerDevice::SDLMixerDevice() :
   m_plays(0),
   m_sources(),
   m_samples(),
+  m_shared(),
   m_silence(nullptr),
   m_music_source()
 {
@@ -90,38 +91,24 @@ SDLMixerDevice::~SDLMixerDevice()
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
-const SDLMixerDevice::Samples&
+std::shared_ptr<SDLSamples>
 SDLMixerDevice::hold(const std::string& filename, std::unique_ptr<SoundFile> file)
 {
-  if (file->m_channels != 1 && file->m_channels != 2)
-    throw std::runtime_error("Only 1 and 2 channel samples supported");
-  if (file->m_bits_per_sample != 8 && file->m_bits_per_sample != 16)
-    throw std::runtime_error("Only 16 and 8 bit samples supported");
-
-  auto samples = std::make_unique<Samples>();
-  samples->channels = file->m_channels;
-  samples->rate = file->m_rate;
-  std::vector<char> bytes(file->m_size);
-  const size_t got = file->read(bytes.data(), bytes.size());
-  if (file->m_bits_per_sample == 8) {
-    samples->data.resize(got);
-    for (size_t i = 0; i < got; ++i)
-      samples->data[i] = static_cast<Sint16>((static_cast<unsigned char>(bytes[i]) - 128) * 256);
-  } else {
-    samples->data.resize(got / sizeof(Sint16));
-    std::memcpy(samples->data.data(), bytes.data(), samples->data.size() * sizeof(Sint16));
-  }
-  return *m_samples.emplace(filename, std::move(samples)).first->second;
+  auto samples = std::make_shared<SDLSamples>(std::move(file));
+  samples->read_to(samples->frames());
+  m_samples.emplace(filename, samples);
+  return samples;
 }
 
-const SDLMixerDevice::Samples&
-SDLMixerDevice::get_samples(const std::string& filename)
+std::shared_ptr<SDLSamples>
+SDLMixerDevice::share(const std::string& filename, std::unique_ptr<SoundFile> file)
 {
-  auto it = m_samples.find(filename);
-  if (it != m_samples.end())
-    return *it->second;
+  if (auto samples = m_shared[filename].lock())
+    return samples;
 
-  return hold(filename, load_sound_file(filename));
+  auto samples = std::make_shared<SDLSamples>(file ? std::move(file) : load_sound_file(filename));
+  m_shared[filename] = samples;
+  return samples;
 }
 
 std::unique_ptr<SoundSource>
@@ -129,15 +116,14 @@ SDLMixerDevice::create_source(const std::string& filename, bool full)
 {
   auto it = m_samples.find(filename);
   if (it != m_samples.end())
-    return std::make_unique<SDLSoundSource>(*this, filename, it->second->channels == 2, full);
+    return std::make_unique<SDLSoundSource>(*this, filename, it->second, full);
 
   // Like OpenAL, a long sound is read from its file as it plays instead of being held
   std::unique_ptr<SoundFile> file(load_sound_file(filename));
   if (file->m_size >= STREAM_FROM)
     return std::make_unique<SDLSoundSource>(*this, filename, std::move(file), full);
 
-  const Samples& samples = hold(filename, std::move(file));
-  return std::make_unique<SDLSoundSource>(*this, filename, samples.channels == 2, full);
+  return std::make_unique<SDLSoundSource>(*this, filename, hold(filename, std::move(file)), full);
 }
 
 void

@@ -24,6 +24,7 @@
 #include "math/vector.hpp"
 
 class SDLMixerDevice;
+class SDLSamples;
 class SDLStream;
 class SDLVoice;
 class SoundFile;
@@ -33,7 +34,7 @@ class SDLSoundSource final : public SoundSource
 {
 public:
   /** A short sound, held whole by the device */
-  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, bool stereo, bool full);
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::shared_ptr<SDLSamples> samples, bool full);
   /** A long sound, read from its file as it plays */
   SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::unique_ptr<SoundFile> file, bool full);
   ~SDLSoundSource() override;
@@ -61,18 +62,21 @@ public:
   /** For a sound nothing places, which OpenAL hears from wherever the listener is */
   void listener_moved();
 
-  /** Reads a long sound further ahead, and lets go of the channel once a sound fed to it is over, between frames */
+  /** Reads a long sound further ahead, and lets go of the channel and the sound once it's over, between frames */
   void keep_up();
 
 private:
   enum class Placement { NONE, PLACED, CLOSE, LEAN };
+
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, bool stereo, bool full);
 
   bool holds_channel() const;
 
   /** Whether a sound fed to the channel has ended, though the channel's still playing its silence */
   bool over() const;
 
-  /** Starts reading a long sound from the top, returning false if the file's gone */
+  /** Starts the sound from the top, returning false if a long one's file is gone */
+  bool start_voice();
   bool start_stream();
 
   /** Works out each ear's level, returning false when a placed sound hasn't changed enough to hear */
@@ -83,10 +87,12 @@ private:
 private:
   SDLMixerDevice& m_device;
   std::string m_filename;
-  /** Whether the device holds the sound whole, or it's a long one read as it plays */
-  bool m_held;
+  /** A short sound the device holds, or null for a long one read as it plays */
+  std::shared_ptr<SDLSamples> m_held;
   /** A long sound's file, until it first plays */
   std::unique_ptr<SoundFile> m_file;
+  /** Whether a long sound is too long to share, so each play reads its own */
+  bool m_streamed;
   bool m_stereo;
   /** A sound vanilla played at full volume, having been a stereo file */
   bool m_full;
@@ -94,9 +100,9 @@ private:
   int m_channel;
   unsigned m_play;
   float m_pitch;
-  /** Feeds the channel a sound the device holds, or a long one played faster or slower */
+  /** Feeds the channel a sound held at its own rate */
   std::unique_ptr<SDLVoice> m_voice;
-  /** Feeds the channel a long sound as it's read */
+  /** Feeds the channel a long sound too long to share, as it's read */
   std::unique_ptr<SDLStream> m_stream;
   bool m_looping;
   bool m_relative;

@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_AUDIO_SDL_MIXER_DEVICE_HPP
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -27,15 +28,19 @@
 #include "math/vector.hpp"
 
 class SDLMusic;
+class SDLSamples;
 class SDLSoundSource;
 class SoundFile;
 
-/** SDL_mixer, fed every sound and the music as they play, with the short sounds held whole at their own rate */
+/** SDL_mixer, fed every sound and the music as they play, with the sounds held at their own rate as OpenAL holds them */
 class SDLMixerDevice final : public AudioDevice
 {
 public:
   /** How far ahead a long sound is read, in seconds, a few times the wait between updates */
   static constexpr size_t READ_AHEAD = 1;
+
+  /** The most OpenAL holds of a long sound for each source, so one up to this size is held once for everything playing it */
+  static constexpr size_t SHARE_UP_TO = 1024 * 500;
 
 public:
   SDLMixerDevice();
@@ -67,15 +72,8 @@ public:
   /** Whether channel is still playing the play it was claimed for */
   bool carries(int channel, unsigned play) const;
 
-  /** A sound read whole at its own rate, as OpenAL holds it */
-  struct Samples
-  {
-    std::vector<Sint16> data{};
-    int channels = 1;
-    int rate = 0;
-  };
-  /** Reads a sound whole the first time it's asked for and keeps it */
-  const Samples& get_samples(const std::string& filename);
+  /** A long sound read as it plays, shared by everything playing it and let go once nothing is, from file if it's new */
+  std::shared_ptr<SDLSamples> share(const std::string& filename, std::unique_ptr<SoundFile> file);
 
   /** The silence a channel plays while an SDLVoice writes over it */
   Mix_Chunk* get_silence() const { return m_silence; }
@@ -86,8 +84,8 @@ public:
   void remove_source(SDLSoundSource& source);
 
 private:
-  /** Reads a sound whole and keeps it */
-  const Samples& hold(const std::string& filename, std::unique_ptr<SoundFile> file);
+  /** Reads a short sound whole and keeps it */
+  std::shared_ptr<SDLSamples> hold(const std::string& filename, std::unique_ptr<SoundFile> file);
 
   /** Swaps in a new track, or none, while SDL_mixer isn't reading the old one */
   void set_music(std::unique_ptr<SDLMusic> music);
@@ -103,8 +101,10 @@ private:
 
   std::vector<SDLSoundSource*> m_sources;
 
-  /** Every sound read whole so far, kept the way OpenAL keeps them */
-  std::map<std::string, std::unique_ptr<Samples>> m_samples;
+  /** Every short sound read so far, kept the way OpenAL keeps them */
+  std::map<std::string, std::shared_ptr<SDLSamples>> m_samples;
+  /** The long sounds something's playing */
+  std::map<std::string, std::weak_ptr<SDLSamples>> m_shared;
   Mix_Chunk* m_silence;
 
   std::unique_ptr<SDLMusic> m_music_source;

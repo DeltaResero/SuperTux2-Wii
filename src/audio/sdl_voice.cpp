@@ -20,6 +20,7 @@
 #include <cmath>
 #include <cstring>
 
+#include "audio/sdl_samples.hpp"
 #include "audio/sdl_stream.hpp"
 
 namespace {
@@ -29,17 +30,27 @@ const uint32_t SAME_RATE = 1 << 16;
 
 } // namespace
 
-SDLVoice::SDLVoice(const Sint16* samples, size_t frames, int channels, uint32_t step, bool looping) :
-  m_samples(samples),
-  m_frames(frames),
-  m_channels(channels),
+SDLVoice::SDLVoice(std::shared_ptr<SDLSamples> sound, uint32_t step, bool looping) :
+  m_sound(std::move(sound)),
+  m_samples(m_sound->data()),
+  m_frames(m_sound->frames()),
+  m_channels(m_sound->channels()),
   m_step(step),
   m_looping(looping),
   m_position(0),
   m_fraction(0),
   m_looped(false),
+  m_reached(0),
   m_finished(false)
 {
+}
+
+void
+SDLVoice::read_ahead(size_t output_frames)
+{
+  // In the sound's own frames, which go by faster or slower than the mixer's
+  const uint64_t ahead = static_cast<uint64_t>(output_frames) * m_step.load() / SAME_RATE;
+  m_sound->read_to(m_reached.load(std::memory_order_relaxed) + static_cast<size_t>(ahead));
 }
 
 float
@@ -63,6 +74,7 @@ SDLVoice::feed(int , void* stream, int len, void* voice)
   auto out = static_cast<Sint16*>(stream);
   const size_t count = static_cast<size_t>(len) / (2 * sizeof(Sint16));
   const uint32_t step = self.m_step;
+  const size_t ready = self.m_sound->ready();
 
   for (size_t i = 0; i < count; ++i) {
     if (self.m_position >= self.m_frames) {
@@ -73,6 +85,12 @@ SDLVoice::feed(int , void* stream, int len, void* voice)
       }
       self.m_position -= self.m_frames;
       self.m_looped = true;
+    }
+
+    // Until a long sound's read to the end, the curve waits in silence for the two samples after where it is
+    if (ready < self.m_frames && self.m_position + 2 >= ready) {
+      std::memset(out + i * 2, 0, (count - i) * 2 * sizeof(Sint16));
+      break;
     }
 
     // At the mixer's own rate the curve lands right on each sample, so it's copied as it is
@@ -99,6 +117,8 @@ SDLVoice::feed(int , void* stream, int len, void* voice)
     self.m_position += self.m_fraction >> 16;
     self.m_fraction &= 0xFFFF;
   }
+
+  self.m_reached.store(self.m_position, std::memory_order_relaxed);
 }
 
 /* EOF */

@@ -421,8 +421,8 @@ if(NOT ENABLE_OPENAL)
 endif()
 if(NOT ENABLE_SDL_MIXER)
   list(REMOVE_ITEM SUPERTUX_SOURCES_CXX src/audio/sdl_mixer_device.cpp src/audio/sdl_music.cpp
-                                        src/audio/sdl_sound_source.cpp src/audio/sdl_stream.cpp
-                                        src/audio/sdl_voice.cpp)
+                                        src/audio/sdl_samples.cpp src/audio/sdl_sound_source.cpp
+                                        src/audio/sdl_stream.cpp src/audio/sdl_voice.cpp)
 endif()
 file(GLOB SUPERTUX_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${PROJECT_BINARY_DIR}/tmp/*.rc")
 
