@@ -18,11 +18,13 @@
 
 #include <SDL.h>
 #include <algorithm>
+#include <cstring>
 #include <memory>
 #include <stdexcept>
 
 #include "audio/sdl_music.hpp"
 #include "audio/sdl_sound_source.hpp"
+#include "audio/sdl_stream.hpp"
 #include "audio/sound_file.hpp"
 #include "util/log.hpp"
 
@@ -87,34 +89,22 @@ SDLMixerDevice::get_chunk(const std::string& filename)
   if (it != m_chunks.end())
     return it->second;
 
+  // A chunk holds the mixer's own format, so the sound is read through the music's resampler, as OpenAL plays it
   std::unique_ptr<SoundFile> file(load_sound_file(filename));
-  if (file->m_channels != 1 && file->m_channels != 2)
-    throw std::runtime_error("Only 1 and 2 channel samples supported");
-  if (file->m_bits_per_sample != 8 && file->m_bits_per_sample != 16)
-    throw std::runtime_error("Only 16 and 8 bit samples supported");
+  const bool stereo = file->m_channels == 2;
+  SDLStream stream(std::move(file), m_rate, false);
+  std::vector<Sint16> samples;
+  std::vector<Sint16> part(4096 * 2);
+  while (const size_t got = stream.read(part.data(), 4096)) {
+    samples.insert(samples.end(), part.begin(), part.begin() + static_cast<std::ptrdiff_t>(got * 2));
+    stream.fill();
+  }
 
-  std::vector<char> samples(file->m_size);
-  const size_t got = file->read(samples.data(), samples.size());
-
-  // A chunk has to be in the mixer's own format, so the sound is converted once, here
-  int rate = 0;
-  Uint16 format = 0;
-  int channels = 0;
-  Mix_QuerySpec(&rate, &format, &channels);
-  SDL_AudioStream* stream = SDL_NewAudioStream(file->m_bits_per_sample == 8 ? AUDIO_U8 : AUDIO_S16SYS,
-                                               static_cast<Uint8>(file->m_channels), file->m_rate,
-                                               format, static_cast<Uint8>(channels), rate);
-  if (stream == nullptr)
-    throw std::runtime_error("Couldn't convert sound: " + std::string(SDL_GetError()));
-  SDL_AudioStreamPut(stream, samples.data(), static_cast<int>(got));
-  SDL_AudioStreamFlush(stream);
-  const int size = SDL_AudioStreamAvailable(stream);
-  auto data = static_cast<Uint8*>(SDL_malloc(static_cast<size_t>(size)));
-  if (data != nullptr)
-    SDL_AudioStreamGet(stream, data, size);
-  SDL_FreeAudioStream(stream);
+  const size_t size = samples.size() * sizeof(Sint16);
+  auto data = static_cast<Uint8*>(SDL_malloc(size));
   if (data == nullptr)
     throw std::runtime_error("Couldn't hold sound '" + filename + "'");
+  std::memcpy(data, samples.data(), size);
 
   Mix_Chunk* chunk = Mix_QuickLoad_RAW(data, static_cast<Uint32>(size));
   if (chunk == nullptr) {
@@ -124,7 +114,7 @@ SDLMixerDevice::get_chunk(const std::string& filename)
   // So that Mix_FreeChunk frees the samples with it
   chunk->allocated = 1;
 
-  return m_chunks.emplace(filename, Chunk{chunk, file->m_channels == 2}).first->second;
+  return m_chunks.emplace(filename, Chunk{chunk, stereo}).first->second;
 }
 
 std::unique_ptr<SoundSource>

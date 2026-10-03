@@ -116,7 +116,7 @@ SDLStream::fill()
   size_t room = m_frames - (at - m_taken.load(std::memory_order_acquire));
 
   while (room > 0) {
-    // Catmull-Rom needs the sample before and the two after where it is
+    // The curve needs the sample before and the two after where it is
     if (m_source.size() / 2 < m_position + 3) {
       m_source.erase(m_source.begin(), m_source.begin() + static_cast<std::ptrdiff_t>((m_position - 1) * 2));
       m_position = 1;
@@ -125,14 +125,12 @@ SDLStream::fill()
       continue;
     }
 
-    // OpenAL Soft's default resampler, so a sound at another rate comes out as it does there
+    // OpenAL Soft's default resampler, a 4 point Lagrange curve, so a sound at another rate comes out as it does there
     const float mu = static_cast<float>(m_fraction) / 65536.0f;
-    const float mu2 = mu * mu;
-    const float mu3 = mu2 * mu;
-    const float c0 = -0.5f * mu3 + mu2 - 0.5f * mu;
-    const float c1 = 1.5f * mu3 - 2.5f * mu2 + 1.0f;
-    const float c2 = -1.5f * mu3 + 2.0f * mu2 + 0.5f * mu;
-    const float c3 = 0.5f * mu3 - 0.5f * mu2;
+    const float c0 = -mu * (mu - 1.0f) * (mu - 2.0f) / 6.0f;
+    const float c1 = (mu + 1.0f) * (mu - 1.0f) * (mu - 2.0f) / 2.0f;
+    const float c2 = -(mu + 1.0f) * mu * (mu - 2.0f) / 2.0f;
+    const float c3 = (mu + 1.0f) * mu * (mu - 1.0f) / 6.0f;
     const float* in = &m_source[(m_position - 1) * 2];
     Sint16* out = &m_ring[(at % m_frames) * 2];
     for (size_t ch = 0; ch < 2; ++ch) {
