@@ -89,13 +89,19 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   m_tux = &add<Tux>(this);
   add<PlayerStatusHUD>(m_savegame.get_player_status());
 
-  SoundManager::current()->preload("sounds/warp.flac");
-
   BIND_WORLDMAP(*this);
 
   // load worldmap objects
   WorldMapParser parser(*this);
   parser.load_worldmap(filename);
+
+  // Only a teleporter that stays on this map plays the warp sound
+  for (const auto& teleporter : get_objects_by_type<Teleporter>()) {
+    if (teleporter.get_worldmap().empty()) {
+      SoundManager::current()->preload("sounds/warp.flac");
+      break;
+    }
+  }
 }
 
 WorldMap::~WorldMap()
