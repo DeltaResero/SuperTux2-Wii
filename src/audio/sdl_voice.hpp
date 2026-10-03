@@ -23,8 +23,8 @@
 
 #include <SDL_stdinc.h>
 
-/** A sound played faster or slower on an SDL_mixer channel, which can't change pitch itself.
-    It's written over the silence the channel plays, resampled as it goes, the way OpenAL changes pitch. */
+/** A sound held whole at its own rate, played by writing it over the silence an SDL_mixer channel plays.
+    It's resampled as it goes, the way OpenAL plays a sound at another rate or pitch, which SDL_mixer can't do itself. */
 class SDLVoice final
 {
 public:

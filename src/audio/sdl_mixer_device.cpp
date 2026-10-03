@@ -24,7 +24,6 @@
 
 #include "audio/sdl_music.hpp"
 #include "audio/sdl_sound_source.hpp"
-#include "audio/sdl_stream.hpp"
 #include "audio/sound_file.hpp"
 #include "util/log.hpp"
 
@@ -44,7 +43,6 @@ const int CHANNELS = 64;
 SDLMixerDevice::SDLMixerDevice() :
   m_open(false),
   m_rate(RATE),
-  m_chunks(),
   m_listener(0.0f, 0.0f),
   m_channel_plays(),
   m_plays(0),
@@ -83,56 +81,23 @@ SDLMixerDevice::~SDLMixerDevice()
   if (!m_open)
     return;
 
-  // No channel can still be playing a chunk that's freed, nor the mixer reading the music
+  // No channel can still be playing the silence or a sound that's freed, nor the mixer reading the music
   set_music(nullptr);
   Mix_HaltChannel(-1);
-  for (const auto& chunk : m_chunks) {
-    Mix_FreeChunk(chunk.second.chunk);
-  }
   if (m_silence != nullptr)
     Mix_FreeChunk(m_silence);
   Mix_CloseAudio();
   SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
-const SDLMixerDevice::Chunk&
+const SDLMixerDevice::Samples&
 SDLMixerDevice::hold(const std::string& filename, std::unique_ptr<SoundFile> file)
 {
-  // A chunk holds the mixer's own format, so the sound is read through the music's resampler, as OpenAL plays it
-  const bool stereo = file->m_channels == 2;
-  SDLStream stream(std::move(file), m_rate, false, READ_AHEAD);
-  std::vector<Sint16> samples;
-  std::vector<Sint16> part(4096 * 2);
-  while (const size_t got = stream.read(part.data(), 4096)) {
-    samples.insert(samples.end(), part.begin(), part.begin() + static_cast<std::ptrdiff_t>(got * 2));
-    stream.fill();
-  }
+  if (file->m_channels != 1 && file->m_channels != 2)
+    throw std::runtime_error("Only 1 and 2 channel samples supported");
+  if (file->m_bits_per_sample != 8 && file->m_bits_per_sample != 16)
+    throw std::runtime_error("Only 16 and 8 bit samples supported");
 
-  const size_t size = samples.size() * sizeof(Sint16);
-  auto data = static_cast<Uint8*>(SDL_malloc(size));
-  if (data == nullptr)
-    throw std::runtime_error("Couldn't hold sound '" + filename + "'");
-  std::memcpy(data, samples.data(), size);
-
-  Mix_Chunk* chunk = Mix_QuickLoad_RAW(data, static_cast<Uint32>(size));
-  if (chunk == nullptr) {
-    SDL_free(data);
-    throw std::runtime_error("Couldn't hold sound: " + std::string(Mix_GetError()));
-  }
-  // So that Mix_FreeChunk frees the samples with it
-  chunk->allocated = 1;
-
-  return m_chunks.emplace(filename, Chunk{chunk, stereo}).first->second;
-}
-
-const SDLMixerDevice::Samples&
-SDLMixerDevice::get_samples(const std::string& filename)
-{
-  auto it = m_samples.find(filename);
-  if (it != m_samples.end())
-    return *it->second;
-
-  std::unique_ptr<SoundFile> file(load_sound_file(filename));
   auto samples = std::make_unique<Samples>();
   samples->channels = file->m_channels;
   samples->rate = file->m_rate;
@@ -149,26 +114,36 @@ SDLMixerDevice::get_samples(const std::string& filename)
   return *m_samples.emplace(filename, std::move(samples)).first->second;
 }
 
+const SDLMixerDevice::Samples&
+SDLMixerDevice::get_samples(const std::string& filename)
+{
+  auto it = m_samples.find(filename);
+  if (it != m_samples.end())
+    return *it->second;
+
+  return hold(filename, load_sound_file(filename));
+}
+
 std::unique_ptr<SoundSource>
 SDLMixerDevice::create_source(const std::string& filename, bool full)
 {
-  auto it = m_chunks.find(filename);
-  if (it != m_chunks.end())
-    return std::make_unique<SDLSoundSource>(*this, filename, it->second.chunk, it->second.stereo, full);
+  auto it = m_samples.find(filename);
+  if (it != m_samples.end())
+    return std::make_unique<SDLSoundSource>(*this, filename, it->second->channels == 2, full);
 
   // Like OpenAL, a long sound is read from its file as it plays instead of being held
   std::unique_ptr<SoundFile> file(load_sound_file(filename));
   if (file->m_size >= STREAM_FROM)
     return std::make_unique<SDLSoundSource>(*this, filename, std::move(file), full);
 
-  const Chunk& chunk = hold(filename, std::move(file));
-  return std::make_unique<SDLSoundSource>(*this, filename, chunk.chunk, chunk.stereo, full);
+  const Samples& samples = hold(filename, std::move(file));
+  return std::make_unique<SDLSoundSource>(*this, filename, samples.channels == 2, full);
 }
 
 void
 SDLMixerDevice::preload(const std::string& filename)
 {
-  if (m_chunks.find(filename) != m_chunks.end())
+  if (m_samples.find(filename) != m_samples.end())
     return;
 
   try {

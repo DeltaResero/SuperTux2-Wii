@@ -23,7 +23,6 @@
 #include "audio/sound_source.hpp"
 #include "math/vector.hpp"
 
-struct Mix_Chunk;
 class SDLMixerDevice;
 class SDLStream;
 class SDLVoice;
@@ -34,7 +33,7 @@ class SDLSoundSource final : public SoundSource
 {
 public:
   /** A short sound, held whole by the device */
-  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, Mix_Chunk* chunk, bool stereo, bool full);
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, bool stereo, bool full);
   /** A long sound, read from its file as it plays */
   SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::unique_ptr<SoundFile> file, bool full);
   ~SDLSoundSource() override;
@@ -84,8 +83,8 @@ private:
 private:
   SDLMixerDevice& m_device;
   std::string m_filename;
-  /** The sound held whole, or null for a long one read as it plays */
-  Mix_Chunk* m_chunk;
+  /** Whether the device holds the sound whole, or it's a long one read as it plays */
+  bool m_held;
   /** A long sound's file, until it first plays */
   std::unique_ptr<SoundFile> m_file;
   bool m_stereo;
@@ -95,7 +94,7 @@ private:
   int m_channel;
   unsigned m_play;
   float m_pitch;
-  /** Feeds the channel when the sound plays at another pitch, which SDL_mixer can't do itself */
+  /** Feeds the channel a sound the device holds, or a long one played faster or slower */
   std::unique_ptr<SDLVoice> m_voice;
   /** Feeds the channel a long sound as it's read */
   std::unique_ptr<SDLStream> m_stream;

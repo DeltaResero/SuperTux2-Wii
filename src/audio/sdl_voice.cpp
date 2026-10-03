@@ -22,6 +22,13 @@
 
 #include "audio/sdl_stream.hpp"
 
+namespace {
+
+// A step of exactly one sample, in 16.16 fixed point
+const uint32_t SAME_RATE = 1 << 16;
+
+} // namespace
+
 SDLVoice::SDLVoice(const Sint16* samples, size_t frames, int channels, uint32_t step, bool looping) :
   m_samples(samples),
   m_frames(frames),
@@ -68,13 +75,25 @@ SDLVoice::feed(int , void* stream, int len, void* voice)
       self.m_looped = true;
     }
 
+    // At the mixer's own rate the curve lands right on each sample, so it's copied as it is
+    if (step == SAME_RATE && self.m_fraction == 0) {
+      const size_t at = self.m_position * static_cast<size_t>(self.m_channels);
+      out[i * 2] = self.m_samples[at];
+      out[i * 2 + 1] = self.m_samples[at + static_cast<size_t>(self.m_channels) - 1];
+      ++self.m_position;
+      continue;
+    }
+
     const auto w = lagrange_weights(static_cast<float>(self.m_fraction) / 65536.0f);
     const auto at = static_cast<ptrdiff_t>(self.m_position);
-    for (int ch = 0; ch < 2; ++ch) {
+    for (int ch = 0; ch < self.m_channels; ++ch) {
       const float value = w[0] * self.sample(at - 1, ch) + w[1] * self.sample(at, ch)
                           + w[2] * self.sample(at + 1, ch) + w[3] * self.sample(at + 2, ch);
       out[i * 2 + static_cast<size_t>(ch)] = static_cast<Sint16>(std::clamp(std::lround(value * 32768.0f), -32768L, 32767L));
     }
+    // A mono sound is worked out once for both ears
+    if (self.m_channels == 1)
+      out[i * 2 + 1] = out[i * 2];
 
     self.m_fraction += step;
     self.m_position += self.m_fraction >> 16;

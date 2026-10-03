@@ -58,10 +58,10 @@ float pan(float turn, float tilt, float side)
 
 } // namespace
 
-SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filename, Mix_Chunk* chunk, bool stereo, bool full) :
+SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filename, bool stereo, bool full) :
   m_device(device),
   m_filename(filename),
-  m_chunk(chunk),
+  m_held(true),
   m_file(),
   m_stereo(stereo),
   m_full(full),
@@ -92,8 +92,9 @@ SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filena
 }
 
 SDLSoundSource::SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::unique_ptr<SoundFile> file, bool full) :
-  SDLSoundSource(device, filename, nullptr, file->m_channels == 2, full)
+  SDLSoundSource(device, filename, file->m_channels == 2, full)
 {
+  m_held = false;
   m_file = std::move(file);
 }
 
@@ -149,16 +150,16 @@ SDLSoundSource::play()
       return;
   }
 
-  // The channel plays silence for a voice or a long sound to write over, which they do before the panning goes on
+  // The channel plays silence for the sound to be written over, which happens before the panning goes on
   m_voice.reset();
   m_stream.reset();
-  if (m_pitch != 1.0f) {
+  if (m_held || m_pitch != 1.0f) {
     const auto& samples = m_device.get_samples(m_filename);
     m_voice = std::make_unique<SDLVoice>(samples.data.data(), samples.data.size() / static_cast<size_t>(samples.channels),
                                          samples.channels, resample_step(samples.rate, m_device.get_rate(), m_pitch),
                                          m_looping);
     Mix_RegisterEffect(m_channel, SDLVoice::feed, nullptr, m_voice.get());
-  } else if (m_chunk == nullptr) {
+  } else {
     if (!start_stream())
       return;
     Mix_RegisterEffect(m_channel, SDLStream::feed, nullptr, m_stream.get());
@@ -166,10 +167,7 @@ SDLSoundSource::play()
 
   // A channel loses its panning when its last sound ends, so it's always sent again
   send_levels(true);
-  if (m_voice || m_stream)
-    Mix_PlayChannel(m_channel, m_device.get_silence(), -1);
-  else
-    Mix_PlayChannel(m_channel, m_chunk, m_looping ? -1 : 0);
+  Mix_PlayChannel(m_channel, m_device.get_silence(), -1);
 }
 
 void

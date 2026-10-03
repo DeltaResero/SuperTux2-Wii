@@ -30,7 +30,7 @@ class SDLMusic;
 class SDLSoundSource;
 class SoundFile;
 
-/** SDL_mixer, holding the short sounds whole and feeding it the long ones and the music as they play */
+/** SDL_mixer, fed every sound and the music as they play, with the short sounds held whole at their own rate */
 class SDLMixerDevice final : public AudioDevice
 {
 public:
@@ -67,13 +67,14 @@ public:
   /** Whether channel is still playing the play it was claimed for */
   bool carries(int channel, unsigned play) const;
 
-  /** A sound read whole at its own rate, for one played faster or slower */
+  /** A sound read whole at its own rate, as OpenAL holds it */
   struct Samples
   {
     std::vector<Sint16> data{};
     int channels = 1;
     int rate = 0;
   };
+  /** Reads a sound whole the first time it's asked for and keeps it */
   const Samples& get_samples(const std::string& filename);
 
   /** The silence a channel plays while an SDLVoice writes over it */
@@ -85,14 +86,8 @@ public:
   void remove_source(SDLSoundSource& source);
 
 private:
-  struct Chunk
-  {
-    Mix_Chunk* chunk;
-    bool stereo;
-  };
-
-  /** Reads a short sound whole and keeps it */
-  const Chunk& hold(const std::string& filename, std::unique_ptr<SoundFile> file);
+  /** Reads a sound whole and keeps it */
+  const Samples& hold(const std::string& filename, std::unique_ptr<SoundFile> file);
 
   /** Swaps in a new track, or none, while SDL_mixer isn't reading the old one */
   void set_music(std::unique_ptr<SDLMusic> music);
@@ -100,7 +95,6 @@ private:
 private:
   bool m_open;
   int m_rate;
-  std::map<std::string, Chunk> m_chunks;
   Vector m_listener;
 
   /** The play each channel was last claimed for, so a sound never takes another's channel for its own */
@@ -109,6 +103,7 @@ private:
 
   std::vector<SDLSoundSource*> m_sources;
 
+  /** Every sound read whole so far, kept the way OpenAL keeps them */
   std::map<std::string, std::unique_ptr<Samples>> m_samples;
   Mix_Chunk* m_silence;
 
