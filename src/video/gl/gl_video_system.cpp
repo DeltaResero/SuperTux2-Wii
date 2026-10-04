@@ -151,6 +151,12 @@ void
 GLVideoSystem::create_gl_context()
 {
   m_glcontext = SDL_GL_CreateContext(m_sdl_window.get());
+  if (!m_glcontext)
+  {
+    std::ostringstream msg;
+    msg << "Couldn't create OpenGL context: " << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
 
   assert_gl();
 
