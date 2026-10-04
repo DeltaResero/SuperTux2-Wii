@@ -541,12 +541,10 @@ OptionsMenu::menu_action(MenuItem& item)
     case MNID_FULLSCREEN:
       VideoSystem::current()->apply_config();
       MenuManager::instance().on_window_resize();
-      g_config->save();
       break;
 
     case MNID_SOUND:
       SoundManager::current()->enable_sound(g_config->sound_enabled);
-      g_config->save();
       break;
 
     case MNID_SOUND_VOLUME:
@@ -555,13 +553,11 @@ OptionsMenu::menu_action(MenuItem& item)
         bool sound_enabled = g_config->sound_volume > 0 ? true : false;
         SoundManager::current()->enable_sound(sound_enabled);
         SoundManager::current()->set_sound_volume(g_config->sound_volume);
-        g_config->save();
       }
       break;
 
     case MNID_MUSIC:
       SoundManager::current()->enable_music(g_config->music_enabled);
-      g_config->save();
       break;
 
     case MNID_MUSIC_VOLUME:
@@ -570,7 +566,6 @@ OptionsMenu::menu_action(MenuItem& item)
         bool music_enabled = g_config->music_volume > 0 ? true : false;
         SoundManager::current()->enable_music(music_enabled);
         SoundManager::current()->set_music_volume(g_config->music_volume);
-        g_config->save();
       }
       break;
 
@@ -580,6 +575,12 @@ OptionsMenu::menu_action(MenuItem& item)
 
     default:
       break;
+  }
+
+  // Every item with an id is a setting, so it reaches the file now rather than at a clean exit
+  if (item.get_id() >= 0)
+  {
+    g_config->save();
   }
 }
 
