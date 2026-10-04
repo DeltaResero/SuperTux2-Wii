@@ -18,6 +18,8 @@
 #ifndef HEADER_SUPERTUX_GUI_MENU_ITEM_HPP
 #define HEADER_SUPERTUX_GUI_MENU_ITEM_HPP
 
+#include <optional>
+
 #include "gui/menu.hpp"
 #include "video/color.hpp"
 
@@ -59,6 +61,9 @@ public:
 
   /** Gives the item the value column its menu shares between all its items. */
   virtual void set_value_column(float width) { }
+
+  /** Tells the item how far along it the pointer is, or nothing when the pointer is elsewhere. */
+  virtual void set_pointer_x(const std::optional<float>& x) { }
 
   /** Returns what a click x pixels from the item's left edge stands for. */
   virtual MenuAction get_click_action(float x, int menu_width) const {

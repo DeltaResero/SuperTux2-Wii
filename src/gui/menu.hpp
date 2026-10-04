@@ -116,6 +116,11 @@ protected:
   int m_active_item;
 
 private:
+  // The row under the pointer, or -1 when it's off the menu, and how far along that row it is
+  int m_pointer_item;
+  float m_pointer_x;
+
+private:
   Menu(const Menu&) = delete;
   Menu& operator=(const Menu&) = delete;
 };

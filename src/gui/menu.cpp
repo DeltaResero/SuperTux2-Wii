@@ -52,7 +52,9 @@ Menu::Menu() :
   m_menu_width(),
   m_items(),
   m_arrange_left(0),
-  m_active_item(-1)
+  m_active_item(-1),
+  m_pointer_item(-1),
+  m_pointer_x(0.0f)
 {
 }
 
@@ -391,6 +393,7 @@ Menu::draw_item(DrawingContext& context, int index)
   const float x_pos = m_pos.x - menu_width / 2.0f;
   const float y_pos = m_pos.y + 24.0f * static_cast<float>(index) - menu_height / 2.0f + 12.0f;
 
+  pitem->set_pointer_x(index == m_pointer_item ? std::optional<float>(m_pointer_x) : std::nullopt);
   pitem->draw(context, Vector(x_pos, y_pos), static_cast<int>(menu_width), m_active_item == index);
 
   if (m_active_item == index)
@@ -557,6 +560,9 @@ Menu::event(const SDL_Event& ev)
         int new_active_item
           = static_cast<int> ((y - (m_pos.y - get_height()/2)) / 24);
 
+        m_pointer_item = new_active_item;
+        m_pointer_x = x - (m_pos.x - get_width() / 2.0f);
+
         /* only change the mouse focus to a selectable item */
         if (!m_items[new_active_item]->skippable() &&
             new_active_item != m_active_item) {
@@ -572,6 +578,8 @@ Menu::event(const SDL_Event& ev)
       }
       else
       {
+        m_pointer_item = -1;
+
         if (MouseCursor::current())
           MouseCursor::current()->set_state(MouseCursorState::NORMAL);
       }
