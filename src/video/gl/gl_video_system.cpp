@@ -200,7 +200,7 @@ GLVideoSystem::create_gl_context()
   static auto extensions = glbinding::ContextInfo::extensions();
   log_info << "Using glbinding" << std::endl;
   log_info << "ARB_texture_non_power_of_two: " << static_cast<int>(extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end()) << std::endl;
-#  else
+#  elif defined(HAVE_GLEW)
   GLenum err = glewInit();
 #    ifdef GLEW_ERROR_NO_GLX_DISPLAY
   // Glew can't open glx display when it's running on wayland session
@@ -230,6 +230,8 @@ GLVideoSystem::create_gl_context()
   log_info << "OpenGL: " << glGetString(GL_VERSION) << std::endl;
   log_info << "Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
   log_info << "GLEW_ARB_texture_non_power_of_two: " << static_cast<int>(GLEW_ARB_texture_non_power_of_two) << std::endl;
+#  else
+  log_info << "OpenGL: " << glGetString(GL_VERSION) << std::endl;
 #  endif
 #endif
 

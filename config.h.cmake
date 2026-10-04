@@ -16,6 +16,8 @@
 
 #cmakedefine HAVE_OPENGL
 
+#cmakedefine HAVE_GLEW
+
 #cmakedefine ENABLE_OPENAL
 
 #cmakedefine ENABLE_SDL_MIXER
