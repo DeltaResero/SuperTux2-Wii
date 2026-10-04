@@ -27,7 +27,7 @@
 SDLScreenRenderer::SDLScreenRenderer(SDLVideoSystem& video_system, SDL_Renderer* renderer) :
   m_video_system(video_system),
   m_renderer(renderer),
-  m_painter(m_video_system, *this, m_renderer)
+  m_painter(m_video_system, *this, m_renderer, 1.0f)
 {
   SDL_RendererInfo info;
   if (SDL_GetRendererInfo(m_renderer, &info) != 0)

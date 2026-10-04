@@ -50,6 +50,12 @@ SDL_Rect to_sdl_rect(const Rectf& rect)
   return sdl_rect;
 }
 
+SDL_FRect to_sdl_frect(const SDL_Rect& rect, float scale)
+{
+  return SDL_FRect{ static_cast<float>(rect.x) * scale, static_cast<float>(rect.y) * scale,
+                    static_cast<float>(rect.w) * scale, static_cast<float>(rect.h) * scale };
+}
+
 SDL_BlendMode blend2sdl(const Blend& blend)
 {
   if (blend == Blend::NONE)
@@ -123,7 +129,7 @@ Rect relative_map(const Rect& inside, const Rect& srcrect, const Rect& dstrect)
 
 void render_texture(SDL_Renderer* renderer,
                     SDL_Texture* texture, const Rect& imgrect,
-                    const Rect& srcrect, const Rect& dstrect)
+                    const Rect& srcrect, const Rect& dstrect, float scale)
 {
   assert(imgrect.contains(srcrect.left, srcrect.top));
 
@@ -133,8 +139,8 @@ void render_texture(SDL_Renderer* renderer,
   if (imgrect.contains(srcrect))
   {
     SDL_Rect sdl_srcrect = srcrect.to_sdl();
-    SDL_Rect sdl_dstrect = dstrect.to_sdl();
-    SDL_RenderCopy(renderer, texture, &sdl_srcrect, &sdl_dstrect);
+    SDL_FRect sdl_dstrect = to_sdl_frect(dstrect.to_sdl(), scale);
+    SDL_RenderCopyF(renderer, texture, &sdl_srcrect, &sdl_dstrect);
   }
   else
   {
@@ -142,7 +148,7 @@ void render_texture(SDL_Renderer* renderer,
     std::array<Rect, 4> rest;
     std::tie(inside, rest[0], rest[1], rest[2], rest[3]) = intersect(srcrect, imgrect);
 
-    render_texture(renderer, texture, imgrect, inside, relative_map(inside, srcrect, dstrect));
+    render_texture(renderer, texture, imgrect, inside, relative_map(inside, srcrect, dstrect), scale);
 
     for (const Rect& rect : rest)
     {
@@ -150,7 +156,7 @@ void render_texture(SDL_Renderer* renderer,
                              math::positive_mod(rect.top, imgrect.get_height()),
                              rect.get_size());
       render_texture(renderer, texture, imgrect,
-                     new_srcrect, relative_map(rect, srcrect, dstrect));
+                     new_srcrect, relative_map(rect, srcrect, dstrect), scale);
     }
   }
 }
@@ -163,12 +169,15 @@ void RenderCopyEx(SDL_Renderer*          renderer,
                   const double           angle,
                   const SDL_Point*       center,
                   const SDL_RendererFlip flip,
-                  const Sampler& sampler)
+                  const Sampler& sampler,
+                  float scale)
 {
+  const SDL_FRect sdl_fdstrect = to_sdl_frect(*sdl_dstrect, scale);
+
   Vector animate = sampler.get_animate();
   if (animate.x == 0.0f && animate.y == 0.0f)
   {
-    SDL_RenderCopyEx(renderer, texture, sdl_srcrect, sdl_dstrect, angle, nullptr, flip);
+    SDL_RenderCopyExF(renderer, texture, sdl_srcrect, &sdl_fdstrect, angle, nullptr, flip);
   }
   else
   {
@@ -198,7 +207,7 @@ void RenderCopyEx(SDL_Renderer*          renderer,
         flip ||
         angle != 0.0)
     {
-      SDL_RenderCopyEx(renderer, texture, sdl_srcrect, sdl_dstrect, angle, nullptr, flip);
+      SDL_RenderCopyExF(renderer, texture, sdl_srcrect, &sdl_fdstrect, angle, nullptr, flip);
     }
     else
     {
@@ -207,17 +216,18 @@ void RenderCopyEx(SDL_Renderer*          renderer,
                    math::positive_mod(sdl_srcrect->y + tex_off_y, height),
                    Size(sdl_srcrect->w, sdl_srcrect->h));
 
-      render_texture(renderer, texture, imgrect, srcrect, Rect(*sdl_dstrect));
+      render_texture(renderer, texture, imgrect, srcrect, Rect(*sdl_dstrect), scale);
     }
   }
 }
 
 } // namespace
 
-SDLPainter::SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Renderer* sdl_renderer) :
+SDLPainter::SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Renderer* sdl_renderer, float scale) :
   m_video_system(video_system),
   m_renderer(renderer),
   m_sdl_renderer(sdl_renderer),
+  m_scale(scale),
   m_cliprect()
 {}
 
@@ -257,7 +267,7 @@ SDLPainter::draw_texture(const TextureRequest& request)
     RenderCopyEx(m_sdl_renderer, texture.get_texture(),
                  &src_rect, &dst_rect,
                  static_cast<double>(request.angles[i]), nullptr, flip,
-                 texture.get_sampler());
+                 texture.get_sampler(), m_scale);
   }
 }
 
@@ -314,7 +324,8 @@ SDLPainter::draw_gradient(const GradientRequest& request)
 
     SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend2sdl(request.blend));
     SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-    SDL_RenderFillRect(m_sdl_renderer, &rect);
+    const SDL_FRect frect = to_sdl_frect(rect, m_scale);
+    SDL_RenderFillRectF(m_sdl_renderer, &frect);
   }
 }
 
@@ -336,7 +347,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
     int slices = radius;
 
     // rounded top and bottom parts
-    std::vector<SDL_Rect> rects;
+    std::vector<SDL_FRect> rects;
     rects.reserve(2*slices + 1);
     for (int i = 0; i < slices; ++i)
     {
@@ -348,7 +359,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
       tmp.y = rect.y + (radius - i);
       tmp.w = rect.w - 2*(xoff);
       tmp.h = 1;
-      rects.push_back(tmp);
+      rects.push_back(to_sdl_frect(tmp, m_scale));
 
       SDL_Rect tmp2;
       tmp2.x = rect.x + xoff;
@@ -358,7 +369,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
 
       if (tmp2.y != tmp.y)
       {
-        rects.push_back(tmp2);
+        rects.push_back(to_sdl_frect(tmp2, m_scale));
       }
     }
 
@@ -370,12 +381,12 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
       tmp.y = rect.y + radius + 1;
       tmp.w = rect.w;
       tmp.h = rect.h - 2*radius - 1;
-      rects.push_back(tmp);
+      rects.push_back(to_sdl_frect(tmp, m_scale));
     }
 
     SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-    SDL_RenderFillRects(m_sdl_renderer, &*rects.begin(), static_cast<int>(rects.size()));
+    SDL_RenderFillRectsF(m_sdl_renderer, &*rects.begin(), static_cast<int>(rects.size()));
   }
   else
   {
@@ -383,7 +394,8 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
     {
       SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-      SDL_RenderFillRect(m_sdl_renderer, &rect);
+      const SDL_FRect frect = to_sdl_frect(rect, m_scale);
+      SDL_RenderFillRectF(m_sdl_renderer, &frect);
     }
   }
 }
@@ -440,8 +452,12 @@ SDLPainter::draw_inverse_ellipse(const InverseEllipseRequest& request)
   Uint8 a = static_cast<Uint8>(request.color.alpha * 255);
 
   SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
+  SDL_FRect frects[2*max_slices+2];
+  for (int i = 0; i < 2*slices+2; ++i)
+    frects[i] = to_sdl_frect(rects[i], m_scale);
+
   SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-  SDL_RenderFillRects(m_sdl_renderer, rects, 2*slices+2);
+  SDL_RenderFillRectsF(m_sdl_renderer, frects, 2*slices+2);
 }
 
 void
@@ -459,7 +475,9 @@ SDLPainter::draw_line(const LineRequest& request)
 
   SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-  SDL_RenderDrawLine(m_sdl_renderer, x1, y1, x2, y2);
+  SDL_RenderDrawLineF(m_sdl_renderer,
+                      static_cast<float>(x1) * m_scale, static_cast<float>(y1) * m_scale,
+                      static_cast<float>(x2) * m_scale, static_cast<float>(y2) * m_scale);
 }
 
 namespace {
@@ -482,7 +500,7 @@ make_edge(int x1, int y1, int x2, int y2)
 }
 
 void
-draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2)
+draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2, float scale)
 {
   // calculate difference between the y coordinates
   // of the first edge and return if 0
@@ -504,9 +522,11 @@ draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2)
   float factorStep2 = 1.0f / e2ydiff;
 
   for (int y = static_cast<int>(e2.first.y); y < static_cast<int>(e2.second.y); y++) {
-    SDL_RenderDrawLine(renderer,
-                       static_cast<int>(e1.first.x + e1xdiff * factor1), y,
-                       static_cast<int>(e2.first.x + e2xdiff * factor2), y);
+    SDL_RenderDrawLineF(renderer,
+                        static_cast<float>(static_cast<int>(e1.first.x + e1xdiff * factor1)) * scale,
+                        static_cast<float>(y) * scale,
+                        static_cast<float>(static_cast<int>(e2.first.x + e2xdiff * factor2)) * scale,
+                        static_cast<float>(y) * scale);
     factor1 += factorStep1;
     factor2 += factorStep2;
   }
@@ -552,8 +572,8 @@ SDLPainter::draw_triangle(const TriangleRequest& request)
   SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
 
-  draw_span_between_edges(m_sdl_renderer, edges[longEdge], edges[shortEdge1]);
-  draw_span_between_edges(m_sdl_renderer, edges[longEdge], edges[shortEdge2]);
+  draw_span_between_edges(m_sdl_renderer, edges[longEdge], edges[shortEdge1], m_scale);
+  draw_span_between_edges(m_sdl_renderer, edges[longEdge], edges[shortEdge2], m_scale);
 }
 
 void
@@ -576,10 +596,12 @@ SDLPainter::clear(const Color& color)
 void
 SDLPainter::set_clip_rect(const Rect& rect)
 {
-  m_cliprect = SDL_Rect{ rect.left,
-                         rect.top,
-                         rect.get_width(),
-                         rect.get_height() };
+  // Kept in the target's own pixels, rounded outwards
+  const int left = static_cast<int>(floorf(static_cast<float>(rect.left) * m_scale));
+  const int top = static_cast<int>(floorf(static_cast<float>(rect.top) * m_scale));
+  const int right = static_cast<int>(ceilf(static_cast<float>(rect.right) * m_scale));
+  const int bottom = static_cast<int>(ceilf(static_cast<float>(rect.bottom) * m_scale));
+  m_cliprect = SDL_Rect{ left, top, right - left, bottom - top };
 
   int ret = SDL_RenderSetClipRect(m_sdl_renderer, &*m_cliprect);
   if (ret < 0)

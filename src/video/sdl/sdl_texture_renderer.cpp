@@ -30,7 +30,8 @@
 SDLTextureRenderer::SDLTextureRenderer(SDLVideoSystem& video_system, SDL_Renderer* renderer, const Size& size, int downscale) :
   m_video_system(video_system),
   m_renderer(renderer),
-  m_painter(m_video_system, *this, m_renderer),
+  // The painter shrinks the drawing itself; sdl2-compat mishandles SDL's scale on a render target
+  m_painter(m_video_system, *this, m_renderer, 1.0f / static_cast<float>(downscale)),
   m_size(size),
   m_downscale(downscale),
   m_texture()
@@ -69,15 +70,11 @@ SDLTextureRenderer::start_draw()
   }
 
   SDL_SetRenderTarget(m_renderer, get_sdl_texture());
-  SDL_RenderSetScale(m_renderer,
-                     1.0f / static_cast<float>(m_downscale),
-                     1.0f / static_cast<float>(m_downscale));
 }
 
 void
 SDLTextureRenderer::end_draw()
 {
-  SDL_RenderSetScale(m_renderer, 1.0f, 1.0f);
   SDL_SetRenderTarget(m_renderer, nullptr);
 }
 
