@@ -160,17 +160,7 @@ GLVideoSystem::create_gl_context()
 
   assert_gl();
 
-  if (g_config->try_vsync) {
-    // we want vsync for smooth scrolling
-    if (SDL_GL_SetSwapInterval(-1) != 0)
-    {
-      log_info << "no support for late swap tearing vsync: " << SDL_GetError() << std::endl;
-      if (SDL_GL_SetSwapInterval(1))
-      {
-        log_info << "no support for vsync: " << SDL_GetError() << std::endl;
-      }
-    }
-  }
+  set_vsync(g_config->vsync);
 
   assert_gl();
 
@@ -298,6 +288,12 @@ GLVideoSystem::set_vsync(int mode)
 {
   if (SDL_GL_SetSwapInterval(mode) < 0)
   {
+    // A driver without adaptive vsync can usually still wait for every refresh
+    if (mode == -1 && SDL_GL_SetSwapInterval(1) == 0)
+    {
+      log_info << "No support for adaptive vsync, waiting for every refresh" << std::endl;
+      return;
+    }
     log_warning << "Setting vsync mode failed: " << SDL_GetError() << std::endl;
   }
   else

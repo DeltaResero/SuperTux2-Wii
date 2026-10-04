@@ -59,7 +59,8 @@ public:
 
   bool use_fullscreen;
   VideoSystem::Enum video;
-  bool try_vsync;
+  // 1 waits for every refresh, 0 never waits, -1 waits unless the frame is late
+  int vsync;
   bool show_fps;
   bool show_player_pos;
   bool show_controller;

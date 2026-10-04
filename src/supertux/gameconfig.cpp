@@ -33,7 +33,7 @@ Config::Config() :
   magnification(0.0f),
   use_fullscreen(false),
   video(VideoSystem::VIDEO_AUTO),
-  try_vsync(true),
+  vsync(-1),
   show_fps(false),
   show_player_pos(false),
   show_controller(false),
@@ -95,7 +95,17 @@ Config::load()
     std::string video_string;
     config_video_mapping->get("video", video_string);
     video = VideoSystem::get_video_system(video_string);
-    config_video_mapping->get("vsync", try_vsync);
+    // Older configs say #t or #f here, and reading that as a number would throw and lose the whole file
+    try
+    {
+      config_video_mapping->get("vsync", vsync);
+    }
+    catch (const std::exception&)
+    {
+      bool vsync_on = true;
+      config_video_mapping->get("vsync", vsync_on);
+      vsync = vsync_on ? -1 : 0;
+    }
 
     config_video_mapping->get("fullscreen_width",  fullscreen_size.width);
     config_video_mapping->get("fullscreen_height", fullscreen_size.height);
@@ -178,7 +188,7 @@ Config::save()
   } else {
     writer.write("video", VideoSystem::get_video_string(video));
   }
-  writer.write("vsync", try_vsync);
+  writer.write("vsync", vsync);
 
   writer.write("fullscreen_width",  fullscreen_size.width);
   writer.write("fullscreen_height", fullscreen_size.height);

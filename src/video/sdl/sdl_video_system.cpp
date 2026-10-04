@@ -71,7 +71,7 @@ SDLVideoSystem::create_window()
 
   create_sdl_window(0);
 
-  const Uint32 renderer_flags = g_config->try_vsync ? SDL_RENDERER_PRESENTVSYNC : 0;
+  const Uint32 renderer_flags = g_config->vsync != 0 ? SDL_RENDERER_PRESENTVSYNC : 0;
   m_sdl_renderer.reset(SDL_CreateRenderer(m_sdl_window.get(), -1, renderer_flags));
   if (!m_sdl_renderer && renderer_flags != 0)
   {

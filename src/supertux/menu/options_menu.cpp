@@ -520,21 +520,22 @@ OptionsMenu::menu_action(MenuItem& item)
       switch (next_vsync)
       {
         case 2:
-          VideoSystem::current()->set_vsync(-1);
+          g_config->vsync = -1;
           break;
 
         case 1:
-          VideoSystem::current()->set_vsync(0);
+          g_config->vsync = 0;
           break;
 
         case 0:
-          VideoSystem::current()->set_vsync(1);
+          g_config->vsync = 1;
           break;
 
         default:
           assert(false);
           break;
       }
+      VideoSystem::current()->set_vsync(g_config->vsync);
       break;
 
     case MNID_FULLSCREEN:
