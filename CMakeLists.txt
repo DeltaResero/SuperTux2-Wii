@@ -186,8 +186,8 @@ else(WIN32)
   else()
     # 64-bit
     include(FindPkgConfig)
-    # 2.0.10 for the float drawing calls the SDL painter uses
-    pkg_search_module(SDL2 REQUIRED sdl2>=2.0.10)
+    # 2.0.18 for the SDL renderer's vsync switch and its float drawing calls
+    pkg_search_module(SDL2 REQUIRED sdl2>=2.0.18)
     pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
   endif()
 endif(WIN32)

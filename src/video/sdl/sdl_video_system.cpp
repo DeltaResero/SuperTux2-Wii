@@ -71,7 +71,14 @@ SDLVideoSystem::create_window()
 
   create_sdl_window(0);
 
-  m_sdl_renderer.reset(SDL_CreateRenderer(m_sdl_window.get(), -1, 0));
+  const Uint32 renderer_flags = g_config->try_vsync ? SDL_RENDERER_PRESENTVSYNC : 0;
+  m_sdl_renderer.reset(SDL_CreateRenderer(m_sdl_window.get(), -1, renderer_flags));
+  if (!m_sdl_renderer && renderer_flags != 0)
+  {
+    log_info << "no support for vsync: " << SDL_GetError() << std::endl;
+    m_sdl_renderer.reset(SDL_CreateRenderer(m_sdl_window.get(), -1, 0));
+  }
+
   if (!m_sdl_renderer)
   {
     std::stringstream msg;
@@ -117,13 +124,26 @@ SDLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler)
 void
 SDLVideoSystem::set_vsync(int mode)
 {
-  log_warning << "Setting vsync not supported by SDL renderer" << std::endl;
+  // SDL's renderer only knows on and off, so adaptive asks for on
+  if (SDL_RenderSetVSync(m_sdl_renderer.get(), mode != 0 ? 1 : 0) != 0)
+  {
+    log_warning << "Setting vsync mode failed: " << SDL_GetError() << std::endl;
+  }
+  else
+  {
+    log_info << "Setting vsync mode to " << mode << std::endl;
+  }
 }
 
 int
 SDLVideoSystem::get_vsync() const
 {
-  return 0;
+  SDL_RendererInfo info;
+  if (SDL_GetRendererInfo(m_sdl_renderer.get(), &info) != 0)
+  {
+    return 0;
+  }
+  return (info.flags & SDL_RENDERER_PRESENTVSYNC) ? 1 : 0;
 }
 
 void
