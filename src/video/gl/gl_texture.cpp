@@ -30,10 +30,6 @@ GLTexture::GLTexture(int width, int height, std::optional<Color> fill_color) :
   m_image_width(),
   m_image_height()
 {
-#ifdef GL_VERSION_ES_CM_1_0
-  assert(is_power_of_2(width));
-  assert(is_power_of_2(height));
-#endif
   m_texture_width  = width;
   m_texture_height = height;
   m_image_width  = width;

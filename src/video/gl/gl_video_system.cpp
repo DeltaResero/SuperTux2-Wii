@@ -59,9 +59,6 @@ GLVideoSystem::GLVideoSystem(bool use_opengl33core) :
 #if defined(USE_OPENGLES2)
   m_context.reset(new GL33CoreContext(*this));
   m_use_opengl33core = true;
-#elif defined(USE_OPENGLES1)
-  m_context.reset(new GL20Context);
-  m_use_opengl33core = false;
 #else
   if (use_opengl33core)
   {
@@ -129,11 +126,6 @@ GLVideoSystem::create_gl_window()
 
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-#elif defined(USE_OPENGLES1)
-  log_info << "Requesting OpenGLES1 context" << std::endl;
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 #else
   if (m_use_opengl33core)
   {
@@ -177,8 +169,6 @@ GLVideoSystem::create_gl_context()
   assert_gl();
 
 #if defined(USE_OPENGLES2)
-  // nothing to do
-#elif defined(USE_OPENGLES1)
   // nothing to do
 #else
 #  ifdef USE_GLBINDING

@@ -78,8 +78,6 @@ inline bool gl_needs_power_of_two()
 {
 #if defined(USE_OPENGLES2)
   return true;
-#elif defined(USE_OPENGLES1)
-  return true;
 #else
 #  ifdef USE_GLBINDING
   static auto extensions = glbinding::ContextInfo::extensions();
@@ -88,11 +86,6 @@ inline bool gl_needs_power_of_two()
   return !GLEW_ARB_texture_non_power_of_two;
 #  endif
 #endif
-}
-
-inline bool is_power_of_2(int v)
-{
-  return (v & (v-1)) == 0;
 }
 
 inline int next_power_of_two(int val)
