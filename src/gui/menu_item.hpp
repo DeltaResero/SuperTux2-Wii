@@ -52,6 +52,14 @@ public:
   /** Processes the given event. */
   virtual void event(const SDL_Event& ev) { }
 
+  /** Returns the width of the widest value the item can show, or 0 when it shows none. */
+  virtual float get_value_width() const {
+    return 0.0f;
+  }
+
+  /** Gives the item the value column its menu shares between all its items. */
+  virtual void set_value_column(float width) { }
+
   /** Returns what a click x pixels from the item's left edge stands for. */
   virtual MenuAction get_click_action(float x, int menu_width) const {
     return MenuAction::HIT;

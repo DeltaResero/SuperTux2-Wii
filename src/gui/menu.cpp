@@ -16,6 +16,8 @@
 
 #include "gui/menu.hpp"
 
+#include <algorithm>
+
 #include "control/input_manager.hpp"
 #include "gui/item_action.hpp"
 #include "gui/item_back.hpp"
@@ -410,6 +412,17 @@ Menu::draw_item(DrawingContext& context, int index)
 void
 Menu::calculate_width()
 {
+  // Every item with a value gets the same column, so no arrow moves as a value changes
+  float value_width = 0.0f;
+  for (const auto& item : m_items)
+  {
+    value_width = std::max(value_width, item->get_value_width());
+  }
+  for (const auto& item : m_items)
+  {
+    item->set_value_column(value_width);
+  }
+
   /* The width of the menu has to be more than the width of the text
      with the most characters */
   float max_width = 0;

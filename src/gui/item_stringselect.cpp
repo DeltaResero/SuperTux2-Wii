@@ -16,6 +16,8 @@
 
 #include "gui/item_stringselect.hpp"
 
+#include <algorithm>
+
 #include "gui/menu_manager.hpp"
 #include "supertux/colorscheme.hpp"
 #include "supertux/resources.hpp"
@@ -26,7 +28,8 @@ ItemStringSelect::ItemStringSelect(const std::string& text, const std::vector<st
   MenuItem(text, id),
   list(list_),
   selected(selected_),
-  m_callback()
+  m_callback(),
+  m_value_column(0.0f)
 {
 }
 
@@ -48,30 +51,56 @@ ItemStringSelect::draw(DrawingContext& context, const Vector& pos, int menu_widt
                                       pos.y - 8.0f),
                                LAYER_GUI);
   context.color().draw_text(Resources::normal_font, list[*selected],
-                            Vector(pos.x + static_cast<float>(menu_width) - roff - 8.0f,
+                            Vector(pos.x + get_left_arrow_x(menu_width) + roff + get_column_width() / 2.0f,
                                    pos.y - Resources::normal_font->get_height() / 2.0f),
-                            ALIGN_RIGHT, LAYER_GUI, active ? ColorScheme::Menu::active_color : get_color());
+                            ALIGN_CENTER, LAYER_GUI, active ? ColorScheme::Menu::active_color : get_color());
+}
+
+float
+ItemStringSelect::get_value_width() const {
+  float width = 0.0f;
+  for (const auto& value : list) {
+    width = std::max(width, Resources::normal_font->get_text_width(value));
+  }
+  return width;
+}
+
+void
+ItemStringSelect::set_value_column(float width) {
+  m_value_column = width;
+}
+
+float
+ItemStringSelect::get_column_width() const {
+  // The menu's shared column, or this item's own widest value outside a menu
+  return std::max(m_value_column, get_value_width());
 }
 
 float
 ItemStringSelect::get_left_arrow_x(int menu_width) const {
   const float roff = static_cast<float>(Resources::arrow_left->get_width());
-  const float sel_width = Resources::normal_font->get_text_width(list[*selected]);
-  return static_cast<float>(menu_width) - sel_width - 2.0f * roff - 8.0f;
+  return static_cast<float>(menu_width) - get_column_width() - 2.0f * roff - 8.0f;
 }
 
 MenuAction
 ItemStringSelect::get_click_action(float x, int menu_width) const {
+  const float roff = static_cast<float>(Resources::arrow_left->get_width());
   const float left_arrow_x = get_left_arrow_x(menu_width);
-  if (x >= left_arrow_x && x < left_arrow_x + static_cast<float>(Resources::arrow_left->get_width())) {
+  const float middle = left_arrow_x + roff + get_column_width() / 2.0f;
+  // An arrow's width before the left arrow still counts as the left arrow
+  if (x >= left_arrow_x - roff && x < middle) {
     return MenuAction::LEFT;
   }
-  return MenuAction::HIT;
+  if (x >= middle) {
+    return MenuAction::RIGHT;
+  }
+  // The name has no direction to step in
+  return MenuAction::NONE;
 }
 
 int
 ItemStringSelect::get_width() const {
-  return static_cast<int>(Resources::normal_font->get_text_width(get_text()) + Resources::normal_font->get_text_width(list[*selected])) + 64;
+  return static_cast<int>(Resources::normal_font->get_text_width(get_text()) + get_column_width()) + 64;
 }
 
 void
