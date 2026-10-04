@@ -1,0 +1,79 @@
+//  SuperTux
+//  Copyright (C) 2026 DeltaResero
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef HEADER_SUPERTUX_AUDIO_AUDIO_DEVICE_HPP
+#define HEADER_SUPERTUX_AUDIO_AUDIO_DEVICE_HPP
+
+#include <cstddef>
+#include <memory>
+#include <string>
+
+#include "math/fwd.hpp"
+
+class SoundSource;
+
+/** Which library plays the sound, not in capitals as al.h defines OPENAL */
+enum class AudioBackend { Automatic, OpenAL, SdlMixer };
+
+/** The backend named on the command line. Throws for a name this build doesn't have */
+AudioBackend audio_backend_from_string(const std::string& name);
+
+/** The sound library under SoundManager, which keeps everything that doesn't depend on it */
+class AudioDevice
+{
+public:
+  /** A sound this big or bigger streams from its file instead of being held whole */
+  static constexpr size_t STREAM_FROM = 100000;
+
+public:
+  AudioDevice() {}
+  virtual ~AudioDevice() {}
+
+  /** Whether the hardware opened, as one that didn't is never asked for anything else */
+  virtual bool is_open() const = 0;
+
+  /** A source playing filename, full for a sound vanilla played at full volume. Throws if it can't be read */
+  virtual std::unique_ptr<SoundSource> create_source(const std::string& filename, bool full) = 0;
+
+  /** Reads a short sound in now, so the first time it plays doesn't stall */
+  virtual void preload(const std::string& filename) = 0;
+
+  /** Starts filename looping at volume, fading in over fadetime seconds. Throws if it can't be read */
+  virtual void play_music(const std::string& filename, float fadetime, float volume) = 0;
+  /** Makes sure the loaded track is running, resuming it if it's paused or playing it if it stopped */
+  virtual void keep_music_playing() = 0;
+  /** Fades the track out over fadetime seconds, or drops it at once for 0 */
+  virtual void stop_music(float fadetime) = 0;
+  virtual void pause_music(float fadetime) = 0;
+  virtual void resume_music(float fadetime) = 0;
+  virtual void set_music_volume(float volume) = 0;
+  /** Whether a track is loaded, playing or not */
+  virtual bool has_music() const = 0;
+
+  virtual void set_listener_position(const Vector& position) = 0;
+  virtual void set_listener_orientation(const Vector& at, const Vector& up) = 0;
+
+  /** Whatever the library needs doing between frames */
+  virtual void update() = 0;
+
+private:
+  AudioDevice(const AudioDevice&) = delete;
+  AudioDevice& operator=(const AudioDevice&) = delete;
+};
+
+#endif
+
+/* EOF */

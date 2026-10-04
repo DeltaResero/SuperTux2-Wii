@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "audio/openal_device.hpp"
 #include "audio/sound_manager.hpp"
 #include "util/log.hpp"
 
@@ -54,7 +55,7 @@ OpenALSoundSource::OpenALSoundSource() :
 
   // Don't catch anything here: force the caller to catch the error, so that
   // the caller won't handle an object in an invalid state thinking it's clean
-  SoundManager::check_al_error("Couldn't create audio source: ");
+  OpenALDevice::check_al_error("Couldn't create audio source: ");
 
   alSourcef(m_source, AL_REFERENCE_DISTANCE, 128);
 }
@@ -77,7 +78,7 @@ OpenALSoundSource::stop()
   alSourcei(m_source, AL_BUFFER, AL_NONE);
   try
   {
-    SoundManager::check_al_error("Problem stopping audio source: ");
+    OpenALDevice::check_al_error("Problem stopping audio source: ");
   }
   catch(const std::exception& e)
   {
@@ -93,7 +94,7 @@ OpenALSoundSource::play()
 
   try
   {
-    SoundManager::check_al_error("Couldn't start audio source: ");
+    OpenALDevice::check_al_error("Couldn't start audio source: ");
   }
   catch(const std::exception& e)
   {
@@ -116,7 +117,7 @@ OpenALSoundSource::pause()
   alSourcePause(m_source);
   try
   {
-    SoundManager::check_al_error("Couldn't pause audio source: ");
+    OpenALDevice::check_al_error("Couldn't pause audio source: ");
   }
   catch(const std::exception& e)
   {
@@ -222,6 +223,13 @@ OpenALSoundSource::set_volume(float volume)
 {
   m_volume = volume;
   apply_placement();
+}
+
+void
+OpenALSoundSource::update_placement()
+{
+  if (m_placement != Placement::NONE)
+    apply_placement();
 }
 
 void

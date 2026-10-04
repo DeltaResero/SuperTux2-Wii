@@ -1,0 +1,138 @@
+//  SuperTux
+//  Copyright (C) 2026 DeltaResero
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#ifndef HEADER_SUPERTUX_AUDIO_SDL_SOUND_SOURCE_HPP
+#define HEADER_SUPERTUX_AUDIO_SDL_SOUND_SOURCE_HPP
+
+#include <memory>
+#include <string>
+
+#include "audio/sound_source.hpp"
+#include "math/vector.hpp"
+
+class SDLMixerDevice;
+class SDLSamples;
+class SDLStream;
+class SDLVoice;
+class SoundFile;
+
+/** A sound on an SDL_mixer channel, given each ear's level the OpenAL backend would play it at */
+class SDLSoundSource final : public SoundSource
+{
+public:
+  /** A short sound, held whole by the device */
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::shared_ptr<SDLSamples> samples, bool full);
+  /** A long sound, read from its file as it plays */
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, std::unique_ptr<SoundFile> file, bool full);
+  ~SDLSoundSource() override;
+
+  virtual void play() override;
+  virtual void stop() override;
+  virtual void pause() override;
+  virtual void resume() override;
+  virtual bool playing() const override;
+  virtual bool paused() const override;
+  virtual void update() override;
+
+  virtual void set_looping(bool looping) override;
+  virtual void set_relative(bool relative) override;
+  virtual void set_gain(float gain) override;
+  virtual void set_volume(float volume) override;
+  virtual void set_pitch(float pitch) override;
+  virtual void set_position(const Vector& position) override;
+  virtual void set_velocity(const Vector& velocity) override;
+  virtual void set_placed_range() override;
+  virtual void set_close_range(float range) override;
+  virtual void set_lean_only() override;
+  virtual void update_placement() override;
+
+  /** For a sound nothing places, which OpenAL hears from wherever the listener is */
+  void listener_moved();
+
+  /** Reads a long sound further ahead, and lets go of the channel and the sound once it's over, between frames */
+  void keep_up();
+
+private:
+  enum class Placement { NONE, PLACED, CLOSE, LEAN };
+
+  SDLSoundSource(SDLMixerDevice& device, const std::string& filename, bool stereo, bool full);
+
+  bool holds_channel() const;
+
+  /** Whether a sound fed to the channel has ended, though the channel's still playing its silence */
+  bool over() const;
+
+  /** Starts the sound from the top, returning false if a long one's file is gone */
+  bool start_voice();
+  bool start_stream();
+
+  /** Works out each ear's level, returning false when a placed sound hasn't changed enough to hear */
+  bool work_out_levels();
+  void refresh();
+  void send_levels(bool fresh);
+
+private:
+  SDLMixerDevice& m_device;
+  std::string m_filename;
+  /** A short sound the device holds, or null for a long one read as it plays */
+  std::shared_ptr<SDLSamples> m_held;
+  /** A long sound's file, until it first plays */
+  std::unique_ptr<SoundFile> m_file;
+  /** Whether a long sound is too long to share, so each play reads its own */
+  bool m_streamed;
+  bool m_stereo;
+  /** A sound vanilla played at full volume, having been a stereo file */
+  bool m_full;
+
+  int m_channel;
+  unsigned m_play;
+  float m_pitch;
+  /** Feeds the channel a sound held at its own rate */
+  std::unique_ptr<SDLVoice> m_voice;
+  /** Feeds the channel a long sound too long to share, as it's read */
+  std::unique_ptr<SDLStream> m_stream;
+  bool m_looping;
+  bool m_relative;
+  bool m_stopped;
+
+  float m_gain;
+  float m_volume;
+  Placement m_placement;
+  float m_close_range;
+  Vector m_position;
+  bool m_positioned;
+
+  /** Each ear's level of a placed sound when last worked out, below zero before the first */
+  float m_heard_left;
+  float m_heard_right;
+
+  /** Each ear's level, what OpenAL would play */
+  float m_left;
+  float m_right;
+
+  /** What the channel was last given */
+  int m_sent_volume;
+  int m_sent_pan_left;
+  int m_sent_pan_right;
+
+private:
+  SDLSoundSource(const SDLSoundSource&) = delete;
+  SDLSoundSource& operator=(const SDLSoundSource&) = delete;
+};
+
+#endif
+
+/* EOF */

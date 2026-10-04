@@ -35,12 +35,18 @@ public:
   virtual void play() = 0;
   virtual void stop() = 0;
   virtual void pause() = 0;
+  virtual void resume() = 0;
   virtual bool playing() const = 0;
+  virtual bool paused() const = 0;
+  /** Between frames, where a streaming sound refills */
+  virtual void update() = 0;
 
   virtual void set_looping(bool looping) = 0;
   virtual void set_relative(bool relative) = 0;
   /// Set volume (0.0 is silent, 1.0 is normal)
   virtual void set_gain(float gain) = 0;
+  /** The player's sound volume setting, from 0 to 1 */
+  virtual void set_volume(float volume) = 0;
   virtual void set_pitch(float pitch) = 0;
   virtual void set_position(const Vector& position) = 0;
   virtual void set_velocity(const Vector& velocity) = 0;
@@ -50,6 +56,8 @@ public:
   virtual void set_close_range(float range = CLOSE_RANGE) = 0;
   /** Only leans toward its side of Tux, for a sound that sets its own volume */
   virtual void set_lean_only() = 0;
+  /** Works out each ear again after Tux moves, if the sound is placed */
+  virtual void update_placement() = 0;
 
 private:
   SoundSource(const SoundSource&) = delete;

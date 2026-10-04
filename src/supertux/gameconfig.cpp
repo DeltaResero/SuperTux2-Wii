@@ -41,6 +41,7 @@ Config::Config() :
   music_enabled(true),
   sound_volume(100),
   music_volume(50),
+  audio_backend(AudioBackend::Automatic),
   random_seed(0), // set by time(), by default (unless in config)
   enable_script_debugger(false),
   start_demo(),
