@@ -27,7 +27,7 @@
 SkyDive::SkyDive(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/skydive/skydive.sprite")
 {
-  SoundManager::current()->preload("sounds/explosion.wav");
+  SoundManager::current()->preload("sounds/explosion.flac");
 }
 
 void

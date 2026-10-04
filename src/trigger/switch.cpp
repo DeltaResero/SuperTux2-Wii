@@ -26,7 +26,7 @@
 #include "util/reader_mapping.hpp"
 
 namespace {
-const std::string SWITCH_SOUND = "sounds/switch.ogg";
+const std::string SWITCH_SOUND = "sounds/switch.flac";
 }
 
 Switch::Switch(const ReaderMapping& reader) :

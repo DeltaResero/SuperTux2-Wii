@@ -30,7 +30,7 @@
 static const float FLYSPEED = 64.0f; /**< speed in px per second */
 static const float TRACK_RANGE = 384.0f; /**< at what distance to start tracking the player */
 static const float VANISH_RANGE = 512.0f; /**< at what distance to stop tracking and vanish */
-static const std::string SOUNDFILE = "sounds/willowisp.wav";
+static const std::string SOUNDFILE = "sounds/willowisp.flac";
 
 WillOWisp::WillOWisp(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/willowisp/willowisp.sprite", LAYER_FLOATINGOBJECTS,
@@ -71,7 +71,7 @@ WillOWisp::WillOWisp(const ReaderMapping& reader) :
 
   m_countMe = false;
   SoundManager::current()->preload(SOUNDFILE);
-  SoundManager::current()->preload("sounds/warp.wav");
+  SoundManager::current()->preload("sounds/warp.flac");
 
   m_lightsprite->set_color(Color(m_color.red * 0.2f,
                                  m_color.green * 0.2f,
@@ -93,6 +93,9 @@ WillOWisp::finish_construction()
 void
 WillOWisp::active_update(float dt_sec)
 {
+  // Every state, not just tracking: Tux moving changes how loud it is too
+  m_sound_source->set_position(get_pos());
+
   auto player = get_nearest_player();
   if (!player) return;
   Vector p1 = m_col.m_bbox.get_middle();
@@ -119,7 +122,6 @@ WillOWisp::active_update(float dt_sec)
         /* We somehow landed right on top of the player without colliding.
          * Sit tight and avoid a division by zero. */
       }
-      m_sound_source->set_position(get_pos());
       break;
 
     case STATE_WARPING:
@@ -161,8 +163,10 @@ WillOWisp::activate()
   m_sound_source = SoundManager::current()->create_sound_source(SOUNDFILE);
   m_sound_source->set_position(get_pos());
   m_sound_source->set_looping(true);
-  m_sound_source->set_gain(1.0f);
-  m_sound_source->set_reference_distance(32);
+  // Louder than vanilla's, where a wisp beside Tux could barely be heard
+  m_sound_source->set_gain(2.0f);
+  // Shorter than other close sounds, or wisps are heard from well off screen
+  m_sound_source->set_close_range(350.0f);
   m_sound_source->play();
 }
 
@@ -230,7 +234,7 @@ WillOWisp::collision_player(Player& player, const CollisionHit& ) {
   } else {
     GameSession::current()->respawn(m_target_sector, m_target_spawnpoint);
   }
-  SoundManager::current()->play("sounds/warp.wav");
+  SoundManager::current()->play("sounds/warp.flac");
 
   return CONTINUE;
 }
@@ -281,7 +285,7 @@ WillOWisp::set_state(const std::string& new_state)
 void WillOWisp::stop_looping_sounds()
 {
   if (m_sound_source) {
-    m_sound_source->stop();
+    m_sound_source->pause();
   }
 }
 

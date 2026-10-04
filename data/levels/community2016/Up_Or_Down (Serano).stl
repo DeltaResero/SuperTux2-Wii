@@ -93,7 +93,7 @@
       (y 798)
     )
     (music
-      (file "music/forest/forest.ogg")
+      (file "music/forest/forest.music")
     )
     (particles-rain
     )

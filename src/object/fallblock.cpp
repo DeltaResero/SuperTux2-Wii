@@ -32,8 +32,8 @@ FallBlock::FallBlock(const ReaderMapping& reader) :
   physic(),
   timer()
 {
-  SoundManager::current()->preload("sounds/cracking.wav");
-  SoundManager::current()->preload("sounds/thud.ogg");
+  SoundManager::current()->preload("sounds/cracking.flac");
+  SoundManager::current()->preload("sounds/thud.flac");
   physic.enable_gravity(false);
 }
 
@@ -47,7 +47,7 @@ FallBlock::update(float dt_sec)
       if (found_victim_down())
       {
         state = SHAKE;
-        SoundManager::current()->play("sounds/cracking.wav");
+        SoundManager::current()->play("sounds/cracking.flac");
         timer.start(0.5f);
       }
       break;
@@ -110,7 +110,7 @@ FallBlock::collision(GameObject& other, const CollisionHit& hit)
   if (state == IDLE && player && player->get_bbox().get_bottom() < m_col.m_bbox.get_top())
   {
     state = SHAKE;
-    SoundManager::current()->play("sounds/cracking.wav");
+    SoundManager::current()->play("sounds/cracking.flac");
     timer.start(0.5f);
   }
   return FORCE_MOVE;
@@ -127,7 +127,7 @@ FallBlock::collision_solid(const CollisionHit& hit)
   if (state == FALL && hit.bottom)
   {
     Sector::get().get_camera().shake(0.125f, 0.0f, 10.0f);
-    SoundManager::current()->play("sounds/thud.ogg");
+    SoundManager::current()->play("sounds/thud.flac");
     state = LAND;
   }
 }

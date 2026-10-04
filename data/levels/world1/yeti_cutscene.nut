@@ -17,7 +17,7 @@ function initialize()
   wait(4);
   Text.fade_out(1);
   wait(1.5);
-  play_sound("sounds/yeti_roar.wav");
+  play_sound("sounds/yeti_roar.flac");
   wait(0.2);
   Text.set_text("But then, all of a sudden he heard a loud roar from a distance.");
   Text.fade_in(1);
@@ -27,16 +27,16 @@ function initialize()
   Camera.scroll_to(1350, 300, 5);
   wait(5.5);
   Yeti.set_action("stomp-left");
-  play_sound("sounds/yeti_gna.wav");
+  play_sound("sounds/yeti_gna.flac");
   Yeti.set_velocity(0, -300);
   wait(0.5);
   Yeti.set_action("stand-left");
   wait(0.5);
   Yeti.set_action("walking-right");
-  play_sound("sounds/yeti_roar.wav");
+  play_sound("sounds/yeti_roar.flac");
   Yeti.set_velocity(250, 0);
   wait(1);
-  play_sound("sounds/yeti_roar.wav");
+  play_sound("sounds/yeti_roar.flac");
   wait(1);
   Camera.scroll_to(825, 480, 6);
   wait(3);

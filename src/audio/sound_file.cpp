@@ -25,6 +25,7 @@
 #include <sstream>
 #include <unordered_map>
 
+#include "audio/flac_sound_file.hpp"
 #include "audio/ogg_sound_file.hpp"
 #include "audio/sound_error.hpp"
 #include "audio/wav_sound_file.hpp"
@@ -36,6 +37,7 @@
 namespace {
 
 const std::string& get_fallback_path(const std::string& file_path);
+std::string get_flac_path(const std::string& file_path);
 
 std::unique_ptr<std::istream> open_file(const std::string& filename)
 {
@@ -114,6 +116,8 @@ std::unique_ptr<SoundFile> load_sound_file(const std::string& filename)
   auto file = open_file(filename);
   if (!file) {
     file = open_file(get_fallback_path(filename));
+    if (!file)
+      file = open_file(get_flac_path(filename));
     if (!file) {
       throw SoundError("Couldn't open '" + filename + "': not found, using dummy sound file.");
     }
@@ -123,6 +127,10 @@ std::unique_ptr<SoundFile> load_sound_file(const std::string& filename)
   if (format == SoundFile::FORMAT_WAV)
   {
     return std::make_unique<WavSoundFile>(std::move(file));
+  }
+  else if (format == SoundFile::FORMAT_FLAC)
+  {
+    return std::make_unique<FlacSoundFile>(std::move(file));
   }
   else
   {
@@ -144,6 +152,8 @@ SoundFile::get_file_format(std::istream& file, const std::string& filename)
       return FileFormat::FORMAT_WAV;
     else if (strncmp(magic, "OggS", 4) == 0)
       return FileFormat::FORMAT_OGG;
+    else if (strncmp(magic, "fLaC", 4) == 0)
+      return FileFormat::FORMAT_FLAC;
     else
       throw SoundError("Unknown file format");
   } catch(std::exception& e) {
@@ -255,6 +265,20 @@ const std::string& get_fallback_path(const std::string& file_path)
     return it->second;
   // No fallback path found
   return file_path;
+}
+
+// Levels made for mainline SuperTux ask for the sound effects by their .wav and .ogg names
+std::string get_flac_path(const std::string& file_path)
+{
+  if (!StringUtil::has_suffix(file_path, ".wav") && !StringUtil::has_suffix(file_path, ".ogg"))
+    return file_path;
+
+  std::string flac_path = file_path.substr(0, file_path.size() - 4);
+  // These shared a name with an OGG, so their FLACs end in 2
+  const std::string file_name = FileSystem::basename(file_path);
+  if (file_name == "grow.wav" || file_name == "splash.wav")
+    flac_path += "2";
+  return flac_path + ".flac";
 }
 
 } // namespace

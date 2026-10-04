@@ -24,7 +24,7 @@
 
 LiveFire::LiveFire(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/livefire/livefire.sprite", "left", "right"),
-  death_sound("sounds/fall.wav"),
+  death_sound("sounds/fall.flac"),
   state(STATE_WALKING)
 {
   walk_speed = 80;
@@ -97,7 +97,7 @@ void
 LiveFire::freeze()
 {
   // attempting to freeze a flame causes it to go out
-  death_sound = "sounds/sizzle.ogg";
+  death_sound = "sounds/sizzle.flac";
   kill_fall();
 }
 

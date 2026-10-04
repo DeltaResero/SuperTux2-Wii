@@ -78,7 +78,7 @@ Dispenser::Dispenser(const ReaderMapping& reader) :
   m_current_badguys()
 {
   set_colgroup_active(COLGROUP_MOVING_STATIC);
-  SoundManager::current()->preload("sounds/squish.wav");
+  SoundManager::current()->preload("sounds/squish.flac");
   reader.get("cycle", m_cycle, 5.0f);
   if (reader.get("gravity", m_gravity)) m_physic.enable_gravity(true);
   if ( !reader.get("badguy", m_badguys)) m_badguys.clear();
@@ -192,7 +192,7 @@ Dispenser::collision_squished(GameObject& object)
   if (player){
     player->bounce(*this);
   }
-  SoundManager::current()->play("sounds/squish.wav", get_pos());
+  SoundManager::current()->play("sounds/squish.flac", get_pos());
   m_broken = true;
   return true;
 }

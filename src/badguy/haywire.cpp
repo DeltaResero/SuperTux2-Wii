@@ -50,7 +50,7 @@ Haywire::Haywire(const ReaderMapping& reader) :
   max_drop_height = 16;
 
   //Prevent stutter when Tux jumps on Mr Bomb
-  SoundManager::current()->preload("sounds/explosion.wav");
+  SoundManager::current()->preload("sounds/explosion.flac");
 
   //Check if we need another sprite
   if ( !reader.get( "sprite", m_sprite_name ) ){
@@ -197,7 +197,10 @@ Haywire::deactivate()
 {
   // stop ticking/grunting sounds, in case we are deactivated before actually
   // exploding (see https://github.com/SuperTux/supertux/issues/1260)
-  stop_looping_sounds();
+  if (ticking)
+    ticking->stop();
+  if (grunting)
+    grunting->stop();
 }
 
 void
@@ -244,15 +247,15 @@ Haywire::start_exploding()
   time_until_explosion = TIME_EXPLOSION;
   is_exploding = true;
 
-  ticking = SoundManager::current()->create_sound_source("sounds/fizz.wav");
+  ticking = SoundManager::current()->create_sound_source("sounds/fizz.flac");
   ticking->set_position(get_pos());
   ticking->set_looping(true);
-  ticking->set_reference_distance(32);
+  ticking->set_close_range();
   ticking->play();
-  grunting = SoundManager::current()->create_sound_source("sounds/grunts.ogg");
+  grunting = SoundManager::current()->create_sound_source("sounds/grunts.flac");
   grunting->set_position(get_pos());
   grunting->set_looping(true);
-  grunting->set_reference_distance(32);
+  grunting->set_close_range();
   grunting->play();
 }
 
@@ -276,10 +279,10 @@ Haywire::stop_exploding()
 void Haywire::stop_looping_sounds()
 {
   if (ticking) {
-    ticking->stop();
+    ticking->pause();
   }
   if (grunting) {
-    grunting->stop();
+    grunting->pause();
   }
 }
 

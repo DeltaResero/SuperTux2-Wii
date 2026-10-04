@@ -24,7 +24,7 @@ namespace {
 const float DART_SPEED = 200;
 }
 
-static const std::string DART_SOUND = "sounds/flame.wav";
+static const std::string DART_SOUND = "sounds/flame.flac";
 
 Dart::Dart(const ReaderMapping& reader) :
   BadGuy(reader, "images/creatures/dart/dart.sprite"),
@@ -34,8 +34,8 @@ Dart::Dart(const ReaderMapping& reader) :
   m_physic.enable_gravity(false);
   m_countMe = false;
   SoundManager::current()->preload(DART_SOUND);
-  SoundManager::current()->preload("sounds/darthit.wav");
-  SoundManager::current()->preload("sounds/stomp.wav");
+  SoundManager::current()->preload("sounds/darthit.flac");
+  SoundManager::current()->preload("sounds/stomp.flac");
 }
 
 Dart::Dart(const Vector& pos, Direction d, const BadGuy* parent_ = nullptr) :
@@ -46,8 +46,8 @@ Dart::Dart(const Vector& pos, Direction d, const BadGuy* parent_ = nullptr) :
   m_physic.enable_gravity(false);
   m_countMe = false;
   SoundManager::current()->preload(DART_SOUND);
-  SoundManager::current()->preload("sounds/darthit.wav");
-  SoundManager::current()->preload("sounds/stomp.wav");
+  SoundManager::current()->preload("sounds/darthit.flac");
+  SoundManager::current()->preload("sounds/stomp.flac");
 }
 
 bool
@@ -74,7 +74,7 @@ Dart::activate()
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
   sound_source->set_gain(0.5f);
-  sound_source->set_reference_distance(32);
+  sound_source->set_close_range();
   sound_source->play();
 }
 
@@ -95,7 +95,7 @@ Dart::active_update(float dt_sec)
 void
 Dart::collision_solid(const CollisionHit& )
 {
-  SoundManager::current()->play("sounds/darthit.wav", get_pos());
+  SoundManager::current()->play("sounds/darthit.flac", get_pos());
   remove_me();
 }
 
@@ -106,7 +106,7 @@ Dart::collision_badguy(BadGuy& badguy, const CollisionHit& )
   if (&badguy == parent) {
     return FORCE_MOVE;
   }
-  SoundManager::current()->play("sounds/stomp.wav", get_pos());
+  SoundManager::current()->play("sounds/stomp.flac", get_pos());
   remove_me();
   badguy.kill_fall();
   return ABORT_MOVE;
@@ -115,7 +115,7 @@ Dart::collision_badguy(BadGuy& badguy, const CollisionHit& )
 HitResponse
 Dart::collision_player(Player& player, const CollisionHit& hit)
 {
-  SoundManager::current()->play("sounds/stomp.wav", get_pos());
+  SoundManager::current()->play("sounds/stomp.flac", get_pos());
   remove_me();
   return BadGuy::collision_player(player, hit);
 }
@@ -129,7 +129,7 @@ Dart::is_flammable() const
 void Dart::stop_looping_sounds()
 {
   if (sound_source) {
-    sound_source->stop();
+    sound_source->pause();
   }
 }
 

@@ -26,6 +26,13 @@
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 
+namespace {
+
+// Vanilla played a coin in the middle of the screen at this, heard from 300 px back and falling off from 128
+const float COIN_GAIN = 128.0f / 300.0f;
+
+} // namespace
+
 Coin::Coin(const Vector& pos) :
   MovingSprite(pos, "images/objects/coin/coin.sprite", LAYER_OBJECTS - 1, COLGROUP_TOUCHABLE),
   PathObject(),
@@ -35,7 +42,7 @@ Coin::Coin(const Vector& pos) :
   m_collect_script(),
   m_starting_node(0)
 {
-  SoundManager::current()->preload("sounds/coin.wav");
+  SoundManager::current()->preload("sounds/coin.flac");
 }
 
 Coin::Coin(const ReaderMapping& reader) :
@@ -53,7 +60,7 @@ Coin::Coin(const ReaderMapping& reader) :
 
   reader.get("collect-script", m_collect_script, "");
 
-  SoundManager::current()->preload("sounds/coin.wav");
+  SoundManager::current()->preload("sounds/coin.flac");
 }
 
 void
@@ -153,8 +160,10 @@ Coin::collect()
   }
   sound_timer.start(1);
 
-  std::unique_ptr<SoundSource> soundSource = SoundManager::current()->create_sound_source("sounds/coin.wav");
-  soundSource->set_position(get_pos());
+  std::unique_ptr<SoundSource> soundSource = SoundManager::current()->create_sound_source("sounds/coin.flac");
+  // Tux is always on the coin, so it plays in both ears
+  soundSource->set_relative(true);
+  soundSource->set_gain(COIN_GAIN);
   soundSource->set_pitch(pitch);
   soundSource->play();
   SoundManager::current()->manage_source(std::move(soundSource));
@@ -187,7 +196,7 @@ HeavyCoin::HeavyCoin(const Vector& pos, const Vector& init_velocity) :
   m_last_hit()
 {
   m_physic.enable_gravity(true);
-  SoundManager::current()->preload("sounds/coin2.ogg");
+  SoundManager::current()->preload("sounds/coin2.flac");
   set_group(COLGROUP_MOVING);
   m_physic.set_velocity(init_velocity);
 }
@@ -198,7 +207,7 @@ HeavyCoin::HeavyCoin(const ReaderMapping& reader) :
   m_last_hit()
 {
   m_physic.enable_gravity(true);
-  SoundManager::current()->preload("sounds/coin2.ogg");
+  SoundManager::current()->preload("sounds/coin2.flac");
   set_group(COLGROUP_MOVING);
 }
 
@@ -217,7 +226,7 @@ HeavyCoin::collision_solid(const CollisionHit& hit)
 
   if (hit.bottom) {
     if (m_physic.get_velocity_y() > clink_threshold && !m_last_hit.bottom)
-        SoundManager::current()->play("sounds/coin2.ogg");
+        SoundManager::current()->play("sounds/coin2.flac");
     if (m_physic.get_velocity_y() > 200) {// lets some coins bounce
       m_physic.set_velocity_y(-99);
     } else {
@@ -229,12 +238,12 @@ HeavyCoin::collision_solid(const CollisionHit& hit)
     if ((m_physic.get_velocity_x() > clink_threshold ||
          m_physic.get_velocity_x()< -clink_threshold) &&
          hit.right != m_last_hit.right && hit.left != m_last_hit.left)
-      SoundManager::current()->play("sounds/coin2.ogg");
+      SoundManager::current()->play("sounds/coin2.flac");
     m_physic.set_velocity_x(-m_physic.get_velocity_x());
   }
   if (hit.top) {
     if (m_physic.get_velocity_y() < -clink_threshold && !m_last_hit.top)
-      SoundManager::current()->play("sounds/coin2.ogg");
+      SoundManager::current()->play("sounds/coin2.flac");
     m_physic.set_velocity_y(-m_physic.get_velocity_y());
   }
 

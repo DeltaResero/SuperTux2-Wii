@@ -19,6 +19,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -58,11 +59,11 @@ public:
   std::unique_ptr<SoundSource> create_sound_source(const std::string& filename);
 
   /** Convenience functions to simply play a sound at a given position. */
-  void play(const std::string& name, const Vector& pos = Vector(-1, -1),
+  void play(const std::string& name, const std::optional<Vector>& pos = std::nullopt,
     const float gain = 0.5f);
   void play(const std::string& name, const float gain)
   {
-    play(name, Vector(-1, -1), gain);
+    play(name, std::nullopt, gain);
   }
 
 
@@ -75,6 +76,15 @@ public:
 
   void set_listener_position(const Vector& position);
   void set_listener_orientation(const Vector& at, const Vector& up);
+
+  /** Where Tux is, the point placed sounds fade and lean from */
+  void set_player_position(const Vector& position);
+
+  /** How much of its gain each ear hears of a sound at position, given its range and whether it was stereo */
+  void get_placement(const Vector& position, bool close, float close_range, bool full, float& left, float& right) const;
+
+  /** Each ear's share of a sound at position from vanilla's pan alone, for one that sets its own volume */
+  void get_lean(const Vector& position, float& left, float& right) const;
 
   void enable_music(bool music_enabled);
   void play_music(const std::string& filename, float fadetime);
@@ -121,6 +131,8 @@ private:
   bool m_music_enabled;
   int m_music_volume;
   std::string m_current_music;
+
+  Vector m_player_position;
 
 private:
   SoundManager(const SoundManager&) = delete;

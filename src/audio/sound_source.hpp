@@ -25,11 +25,16 @@
 class SoundSource
 {
 public:
+  /** How far a fuse or a flame carries, in pixels from Tux */
+  static constexpr float CLOSE_RANGE = 480.0f;
+
+public:
   SoundSource() {}
   virtual ~SoundSource() {}
 
   virtual void play() = 0;
   virtual void stop() = 0;
+  virtual void pause() = 0;
   virtual bool playing() const = 0;
 
   virtual void set_looping(bool looping) = 0;
@@ -39,7 +44,12 @@ public:
   virtual void set_pitch(float pitch) = 0;
   virtual void set_position(const Vector& position) = 0;
   virtual void set_velocity(const Vector& velocity) = 0;
-  virtual void set_reference_distance(float distance) = 0;
+  /** Loudest beside Tux and gone by where enemies stop running */
+  virtual void set_placed_range() = 0;
+  /** Carries only a short way and is gone by range pixels from Tux */
+  virtual void set_close_range(float range = CLOSE_RANGE) = 0;
+  /** Only leans toward its side of Tux, for a sound that sets its own volume */
+  virtual void set_lean_only() = 0;
 
 private:
   SoundSource(const SoundSource&) = delete;

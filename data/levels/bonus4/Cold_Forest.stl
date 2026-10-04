@@ -115,7 +115,7 @@
       (y 605.5996)
     )
     (music
-      (file "/music/forest/forest.ogg")
+      (file "/music/forest/forest.music")
     )
     (particles-snow
     )

@@ -89,13 +89,19 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   m_tux = &add<Tux>(this);
   add<PlayerStatusHUD>(m_savegame.get_player_status());
 
-  SoundManager::current()->preload("sounds/warp.wav");
-
   BIND_WORLDMAP(*this);
 
   // load worldmap objects
   WorldMapParser parser(*this);
   parser.load_worldmap(filename);
+
+  // Only a teleporter that stays on this map plays the warp sound
+  for (const auto& teleporter : get_objects_by_type<Teleporter>()) {
+    if (teleporter.get_worldmap().empty()) {
+      SoundManager::current()->preload("sounds/warp.flac");
+      break;
+    }
+  }
 }
 
 WorldMap::~WorldMap()
@@ -356,7 +362,7 @@ WorldMap::update(float dt_sec)
         change(teleporter->get_worldmap(), teleporter->get_spawnpoint());
       } else {
         // TODO: an animation, camera scrolling or a fading would be a nice touch
-        SoundManager::current()->play("sounds/warp.wav");
+        SoundManager::current()->play("sounds/warp.flac");
         m_tux->m_back_direction = Direction::NONE;
         move_to_spawnpoint(teleporter->get_spawnpoint(), true);
       }

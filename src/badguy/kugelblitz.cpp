@@ -53,7 +53,7 @@ Kugelblitz::Kugelblitz(const ReaderMapping& reader) :
   lightsprite->set_blend(Blend::ADD);
   lightsprite->set_color(Color(0.2f, 0.1f, 0.0f));
 
-  SoundManager::current()->preload("sounds/lightning.wav");
+  SoundManager::current()->preload("sounds/lightning.flac");
 }
 
 void
@@ -166,7 +166,7 @@ void
 Kugelblitz::explode()
 {
   if (!dying) {
-    SoundManager::current()->play("sounds/lightning.wav", m_col.m_bbox.p1());
+    SoundManager::current()->play("sounds/lightning.flac", m_col.m_bbox.p1());
     m_sprite->set_action("pop");
     lifetime.start(0.2f);
     dying = true;

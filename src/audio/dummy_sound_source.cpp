@@ -39,6 +39,11 @@ public:
     is_playing = false;
   }
 
+  virtual void pause() override
+  {
+    is_playing = false;
+  }
+
   virtual bool playing() const override
   {
     return is_playing;
@@ -68,7 +73,15 @@ public:
   {
   }
 
-  virtual void set_reference_distance(float ) override
+  virtual void set_placed_range() override
+  {
+  }
+
+  virtual void set_close_range(float ) override
+  {
+  }
+
+  virtual void set_lean_only() override
   {
   }
 

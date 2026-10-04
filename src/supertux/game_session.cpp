@@ -109,6 +109,9 @@ GameSession::restart_level(bool after_death)
 
   InputManager::current()->reset();
 
+  // The old level stays alive until the next restart and nothing else would stop its looping sounds
+  if (m_currentsector)
+    m_currentsector->stop_looping_sounds();
   m_currentsector = nullptr;
 
   const std::string base_dir = FileSystem::dirname(m_levelfile);
@@ -347,9 +350,12 @@ GameSession::update(float dt_sec, const Controller& controller)
       sector = m_level->get_sector(m_start_sector);
     }
     assert(m_currentsector != nullptr);
+    // A star carried through keeps its music rather than restarting it over the level's
+    const MusicType music_type = m_pastinvincibility ?
+      m_currentsector->get_singleton_by_type<MusicObject>().get_music_type() : LEVEL_MUSIC;
     m_currentsector->stop_looping_sounds();
     sector->activate(m_newspawnpoint);
-    sector->get_singleton_by_type<MusicObject>().play_music(LEVEL_MUSIC);
+    sector->get_singleton_by_type<MusicObject>().play_music(music_type);
     m_currentsector = sector;
     m_currentsector->play_looping_sounds();
 
@@ -387,20 +393,24 @@ GameSession::update(float dt_sec, const Controller& controller)
 
   // update sounds
   SoundManager::current()->set_listener_position(m_currentsector->get_camera().get_center());
+  SoundManager::current()->set_player_position(m_currentsector->get_player().get_bbox().get_middle());
 
   /* Handle music: */
   if (m_end_sequence)
     return;
 
-  if (m_currentsector->get_player().m_invincible_timer.started()) {
-    if (m_currentsector->get_player().m_invincible_timer.get_timeleft() <=
-       TUX_INVINCIBLE_TIME_WARNING) {
-      m_currentsector->get_singleton_by_type<MusicObject>().play_music(HERRING_WARNING_MUSIC);
-    } else {
-      m_currentsector->get_singleton_by_type<MusicObject>().play_music(HERRING_MUSIC);
+  auto& music = m_currentsector->get_singleton_by_type<MusicObject>();
+  const Player& tux = m_currentsector->get_player();
+  if (tux.m_invincible_timer.started()) {
+    if (tux.m_invincible_timer.get_timeleft() <= TUX_INVINCIBLE_TIME_WARNING) {
+      if (music.get_music_type() != HERRING_WARNING_MUSIC)
+        music.play_music(HERRING_WARNING_MUSIC);
+    } else if (music.get_music_type() != HERRING_MUSIC) {
+      music.play_music(HERRING_MUSIC);
     }
-  } else if (m_currentsector->get_singleton_by_type<MusicObject>().get_music_type() != LEVEL_MUSIC) {
-    m_currentsector->get_singleton_by_type<MusicObject>().play_music(LEVEL_MUSIC);
+  } else if (music.get_music_type() != LEVEL_MUSIC && !tux.is_dying()) {
+    // Dying stops the star's timer, so without this the level music starts over the death fade
+    music.play_music(LEVEL_MUSIC);
   }
   if (reset_button) {
     reset_button = false;

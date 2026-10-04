@@ -24,7 +24,7 @@
 #include "util/reader_mapping.hpp"
 
 namespace {
-const std::string TRAMPOLINE_SOUND = "sounds/trampoline.wav";
+const std::string TRAMPOLINE_SOUND = "sounds/trampoline.flac";
 const float BOUNCE_Y = -450.0f;
 const float BOUNCE_X = 700.0f;
 }

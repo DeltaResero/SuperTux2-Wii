@@ -27,7 +27,7 @@
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 
-static const std::string TREEWILLOSOUND = "sounds/willowisp.wav";
+static const std::string TREEWILLOSOUND = "sounds/willowisp.flac";
 
 TreeWillOWisp::TreeWillOWisp(GhostTree* tree_, const Vector& pos,
                              float radius_, float speed_) :
@@ -58,7 +58,7 @@ TreeWillOWisp::activate()
   sound_source->set_position(get_pos());
   sound_source->set_looping(true);
   sound_source->set_gain(1.0f);
-  sound_source->set_reference_distance(32);
+  sound_source->set_close_range();
   sound_source->play();
 }
 
@@ -163,7 +163,7 @@ TreeWillOWisp::get_color() const
 void TreeWillOWisp::stop_looping_sounds()
 {
   if (sound_source) {
-    sound_source->stop();
+    sound_source->pause();
   }
 }
 

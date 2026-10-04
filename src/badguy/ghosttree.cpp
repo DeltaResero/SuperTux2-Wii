@@ -53,8 +53,8 @@ GhostTree::GhostTree(const ReaderMapping& mapping) :
   willowisps()
 {
   set_colgroup_active(COLGROUP_TOUCHABLE);
-  SoundManager::current()->preload("sounds/tree_howling.ogg");
-  SoundManager::current()->preload("sounds/tree_suck.ogg");
+  SoundManager::current()->preload("sounds/tree_howling.flac");
+  SoundManager::current()->preload("sounds/tree_suck.flac");
 }
 
 void
@@ -83,7 +83,7 @@ GhostTree::active_update(float /*dt_sec*/)
 {
   if (mystate == STATE_IDLE) {
     if (colorchange_timer.check()) {
-      SoundManager::current()->play("sounds/tree_howling.ogg", get_pos());
+      SoundManager::current()->play("sounds/tree_howling.flac", get_pos());
       suck_timer.start(3);
       treecolor = (treecolor + 1) % 3;
 
@@ -102,7 +102,7 @@ GhostTree::active_update(float /*dt_sec*/)
 
     if (suck_timer.check()) {
       Color col = glow_sprite->get_color();
-      SoundManager::current()->play("sounds/tree_suck.ogg", get_pos());
+      SoundManager::current()->play("sounds/tree_suck.flac", get_pos());
       for (const auto& willo : willowisps) {
         if (willo->get_color() == col) {
           willo->start_sucking(

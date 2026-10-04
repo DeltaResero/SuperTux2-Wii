@@ -28,7 +28,7 @@
 /* Trampoline will accelerate Tux to to VY_INITIAL, if
  * he jumps on it to VY_MIN. */
 namespace {
-const std::string TRAMPOLINE_SOUND = "sounds/trampoline.wav";
+const std::string TRAMPOLINE_SOUND = "sounds/trampoline.flac";
 const float VY_MIN = -900; //negative, upwards
 const float VY_INITIAL = -500;
 }
@@ -93,7 +93,7 @@ Trampoline::collision(GameObject& other, const CollisionHit& hit)
         else
           vy = player->get_controller().hold(Control::JUMP) ? VY_MIN - 300 : VY_INITIAL - 40;
         player->get_physic().set_velocity_y(vy);
-        SoundManager::current()->play(TRAMPOLINE_SOUND);
+        SoundManager::current()->play(TRAMPOLINE_SOUND, get_pos());
         m_sprite->set_action("swinging", 1);
         return FORCE_MOVE;
       }
@@ -106,7 +106,7 @@ Trampoline::collision(GameObject& other, const CollisionHit& hit)
       if (hit.top && vy >= 0) {
         vy = VY_INITIAL;
         walking_badguy->set_velocity_y(vy);
-        SoundManager::current()->play(TRAMPOLINE_SOUND);
+        SoundManager::current()->play(TRAMPOLINE_SOUND, get_pos());
         m_sprite->set_action("swinging", 1);
         return FORCE_MOVE;
       }

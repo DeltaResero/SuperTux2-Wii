@@ -41,7 +41,7 @@ Iceflame::active_update(float dt_sec)
 void
 Iceflame::ignite()
 {
-  SoundManager::current()->play("sounds/sizzle.ogg", get_pos());
+  SoundManager::current()->play("sounds/sizzle.flac", get_pos());
   m_sprite->set_action("fade", 1);
   Sector::get().add<SpriteParticle>("images/particles/smoke.sprite",
                                          "default",

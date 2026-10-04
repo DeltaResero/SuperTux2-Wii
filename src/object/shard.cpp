@@ -29,7 +29,7 @@ Shard::Shard(const ReaderMapping& reader) :
   m_stick_timer()
 {
   m_physic.enable_gravity(true);
-  SoundManager::current()->preload("sounds/crystallo-shardhit.ogg");
+  SoundManager::current()->preload("sounds/crystallo-shardhit.flac");
 }
 
 Shard::Shard(const Vector& pos, const Vector& velocity) :
@@ -40,7 +40,7 @@ Shard::Shard(const Vector& pos, const Vector& velocity) :
   m_physic.enable_gravity(true);
   m_physic.set_velocity(velocity);
   m_sprite->set_action("default");
-  SoundManager::current()->preload("sounds/crystallo-shardhit.ogg");
+  SoundManager::current()->preload("sounds/crystallo-shardhit.flac");
 }
 
 void
@@ -62,7 +62,7 @@ Shard::collision_solid(const CollisionHit& hit)
   if (!m_stick_timer.started())
   {
     m_stick_timer.start(5.f);
-    SoundManager::current()->play("sounds/crystallo-shardhit.ogg", get_pos());
+    SoundManager::current()->play("sounds/crystallo-shardhit.flac", get_pos());
   }
 }
 
