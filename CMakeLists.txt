@@ -204,6 +204,7 @@ set(TEXTURE_ALIGNMENT 1 CACHE STRING "Round texture sides up to a multiple of th
 if(NOT TEXTURE_ALIGNMENT MATCHES "^[1-9][0-9]*$")
   message(FATAL_ERROR "TEXTURE_ALIGNMENT must be a positive whole number, got '${TEXTURE_ALIGNMENT}'")
 endif()
+option(ENABLE_LIGHTMAP_FBO "Draw the lightmap through a framebuffer instead of copying it from the screen" OFF)
 
 if(ENABLE_OPENGL)
   if(ENABLE_OPENGLES2)

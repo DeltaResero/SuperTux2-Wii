@@ -48,7 +48,11 @@ public:
 
   virtual void draw_arrays(GLenum type, GLint first, GLsizei count) override;
 
+#ifdef ENABLE_LIGHTMAP_FBO
+  virtual bool supports_framebuffer() const override { return true; }
+#else
   virtual bool supports_framebuffer() const override { return false; }
+#endif
 
 private:
   GL20Context(const GL20Context&) = delete;
