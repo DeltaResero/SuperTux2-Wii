@@ -516,7 +516,16 @@ Menu::event(const SDL_Event& ev)
           mouse_pos.y > m_pos.y - get_height() / 2.0f &&
           mouse_pos.y < m_pos.y + get_height() / 2.0f)
       {
-        process_action(MenuAction::HIT);
+        if (m_active_item >= 0)
+        {
+          // The item knows what it drew where, such as a value's arrows
+          const float x = mouse_pos.x - (m_pos.x - get_width() / 2.0f);
+          process_action(m_items[m_active_item]->get_click_action(x, static_cast<int>(get_width())));
+        }
+        else
+        {
+          process_action(MenuAction::HIT);
+        }
       }
     }
     break;

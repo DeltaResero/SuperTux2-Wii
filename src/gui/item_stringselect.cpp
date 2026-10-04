@@ -33,7 +33,6 @@ ItemStringSelect::ItemStringSelect(const std::string& text, const std::vector<st
 void
 ItemStringSelect::draw(DrawingContext& context, const Vector& pos, int menu_width, bool active) {
   float roff = static_cast<float>(Resources::arrow_left->get_width()) * 1.0f;
-  float sel_width = Resources::normal_font->get_text_width(list[*selected]);
   // Draw left side
   context.color().draw_text(Resources::normal_font, get_text(),
                               Vector(pos.x + 16.0f,
@@ -42,8 +41,7 @@ ItemStringSelect::draw(DrawingContext& context, const Vector& pos, int menu_widt
 
   // Draw right side
   context.color().draw_surface(Resources::arrow_left,
-                               Vector(pos.x + static_cast<float>(menu_width) - sel_width - 2.0f * roff - 8.0f,
-                                      pos.y - 8.0f),
+                               Vector(pos.x + get_left_arrow_x(menu_width), pos.y - 8.0f),
                                LAYER_GUI);
   context.color().draw_surface(Resources::arrow_right,
                                Vector(pos.x + static_cast<float>(menu_width) - roff - 8.0f,
@@ -53,6 +51,22 @@ ItemStringSelect::draw(DrawingContext& context, const Vector& pos, int menu_widt
                             Vector(pos.x + static_cast<float>(menu_width) - roff - 8.0f,
                                    pos.y - Resources::normal_font->get_height() / 2.0f),
                             ALIGN_RIGHT, LAYER_GUI, active ? ColorScheme::Menu::active_color : get_color());
+}
+
+float
+ItemStringSelect::get_left_arrow_x(int menu_width) const {
+  const float roff = static_cast<float>(Resources::arrow_left->get_width());
+  const float sel_width = Resources::normal_font->get_text_width(list[*selected]);
+  return static_cast<float>(menu_width) - sel_width - 2.0f * roff - 8.0f;
+}
+
+MenuAction
+ItemStringSelect::get_click_action(float x, int menu_width) const {
+  const float left_arrow_x = get_left_arrow_x(menu_width);
+  if (x >= left_arrow_x && x < left_arrow_x + static_cast<float>(Resources::arrow_left->get_width())) {
+    return MenuAction::LEFT;
+  }
+  return MenuAction::HIT;
 }
 
 int

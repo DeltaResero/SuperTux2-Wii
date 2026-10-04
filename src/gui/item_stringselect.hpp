@@ -37,6 +37,9 @@ public:
   /** Processes the menu action. */
   virtual void process_action(const MenuAction& action) override;
 
+  /** A click on the left arrow steps back, anywhere else steps forward. */
+  virtual MenuAction get_click_action(float x, int menu_width) const override;
+
   virtual bool changes_width() const override {
     return true;
   }
@@ -47,6 +50,9 @@ public:
 
   std::vector<std::string> list; // list of values for a STRINGSELECT item
   int* selected; // currently selected item
+private:
+  float get_left_arrow_x(int menu_width) const;
+
 private:
   std::function<void(int)> m_callback;
 

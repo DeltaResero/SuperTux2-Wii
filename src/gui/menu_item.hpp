@@ -52,6 +52,11 @@ public:
   /** Processes the given event. */
   virtual void event(const SDL_Event& ev) { }
 
+  /** Returns what a click x pixels from the item's left edge stands for. */
+  virtual MenuAction get_click_action(float x, int menu_width) const {
+    return MenuAction::HIT;
+  }
+
   virtual Color get_color() const;
 
   /** Returns true when the MenuManager shouldn't do anything else. */
