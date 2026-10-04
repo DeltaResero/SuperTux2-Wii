@@ -80,8 +80,8 @@ GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler) :
   }
   else
   {
-    m_texture_width  = image.w;
-    m_texture_height = image.h;
+    m_texture_width  = align_up(image.w, TEXTURE_ALIGNMENT);
+    m_texture_height = align_up(image.h, TEXTURE_ALIGNMENT);
   }
 
   m_image_width  = image.w;

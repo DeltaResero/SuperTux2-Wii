@@ -80,6 +80,8 @@ inline bool gl_needs_power_of_two()
 {
 #if defined(USE_OPENGLES2)
   return true;
+#elif defined(ENABLE_NPOT_TEXTURES)
+  return false;
 #else
 #  ifdef USE_GLBINDING
   static auto extensions = glbinding::ContextInfo::extensions();
@@ -106,6 +108,11 @@ inline int next_power_of_two(int val)
   while (result < val)
     result *= 2;
   return result;
+}
+
+inline int align_up(int val, int alignment)
+{
+  return (val + alignment - 1) / alignment * alignment;
 }
 
 #endif
