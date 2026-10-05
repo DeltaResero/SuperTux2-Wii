@@ -113,34 +113,32 @@ intersect(const Rect& srcrect, const Rect& imgrect)
 }
 
 /* Map the area covered by inside in srcrect to dstrect */
-Rect relative_map(const Rect& inside, const Rect& srcrect, const Rect& dstrect)
+SDL_FRect relative_map(const Rect& inside, const Rect& srcrect, const SDL_FRect& dstrect)
 {
   assert(srcrect.contains(inside));
 
-  Rect result(dstrect.left + (inside.left - srcrect.left) * dstrect.get_width() / srcrect.get_width(),
-              dstrect.top + (inside.top - srcrect.top) * dstrect.get_height() / srcrect.get_height(),
-              dstrect.left + (inside.right - srcrect.left) * dstrect.get_width() / srcrect.get_width(),
-              dstrect.top + (inside.bottom - srcrect.top) * dstrect.get_height() / srcrect.get_height());
+  const float scale_x = dstrect.w / static_cast<float>(srcrect.get_width());
+  const float scale_y = dstrect.h / static_cast<float>(srcrect.get_height());
 
-  assert(dstrect.contains(result));
-
-  return result;
+  return SDL_FRect{ dstrect.x + static_cast<float>(inside.left - srcrect.left) * scale_x,
+                    dstrect.y + static_cast<float>(inside.top - srcrect.top) * scale_y,
+                    static_cast<float>(inside.get_width()) * scale_x,
+                    static_cast<float>(inside.get_height()) * scale_y };
 }
 
 void render_texture(SDL_Renderer* renderer,
                     SDL_Texture* texture, const Rect& imgrect,
-                    const Rect& srcrect, const Rect& dstrect, float scale)
+                    const Rect& srcrect, const SDL_FRect& dstrect)
 {
   assert(imgrect.contains(srcrect.left, srcrect.top));
 
-  if (srcrect.empty() || dstrect.empty())
+  if (srcrect.empty() || dstrect.w <= 0.0f || dstrect.h <= 0.0f)
     return;
 
   if (imgrect.contains(srcrect))
   {
     SDL_Rect sdl_srcrect = srcrect.to_sdl();
-    SDL_FRect sdl_dstrect = to_sdl_frect(dstrect.to_sdl(), scale);
-    SDL_RenderCopyF(renderer, texture, &sdl_srcrect, &sdl_dstrect);
+    SDL_RenderCopyF(renderer, texture, &sdl_srcrect, &dstrect);
   }
   else
   {
@@ -148,7 +146,7 @@ void render_texture(SDL_Renderer* renderer,
     std::array<Rect, 4> rest;
     std::tie(inside, rest[0], rest[1], rest[2], rest[3]) = intersect(srcrect, imgrect);
 
-    render_texture(renderer, texture, imgrect, inside, relative_map(inside, srcrect, dstrect), scale);
+    render_texture(renderer, texture, imgrect, inside, relative_map(inside, srcrect, dstrect));
 
     for (const Rect& rect : rest)
     {
@@ -156,7 +154,7 @@ void render_texture(SDL_Renderer* renderer,
                              math::positive_mod(rect.top, imgrect.get_height()),
                              rect.get_size());
       render_texture(renderer, texture, imgrect,
-                     new_srcrect, relative_map(rect, srcrect, dstrect), scale);
+                     new_srcrect, relative_map(rect, srcrect, dstrect));
     }
   }
 }
@@ -165,19 +163,16 @@ void render_texture(SDL_Renderer* renderer,
 void RenderCopyEx(SDL_Renderer*          renderer,
                   SDL_Texture*           texture,
                   const SDL_Rect*        sdl_srcrect,
-                  const SDL_Rect*        sdl_dstrect,
+                  const SDL_FRect*       sdl_dstrect,
                   const double           angle,
                   const SDL_Point*       center,
                   const SDL_RendererFlip flip,
-                  const Sampler& sampler,
-                  float scale)
+                  const Sampler& sampler)
 {
-  const SDL_FRect sdl_fdstrect = to_sdl_frect(*sdl_dstrect, scale);
-
   Vector animate = sampler.get_animate();
   if (animate.x == 0.0f && animate.y == 0.0f)
   {
-    SDL_RenderCopyExF(renderer, texture, sdl_srcrect, &sdl_fdstrect, angle, nullptr, flip);
+    SDL_RenderCopyExF(renderer, texture, sdl_srcrect, sdl_dstrect, angle, nullptr, flip);
   }
   else
   {
@@ -207,7 +202,7 @@ void RenderCopyEx(SDL_Renderer*          renderer,
         flip ||
         angle != 0.0)
     {
-      SDL_RenderCopyExF(renderer, texture, sdl_srcrect, &sdl_fdstrect, angle, nullptr, flip);
+      SDL_RenderCopyExF(renderer, texture, sdl_srcrect, sdl_dstrect, angle, nullptr, flip);
     }
     else
     {
@@ -216,7 +211,7 @@ void RenderCopyEx(SDL_Renderer*          renderer,
                    math::positive_mod(sdl_srcrect->y + tex_off_y, height),
                    Size(sdl_srcrect->w, sdl_srcrect->h));
 
-      render_texture(renderer, texture, imgrect, srcrect, Rect(*sdl_dstrect), scale);
+      render_texture(renderer, texture, imgrect, srcrect, *sdl_dstrect);
     }
   }
 }
@@ -242,7 +237,7 @@ SDLPainter::draw_texture(const TextureRequest& request)
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {
     const SDL_Rect& src_rect = to_sdl_rect(request.srcrects[i]);
-    const SDL_Rect& dst_rect = to_sdl_rect(request.dstrects[i]);
+    const SDL_FRect dst_rect = to_target(request.dstrects[i]);
 
     Uint8 r = static_cast<Uint8>(request.color.red * 255);
     Uint8 g = static_cast<Uint8>(request.color.green * 255);
@@ -267,8 +262,31 @@ SDLPainter::draw_texture(const TextureRequest& request)
     RenderCopyEx(m_sdl_renderer, texture.get_texture(),
                  &src_rect, &dst_rect,
                  static_cast<double>(request.angles[i]), nullptr, flip,
-                 texture.get_sampler(), m_scale);
+                 texture.get_sampler());
   }
+}
+
+SDL_FRect
+SDLPainter::to_target(const Rectf& rect) const
+{
+  // A lightmap pixel covers several screen pixels, so whole ones there would move a light in steps
+  if (SDL_GetRenderTarget(m_sdl_renderer))
+  {
+    return SDL_FRect{ rect.get_left() * m_scale, rect.get_top() * m_scale,
+                      rect.get_width() * m_scale, rect.get_height() * m_scale };
+  }
+
+  // Both edges go to whole screen pixels after the scale and the size is what's left between them
+  const Viewport& viewport = m_video_system.get_viewport();
+  const Vector& scale = viewport.get_scale();
+  const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
+  const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
+  const float left = std::floor((origin_x + rect.get_left() * m_scale) * scale.x);
+  const float top = std::floor((origin_y + rect.get_top() * m_scale) * scale.y);
+  const float right = std::floor((origin_x + rect.get_right() * m_scale) * scale.x);
+  const float bottom = std::floor((origin_y + rect.get_bottom() * m_scale) * scale.y);
+  return SDL_FRect{ left / scale.x - origin_x, top / scale.y - origin_y,
+                    (right - left) / scale.x, (bottom - top) / scale.y };
 }
 
 void

@@ -21,10 +21,12 @@
 
 #include <optional>
 
+class Rectf;
 class Renderer;
 class SDLScreenRenderer;
 class SDLVideoSystem;
 struct DrawingRequest;
+struct SDL_FRect;
 struct SDL_Renderer;
 
 class SDLPainter final : public Painter
@@ -44,6 +46,9 @@ public:
 
   virtual void set_clip_rect(const Rect& rect) override;
   virtual void clear_clip_rect() override;
+
+private:
+  SDL_FRect to_target(const Rectf& rect) const;
 
 private:
   SDLVideoSystem& m_video_system;
