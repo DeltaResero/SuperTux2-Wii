@@ -22,12 +22,24 @@
 #include "video/sdl/sdl_screen_renderer.hpp"
 #include "video/video_system.hpp"
 
+namespace {
+
+// The scale quality hint's "best" isn't linear, so each texture asks for what the OpenGL renderer would use
+void
+set_scale_mode(SDL_Texture* texture, const Sampler& sampler)
+{
+  SDL_SetTextureScaleMode(texture, sampler.get_filter() == GL_NEAREST ? SDL_ScaleModeNearest : SDL_ScaleModeLinear);
+}
+
+} // namespace
+
 SDLTexture::SDLTexture(SDL_Texture* texture, int width, int height, const Sampler& sampler) :
   m_texture(texture),
   m_width(width),
   m_height(height),
   m_sampler(sampler)
 {
+  set_scale_mode(m_texture, m_sampler);
 }
 
 SDLTexture::SDLTexture(const SDL_Surface& image, const Sampler& sampler) :
@@ -44,6 +56,8 @@ SDLTexture::SDLTexture(const SDL_Surface& image, const Sampler& sampler) :
     msg << "couldn't create texture: " << SDL_GetError();
     throw std::runtime_error(msg.str());
   }
+
+  set_scale_mode(m_texture, m_sampler);
 
   m_width = image.w;
   m_height = image.h;
