@@ -153,16 +153,17 @@ float calculate_pixel_aspect_ratio(const Size& source, const Size& target)
 Viewport
 Viewport::from_size(const Size& target_size, const Size& desktop_size)
 {
+  // A fullscreen mode is stretched over the whole display, so its pixels take the display's shape
   float pixel_aspect_ratio = 1.0f;
   if (g_config->aspect_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(desktop_size,
+    pixel_aspect_ratio = calculate_pixel_aspect_ratio(g_config->use_fullscreen ? target_size : desktop_size,
                                                       g_config->aspect_size);
   }
-  else if (g_config->use_fullscreen)
+  else if (g_config->use_fullscreen && desktop_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(desktop_size,
-                                                      target_size);
+    pixel_aspect_ratio = calculate_pixel_aspect_ratio(target_size,
+                                                      desktop_size);
   }
 
   // calculate the viewport
