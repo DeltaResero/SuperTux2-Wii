@@ -17,6 +17,8 @@
 
 #include "video/sdl/sdl_screen_renderer.hpp"
 
+#include <cmath>
+
 #include "math/rect.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
@@ -62,14 +64,14 @@ SDLScreenRenderer::start_draw()
   const Rect& viewport = m_video_system.get_viewport().get_rect();
   const Vector& scale = m_video_system.get_viewport().get_scale();
 
-  SDL_Rect sdl_viewport = { viewport.left, viewport.top,
-                            viewport.get_width(), viewport.get_height() };
-
-  // SetViewport() works in scaled screen coordinates, so we have to
-  // reset it to 1.0, 1.0 to get meaningful results
-  SDL_RenderSetScale(m_renderer, 1.0f, 1.0f);
-  SDL_RenderSetViewport(m_renderer, &sdl_viewport);
+  // Scale first and the viewport in scaled units: real SDL2 converts it to pixels at once, but sdl2-compat keeps it scaled
   SDL_RenderSetScale(m_renderer, scale.x, scale.y);
+  const int left = static_cast<int>(std::floor(static_cast<float>(viewport.left) / scale.x));
+  const int top = static_cast<int>(std::floor(static_cast<float>(viewport.top) / scale.y));
+  const SDL_Rect sdl_viewport = { left, top,
+                                  static_cast<int>(std::ceil(static_cast<float>(viewport.right) / scale.x)) - left,
+                                  static_cast<int>(std::ceil(static_cast<float>(viewport.bottom) / scale.y)) - top };
+  SDL_RenderSetViewport(m_renderer, &sdl_viewport);
 
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
