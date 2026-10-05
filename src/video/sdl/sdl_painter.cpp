@@ -278,7 +278,8 @@ SDLPainter::to_target(const Rectf& rect) const
 
   // Both edges go to whole screen pixels after the scale and the size is what's left between them
   const Viewport& viewport = m_video_system.get_viewport();
-  const Vector& scale = viewport.get_scale();
+  Vector scale;
+  SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
   const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
   const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
   const float left = std::floor((origin_x + rect.get_left() * m_scale) * scale.x);
