@@ -130,10 +130,11 @@ TitleScreen::draw(Compositor& compositor)
                             Vector(5.0f, static_cast<float>(context.get_height()) - 50.0f),
                             ALIGN_LEFT, LAYER_FOREGROUND1);
 
+  // Beside the version, the one line of the notice short enough to leave it room
   context.color().draw_text(Resources::small_font,
                             m_videosystem_name,
                             Vector(static_cast<float>(context.get_width()) - 5.0f,
-                                   static_cast<float>(context.get_height()) - 14.0f),
+                                   static_cast<float>(context.get_height()) - 50.0f),
                             ALIGN_RIGHT, LAYER_FOREGROUND1);
 
   context.pop_transform();
