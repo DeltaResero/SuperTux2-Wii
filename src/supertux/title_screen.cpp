@@ -122,6 +122,9 @@ TitleScreen::draw(Compositor& compositor)
                                       Rectf(0, 0, static_cast<float>(context.get_width()), static_cast<float>(context.get_height())),
                                       LAYER_FOREGROUND1);
 
+  context.push_transform();
+  context.use_ui_space();
+
   context.color().draw_text(Resources::small_font,
                             m_copyright_text,
                             Vector(5.0f, static_cast<float>(context.get_height()) - 50.0f),
@@ -132,6 +135,8 @@ TitleScreen::draw(Compositor& compositor)
                             Vector(static_cast<float>(context.get_width()) - 5.0f,
                                    static_cast<float>(context.get_height()) - 14.0f),
                             ALIGN_RIGHT, LAYER_FOREGROUND1);
+
+  context.pop_transform();
 }
 
 void

@@ -272,11 +272,11 @@ GLPainter::draw_filled_rect(const FillRectRequest& request)
                                   std::min(request.rect.get_width() / 2.0f,
                                            request.rect.get_height() / 2.0f));
 
-    // inner rectangle
+    // inner rectangle, which a box no bigger than its corners could turn inside out by a float error
     const Rectf irect(request.rect.get_left() + radius,
                       request.rect.get_top() + radius,
-                      request.rect.get_right() - radius,
-                      request.rect.get_bottom() - radius);
+                      std::max(request.rect.get_left() + radius, request.rect.get_right() - radius),
+                      std::max(request.rect.get_top() + radius, request.rect.get_bottom() - radius));
 
     const int n = 8;
     size_t p = 0;

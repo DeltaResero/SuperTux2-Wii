@@ -36,8 +36,8 @@
 
 MainMenu::MainMenu()
 {
-  set_center_pos(static_cast<float>(SCREEN_WIDTH) / 2.0f,
-                 static_cast<float>(SCREEN_HEIGHT) / 2.0f + 35.0f);
+  set_center_pos(static_cast<float>(UI_WIDTH) / 2.0f,
+                 static_cast<float>(UI_HEIGHT) / 2.0f + 35.0f);
 
   add_entry(MNID_STARTGAME, "Start Game");
   add_submenu("Options", MenuStorage::OPTIONS_MENU);
@@ -50,8 +50,8 @@ MainMenu::MainMenu()
 void
 MainMenu::on_window_resize()
 {
-  set_center_pos(static_cast<float>(SCREEN_WIDTH) / 2.0f,
-                 static_cast<float>(SCREEN_HEIGHT) / 2.0f + 35.0f);
+  set_center_pos(static_cast<float>(UI_WIDTH) / 2.0f,
+                 static_cast<float>(UI_HEIGHT) / 2.0f + 35.0f);
 }
 
 void

@@ -64,9 +64,9 @@ Statistics::Statistics() :
   secret_icon(Surface::from_file("/images/engine/hud/secret-icon.png"))
 {
   calculate_max_caption_length();
-  WMAP_INFO_LEFT_X = static_cast<float>(SCREEN_WIDTH) - 32.0f - static_cast<float>(m_max_width);
+  WMAP_INFO_LEFT_X = static_cast<float>(UI_WIDTH) - 32.0f - static_cast<float>(m_max_width);
   WMAP_INFO_RIGHT_X = WMAP_INFO_LEFT_X + static_cast<float>(m_max_width);
-  WMAP_INFO_TOP_Y1 = static_cast<float>(SCREEN_HEIGHT) - 100.0f;
+  WMAP_INFO_TOP_Y1 = static_cast<float>(UI_HEIGHT) - 100.0f;
   WMAP_INFO_TOP_Y2 = WMAP_INFO_TOP_Y1 + 16.0f;
 }
 
@@ -136,11 +136,11 @@ Statistics::draw_worldmap_info(DrawingContext& context, float target_time)
   if (m_status != FINAL) return;
 
   // check to see if screen size has been changed
-  if (!(WMAP_INFO_TOP_Y1 == static_cast<float>(SCREEN_HEIGHT - 100))) {
+  if (!(WMAP_INFO_TOP_Y1 == static_cast<float>(UI_HEIGHT - 100))) {
     calculate_max_caption_length();
     WMAP_INFO_LEFT_X = static_cast<float>(context.get_width() - 32 - m_max_width);
     WMAP_INFO_RIGHT_X = WMAP_INFO_LEFT_X + static_cast<float>(m_max_width);
-    WMAP_INFO_TOP_Y1 = static_cast<float>(SCREEN_HEIGHT - 100);
+    WMAP_INFO_TOP_Y1 = static_cast<float>(UI_HEIGHT - 100);
     WMAP_INFO_TOP_Y2 = WMAP_INFO_TOP_Y1 + 16;
   }
 
@@ -212,7 +212,7 @@ Statistics::draw_endseq_panel(DrawingContext& context, Statistics* best_stats, c
   int box_w = 220+110+110;
   int box_h = 30+20+20+20;
   int box_x = static_cast<int>((context.get_width() - box_w) / 2);
-  int box_y = static_cast<int>(SCREEN_HEIGHT / 2) - box_h;
+  int box_y = static_cast<int>(UI_HEIGHT / 2) - box_h;
 
   int bd_w = static_cast<int>(backdrop->get_width());
   int bd_h = static_cast<int>(backdrop->get_height());

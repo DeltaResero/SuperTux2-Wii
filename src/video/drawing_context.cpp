@@ -40,6 +40,13 @@ DrawingContext::DrawingContext(VideoSystem& video_system_, obstack& obst, bool o
 {
 }
 
+void
+DrawingContext::use_ui_space()
+{
+  set_translation(Vector(0.0f, 0.0f));
+  transform().scale = m_video_system.get_viewport().get_ui_scale();
+}
+
 DrawingContext::~DrawingContext()
 {
   clear();

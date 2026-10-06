@@ -247,12 +247,19 @@ ScreenManager::draw(Compositor& compositor, FPS_Stats& fps_statistics)
 
   // draw effects and hud
   auto& context = compositor.make_context(true);
+
+  // Menus and the console keep the UI's size, while a fade covers the level's screen
+  context.push_transform();
+  context.use_ui_space();
   m_menu_manager->draw(context);
+  context.pop_transform();
 
   if (m_screen_fade) {
     m_screen_fade->draw(context);
   }
 
+  context.push_transform();
+  context.use_ui_space();
   Console::current()->draw(context);
 
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
@@ -269,6 +276,7 @@ ScreenManager::draw(Compositor& compositor, FPS_Stats& fps_statistics)
   if (g_config->show_player_pos) {
     draw_player_pos(context);
   }
+  context.pop_transform();
 
   // render everything
   compositor.render();

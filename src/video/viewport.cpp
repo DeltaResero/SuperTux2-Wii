@@ -33,6 +33,10 @@ const float Viewport::s_max_zoom = 1.1f;
 const float Viewport::s_min_aspect = 5.0f / 4.0f;
 const float Viewport::s_max_aspect = 16.0f / 9.0f;
 
+// Menus, the HUD and text are laid out in this range, the size 0.6.3 drew everything at
+const Size Viewport::s_ui_min_size(640, 480);
+const Size Viewport::s_ui_max_size(1368, 800);
+
 namespace {
 
 inline Size
@@ -130,18 +134,37 @@ Viewport::from_size(const Size& target_size, const Size& desktop_size)
                      g_config->magnification,
                      scale, viewport);
 
-  return Viewport(viewport, scale);
+  // The UI fills the window from that range the way 0.6.3 did, whatever the zoom
+  const Size ui_window = apply_pixel_aspect_ratio_pre(target_size, pixel_aspect_ratio);
+  const float ui_width = static_cast<float>(ui_window.width);
+  const float ui_height = static_cast<float>(ui_window.height);
+  float ui_scale = 1.0f;
+  if (ui_window.width > s_ui_max_size.width || ui_window.height > s_ui_max_size.height)
+  {
+    ui_scale = std::max(ui_width / static_cast<float>(s_ui_max_size.width),
+                        ui_height / static_cast<float>(s_ui_max_size.height));
+  }
+  if (ui_width / ui_scale < static_cast<float>(s_ui_min_size.width) ||
+      ui_height / ui_scale < static_cast<float>(s_ui_min_size.height))
+  {
+    ui_scale = std::min(ui_width / static_cast<float>(s_ui_min_size.width),
+                        ui_height / static_cast<float>(s_ui_min_size.height));
+  }
+
+  return Viewport(viewport, scale, ui_scale / scale.y);
 }
 
 Viewport::Viewport() :
   m_rect(),
-  m_scale(0.0f, 0.0f)
+  m_scale(0.0f, 0.0f),
+  m_ui_scale(1.0f)
 {
 }
 
-Viewport::Viewport(const Rect& rect, const Vector& scale) :
+Viewport::Viewport(const Rect& rect, const Vector& scale, float ui_scale) :
   m_rect(rect),
-  m_scale(scale)
+  m_scale(scale),
+  m_ui_scale(ui_scale)
 {
 }
 
@@ -168,6 +191,24 @@ Viewport::to_logical(int physical_x, int physical_y) const
 {
   return Vector(static_cast<float>(physical_x - m_rect.left) / m_scale.x,
                 static_cast<float>(physical_y - m_rect.top) / m_scale.y);
+}
+
+int
+Viewport::get_ui_width() const
+{
+  return static_cast<int>(static_cast<float>(get_screen_width()) / m_ui_scale);
+}
+
+int
+Viewport::get_ui_height() const
+{
+  return static_cast<int>(static_cast<float>(get_screen_height()) / m_ui_scale);
+}
+
+Vector
+Viewport::to_ui(int physical_x, int physical_y) const
+{
+  return to_logical(physical_x, physical_y) / m_ui_scale;
 }
 
 /* EOF */

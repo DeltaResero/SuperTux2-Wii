@@ -142,7 +142,7 @@ TextScroller::parse_root(const ReaderObject& root)
       }
 
       // Split text string lines into a vector
-      m_lines = InfoBoxLine::split(text, static_cast<float>(SCREEN_WIDTH) - 2.0f * LEFT_BORDER);
+      m_lines = InfoBoxLine::split(text, static_cast<float>(UI_WIDTH) - 2.0f * LEFT_BORDER);
     }
     else if (version == 2)
     {
@@ -240,7 +240,7 @@ void
 TextScroller::draw(DrawingContext& context)
 {
   context.push_transform();
-  context.set_translation(Vector(0, 0));
+  context.use_ui_space();
 
   const float ctx_w = static_cast<float>(context.get_width());
   const float ctx_h = static_cast<float>(context.get_height());

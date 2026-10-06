@@ -529,7 +529,7 @@ void
 WorldMap::draw_status(DrawingContext& context)
 {
   context.push_transform();
-  context.set_translation(Vector(0, 0));
+  context.use_ui_space();
 
   if (!m_tux->is_moving()) {
     for (auto& level : get_objects_by_type<LevelTile>()) {

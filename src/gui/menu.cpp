@@ -44,8 +44,8 @@ static const float MENU_REPEAT_INITIAL = 0.4f;
 static const float MENU_REPEAT_RATE    = 0.1f;
 
 Menu::Menu() :
-  m_pos(Vector(static_cast<float>(SCREEN_WIDTH) / 2.0f,
-               static_cast<float>(SCREEN_HEIGHT) / 2.0f)),
+  m_pos(Vector(static_cast<float>(UI_WIDTH) / 2.0f,
+               static_cast<float>(UI_HEIGHT) / 2.0f)),
   m_delete_character(0),
   m_mn_input_char('\0'),
   m_menu_repeat_time(),
@@ -231,7 +231,7 @@ Menu::process_input(const Controller& controller)
       }
     }
 
-    const float screen_height = static_cast<float>(SCREEN_HEIGHT);
+    const float screen_height = static_cast<float>(UI_HEIGHT);
     const float menu_area = screen_height - help_height;
     // get_height() doesn't include the border, so we manually add some
     const float menu_height = get_height() + 32.0f;
@@ -453,8 +453,8 @@ Menu::get_height() const
 void
 Menu::on_window_resize()
 {
-  m_pos.x = static_cast<float>(SCREEN_WIDTH) / 2.0f;
-  m_pos.y = static_cast<float>(SCREEN_HEIGHT) / 2.0f;
+  m_pos.x = static_cast<float>(UI_WIDTH) / 2.0f;
+  m_pos.y = static_cast<float>(UI_HEIGHT) / 2.0f;
 }
 
 void
@@ -471,9 +471,9 @@ Menu::draw(DrawingContext& context)
     const int text_height = static_cast<int>(Resources::normal_font->get_text_height(m_items[m_active_item]->get_help()));
 
     const Rectf text_rect(m_pos.x - static_cast<float>(text_width) / 2.0f - 8.0f,
-                          static_cast<float>(SCREEN_HEIGHT) - 48.0f - static_cast<float>(text_height) / 2.0f - 4.0f,
+                          static_cast<float>(UI_HEIGHT) - 48.0f - static_cast<float>(text_height) / 2.0f - 4.0f,
                           m_pos.x + static_cast<float>(text_width) / 2.0f + 8.0f,
-                          static_cast<float>(SCREEN_HEIGHT) - 48.0f + static_cast<float>(text_height) / 2.0f + 4.0f);
+                          static_cast<float>(UI_HEIGHT) - 48.0f + static_cast<float>(text_height) / 2.0f + 4.0f);
 
     context.color().draw_filled_rect(Rectf(text_rect.p1() - Vector(4,4),
                                            text_rect.p2() + Vector(4,4)),
@@ -487,7 +487,7 @@ Menu::draw(DrawingContext& context)
                                      LAYER_GUI);
 
     context.color().draw_text(Resources::normal_font, m_items[m_active_item]->get_help(),
-                              Vector(m_pos.x, static_cast<float>(SCREEN_HEIGHT) - 48.0f - static_cast<float>(text_height) / 2.0f),
+                              Vector(m_pos.x, static_cast<float>(UI_HEIGHT) - 48.0f - static_cast<float>(text_height) / 2.0f),
                               ALIGN_CENTER, LAYER_GUI);
   }
 }
@@ -525,7 +525,7 @@ Menu::event(const SDL_Event& ev)
     case SDL_MOUSEBUTTONDOWN:
     if (ev.button.button == SDL_BUTTON_LEFT)
     {
-      Vector mouse_pos = VideoSystem::current()->get_viewport().to_logical(ev.motion.x, ev.motion.y);
+      Vector mouse_pos = VideoSystem::current()->get_viewport().to_ui(ev.motion.x, ev.motion.y);
 
       if (mouse_pos.x > m_pos.x - get_width() / 2.0f &&
           mouse_pos.x < m_pos.x + get_width() / 2.0f &&
@@ -548,7 +548,7 @@ Menu::event(const SDL_Event& ev)
 
     case SDL_MOUSEMOTION:
     {
-      Vector mouse_pos = VideoSystem::current()->get_viewport().to_logical(ev.motion.x, ev.motion.y);
+      Vector mouse_pos = VideoSystem::current()->get_viewport().to_ui(ev.motion.x, ev.motion.y);
       float x = mouse_pos.x;
       float y = mouse_pos.y;
 

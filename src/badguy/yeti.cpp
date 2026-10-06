@@ -130,7 +130,7 @@ Yeti::draw_hit_points(DrawingContext& context)
   if (hud_head)
   {
     context.push_transform();
-    context.set_translation(Vector(0, 0));
+    context.use_ui_space();
 
     for (int i = 0; i < hit_points; ++i)
     {

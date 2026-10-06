@@ -550,12 +550,17 @@ GameSession::start_sequence(Sequence seq, const SequenceData* data)
 void
 GameSession::drawstatus(DrawingContext& context)
 {
+  context.push_transform();
+  context.use_ui_space();
+
   // draw level stats while end_sequence is running
   if (m_end_sequence) {
     m_level->m_stats.draw_endseq_panel(context, m_best_level_statistics, m_statistics_backdrop, m_level->m_target_time);
   }
 
   m_level->m_stats.draw_ingame_stats(context, m_game_pause);
+
+  context.pop_transform();
 }
 
 /* EOF */

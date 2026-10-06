@@ -99,7 +99,7 @@ MouseCursor::draw(DrawingContext& context)
       apply_state(m_state);
     }
 
-    Vector mouse_pos = VideoSystem::current()->get_viewport().to_logical(x, y);
+    Vector mouse_pos = VideoSystem::current()->get_viewport().to_ui(x, y);
 
     m_sprite->draw(context.color(), mouse_pos, LAYER_GUI + 100);
   }

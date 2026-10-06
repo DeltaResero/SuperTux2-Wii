@@ -402,12 +402,15 @@ Sector::draw(DrawingContext& context)
 
   if (m_level.m_is_in_cutscene && !m_level.m_skip_cutscene)
   {
+    context.push_transform();
+    context.use_ui_space();
     context.color().draw_text(Resources::normal_font,
                               "Press escape to skip",
                               Vector(32.f, 32.f),
                               ALIGN_LEFT,
                               LAYER_OBJECTS + 1000,
                               ColorScheme::Text::heading_color);
+    context.pop_transform();
   }
 }
 

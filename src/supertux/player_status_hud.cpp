@@ -63,7 +63,7 @@ PlayerStatusHUD::draw(DrawingContext& context)
   std::string coins_text = ss.str();
 
   context.push_transform();
-  context.set_translation(Vector(0, 0));
+  context.use_ui_space();
   if (coin_surface)
   {
     context.color().draw_surface(coin_surface,

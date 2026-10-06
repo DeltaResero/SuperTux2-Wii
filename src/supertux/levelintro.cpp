@@ -115,6 +115,8 @@ void
 LevelIntro::draw(Compositor& compositor)
 {
   auto& context = compositor.make_context();
+  context.push_transform();
+  context.use_ui_space();
 
   const Statistics& stats = m_level.m_stats;
   int py = static_cast<int>(static_cast<float>(context.get_height()) / 2.0f - Resources::normal_font->get_height() / 2.0f);
@@ -186,6 +188,7 @@ LevelIntro::draw(Compositor& compositor)
     context.color().draw_center_text(Resources::normal_font, m_level.m_note, Vector(0, py), LAYER_FOREGROUND1);
   }
 
+  context.pop_transform();
 }
 
 /* EOF */

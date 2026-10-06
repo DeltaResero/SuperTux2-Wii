@@ -83,7 +83,7 @@ void
 FloatingImage::draw(DrawingContext& context)
 {
   context.push_transform();
-  context.set_translation(Vector(0, 0));
+  context.use_ui_space();
 
   if (fading > 0) {
     context.set_alpha((fadetime-fading) / fadetime);

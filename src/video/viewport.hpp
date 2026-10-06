@@ -28,7 +28,7 @@ public:
 
 public:
   Viewport();
-  Viewport(const Rect& rect, const Vector& scale);
+  Viewport(const Rect& rect, const Vector& scale, float ui_scale = 1.0f);
 
   /** The size of the viewport in window coordinates */
   Rect get_rect() const { return m_rect; }
@@ -48,6 +48,16 @@ public:
   /** Converts window coordinates into logical screen coordinates */
   Vector to_logical(int physical_x, int physical_y) const;
 
+  /** How much larger menus, the HUD and text are drawn than the level */
+  float get_ui_scale() const { return m_ui_scale; }
+
+  /** The screen in the units menus, the HUD and text are laid out in */
+  int get_ui_width() const;
+  int get_ui_height() const;
+
+  /** Converts window coordinates into the units menus, the HUD and text are laid out in */
+  Vector to_ui(int physical_x, int physical_y) const;
+
 public:
   /** How tall a level is drawn at 100% zoom; the width follows the screen's shape */
   static const float s_logical_height;
@@ -60,9 +70,14 @@ public:
   static const float s_min_aspect;
   static const float s_max_aspect;
 
+  /** The range menus, the HUD and text are laid out in */
+  static const Size s_ui_min_size;
+  static const Size s_ui_max_size;
+
 private:
   Rect m_rect;
   Vector m_scale;
+  float m_ui_scale;
 };
 
 #endif
