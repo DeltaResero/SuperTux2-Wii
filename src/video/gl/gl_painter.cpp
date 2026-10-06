@@ -84,10 +84,11 @@ GLPainter::draw_texture(const TextureRequest& request)
 
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {
-    const float left = request.dstrects[i].get_left();
-    const float top = request.dstrects[i].get_top();
-    const float right  = request.dstrects[i].get_right();
-    const float bottom = request.dstrects[i].get_bottom();
+    const Rectf dstrect = to_target(request.dstrects[i]);
+    const float left = dstrect.get_left();
+    const float top = dstrect.get_top();
+    const float right  = dstrect.get_right();
+    const float bottom = dstrect.get_bottom();
 
     float uv_left = request.srcrects[i].get_left() / static_cast<float>(texture.get_texture_width());
     float uv_top = request.srcrects[i].get_top() / static_cast<float>(texture.get_texture_height());
@@ -177,6 +178,26 @@ GLPainter::draw_texture(const TextureRequest& request)
   context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(request.srcrects.size() * 2 * 3));
 
   assert_gl();
+}
+
+Rectf
+GLPainter::to_target(const Rectf& rect) const
+{
+  // A lightmap pixel covers several screen pixels, so whole ones there would move a light in steps
+  if (m_renderer.get_texture())
+  {
+    return rect;
+  }
+
+  // The viewport starts on a whole pixel, so both edges go to whole screen pixels from its corner
+  const Rect viewport = m_renderer.get_rect();
+  const Size logical_size = m_renderer.get_logical_size();
+  const float scale_x = static_cast<float>(viewport.get_width()) / static_cast<float>(logical_size.width);
+  const float scale_y = static_cast<float>(viewport.get_height()) / static_cast<float>(logical_size.height);
+  return Rectf(std::floor(rect.get_left() * scale_x) / scale_x,
+               std::floor(rect.get_top() * scale_y) / scale_y,
+               std::floor(rect.get_right() * scale_x) / scale_x,
+               std::floor(rect.get_bottom() * scale_y) / scale_y);
 }
 
 void
