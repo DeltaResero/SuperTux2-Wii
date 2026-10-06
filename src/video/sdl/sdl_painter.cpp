@@ -276,16 +276,16 @@ SDLPainter::to_target(const Rectf& rect) const
                       rect.get_width() * m_scale, rect.get_height() * m_scale };
   }
 
-  // Both edges go to whole screen pixels after the scale and the size is what's left between them
+  // Both edges go to the nearest whole screen pixel, as an edge meant for the last one can come out a hair short
   const Viewport& viewport = m_video_system.get_viewport();
   Vector scale;
   SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
   const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
   const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const float left = std::floor((origin_x + rect.get_left() * m_scale) * scale.x);
-  const float top = std::floor((origin_y + rect.get_top() * m_scale) * scale.y);
-  const float right = std::floor((origin_x + rect.get_right() * m_scale) * scale.x);
-  const float bottom = std::floor((origin_y + rect.get_bottom() * m_scale) * scale.y);
+  const float left = std::round((origin_x + rect.get_left() * m_scale) * scale.x);
+  const float top = std::round((origin_y + rect.get_top() * m_scale) * scale.y);
+  const float right = std::round((origin_x + rect.get_right() * m_scale) * scale.x);
+  const float bottom = std::round((origin_y + rect.get_bottom() * m_scale) * scale.y);
   return SDL_FRect{ left / scale.x - origin_x, top / scale.y - origin_y,
                     (right - left) / scale.x, (bottom - top) / scale.y };
 }

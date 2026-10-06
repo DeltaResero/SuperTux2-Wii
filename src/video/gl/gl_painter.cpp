@@ -189,15 +189,15 @@ GLPainter::to_target(const Rectf& rect) const
     return rect;
   }
 
-  // The viewport starts on a whole pixel, so both edges go to whole screen pixels from its corner
+  // The viewport starts on a whole pixel, so both edges go to the nearest whole screen pixel from its corner
   const Rect viewport = m_renderer.get_rect();
   const Size logical_size = m_renderer.get_logical_size();
   const float scale_x = static_cast<float>(viewport.get_width()) / static_cast<float>(logical_size.width);
   const float scale_y = static_cast<float>(viewport.get_height()) / static_cast<float>(logical_size.height);
-  return Rectf(std::floor(rect.get_left() * scale_x) / scale_x,
-               std::floor(rect.get_top() * scale_y) / scale_y,
-               std::floor(rect.get_right() * scale_x) / scale_x,
-               std::floor(rect.get_bottom() * scale_y) / scale_y);
+  return Rectf(std::round(rect.get_left() * scale_x) / scale_x,
+               std::round(rect.get_top() * scale_y) / scale_y,
+               std::round(rect.get_right() * scale_x) / scale_x,
+               std::round(rect.get_bottom() * scale_y) / scale_y);
 }
 
 void
