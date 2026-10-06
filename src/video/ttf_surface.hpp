@@ -20,6 +20,8 @@
 #include <memory>
 #include <string>
 
+#include "math/sizef.hpp"
+#include "math/vector.hpp"
 #include "video/surface_ptr.hpp"
 
 class TTFFont;
@@ -31,17 +33,20 @@ using TTFSurfacePtr = std::shared_ptr<TTFSurface>;
 class TTFSurface final
 {
 public:
-  static TTFSurfacePtr create(const TTFFont& font, const std::string& text);
+  /** @param pixel_scale how many screen pixels one unit of the text covers across and down */
+  static TTFSurfacePtr create(const TTFFont& font, const std::string& text, const Vector& pixel_scale);
 
 public:
-  TTFSurface(const SurfacePtr& surface);
+  TTFSurface(const SurfacePtr& surface, const Sizef& size);
 
   SurfacePtr get_surface() { return m_surface; }
 
-  int get_width() const;
+  /** The size the text is drawn at, which its pixels may outnumber */
+  const Sizef& get_size() const { return m_size; }
 
 private:
   SurfacePtr m_surface;
+  Sizef m_size;
 
 private:
   TTFSurface(const TTFSurface&) = delete;

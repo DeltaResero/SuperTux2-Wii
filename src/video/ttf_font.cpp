@@ -24,8 +24,12 @@
 #include "util/line_iterator.hpp"
 #include "io/sdl_file.hpp"
 #include "video/canvas.hpp"
+#include "video/drawing_context.hpp"
+#include "video/paint_style.hpp"
 #include "video/surface.hpp"
 #include "video/ttf_surface_manager.hpp"
+#include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
 TTFFont::TTFFont(const std::string& filename, int font_size, float line_spacing, int shadow_size, int border) :
   m_font(),
@@ -33,7 +37,8 @@ TTFFont::TTFFont(const std::string& filename, int font_size, float line_spacing,
   m_font_size(font_size),
   m_line_spacing(line_spacing),
   m_shadow_size(shadow_size),
-  m_border(border)
+  m_border(border),
+  m_sized_fonts()
 {
   m_font = TTF_OpenFontRW(get_SDLRWops(m_filename), 1, font_size);
   if (!m_font)
@@ -46,7 +51,34 @@ TTFFont::TTFFont(const std::string& filename, int font_size, float line_spacing,
 
 TTFFont::~TTFFont()
 {
+  for (const auto& sized_font : m_sized_fonts)
+  {
+    TTF_CloseFont(sized_font.second);
+  }
   TTF_CloseFont(m_font);
+}
+
+TTF_Font*
+TTFFont::get_ttf_font(int pixel_size) const
+{
+  if (pixel_size == m_font_size)
+  {
+    return m_font;
+  }
+
+  auto it = m_sized_fonts.find(pixel_size);
+  if (it != m_sized_fonts.end())
+  {
+    return it->second;
+  }
+
+  TTF_Font* font = TTF_OpenFontRW(get_SDLRWops(m_filename), 1, pixel_size);
+  if (!font)
+  {
+    std::cerr << "TTFFont::get_ttf_font(): " << TTF_GetError() << std::endl;
+    return m_font;
+  }
+  return m_sized_fonts[pixel_size] = font;
 }
 
 float
@@ -65,8 +97,8 @@ TTFFont::get_text_width(const std::string& text) const
     // Since get_cached_surface_width() takes a surface from the cache
     // instead of generating it from scratch,
     // it should be faster than doing a whole layout.
-    int line_width = TTFSurfaceManager::current()->get_cached_surface_width(*this, line);
-    if (line_width < 0) {
+    float line_width = TTFSurfaceManager::current()->get_cached_surface_width(*this, line);
+    if (line_width < 0.0f) {
       // Not in cache
       int w = 0;
       int h = 0;
@@ -74,9 +106,9 @@ TTFFont::get_text_width(const std::string& text) const
       if (ret < 0) {
         std::cerr << "TTFFont::get_text_width(): " << TTF_GetError() << std::endl;
       }
-      line_width = w;
+      line_width = static_cast<float>(w);
     }
-    max_width = std::max(max_width, static_cast<float>(line_width));
+    max_width = std::max(max_width, line_width);
   }
 
   return max_width;
@@ -101,6 +133,9 @@ TTFFont::draw_text(Canvas& canvas, const std::string& text,
                    const Vector& pos, FontAlignment alignment, int layer, const Color& color)
 
 {
+  // Rendered at the size it covers on screen, so it's never stretched
+  const Vector pixel_scale = VideoSystem::current()->get_viewport().get_scale() * canvas.get_context().transform().scale;
+
   float last_y = pos.y - (static_cast<float>(TTF_FontHeight(m_font)) - get_height()) / 2.0f;
 
   LineIterator iter(text);
@@ -110,21 +145,25 @@ TTFFont::draw_text(Canvas& canvas, const std::string& text,
 
     if (!line.empty())
     {
-      TTFSurfacePtr ttf_surface = TTFSurfaceManager::current()->create_surface(*this, line);
+      TTFSurfacePtr ttf_surface = TTFSurfaceManager::current()->create_surface(*this, line, pixel_scale);
 
       Vector new_pos(pos.x, last_y);
 
       if (alignment == ALIGN_CENTER)
       {
-        new_pos.x -= static_cast<float>(ttf_surface->get_width()) / 2.0f;
+        new_pos.x -= ttf_surface->get_size().width / 2.0f;
       }
       else if (alignment == ALIGN_RIGHT)
       {
-        new_pos.x -= static_cast<float>(ttf_surface->get_width());
+        new_pos.x -= ttf_surface->get_size().width;
       }
 
       // draw text
-      canvas.draw_surface(ttf_surface->get_surface(), glm::floor(new_pos), 0.0f, color, Blend(), layer);
+      if (ttf_surface->get_surface())
+      {
+        canvas.draw_surface_scaled(ttf_surface->get_surface(), Rectf(glm::floor(new_pos), ttf_surface->get_size()),
+                                   layer, PaintStyle().set_color(color));
+      }
     }
 
     last_y += get_height();
