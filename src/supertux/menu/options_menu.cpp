@@ -17,6 +17,8 @@
 
 #include "supertux/menu/options_menu.hpp"
 
+#include <algorithm>
+
 #include "audio/sound_manager.hpp"
 #include "gui/dialog.hpp"
 #include "gui/item_goto.hpp"
@@ -30,6 +32,7 @@
 #include "supertux/menu/menu_storage.hpp"
 #include "util/log.hpp"
 #include "video/renderer.hpp"
+#include "video/viewport.hpp"
 
 
 namespace {
@@ -90,44 +93,19 @@ OptionsMenu::OptionsMenu(bool complete) :
   add_label("Options");
   add_hl();
 
+  // 100% shows what a 1920x1080 screen showed, and every screen of the same shape shows the same
   magnifications.clear();
-  // These values go from screen:640/projection:1600 to
-  // screen:1600/projection:640 (i.e. 640, 800, 1024, 1280, 1600)
-  magnifications.push_back("auto");
-#ifndef ENABLE_TOUCHSCREEN_SUPPORT
-  magnifications.push_back("40%");
-  magnifications.push_back("50%");
-  magnifications.push_back("62.5%");
-  magnifications.push_back("80%");
-#endif
-  magnifications.push_back("100%");
-  magnifications.push_back("125%");
-  magnifications.push_back("160%");
-  magnifications.push_back("200%");
-  magnifications.push_back("250%");
-  // Gets the actual magnification:
-  if (g_config->magnification != 0.0f) //auto
+  const int min_percent = static_cast<int>(Viewport::s_min_zoom * 100.0f + 0.5f);
+  const int max_percent = static_cast<int>(Viewport::s_max_zoom * 100.0f + 0.5f);
+  for (int percent = min_percent; percent <= max_percent; percent += 5)
   {
-    std::ostringstream out;
-    out << (g_config->magnification*100) << "%";
-    std::string magn = out.str();
-    int count = 0;
-    for (const auto& magnification : magnifications)
-    {
-      if (magnification == magn)
-      {
-        next_magnification = count;
-        magn.clear();
-        break;
-      }
-
-      ++count;
-    }
-    if (!magn.empty()) //magnification not in our list but accept anyway
-    {
-      next_magnification = static_cast<int>(magnifications.size());
-      magnifications.push_back(magn);
-    }
+    magnifications.push_back(std::to_string(percent) + "%");
+  }
+  {
+    // An old config may hold a zoom outside the range, which shows as its nearest step
+    const float zoom = (g_config->magnification == 0.0f) ? 1.0f : g_config->magnification;
+    const int percent = std::clamp(static_cast<int>(zoom * 100.0f + 0.5f), min_percent, max_percent);
+    next_magnification = (percent - min_percent + 2) / 5;
   }
 
   aspect_ratios.clear();
@@ -450,11 +428,7 @@ OptionsMenu::menu_action(MenuItem& item)
       break;
 
     case MNID_MAGNIFICATION:
-      if (magnifications[next_magnification] == "auto")
-      {
-        g_config->magnification = 0.0f; // Magic value
-      }
-      else if (sscanf(magnifications[next_magnification].c_str(), "%f", &g_config->magnification) == 1)
+      if (sscanf(magnifications[next_magnification].c_str(), "%f", &g_config->magnification) == 1)
       {
         g_config->magnification /= 100.0f;
       }

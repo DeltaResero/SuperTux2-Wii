@@ -48,12 +48,17 @@ public:
   /** Converts window coordinates into logical screen coordinates */
   Vector to_logical(int physical_x, int physical_y) const;
 
-private:
-  /** The minimum logical screen size that is allowed */
-  static const Size s_max_size;
+public:
+  /** How tall a level is drawn at 100% zoom; the width follows the screen's shape */
+  static const float s_logical_height;
 
-  /** The maximum logical screen size that is allowed */
-  static const Size s_min_size;
+  /** The zoom range a player can pick from */
+  static const float s_min_zoom;
+  static const float s_max_zoom;
+
+  /** The narrowest and widest shapes drawn; a screen outside them is stretched to fit */
+  static const float s_min_aspect;
+  static const float s_max_aspect;
 
 private:
   Rect m_rect;
