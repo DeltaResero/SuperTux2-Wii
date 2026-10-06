@@ -32,6 +32,8 @@
 #include "video/drawing_context.hpp"
 #include "video/layer.hpp"
 #include "video/surface.hpp"
+#include "video/video_system.hpp"
+#include "video/viewport.hpp"
 #include "worldmap/worldmap.hpp"
 
 TileMap::TileMap(const TileSet *new_tileset) :
@@ -324,7 +326,17 @@ TileMap::draw(DrawingContext& context)
 
   const float trans_x = context.get_translation().x;
   const float trans_y = context.get_translation().y;
-  context.set_translation(Vector(trans_x * m_speed_x, trans_y * m_speed_y));
+  Vector translation(trans_x * m_speed_x, trans_y * m_speed_y);
+
+  // Whole screen pixels, so every tile rounds the same way and the layer moves as one piece
+  const Viewport& viewport = VideoSystem::current()->get_viewport();
+  const Vector pixels(static_cast<float>(viewport.get_rect().get_width()) / static_cast<float>(viewport.get_screen_width()) * context.transform().scale,
+                      static_cast<float>(viewport.get_rect().get_height()) / static_cast<float>(viewport.get_screen_height()) * context.transform().scale);
+  if (pixels.x > 0.0f && pixels.y > 0.0f)
+  {
+    translation = glm::round(translation * pixels) / pixels;
+  }
+  context.set_translation(translation);
 
   Rectf draw_rect = context.get_cliprect();
   Rect t_draw_rect = get_tiles_overlapping(draw_rect);
