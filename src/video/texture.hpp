@@ -24,6 +24,8 @@
 #include "math/rect.hpp"
 #include "video/flip.hpp"
 
+struct SDL_Surface;
+
 /** This class is a wrapper around a texture handle. It stores the
     texture width and height and provides convenience functions for
     uploading SDL_Surfaces into the texture. */
@@ -46,6 +48,9 @@ public:
 
   virtual int get_image_width() const = 0;
   virtual int get_image_height() const = 0;
+
+  /** Puts new pixels in, still drawn at the picture's size; they may be fewer */
+  virtual void reload(const SDL_Surface& image) = 0;
 
 private:
   std::optional<Key> m_cache_key;

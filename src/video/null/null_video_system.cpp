@@ -57,9 +57,9 @@ NullVideoSystem::get_lightmap() const
 }
 
 TexturePtr
-NullVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler)
+NullVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler, const Size& image_size)
 {
-  return TexturePtr(new NullTexture(Size(image.w, image.h)));
+  return TexturePtr(new NullTexture(image_size.width > 0 ? image_size : Size(image.w, image.h)));
 }
 
 const Viewport&

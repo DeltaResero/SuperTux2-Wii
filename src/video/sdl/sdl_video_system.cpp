@@ -98,6 +98,7 @@ SDLVideoSystem::apply_config()
       g_config->window_size;
 
     m_viewport = Viewport::from_size(target_size, m_desktop_size);
+    m_texture_manager->set_viewport(m_viewport);
   }
 
   m_lightmap = std::make_unique<SDLTextureRenderer>(*this, m_sdl_renderer.get(), m_viewport.get_screen_size(), 5);
@@ -116,9 +117,9 @@ SDLVideoSystem::get_lightmap() const
 }
 
 TexturePtr
-SDLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler)
+SDLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler, const Size& image_size)
 {
-  return TexturePtr(new SDLTexture(image, sampler));
+  return TexturePtr(new SDLTexture(image, sampler, image_size));
 }
 
 void

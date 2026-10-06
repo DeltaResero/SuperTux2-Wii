@@ -167,9 +167,10 @@ void RenderCopyEx(SDL_Renderer*          renderer,
                   const double           angle,
                   const SDL_Point*       center,
                   const SDL_RendererFlip flip,
-                  const Sampler& sampler)
+                  const Sampler& sampler,
+                  const Vector& texel_scale)
 {
-  Vector animate = sampler.get_animate();
+  Vector animate = sampler.get_animate() * texel_scale;
   if (animate.x == 0.0f && animate.y == 0.0f)
   {
     SDL_RenderCopyExF(renderer, texture, sdl_srcrect, sdl_dstrect, angle, nullptr, flip);
@@ -236,7 +237,11 @@ SDLPainter::draw_texture(const TextureRequest& request)
 
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {
-    const SDL_Rect& src_rect = to_sdl_rect(request.srcrects[i]);
+    // The texture may hold fewer pixels than the picture it stands for
+    const Rectf& src = request.srcrects[i];
+    const Vector& texel_scale = texture.get_texel_scale();
+    const SDL_Rect& src_rect = to_sdl_rect(Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
+                                                 src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y));
     const SDL_FRect dst_rect = to_target(request.dstrects[i]);
 
     Uint8 r = static_cast<Uint8>(request.color.red * 255);
@@ -262,7 +267,7 @@ SDLPainter::draw_texture(const TextureRequest& request)
     RenderCopyEx(m_sdl_renderer, texture.get_texture(),
                  &src_rect, &dst_rect,
                  static_cast<double>(request.angles[i]), nullptr, flip,
-                 texture.get_sampler());
+                 texture.get_sampler(), texel_scale);
   }
 }
 

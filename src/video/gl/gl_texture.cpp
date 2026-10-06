@@ -28,7 +28,8 @@ GLTexture::GLTexture(int width, int height, std::optional<Color> fill_color) :
   m_texture_width(),
   m_texture_height(),
   m_image_width(),
-  m_image_height()
+  m_image_height(),
+  m_uv_scale(1.0f / static_cast<float>(width), 1.0f / static_cast<float>(height))
 {
   m_texture_width  = width;
   m_texture_height = height;
@@ -63,13 +64,31 @@ GLTexture::GLTexture(int width, int height, std::optional<Color> fill_color) :
   assert_gl();
 }
 
-GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler) :
+GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler, const Size& image_size) :
   m_handle(),
   m_sampler(sampler),
   m_texture_width(),
   m_texture_height(),
-  m_image_width(),
-  m_image_height()
+  m_image_width(image_size.width > 0 ? image_size.width : image.w),
+  m_image_height(image_size.height > 0 ? image_size.height : image.h),
+  m_uv_scale()
+{
+  assert_gl();
+
+  glGenTextures(1, &m_handle);
+
+  try {
+    reload(image);
+  } catch(...) {
+    glDeleteTextures(1, &m_handle);
+    throw;
+  }
+
+  assert_gl();
+}
+
+void
+GLTexture::reload(const SDL_Surface& image)
 {
   assert_gl();
 
@@ -84,8 +103,11 @@ GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler) :
     m_texture_height = align_up(image.h, TEXTURE_ALIGNMENT);
   }
 
-  m_image_width  = image.w;
-  m_image_height = image.h;
+  m_uv_scale = Vector(static_cast<float>(image.w) / (static_cast<float>(m_image_width) * static_cast<float>(m_texture_width)),
+                      static_cast<float>(image.h) / (static_cast<float>(m_image_height) * static_cast<float>(m_texture_height)));
+
+  const int image_width = image.w;
+  const int image_height = image.h;
 
   SDLSurfacePtr convert = SDLSurface::create_rgba(m_texture_width, m_texture_height);
 
@@ -94,35 +116,35 @@ GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler) :
 
   // Fill the remaining pixels of 'convert' with repeated copies of
   // 'image' to minimize OpenGL blending artifacts at the borders
-  if (m_image_width != m_texture_width || m_image_height != m_texture_height)
+  if (image_width != m_texture_width || image_height != m_texture_height)
   {
     if (SDL_MUSTLOCK(convert)) {
       SDL_LockSurface(convert.get());
     }
 
-    if (m_image_width != m_texture_width) {
-      SDL_Rect srcrect{m_image_width - 1, 0, 1, m_image_height};
-      for (int x = m_image_width; x < m_texture_width; ++x) {
-        SDL_Rect dstrect{x, 0, 1, m_image_height};
+    if (image_width != m_texture_width) {
+      SDL_Rect srcrect{image_width - 1, 0, 1, image_height};
+      for (int x = image_width; x < m_texture_width; ++x) {
+        SDL_Rect dstrect{x, 0, 1, image_height};
         SDL_BlitSurface(const_cast<SDL_Surface*>(&image), &srcrect, convert.get(), &dstrect);
       }
     }
 
-    if (m_image_height != m_texture_height) {
-      SDL_Rect srcrect{0, m_image_height - 1, m_image_width, 1};
-      for (int y = m_image_height; y < m_texture_height; ++y) {
-        SDL_Rect dstrect{0, y, m_image_width, 1};
+    if (image_height != m_texture_height) {
+      SDL_Rect srcrect{0, image_height - 1, image_width, 1};
+      for (int y = image_height; y < m_texture_height; ++y) {
+        SDL_Rect dstrect{0, y, image_width, 1};
         SDL_BlitSurface(const_cast<SDL_Surface*>(&image), &srcrect, convert.get(), &dstrect);
       }
     }
 
-    if (m_image_width != m_texture_width && m_image_height != m_texture_height)
+    if (image_width != m_texture_width && image_height != m_texture_height)
     {
       const int bpp = convert->format->BytesPerPixel;
-      const int x = m_image_width - 1;
-      const int y = m_image_height - 1;
+      const int x = image_width - 1;
+      const int y = image_height - 1;
       Uint32 color = *reinterpret_cast<Uint32*>(static_cast<uint8_t*>(convert->pixels) + y * convert->pitch + x * bpp);
-      SDL_Rect dstrect{m_image_width, m_image_height, m_texture_width, m_texture_height};
+      SDL_Rect dstrect{image_width, image_height, m_texture_width, m_texture_height};
       SDL_FillRect(convert.get(), &dstrect, color);
     }
 
@@ -133,53 +155,46 @@ GLTexture::GLTexture(const SDL_Surface& image, const Sampler& sampler) :
 
   assert_gl();
 
-  glGenTextures(1, &m_handle);
-
-  try {
-    GLenum sdl_format;
-    if (convert->format->BytesPerPixel == 3) {
-      sdl_format = GL_RGB;
-    } else if (convert->format->BytesPerPixel == 4) {
-      sdl_format = GL_RGBA;
-    } else {
-      sdl_format = GL_RGBA; // NOLINT
-      assert(false);
-    }
-
-    glBindTexture(GL_TEXTURE_2D, m_handle);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-#if defined(GL_UNPACK_ROW_LENGTH) || defined(USE_GLBINDING)
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, convert->pitch/convert->format->BytesPerPixel);
-#else
-    /* OpenGL ES doesn't support UNPACK_ROW_LENGTH, let's hope SDL didn't add
-     * padding bytes, otherwise we need some extra code here... */
-    assert(convert->pitch == static_cast<int>(m_texture_width * convert->format->BytesPerPixel));
-#endif
-
-    if (SDL_MUSTLOCK(convert)) {
-      SDL_LockSurface(convert.get());
-    }
-
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
-                 m_texture_width, m_texture_height, 0, sdl_format,
-                 GL_UNSIGNED_BYTE, convert->pixels);
-
-    // no not use mipmaps
-#if 0
-    glGenerateMipmap(GL_TEXTURE_2D);
-#endif
-
-    if (SDL_MUSTLOCK(convert.get())) {
-      SDL_UnlockSurface(convert.get());
-    }
-
-    assert_gl();
-
-    set_texture_params();
-  } catch(...) {
-    glDeleteTextures(1, &m_handle);
-    throw;
+  GLenum sdl_format;
+  if (convert->format->BytesPerPixel == 3) {
+    sdl_format = GL_RGB;
+  } else if (convert->format->BytesPerPixel == 4) {
+    sdl_format = GL_RGBA;
+  } else {
+    sdl_format = GL_RGBA; // NOLINT
+    assert(false);
   }
+
+  glBindTexture(GL_TEXTURE_2D, m_handle);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+#if defined(GL_UNPACK_ROW_LENGTH) || defined(USE_GLBINDING)
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, convert->pitch/convert->format->BytesPerPixel);
+#else
+  /* OpenGL ES doesn't support UNPACK_ROW_LENGTH, let's hope SDL didn't add
+   * padding bytes, otherwise we need some extra code here... */
+  assert(convert->pitch == static_cast<int>(m_texture_width * convert->format->BytesPerPixel));
+#endif
+
+  if (SDL_MUSTLOCK(convert)) {
+    SDL_LockSurface(convert.get());
+  }
+
+  glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(GL_RGBA),
+               m_texture_width, m_texture_height, 0, sdl_format,
+               GL_UNSIGNED_BYTE, convert->pixels);
+
+  // no not use mipmaps
+#if 0
+  glGenerateMipmap(GL_TEXTURE_2D);
+#endif
+
+  if (SDL_MUSTLOCK(convert.get())) {
+    SDL_UnlockSurface(convert.get());
+  }
+
+  assert_gl();
+
+  set_texture_params();
 
   assert_gl();
 }

@@ -32,6 +32,8 @@ public:
   virtual int get_image_width() const override;
   virtual int get_image_height() const override;
 
+  virtual void reload(const SDL_Surface& image) override {}
+
 private:
   Size m_texture_size;
   Size m_image_size;

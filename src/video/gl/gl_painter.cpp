@@ -90,10 +90,11 @@ GLPainter::draw_texture(const TextureRequest& request)
     const float right  = dstrect.get_right();
     const float bottom = dstrect.get_bottom();
 
-    float uv_left = request.srcrects[i].get_left() / static_cast<float>(texture.get_texture_width());
-    float uv_top = request.srcrects[i].get_top() / static_cast<float>(texture.get_texture_height());
-    float uv_right = request.srcrects[i].get_right() / static_cast<float>(texture.get_texture_width());
-    float uv_bottom = request.srcrects[i].get_bottom() / static_cast<float>(texture.get_texture_height());
+    const Vector& uv_scale = texture.get_uv_scale();
+    float uv_left = request.srcrects[i].get_left() * uv_scale.x;
+    float uv_top = request.srcrects[i].get_top() * uv_scale.y;
+    float uv_right = request.srcrects[i].get_right() * uv_scale.x;
+    float uv_bottom = request.srcrects[i].get_bottom() * uv_scale.y;
 
     if (request.flip & HORIZONTAL_FLIP)
       std::swap(uv_left, uv_right);

@@ -244,6 +244,7 @@ GLVideoSystem::apply_config()
     g_config->window_size;
 
   m_viewport = Viewport::from_size(target_size, m_desktop_size);
+  m_texture_manager->set_viewport(m_viewport);
 
   m_lightmap = std::make_unique<GLTextureRenderer>(*this, m_viewport.get_screen_size(), 5);
   if (m_use_opengl33core)
@@ -271,9 +272,9 @@ GLVideoSystem::get_back_renderer() const
 }
 
 TexturePtr
-GLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler)
+GLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler, const Size& image_size)
 {
-  return TexturePtr(new GLTexture(image, sampler));
+  return TexturePtr(new GLTexture(image, sampler, image_size));
 }
 
 void

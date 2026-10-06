@@ -17,8 +17,11 @@
 #include "video/texture_manager.hpp"
 
 #include <SDL_image.h>
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <sstream>
+#include <string_view>
 
 #include "math/rect.hpp"
 #include "io/sdl_file.hpp"
@@ -32,6 +35,7 @@
 #include "video/sdl_surface.hpp"
 #include "video/texture.hpp"
 #include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
 namespace {
 
@@ -73,11 +77,20 @@ GLenum string2filter(const std::string& text)
   }
 }
 
+// Menus, the HUD and fonts are drawn at their own size, not the level's
+bool shrinks_with_view(const std::string& filename)
+{
+  const std::string_view engine = "images/engine/";
+  const std::string::size_type start = filename.find_first_not_of('/');
+  return start == std::string::npos || filename.compare(start, engine.size(), engine) != 0;
+}
+
 } // namespace
 
 TextureManager::TextureManager() :
   m_image_textures(),
-  m_surfaces()
+  m_surfaces(),
+  m_shrink(1.0f, 1.0f)
 {
 }
 
@@ -239,6 +252,68 @@ TextureManager::get(const std::string& _filename,
 }
 
 void
+TextureManager::set_viewport(const Viewport& viewport)
+{
+  // Shrinking once here keeps every row of a picture, where drawing it smaller drops rows unevenly
+  const Rect rect = viewport.get_rect();
+  const Vector shrink(std::min(1.0f, static_cast<float>(rect.get_width()) / static_cast<float>(viewport.get_screen_width())),
+                      std::min(1.0f, static_cast<float>(rect.get_height()) / static_cast<float>(viewport.get_screen_height())));
+  if (shrink == m_shrink)
+  {
+    return;
+  }
+  m_shrink = shrink;
+
+  for (const auto& entry : m_image_textures)
+  {
+    const TexturePtr texture = entry.second.lock();
+    const std::string& filename = std::get<0>(entry.first);
+    if (!texture || !shrinks_with_view(filename))
+    {
+      continue;
+    }
+
+    try
+    {
+      const Rect& rect_in_file = std::get<1>(entry.first);
+      if (rect_in_file.empty())
+      {
+        create_image_texture_raw(filename, Sampler(), texture);
+      }
+      else
+      {
+        create_image_texture_raw(filename, rect_in_file, Sampler(), texture);
+      }
+    }
+    catch (const std::exception& err)
+    {
+      log_warning << "Couldn't reload texture '" << filename << "': " << err.what() << std::endl;
+    }
+  }
+}
+
+TexturePtr
+TextureManager::make_texture(const std::string& filename, const SDL_Surface& image, const Sampler& sampler,
+                             const TexturePtr& reload)
+{
+  SDLSurfacePtr shrunk;
+  if ((m_shrink.x < 1.0f || m_shrink.y < 1.0f) && shrinks_with_view(filename))
+  {
+    shrunk = SDLSurface::shrink(image,
+                                std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * m_shrink.x))),
+                                std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * m_shrink.y))));
+  }
+  const SDL_Surface& pixels = shrunk ? *shrunk : image;
+
+  if (reload)
+  {
+    reload->reload(pixels);
+    return reload;
+  }
+  return VideoSystem::current()->new_texture(pixels, sampler, Size(image.w, image.h));
+}
+
+void
 TextureManager::reap_cache_entry(const Texture::Key& key)
 {
   auto i = m_image_textures.find(key);
@@ -290,7 +365,8 @@ TextureManager::get_surface(const std::string& filename)
 }
 
 TexturePtr
-TextureManager::create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler)
+TextureManager::create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler,
+                                         const TexturePtr& reload)
 {
   assert(rect.valid());
 
@@ -349,7 +425,7 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
     }
   }
 
-  return VideoSystem::current()->new_texture(*subimage, sampler);
+  return make_texture(filename, *subimage, sampler, reload);
 }
 
 TexturePtr
@@ -367,7 +443,8 @@ TextureManager::create_image_texture(const std::string& filename, const Sampler&
 }
 
 TexturePtr
-TextureManager::create_image_texture_raw(const std::string& filename, const Sampler& sampler)
+TextureManager::create_image_texture_raw(const std::string& filename, const Sampler& sampler,
+                                         const TexturePtr& reload)
 {
   SDLSurfacePtr image = SDLSurface::from_file(filename);
   if (!image)
@@ -378,9 +455,7 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Samp
   }
   else
   {
-    TexturePtr texture = VideoSystem::current()->new_texture(*image, sampler);
-    image.reset(nullptr);
-    return texture;
+    return make_texture(filename, *image, sampler, reload);
   }
 }
 

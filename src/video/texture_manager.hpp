@@ -27,6 +27,7 @@
 #include <optional>
 
 #include "math/rect.hpp"
+#include "math/vector.hpp"
 #include "util/currenton.hpp"
 #include "video/sampler.hpp"
 #include "video/sdl_surface_ptr.hpp"
@@ -35,6 +36,7 @@
 
 class GLTexture;
 class ReaderMapping;
+class Viewport;
 struct SDL_Surface;
 
 class TextureManager final : public Currenton<TextureManager>
@@ -54,6 +56,9 @@ public:
 
   void debug_print(std::ostream& out) const;
 
+  /** The level's pictures are kept at the size this view draws them, and loaded ones are redone when that changes */
+  void set_viewport(const Viewport& viewport);
+
 private:
   const SDL_Surface& get_surface(const std::string& filename);
   void reap_cache_entry(const Texture::Key& key);
@@ -63,15 +68,21 @@ private:
   /** on failure a dummy texture is returned and no exception is thrown */
   TexturePtr create_image_texture(const std::string& filename, const Sampler& sampler);
 
-  /** throw an exception on error */
-  TexturePtr create_image_texture_raw(const std::string& filename, const Sampler& sampler);
-  TexturePtr create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler);
+  /** throw an exception on error; reload, when given, takes the pixels in place of a new texture */
+  TexturePtr create_image_texture_raw(const std::string& filename, const Sampler& sampler,
+                                      const TexturePtr& reload = {});
+  TexturePtr create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler,
+                                      const TexturePtr& reload = {});
+
+  TexturePtr make_texture(const std::string& filename, const SDL_Surface& image, const Sampler& sampler,
+                          const TexturePtr& reload);
 
   TexturePtr create_dummy_texture();
 
 private:
   std::map<Texture::Key, std::weak_ptr<Texture> > m_image_textures;
   std::map<std::string, SDLSurfacePtr> m_surfaces;
+  Vector m_shrink;
 
 private:
   TextureManager(const TextureManager&) = delete;

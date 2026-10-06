@@ -37,30 +37,43 @@ SDLTexture::SDLTexture(SDL_Texture* texture, int width, int height, const Sample
   m_texture(texture),
   m_width(width),
   m_height(height),
-  m_sampler(sampler)
+  m_sampler(sampler),
+  m_texel_scale(1.0f, 1.0f)
 {
   set_scale_mode(m_texture, m_sampler);
 }
 
-SDLTexture::SDLTexture(const SDL_Surface& image, const Sampler& sampler) :
+SDLTexture::SDLTexture(const SDL_Surface& image, const Sampler& sampler, const Size& image_size) :
   m_texture(),
-  m_width(),
-  m_height(),
-  m_sampler(sampler)
+  m_width(image_size.width > 0 ? image_size.width : image.w),
+  m_height(image_size.height > 0 ? image_size.height : image.h),
+  m_sampler(sampler),
+  m_texel_scale(1.0f, 1.0f)
 {
-  m_texture = SDL_CreateTextureFromSurface(static_cast<SDLScreenRenderer&>(VideoSystem::current()->get_renderer()).get_sdl_renderer(),
-                                           const_cast<SDL_Surface*>(&image));
-  if (!m_texture)
+  reload(image);
+}
+
+void
+SDLTexture::reload(const SDL_Surface& image)
+{
+  SDL_Texture* texture = SDL_CreateTextureFromSurface(static_cast<SDLScreenRenderer&>(VideoSystem::current()->get_renderer()).get_sdl_renderer(),
+                                                      const_cast<SDL_Surface*>(&image));
+  if (!texture)
   {
     std::ostringstream msg;
     msg << "couldn't create texture: " << SDL_GetError();
     throw std::runtime_error(msg.str());
   }
 
-  set_scale_mode(m_texture, m_sampler);
+  set_scale_mode(texture, m_sampler);
 
-  m_width = image.w;
-  m_height = image.h;
+  if (m_texture)
+  {
+    SDL_DestroyTexture(m_texture);
+  }
+  m_texture = texture;
+  m_texel_scale = Vector(static_cast<float>(image.w) / static_cast<float>(m_width),
+                         static_cast<float>(image.h) / static_cast<float>(m_height));
 }
 
 SDLTexture::~SDLTexture()
