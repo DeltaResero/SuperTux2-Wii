@@ -33,9 +33,8 @@ const float Viewport::s_max_zoom = 1.1f;
 const float Viewport::s_min_aspect = 5.0f / 4.0f;
 const float Viewport::s_max_aspect = 16.0f / 9.0f;
 
-// Menus, the HUD and text are laid out in this range, the size 0.6.3 drew everything at
-const Size Viewport::s_ui_min_size(640, 480);
-const Size Viewport::s_ui_max_size(1368, 800);
+// PAL's height, so menu rows fall on whole lines of common screens and every row stretches the same
+const float Viewport::s_ui_height = 576.0f;
 
 namespace {
 
@@ -134,22 +133,8 @@ Viewport::from_size(const Size& target_size, const Size& desktop_size)
                      g_config->magnification,
                      scale, viewport);
 
-  // The UI fills the window from that range the way 0.6.3 did, whatever the zoom
-  const Size ui_window = apply_pixel_aspect_ratio_pre(target_size, pixel_aspect_ratio);
-  const float ui_width = static_cast<float>(ui_window.width);
-  const float ui_height = static_cast<float>(ui_window.height);
-  float ui_scale = 1.0f;
-  if (ui_window.width > s_ui_max_size.width || ui_window.height > s_ui_max_size.height)
-  {
-    ui_scale = std::max(ui_width / static_cast<float>(s_ui_max_size.width),
-                        ui_height / static_cast<float>(s_ui_max_size.height));
-  }
-  if (ui_width / ui_scale < static_cast<float>(s_ui_min_size.width) ||
-      ui_height / ui_scale < static_cast<float>(s_ui_min_size.height))
-  {
-    ui_scale = std::min(ui_width / static_cast<float>(s_ui_min_size.width),
-                        ui_height / static_cast<float>(s_ui_min_size.height));
-  }
+  // Menus, the HUD and text fill the window's height the same way on every screen, whatever the zoom
+  const float ui_scale = static_cast<float>(target_size.height) / s_ui_height;
 
   return Viewport(viewport, scale, ui_scale / scale.y);
 }

@@ -70,9 +70,8 @@ public:
   static const float s_min_aspect;
   static const float s_max_aspect;
 
-  /** The range menus, the HUD and text are laid out in */
-  static const Size s_ui_min_size;
-  static const Size s_ui_max_size;
+  /** How tall menus, the HUD and text are laid out; the width follows the level's shape */
+  static const float s_ui_height;
 
 private:
   Rect m_rect;
