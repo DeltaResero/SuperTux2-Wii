@@ -38,7 +38,7 @@ public:
   virtual SDLPainter& get_painter() override { return m_painter; }
 
   virtual Rect get_rect() const override;
-  virtual Size get_logical_size() const override;
+  virtual Sizef get_logical_size() const override;
 
   virtual TexturePtr get_texture() const override { return {}; }
 

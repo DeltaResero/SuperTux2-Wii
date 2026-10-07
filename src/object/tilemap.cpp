@@ -334,8 +334,7 @@ TileMap::draw(DrawingContext& context)
 
   // Whole screen pixels, so every tile rounds the same way and the layer moves as one piece
   const Viewport& viewport = VideoSystem::current()->get_viewport();
-  const Vector pixels(static_cast<float>(viewport.get_rect().get_width()) / static_cast<float>(viewport.get_screen_width()) * context.transform().scale,
-                      static_cast<float>(viewport.get_rect().get_height()) / static_cast<float>(viewport.get_screen_height()) * context.transform().scale);
+  const Vector pixels = viewport.get_scale() * context.transform().scale;
   if (pixels.x > 0.0f && pixels.y > 0.0f)
   {
     translation = glm::round(translation * pixels) / pixels;

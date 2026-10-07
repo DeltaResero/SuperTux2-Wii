@@ -126,10 +126,10 @@ GLTextureRenderer::end_draw()
   m_rendering = false;
 }
 
-Size
+Sizef
 GLTextureRenderer::get_logical_size() const
 {
-  return m_size;
+  return Sizef(m_size);
 }
 
 Rect

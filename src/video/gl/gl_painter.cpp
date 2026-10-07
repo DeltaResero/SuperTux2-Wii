@@ -192,9 +192,9 @@ GLPainter::to_target(const Rectf& rect) const
 
   // The viewport starts on a whole pixel, so both edges go to the nearest whole screen pixel from its corner
   const Rect viewport = m_renderer.get_rect();
-  const Size logical_size = m_renderer.get_logical_size();
-  const float scale_x = static_cast<float>(viewport.get_width()) / static_cast<float>(logical_size.width);
-  const float scale_y = static_cast<float>(viewport.get_height()) / static_cast<float>(logical_size.height);
+  const Sizef logical_size = m_renderer.get_logical_size();
+  const float scale_x = static_cast<float>(viewport.get_width()) / logical_size.width;
+  const float scale_y = static_cast<float>(viewport.get_height()) / logical_size.height;
   return Rectf(std::round(rect.get_left() * scale_x) / scale_x,
                std::round(rect.get_top() * scale_y) / scale_y,
                std::round(rect.get_right() * scale_x) / scale_x,
@@ -498,10 +498,10 @@ GLPainter::get_pixel(const GetPixelRequest& request) const
   assert_gl();
 
   const Rect& rect = m_renderer.get_rect();
-  const Size& logical_size = m_renderer.get_logical_size();
+  const Sizef logical_size = m_renderer.get_logical_size();
 
-  float x = request.pos.x * static_cast<float>(rect.get_width()) / static_cast<float>(logical_size.width);
-  float y = request.pos.y * static_cast<float>(rect.get_height()) / static_cast<float>(logical_size.height);
+  float x = request.pos.x * static_cast<float>(rect.get_width()) / logical_size.width;
+  float y = request.pos.y * static_cast<float>(rect.get_height()) / logical_size.height;
 
   x += static_cast<float>(rect.left);
   y += static_cast<float>(rect.top);
@@ -523,14 +523,14 @@ GLPainter::set_clip_rect(const Rect& clip_rect)
   assert_gl();
 
   const Rect& rect = m_renderer.get_rect();
-  const Size& logical_size = m_renderer.get_logical_size();
+  const Sizef logical_size = m_renderer.get_logical_size();
+  const float scale_x = static_cast<float>(rect.get_width()) / logical_size.width;
+  const float scale_y = static_cast<float>(rect.get_height()) / logical_size.height;
 
-  const int y = rect.get_height() * clip_rect.top / logical_size.height;
-
-  glScissor(rect.left + rect.get_width() * clip_rect.left / logical_size.width,
-            rect.top + y,
-            rect.get_width() * clip_rect.get_width() / logical_size.width,
-            rect.get_height() * clip_rect.get_height() / logical_size.height);
+  glScissor(rect.left + static_cast<int>(static_cast<float>(clip_rect.left) * scale_x),
+            rect.top + static_cast<int>(static_cast<float>(clip_rect.top) * scale_y),
+            static_cast<int>(static_cast<float>(clip_rect.get_width()) * scale_x),
+            static_cast<int>(static_cast<float>(clip_rect.get_height()) * scale_y));
   glEnable(GL_SCISSOR_TEST);
 
   assert_gl();

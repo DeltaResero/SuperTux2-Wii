@@ -255,9 +255,7 @@ void
 TextureManager::set_viewport(const Viewport& viewport)
 {
   // Shrinking once here keeps every row of a picture, where drawing it smaller drops rows unevenly
-  const Rect rect = viewport.get_rect();
-  const Vector shrink(std::min(1.0f, static_cast<float>(rect.get_width()) / static_cast<float>(viewport.get_screen_width())),
-                      std::min(1.0f, static_cast<float>(rect.get_height()) / static_cast<float>(viewport.get_screen_height())));
+  const Vector shrink(std::min(1.0f, viewport.get_scale().x), std::min(1.0f, viewport.get_scale().y));
   if (shrink == m_shrink)
   {
     return;

@@ -62,11 +62,11 @@ void
 SDLScreenRenderer::start_draw()
 {
   const Rect& viewport = m_video_system.get_viewport().get_rect();
-  const Size screen_size = get_logical_size();
+  const Sizef screen_size = get_logical_size();
 
-  // The whole-number screen size fills the viewport as it does in OpenGL, or the picture stops short of its edges
-  const Vector scale(static_cast<float>(viewport.get_width()) / static_cast<float>(screen_size.width),
-                     static_cast<float>(viewport.get_height()) / static_cast<float>(screen_size.height));
+  // The screen's exact size fills the viewport as it does in OpenGL, or the picture stops short of its edges
+  const Vector scale(static_cast<float>(viewport.get_width()) / screen_size.width,
+                     static_cast<float>(viewport.get_height()) / screen_size.height);
 
   // Scale first and the viewport in scaled units: real SDL2 converts it to pixels at once, but sdl2-compat keeps it scaled
   SDL_RenderSetScale(m_renderer, scale.x, scale.y);
@@ -92,10 +92,10 @@ SDLScreenRenderer::get_rect() const
   return m_video_system.get_viewport().get_rect();
 }
 
-Size
+Sizef
 SDLScreenRenderer::get_logical_size() const
 {
-  return m_video_system.get_viewport().get_screen_size();
+  return m_video_system.get_viewport().get_exact_screen_size();
 }
 
 void

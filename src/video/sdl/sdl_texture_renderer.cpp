@@ -86,10 +86,10 @@ SDLTextureRenderer::get_rect() const
                    m_size.height / m_downscale));
 }
 
-Size
+Sizef
 SDLTextureRenderer::get_logical_size() const
 {
-  return m_size;
+  return Sizef(m_size);
 }
 
 TexturePtr

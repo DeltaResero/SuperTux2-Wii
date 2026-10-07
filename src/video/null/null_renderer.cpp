@@ -52,10 +52,10 @@ NullRenderer::get_rect() const
   return Rect();
 }
 
-Size
+Sizef
 NullRenderer::get_logical_size() const
 {
-  return Size();
+  return Sizef();
 }
 
 TexturePtr

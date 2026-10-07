@@ -17,6 +17,7 @@
 #include "viewport.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #include "config.h"
 
@@ -156,13 +157,21 @@ Viewport::Viewport(const Rect& rect, const Vector& scale, float ui_scale) :
 int
 Viewport::get_screen_width() const
 {
-  return static_cast<int>(static_cast<float>(m_rect.get_width()) / m_scale.x);
+  // The smallest whole size that covers the screen, so nothing sized to it stops short of an edge
+  return static_cast<int>(std::ceil(get_exact_screen_size().width - 0.01f));
 }
 
 int
 Viewport::get_screen_height() const
 {
-  return static_cast<int>(static_cast<float>(m_rect.get_height()) / m_scale.y);
+  return static_cast<int>(std::ceil(get_exact_screen_size().height - 0.01f));
+}
+
+Sizef
+Viewport::get_exact_screen_size() const
+{
+  return Sizef(static_cast<float>(m_rect.get_width()) / m_scale.x,
+               static_cast<float>(m_rect.get_height()) / m_scale.y);
 }
 
 Size
@@ -181,13 +190,14 @@ Viewport::to_logical(int physical_x, int physical_y) const
 int
 Viewport::get_ui_width() const
 {
-  return static_cast<int>(static_cast<float>(get_screen_width()) / m_ui_scale);
+  // From the window, not the level's whole-unit size that's rounded up to cover it
+  return static_cast<int>(std::lround(static_cast<float>(m_rect.get_width()) / (m_scale.x * m_ui_scale)));
 }
 
 int
 Viewport::get_ui_height() const
 {
-  return static_cast<int>(static_cast<float>(get_screen_height()) / m_ui_scale);
+  return static_cast<int>(std::lround(static_cast<float>(m_rect.get_height()) / (m_scale.y * m_ui_scale)));
 }
 
 Vector

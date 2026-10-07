@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_VIDEO_VIEWPORT_HPP
 
 #include "math/rect.hpp"
+#include "math/sizef.hpp"
 #include "math/vector.hpp"
 
 class Viewport final
@@ -36,14 +37,17 @@ public:
   /** The amount by which the content of the viewport is scaled */
   Vector get_scale() const { return m_scale; }
 
-  /** The width of the resulting logical screen */
+  /** The width of the resulting logical screen, in whole units that cover it */
   int get_screen_width() const;
 
-  /** The height of the resulting logical screen */
+  /** The height of the resulting logical screen, in whole units that cover it */
   int get_screen_height() const;
 
-  /** The size of the resulting logical screen */
+  /** The size of the resulting logical screen, in whole units that cover it */
   Size get_screen_size() const;
+
+  /** The size of the resulting logical screen, exactly */
+  Sizef get_exact_screen_size() const;
 
   /** Converts window coordinates into logical screen coordinates */
   Vector to_logical(int physical_x, int physical_y) const;

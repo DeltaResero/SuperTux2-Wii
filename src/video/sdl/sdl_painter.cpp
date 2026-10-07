@@ -650,11 +650,11 @@ void
 SDLPainter::get_pixel(const GetPixelRequest& request) const
 {
   const Rect& rect = m_renderer.get_rect();
-  const Size& logical_size = m_renderer.get_logical_size();
+  const Sizef logical_size = m_renderer.get_logical_size();
 
   SDL_Rect srcrect;
-  srcrect.x = rect.left + static_cast<int>(request.pos.x * static_cast<float>(rect.get_width()) / static_cast<float>(logical_size.width));
-  srcrect.y = rect.top + static_cast<int>(request.pos.y * static_cast<float>(rect.get_height()) / static_cast<float>(logical_size.height));
+  srcrect.x = rect.left + static_cast<int>(request.pos.x * static_cast<float>(rect.get_width()) / logical_size.width);
+  srcrect.y = rect.top + static_cast<int>(request.pos.y * static_cast<float>(rect.get_height()) / logical_size.height);
   srcrect.w = 1;
   srcrect.h = 1;
 

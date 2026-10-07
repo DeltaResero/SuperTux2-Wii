@@ -51,9 +51,7 @@ GLScreenRenderer::start_draw()
 
   glViewport(rect.left, rect.top, rect.get_width(), rect.get_height());
 
-  context.ortho(static_cast<float>(viewport.get_screen_width()),
-                static_cast<float>(viewport.get_screen_height()),
-                true);
+  context.ortho(get_logical_size().width, get_logical_size().height, true);
 
   // clear the screen to get rid of lightmap remains
   glClearColor(0, 0, 0, 1);
@@ -74,12 +72,10 @@ GLScreenRenderer::get_rect() const
   return viewport.get_rect();
 }
 
-Size
+Sizef
 GLScreenRenderer::get_logical_size() const
 {
-  const Viewport& viewport = m_video_system.get_viewport();
-  return Size(viewport.get_screen_width(),
-              viewport.get_screen_height());
+  return m_video_system.get_viewport().get_exact_screen_size();
 }
 
 /* EOF */
