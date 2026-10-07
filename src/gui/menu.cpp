@@ -17,6 +17,7 @@
 #include "gui/menu.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #include "control/input_manager.hpp"
 #include "gui/item_action.hpp"
@@ -32,16 +33,44 @@
 #include "gui/menu_manager.hpp"
 #include "gui/mousecursor.hpp"
 #include "math/util.hpp"
+#include "supertux/colorscheme.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
 #include "video/color.hpp"
 #include "video/drawing_context.hpp"
 #include "video/renderer.hpp"
+#include "video/surface.hpp"
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
 static const float MENU_REPEAT_INITIAL = 0.4f;
 static const float MENU_REPEAT_RATE    = 0.1f;
+
+namespace {
+
+// How much of each edge a TV crops, as a share of the screen's height
+const float SAFE_EDGE = 0.05f;
+
+// Where the title screen's ice border begins, as a share of the screen's height
+const float ICE_LINE = 5.0f / 6.0f;
+
+// How far the panel MenuManager draws reaches past the rows
+const float PANEL_EDGE = 14.0f;
+
+// The space between the panel and the help box under it
+const float HELP_GAP = 12.0f;
+
+// Eases from the menu's own colour to its highlight colour as hover goes from 0 to 1
+void draw_arrow(DrawingContext& context, const SurfacePtr& arrow, const Vector& pos, float angle, float hover)
+{
+  const Color& tint = ColorScheme::Menu::active_color;
+  const Color color(1.0f + (tint.red - 1.0f) * hover,
+                    1.0f + (tint.green - 1.0f) * hover,
+                    1.0f + (tint.blue - 1.0f) * hover);
+  context.color().draw_surface(arrow, pos, angle, color, Blend(), LAYER_GUI);
+}
+
+} // namespace
 
 Menu::Menu() :
   m_pos(Vector(static_cast<float>(UI_WIDTH) / 2.0f,
@@ -54,7 +83,16 @@ Menu::Menu() :
   m_arrange_left(0),
   m_active_item(-1),
   m_pointer_item(-1),
-  m_pointer_x(0.0f)
+  m_pointer_x(0.0f),
+  m_first_row(0),
+  m_show_active(true),
+  m_pointer_arrow(0),
+  m_held_arrow(0),
+  m_arrow_repeat_time(0.0f),
+  m_up_hover(0.0f),
+  m_down_hover(0.0f),
+  m_last_draw_time(0.0f),
+  m_pointer_pos(0.0f, 0.0f)
 {
 }
 
@@ -203,53 +241,13 @@ Menu::clear()
 void
 Menu::process_input(const Controller& controller)
 {
-  { // Scrolling
+  place();
 
-    // If a help text is present, make some space at the bottom of the
-    // menu so that the last few items don't overlap with the help
-    // text.
-    float help_height = 0.0f;
-    for (auto& item : m_items) {
-      if (!item->get_help().empty()) {
-        help_height = 96.0f;
-        break;
-      }
-    }
-
-    // Find the first and last selectable item in the current menu, so
-    // that the top most selected item gives a scroll_pos of -1.0f and
-    // the bottom most gives 1.0f, as otherwise the non-selectable
-    // header would be cut off.
-    size_t first_idx = m_items.size();
-    size_t last_idx = m_items.size();
-    for (size_t i = 0; i < m_items.size(); ++i) {
-      if (!m_items[i]->skippable()) {
-        if (first_idx == m_items.size()) {
-          first_idx = i;
-        }
-        last_idx = i;
-      }
-    }
-
-    const float screen_height = static_cast<float>(UI_HEIGHT);
-    const float menu_area = screen_height - help_height;
-    // get_height() doesn't include the border, so we manually add some
-    const float menu_height = get_height() + 32.0f;
-    const float center_y = menu_area / 2.0f;
-    if (menu_height > menu_area)
-    {
-      const float scroll_range = (menu_height - menu_area) / 2.0f;
-      const float scroll_pos = ((static_cast<float>(m_active_item - first_idx)
-                                 / static_cast<float>(last_idx - first_idx)) - 0.5f) * 2.0f;
-
-      m_pos.y = floorf(center_y - scroll_range * scroll_pos);
-    }
-    else
-    {
-      if (help_height != 0.0f) {
-        m_pos.y = floorf(center_y);
-      }
-    }
+  // A held arrow keeps scrolling while the pointer stays on it
+  if (m_held_arrow != 0 && m_held_arrow == m_pointer_arrow && g_real_time > m_arrow_repeat_time)
+  {
+    scroll(m_held_arrow);
+    m_arrow_repeat_time = g_real_time + MENU_REPEAT_RATE;
   }
 
   MenuAction menuaction = MenuAction::NONE;
@@ -335,6 +333,7 @@ Menu::process_action(const MenuAction& menuaction)
 
   switch (menuaction) {
     case MenuAction::UP:
+      m_show_active = true;
       do {
         if (m_active_item > 0)
           --m_active_item;
@@ -345,6 +344,7 @@ Menu::process_action(const MenuAction& menuaction)
       break;
 
     case MenuAction::DOWN:
+      m_show_active = true;
       do {
         if (m_active_item < int(m_items.size())-1 )
           ++m_active_item;
@@ -391,7 +391,8 @@ Menu::draw_item(DrawingContext& context, int index)
   MenuItem* pitem = m_items[index].get();
 
   const float x_pos = m_pos.x - menu_width / 2.0f;
-  const float y_pos = m_pos.y + 24.0f * static_cast<float>(index) - menu_height / 2.0f + 12.0f;
+  const int row = index - m_first_row;
+  const float y_pos = m_pos.y + 24.0f * static_cast<float>(row) - menu_height / 2.0f + 12.0f;
 
   pitem->set_pointer_x(index == m_pointer_item ? std::optional<float>(m_pointer_x) : std::nullopt);
   pitem->draw(context, Vector(x_pos, y_pos), static_cast<int>(menu_width), m_active_item == index);
@@ -447,7 +448,123 @@ Menu::get_width() const
 float
 Menu::get_height() const
 {
-  return static_cast<float>(m_items.size() * 24);
+  return static_cast<float>(get_window_rows() * 24);
+}
+
+float
+Menu::get_help_space() const
+{
+  // The tallest help, so the menu stays put as the selection moves
+  float tallest = 0.0f;
+  for (const auto& item : m_items)
+  {
+    if (!item->get_help().empty())
+    {
+      tallest = std::max(tallest, Resources::normal_font->get_text_height(item->get_help()));
+    }
+  }
+  return (tallest > 0.0f) ? HELP_GAP + tallest + 16.0f : 0.0f;
+}
+
+int
+Menu::get_window_rows() const
+{
+  const float top = static_cast<float>(UI_HEIGHT) * SAFE_EDGE;
+  const float bottom = static_cast<float>(UI_HEIGHT) * ICE_LINE - get_help_space();
+  const int fit = std::max(3, static_cast<int>((bottom - top - PANEL_EDGE * 2.0f) / 24.0f));
+  return std::min(static_cast<int>(m_items.size()), fit);
+}
+
+int
+Menu::get_arrow_at(float y) const
+{
+  const int row = static_cast<int>((y - (m_pos.y - get_height() / 2.0f)) / 24.0f);
+  if (row == 0 && has_more_above())
+    return -1;
+  if (row == get_window_rows() - 1 && has_more_below())
+    return 1;
+  return 0;
+}
+
+bool
+Menu::has_more_above() const
+{
+  return m_first_row > 0;
+}
+
+bool
+Menu::has_more_below() const
+{
+  return m_first_row + get_window_rows() < static_cast<int>(m_items.size());
+}
+
+bool
+Menu::is_scrolling() const
+{
+  return get_window_rows() < static_cast<int>(m_items.size());
+}
+
+void
+Menu::scroll(int rows)
+{
+  m_first_row = std::clamp(m_first_row + rows, 0, static_cast<int>(m_items.size()) - get_window_rows());
+}
+
+void
+Menu::place()
+{
+  const int count = static_cast<int>(m_items.size());
+  const float top = static_cast<float>(UI_HEIGHT) * SAFE_EDGE;
+  const float bottom = static_cast<float>(UI_HEIGHT) * ICE_LINE;
+
+  if (is_scrolling())
+  {
+    // Too tall for the screen, so the window fills the space between the TV's edge and the ice and its rows scroll
+    m_pos.y = std::floor((top + bottom - get_help_space()) / 2.0f);
+
+    if (m_show_active && m_active_item >= 0)
+    {
+      int first_idx = count;
+      int last_idx = count;
+      for (int i = 0; i < count; ++i)
+      {
+        if (!m_items[i]->skippable())
+        {
+          if (first_idx == count)
+            first_idx = i;
+          last_idx = i;
+        }
+      }
+
+      // The first item shows the menu's title above it, the last shows everything below it, and none sits under an arrow
+      const int rows = get_window_rows();
+      if (m_active_item == first_idx)
+        m_first_row = 0;
+      else if (m_active_item == last_idx)
+        m_first_row = count;
+      else if (m_active_item < m_first_row + (has_more_above() ? 1 : 0))
+        m_first_row = m_active_item - 1;
+      else if (m_active_item > m_first_row + rows - 1 - (has_more_below() ? 1 : 0))
+        m_first_row = m_active_item - rows + 2;
+    }
+    scroll(0);
+  }
+  else
+  {
+    // Where the menu asked to be, moved only as far as it takes to stay between the TV's edge and the ice
+    m_first_row = 0;
+    const float block_top = m_pos.y - get_height() / 2.0f - PANEL_EDGE;
+    const float block_bottom = m_pos.y + get_height() / 2.0f + PANEL_EDGE + get_help_space();
+    if (block_bottom > bottom)
+    {
+      m_pos.y = std::floor(m_pos.y - (block_bottom - bottom));
+    }
+    else if (block_top < top)
+    {
+      m_pos.y = std::ceil(m_pos.y + (top - block_top));
+    }
+  }
+  m_show_active = false;
 }
 
 void
@@ -460,20 +577,54 @@ Menu::on_window_resize()
 void
 Menu::draw(DrawingContext& context)
 {
-  for (unsigned int i = 0; i < m_items.size(); ++i)
+  // A resize can move the menu between two game steps, so it's placed again before every frame
+  place();
+
+  // The top and bottom rows show an arrow instead of their item while there's more that way
+  scroll(0);
+  for (int i = m_first_row + (has_more_above() ? 1 : 0);
+       i < m_first_row + get_window_rows() - (has_more_below() ? 1 : 0); ++i)
   {
     draw_item(context, i);
   }
+
+  if (is_scrolling())
+  {
+    // The arrow under the pointer eases into the highlight colour, as a value's arrows do
+    const float dt = std::clamp(g_real_time - m_last_draw_time, 0.0f, 0.1f);
+    m_last_draw_time = g_real_time;
+    const float ease = std::min(1.0f, dt * 15.0f);
+    m_up_hover += ((m_pointer_arrow < 0 ? 1.0f : 0.0f) - m_up_hover) * ease;
+    m_down_hover += ((m_pointer_arrow > 0 ? 1.0f : 0.0f) - m_down_hover) * ease;
+
+    // The side arrows turned to point up and down
+    const float arrow_left = m_pos.x - static_cast<float>(Resources::arrow_left->get_width()) / 2.0f;
+    const float arrow_half = static_cast<float>(Resources::arrow_left->get_height()) / 2.0f;
+    if (has_more_above())
+    {
+      draw_arrow(context, Resources::arrow_left, Vector(arrow_left, m_pos.y - get_height() / 2.0f + 12.0f - arrow_half),
+                 90.0f, m_up_hover);
+    }
+    if (has_more_below())
+    {
+      draw_arrow(context, Resources::arrow_right, Vector(arrow_left, m_pos.y + get_height() / 2.0f - 12.0f - arrow_half),
+                 90.0f, m_down_hover);
+    }
+  }
+
+  const float panel_bottom = m_pos.y + get_height() / 2.0f + PANEL_EDGE;
 
   if (!m_items[m_active_item]->get_help().empty())
   {
     const int text_width = static_cast<int>(Resources::normal_font->get_text_width(m_items[m_active_item]->get_help()));
     const int text_height = static_cast<int>(Resources::normal_font->get_text_height(m_items[m_active_item]->get_help()));
 
+    // Hung under the menu it describes
+    const float help_top = panel_bottom + HELP_GAP + 4.0f;
     const Rectf text_rect(m_pos.x - static_cast<float>(text_width) / 2.0f - 8.0f,
-                          static_cast<float>(UI_HEIGHT) - 48.0f - static_cast<float>(text_height) / 2.0f - 4.0f,
+                          help_top,
                           m_pos.x + static_cast<float>(text_width) / 2.0f + 8.0f,
-                          static_cast<float>(UI_HEIGHT) - 48.0f + static_cast<float>(text_height) / 2.0f + 4.0f);
+                          help_top + static_cast<float>(text_height) + 8.0f);
 
     context.color().draw_filled_rect(Rectf(text_rect.p1() - Vector(4,4),
                                            text_rect.p2() + Vector(4,4)),
@@ -487,7 +638,7 @@ Menu::draw(DrawingContext& context)
                                      LAYER_GUI);
 
     context.color().draw_text(Resources::normal_font, m_items[m_active_item]->get_help(),
-                              Vector(m_pos.x, static_cast<float>(UI_HEIGHT) - 48.0f - static_cast<float>(text_height) / 2.0f),
+                              Vector(m_pos.x, help_top + 4.0f),
                               ALIGN_CENTER, LAYER_GUI);
   }
 }
@@ -504,6 +655,56 @@ Menu::get_item_by_id(int id)
     return *item->get();
 
   throw std::runtime_error("MenuItem not found: " + std::to_string(id));
+}
+
+void
+Menu::point_at(const Vector& mouse_pos)
+{
+  m_pointer_pos = mouse_pos;
+  const float x = mouse_pos.x;
+  const float y = mouse_pos.y;
+
+  if (x > m_pos.x - get_width()/2 &&
+      x < m_pos.x + get_width()/2 &&
+      y > m_pos.y - get_height()/2 &&
+      y < m_pos.y + get_height()/2)
+  {
+    m_pointer_arrow = get_arrow_at(y);
+    if (m_pointer_arrow != 0)
+    {
+      m_pointer_item = -1;
+      if (MouseCursor::current())
+        MouseCursor::current()->set_state(MouseCursorState::LINK);
+      return;
+    }
+
+    const int row = static_cast<int>((y - (m_pos.y - get_height() / 2.0f)) / 24.0f);
+    int new_active_item = std::clamp(m_first_row + row, 0, static_cast<int>(m_items.size()) - 1);
+
+    m_pointer_item = new_active_item;
+    m_pointer_x = x - (m_pos.x - get_width() / 2.0f);
+
+    /* only change the mouse focus to a selectable item */
+    if (!m_items[new_active_item]->skippable() &&
+        new_active_item != m_active_item) {
+      // Selection caused by mouse movement
+      if (m_active_item != -1)
+        process_action(MenuAction::UNSELECT);
+      m_active_item = new_active_item;
+      process_action(MenuAction::SELECT);
+    }
+
+    if (MouseCursor::current())
+      MouseCursor::current()->set_state(MouseCursorState::LINK);
+  }
+  else
+  {
+    m_pointer_item = -1;
+    m_pointer_arrow = 0;
+
+    if (MouseCursor::current())
+      MouseCursor::current()->set_state(MouseCursorState::NORMAL);
+  }
 }
 
 void
@@ -532,7 +733,15 @@ Menu::event(const SDL_Event& ev)
           mouse_pos.y > m_pos.y - get_height() / 2.0f &&
           mouse_pos.y < m_pos.y + get_height() / 2.0f)
       {
-        if (m_active_item >= 0)
+        const int arrow = get_arrow_at(mouse_pos.y);
+        if (arrow != 0)
+        {
+          // A click scrolls a row and holding it keeps scrolling
+          scroll(arrow);
+          m_held_arrow = arrow;
+          m_arrow_repeat_time = g_real_time + MENU_REPEAT_INITIAL;
+        }
+        else if (m_active_item >= 0)
         {
           // The item knows what it drew where, such as a value's arrows
           const float x = mouse_pos.x - (m_pos.x - get_width() / 2.0f);
@@ -546,45 +755,24 @@ Menu::event(const SDL_Event& ev)
     }
     break;
 
+    case SDL_MOUSEBUTTONUP:
+      if (ev.button.button == SDL_BUTTON_LEFT)
+        m_held_arrow = 0;
+      break;
+
+    case SDL_MOUSEWHEEL:
+      if (is_scrolling())
+      {
+        scroll((ev.wheel.direction == SDL_MOUSEWHEEL_FLIPPED) ? ev.wheel.y : -ev.wheel.y);
+        // The rows moved under the pointer, so it now points at another
+        if (m_pointer_item >= 0)
+          point_at(m_pointer_pos);
+      }
+      break;
+
     case SDL_MOUSEMOTION:
-    {
-      Vector mouse_pos = VideoSystem::current()->get_viewport().to_ui(ev.motion.x, ev.motion.y);
-      float x = mouse_pos.x;
-      float y = mouse_pos.y;
-
-      if (x > m_pos.x - get_width()/2 &&
-         x < m_pos.x + get_width()/2 &&
-         y > m_pos.y - get_height()/2 &&
-         y < m_pos.y + get_height()/2)
-      {
-        int new_active_item
-          = static_cast<int> ((y - (m_pos.y - get_height()/2)) / 24);
-
-        m_pointer_item = new_active_item;
-        m_pointer_x = x - (m_pos.x - get_width() / 2.0f);
-
-        /* only change the mouse focus to a selectable item */
-        if (!m_items[new_active_item]->skippable() &&
-            new_active_item != m_active_item) {
-          // Selection caused by mouse movement
-          if (m_active_item != -1)
-            process_action(MenuAction::UNSELECT);
-          m_active_item = new_active_item;
-          process_action(MenuAction::SELECT);
-        }
-
-        if (MouseCursor::current())
-          MouseCursor::current()->set_state(MouseCursorState::LINK);
-      }
-      else
-      {
-        m_pointer_item = -1;
-
-        if (MouseCursor::current())
-          MouseCursor::current()->set_state(MouseCursorState::NORMAL);
-      }
-    }
-    break;
+      point_at(VideoSystem::current()->get_viewport().to_ui(ev.motion.x, ev.motion.y));
+      break;
 
     default:
       break;

@@ -93,6 +93,29 @@ private:
   void process_action(const MenuAction& menuaction);
   void check_controlfield_change_event(const SDL_Event& event);
   void draw_item(DrawingContext& context, int index);
+
+  /** The room the help box takes under the menu, or none when no item has help */
+  float get_help_space() const;
+
+  /** How many rows the window holds, and whether the menu has more than that */
+  int get_window_rows() const;
+  bool is_scrolling() const;
+
+  /** Whether rows are scrolled out of the window above or below it */
+  bool has_more_above() const;
+  bool has_more_below() const;
+
+  /** Which arrow is at a height: -1 for up, 1 for down, 0 for neither */
+  int get_arrow_at(float y) const;
+
+  /** Moves the rows shown by that many, as far as there are rows to show */
+  void scroll(int rows);
+
+  /** Puts the menu on screen and, after a key moves the selection, scrolls it into view */
+  void place();
+
+  /** Selects the row under the pointer, or notes the arrow it's on */
+  void point_at(const Vector& mouse_pos);
   /** Recalculates the width for this menu */
   void calculate_width();
 
@@ -119,6 +142,23 @@ private:
   // The row under the pointer, or -1 when it's off the menu, and how far along that row it is
   int m_pointer_item;
   float m_pointer_x;
+
+  // The first row shown when the menu is taller than its window, and whether a key just moved the selection
+  int m_first_row;
+  bool m_show_active;
+
+  // The arrow under the pointer and the one held down, -1 for up and 1 for down, and when a held one scrolls again
+  int m_pointer_arrow;
+  int m_held_arrow;
+  float m_arrow_repeat_time;
+
+  // How far each arrow has eased into the highlight colour, and when they were last drawn
+  float m_up_hover;
+  float m_down_hover;
+  float m_last_draw_time;
+
+  // Where the pointer last was, so the row under it can be found again after the wheel scrolls
+  Vector m_pointer_pos;
 
 private:
   Menu(const Menu&) = delete;
