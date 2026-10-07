@@ -59,26 +59,34 @@ TTFFont::~TTFFont()
 }
 
 TTF_Font*
-TTFFont::get_ttf_font(int pixel_size) const
+TTFFont::get_ttf_font(int pixel_size, unsigned int horizontal_dpi) const
 {
-  if (pixel_size == m_font_size)
+  if (pixel_size == m_font_size && horizontal_dpi == 72)
   {
     return m_font;
   }
 
-  auto it = m_sized_fonts.find(pixel_size);
+  const auto key = std::make_pair(pixel_size, horizontal_dpi);
+  auto it = m_sized_fonts.find(key);
   if (it != m_sized_fonts.end())
   {
     return it->second;
   }
 
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
+  // Letters drawn narrower or wider than tall come from a horizontal resolution apart from the vertical one
+  TTF_Font* font = (horizontal_dpi == 72) ?
+    TTF_OpenFontRW(get_SDLRWops(m_filename), 1, pixel_size) :
+    TTF_OpenFontDPIRW(get_SDLRWops(m_filename), 1, pixel_size, horizontal_dpi, 72);
+#else
   TTF_Font* font = TTF_OpenFontRW(get_SDLRWops(m_filename), 1, pixel_size);
+#endif
   if (!font)
   {
     std::cerr << "TTFFont::get_ttf_font(): " << TTF_GetError() << std::endl;
     return m_font;
   }
-  return m_sized_fonts[pixel_size] = font;
+  return m_sized_fonts[key] = font;
 }
 
 float

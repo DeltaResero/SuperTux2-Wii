@@ -35,6 +35,14 @@ namespace {
 
 using Offsets = std::vector<std::tuple<int, int> >;
 
+// Whether a whole-pixel offset lies inside an ellipse this many pixels across each way, either of which can be none
+bool inside(int x, int y, int radius_x, int radius_y)
+{
+  const float fx = (radius_x > 0) ? static_cast<float>(x) / static_cast<float>(radius_x) : (x == 0 ? 0.0f : 2.0f);
+  const float fy = (radius_y > 0) ? static_cast<float>(y) / static_cast<float>(radius_y) : (y == 0 ? 0.0f : 2.0f);
+  return fx * fx + fy * fy <= 1.0f;
+}
+
 // Where an outline this many pixels thick is blitted; up to 2 these are the offsets it always used
 Offsets outline_offsets(int size)
 {
@@ -76,6 +84,49 @@ Offsets shadow_offsets(int size)
   return offsets;
 }
 
+// The same for pixels wider or taller than they are long, an outline and a shadow as ellipses
+Offsets outline_offsets(int size_x, int size_y)
+{
+  if (size_x == size_y)
+  {
+    return outline_offsets(size_x);
+  }
+
+  Offsets offsets;
+  for (int y = -size_y; y <= size_y; ++y)
+  {
+    for (int x = -size_x; x <= size_x; ++x)
+    {
+      if ((x != 0 || y != 0) && inside(x, y, size_x, size_y))
+      {
+        offsets.emplace_back(x, y);
+      }
+    }
+  }
+  return offsets;
+}
+
+Offsets shadow_offsets(int size_x, int size_y)
+{
+  if (size_x == size_y)
+  {
+    return shadow_offsets(size_x);
+  }
+
+  Offsets offsets;
+  for (int y = 1 - size_y; y < size_y; ++y)
+  {
+    for (int x = 1 - size_x; x < size_x; ++x)
+    {
+      if ((x != 0 || y != 0) && inside(x, y, size_x - 1, size_y - 1))
+      {
+        offsets.emplace_back(x, y);
+      }
+    }
+  }
+  return offsets.empty() ? Offsets{ {0, 0} } : offsets;
+}
+
 // A decoration a font has at its own size, at the size the text is rendered
 int scaled(int size, float scale)
 {
@@ -89,7 +140,15 @@ TTFSurface::create(const TTFFont& font, const std::string& text, const Vector& p
 {
   // The larger side is rendered at its pixel size and the other squeezed to fit, so nothing is stretched
   const float scale = std::max(pixel_scale.x, pixel_scale.y);
-  TTF_Font* ttf_font = font.get_ttf_font(scaled(font.get_font_size(), scale));
+#if SDL_TTF_VERSION_ATLEAST(2, 0, 18)
+  // Pixels wider or taller than they are long get letters drawn at that shape, sharper than squeezing square ones
+  const bool square = std::abs(pixel_scale.x / pixel_scale.y - 1.0f) < 0.01f;
+  const Vector glyph_scale = square ? Vector(scale, scale) : pixel_scale;
+#else
+  const Vector glyph_scale(scale, scale);
+#endif
+  const auto horizontal_dpi = static_cast<unsigned int>(std::lround(72.0f * glyph_scale.x / glyph_scale.y));
+  TTF_Font* ttf_font = font.get_ttf_font(scaled(font.get_font_size(), glyph_scale.y), horizontal_dpi);
 
   SDLSurfacePtr text_surface(TTF_RenderUTF8_Blended(ttf_font,
                                                     text.c_str(),
@@ -100,14 +159,18 @@ TTFSurface::create(const TTFFont& font, const std::string& text, const Vector& p
     return std::make_shared<TTFSurface>(SurfacePtr(), Sizef());
   }
 
-  const int border = scaled(font.get_border(), scale);
-  const int shadow_size = scaled(font.get_shadow_size(), scale);
-  const int shadow_offset = scaled(2, scale);
+  const int border_x = scaled(font.get_border(), glyph_scale.x);
+  const int border_y = scaled(font.get_border(), glyph_scale.y);
+  const int shadow_size_x = scaled(font.get_shadow_size(), glyph_scale.x);
+  const int shadow_size_y = scaled(font.get_shadow_size(), glyph_scale.y);
+  const int shadow_offset_x = scaled(2, glyph_scale.x);
+  const int shadow_offset_y = scaled(2, glyph_scale.y);
 
   // FIXME: handle shadow offset
-  int grow = std::max(border * 2, shadow_size * 2);
+  const int grow_x = std::max(border_x * 2, shadow_size_x * 2);
+  const int grow_y = std::max(border_y * 2, shadow_size_y * 2);
 
-  SDLSurfacePtr target = SDLSurface::create_rgba(text_surface->w + grow, text_surface->h + grow);
+  SDLSurfacePtr target = SDLSurface::create_rgba(text_surface->w + grow_x, text_surface->h + grow_y);
 
 #if !SDL_VERSION_ATLEAST(2,0,5)
   // Perform blitting in ARGB8888, instead of RGBA8888, to avoid bug in older SDL2.
@@ -120,11 +183,11 @@ TTFSurface::create(const TTFFont& font, const std::string& text, const Vector& p
     SDL_SetSurfaceColorMod(text_surface.get(), 0, 0, 0);
     SDL_SetSurfaceBlendMode(text_surface.get(), SDL_BLENDMODE_BLEND);
 
-    if (shadow_size > 0)
+    if (shadow_size_x > 0 && shadow_size_y > 0)
     {
-      for (const auto& p : shadow_offsets(shadow_size))
+      for (const auto& p : shadow_offsets(shadow_size_x, shadow_size_y))
       {
-        SDL_Rect dstrect{std::get<0>(p) + shadow_offset, std::get<1>(p) + shadow_offset, text_surface->w, text_surface->h};
+        SDL_Rect dstrect{std::get<0>(p) + shadow_offset_x, std::get<1>(p) + shadow_offset_y, text_surface->w, text_surface->h};
         SDL_BlitSurface(text_surface.get(), nullptr,
                         target.get(), &dstrect);
       }
@@ -136,7 +199,7 @@ TTFSurface::create(const TTFFont& font, const std::string& text, const Vector& p
     SDL_SetSurfaceColorMod(text_surface.get(), 0, 0, 0);
     SDL_SetSurfaceBlendMode(text_surface.get(), SDL_BLENDMODE_BLEND);
 
-    for (const auto& p : outline_offsets(border))
+    for (const auto& p : outline_offsets(border_x, border_y))
     {
       SDL_Rect dstrect{std::get<0>(p), std::get<1>(p), text_surface->w, text_surface->h};
       SDL_BlitSurface(text_surface.get(), nullptr,
@@ -158,11 +221,11 @@ TTFSurface::create(const TTFFont& font, const std::string& text, const Vector& p
   target.reset(SDL_ConvertSurfaceFormat(target.get(), SDL_PIXELFORMAT_RGBA8888, 0));
 #endif
 
-  if (pixel_scale.x != pixel_scale.y)
+  if (glyph_scale != pixel_scale)
   {
     target = SDLSurface::shrink(*target,
-                                std::max(1, static_cast<int>(std::lround(static_cast<float>(target->w) * pixel_scale.x / scale))),
-                                std::max(1, static_cast<int>(std::lround(static_cast<float>(target->h) * pixel_scale.y / scale))));
+                                std::max(1, static_cast<int>(std::lround(static_cast<float>(target->w) * pixel_scale.x / glyph_scale.x))),
+                                std::max(1, static_cast<int>(std::lround(static_cast<float>(target->h) * pixel_scale.y / glyph_scale.y))));
   }
 
   SurfacePtr result = Surface::from_texture(VideoSystem::current()->new_texture(*target));
