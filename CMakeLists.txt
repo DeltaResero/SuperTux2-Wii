@@ -383,28 +383,15 @@ endif()
 
 include_directories(SYSTEM ${SQUIRREL_PREFIX}/include)
 
-## external/SDL_ttf with patches
-if (VCPKG_BUILD)
-  find_package(freetype CONFIG REQUIRED)
+## SDL_ttf, the one installed rather than a bundled copy
+if(VCPKG_BUILD)
+  find_package(SDL2_ttf CONFIG REQUIRED)
+  set(SDL2TTF_TARGET SDL2_ttf::SDL2_ttf)
 else()
-  find_package(Freetype REQUIRED)
+  include(FindPkgConfig)
+  pkg_check_modules(SDL2TTF REQUIRED IMPORTED_TARGET SDL2_ttf>=2.0.14)
+  set(SDL2TTF_TARGET PkgConfig::SDL2TTF)
 endif()
-set(SDL_TTF_PREFIX ${CMAKE_BINARY_DIR}/SDL_ttf/)
-ExternalProject_Add(SDL_ttf
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/SDL_ttf/"
-  BUILD_BYPRODUCTS "${SDL_TTF_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}SDL2_ttf${CMAKE_STATIC_LIBRARY_SUFFIX}"
-  CMAKE_ARGS
-  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-  -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-  -DCMAKE_INSTALL_PREFIX=${SDL_TTF_PREFIX}
-  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-  -DBUILD_SHARED_LIBS=OFF)
-add_library(SDL_ttf_lib STATIC IMPORTED)
-set_target_properties(SDL_ttf_lib PROPERTIES IMPORTED_LOCATION "${SDL_TTF_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}SDL2_ttf${CMAKE_STATIC_LIBRARY_SUFFIX}")
-link_directories(${SDL_TTF_PREFIX}/lib)
-include_directories(SYSTEM ${SDL_TTF_PREFIX}/include/SDL2)
 
 ## Some additional include paths
 
@@ -643,7 +630,6 @@ endif(WIN32 AND NOT VCPKG_BUILD)
 ## Link supertux binary with squirrel and other libraries
 
 add_dependencies(supertux2_lib squirrel)
-add_dependencies(supertux2_lib SDL_ttf)
 
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS})
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2IMAGE_INCLUDE_DIRS})
@@ -653,13 +639,7 @@ else()
   target_link_libraries(supertux2_lib PUBLIC ${SDL2_LIBRARIES})
   target_link_libraries(supertux2_lib PUBLIC ${SDL2IMAGE_LIBRARIES})
 endif()
-target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL_TTF_PREFIX}/include/SDL2)
-target_link_libraries(supertux2_lib PUBLIC SDL_ttf_lib)
-if(VCPKG_BUILD)
-  target_link_libraries(supertux2_lib PUBLIC freetype)
-else()
-  target_link_libraries(supertux2_lib PUBLIC ${FREETYPE_LIBRARIES})
-endif()
+target_link_libraries(supertux2_lib PUBLIC ${SDL2TTF_TARGET})
 
 target_link_libraries(supertux2_lib PUBLIC squirrel_lib)
 target_link_libraries(supertux2_lib PUBLIC sqstdlib_lib)
