@@ -17,6 +17,7 @@
 
 #include "worldmap/worldmap.hpp"
 
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"
@@ -30,12 +31,14 @@
 #include "scripting/worldmap.hpp"
 #include "sprite/sprite.hpp"
 #include "squirrel/squirrel_environment.hpp"
+#include "supertux/constants.hpp"
 #include "supertux/d_scope.hpp"
 #include "supertux/debug.hpp"
 #include "supertux/fadetoblack.hpp"
 #include "supertux/game_manager.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/level.hpp"
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/player_status_hud.hpp"
@@ -84,7 +87,9 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   m_main_is_default(true),
   m_initial_fade_tilemap(),
   m_fade_direction(),
-  m_in_level(false)
+  m_in_level(false),
+  m_last_camera_offset(0.0f, 0.0f),
+  m_last_step_time(-1.0f)
 {
   m_tux = &add<Tux>(this);
   add<PlayerStatusHUD>(m_savegame.get_player_status());
@@ -349,6 +354,11 @@ WorldMap::update(float dt_sec)
   if (m_in_level) return;
   if (MenuManager::instance().is_active()) return;
 
+  // Where everything starts the step, so frames shown before the next one can be drawn part way along
+  m_last_camera_offset = m_camera->get_offset();
+  m_last_step_time = g_game_time;
+  GameObjectManager::begin_step();
+
   GameObjectManager::update(dt_sec);
 
   m_camera->update(dt_sec);
@@ -496,10 +506,18 @@ WorldMap::draw(DrawingContext& context)
                                      Color(0.0f, 0.0f, 0.0f, 1.0f), LAYER_BACKGROUND0);
   }
 
-  context.push_transform();
-  context.set_translation(m_camera->get_offset());
+  // Part way through the last step, unless the worldmap didn't take it or the camera jumped
+  float step_fraction = (m_last_step_time == g_game_time) ? g_step_fraction : 1.0f;
+  const Vector moved = m_camera->get_offset() - m_last_camera_offset;
+  if (std::abs(moved.x) > MAX_STEP_MOVE || std::abs(moved.y) > MAX_STEP_MOVE)
+  {
+    step_fraction = 1.0f;
+  }
 
-  GameObjectManager::draw(context);
+  context.push_transform();
+  context.set_translation(m_last_camera_offset + moved * step_fraction);
+
+  GameObjectManager::draw(context, step_fraction);
 
   if (g_debug.show_worldmap_path)
   {

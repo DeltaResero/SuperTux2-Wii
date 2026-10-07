@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "math/vector.hpp"
 #include "supertux/game_object_component.hpp"
 #include "util/fade_helper.hpp"
 #include "util/uid.hpp"
@@ -71,6 +72,12 @@ public:
       DrawingContext if this function is called. */
   virtual void draw(DrawingContext& context) = 0;
 
+  /** Called as a game step begins, so frames shown before the next step can draw it part way along */
+  virtual void begin_step() {}
+
+  /** How far behind where it is to draw it, for a frame that far through the last step */
+  virtual Vector get_draw_lag(float /*step_fraction*/) const { return Vector(0.0f, 0.0f); }
+
   virtual std::string get_class() const { return "game-object"; }
 
   /** If true only a single object of this type is allowed in a
@@ -117,6 +124,12 @@ private:
   void set_uid(const UID& uid) { m_uid = uid; }
 
 protected:
+  /** The part of a step's move still ahead of a frame that far through it */
+  static Vector get_step_lag(const Vector& last, const Vector& now, float step_fraction);
+
+  /** How far the frame being drawn is through the last step of whatever is drawing it */
+  static float get_step_fraction();
+
   /** a name for the gameobject, this is mostly a hint for scripts and
       for debugging, don't rely on names being set or being unique */
   std::string m_name;

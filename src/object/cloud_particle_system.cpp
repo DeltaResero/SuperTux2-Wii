@@ -226,9 +226,11 @@ void CloudParticleSystem::draw(DrawingContext& context)
   context.push_transform();
 
   std::unordered_map<SurfacePtr, SurfaceBatch> batches;
+  const float step_fraction = get_step_fraction();
   for (const auto& particle : particles) {
+    const Vector drawn = get_drawn_pos(*particle, step_fraction);
 
-    if(!region.contains(particle->pos))
+    if(!region.contains(drawn))
       continue;
 
     if (particle->alpha != 1.f) {
@@ -238,15 +240,15 @@ void CloudParticleSystem::draw(DrawingContext& context)
               particle->texture,
               Color(1.f, 1.f, 1.f, particle->alpha)
           ));
-      batch_it.first->second.draw(particle->pos, particle->angle);
+      batch_it.first->second.draw(drawn, particle->angle);
     } else {
       auto it = batches.find(particle->texture);
       if (it == batches.end()) {
         const auto& batch_it = batches.emplace(particle->texture,
           SurfaceBatch(particle->texture));
-        batch_it.first->second.draw(particle->pos, particle->angle);
+        batch_it.first->second.draw(drawn, particle->angle);
       } else {
-        it->second.draw(particle->pos, particle->angle);
+        it->second.draw(drawn, particle->angle);
       }
     }
   }

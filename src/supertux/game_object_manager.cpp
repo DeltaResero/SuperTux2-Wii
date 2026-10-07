@@ -20,11 +20,13 @@
 #include <algorithm>
 
 #include "object/tilemap.hpp"
+#include "video/drawing_context.hpp"
 
 bool GameObjectManager::s_draw_solids_only = false;
 
 GameObjectManager::GameObjectManager() :
   m_uid_generator(),
+  m_step_fraction(1.0f),
   m_gameobjects(),
   m_gameobjects_new(),
   m_solid_tilemaps(),
@@ -146,8 +148,10 @@ GameObjectManager::update(float dt_sec)
 }
 
 void
-GameObjectManager::draw(DrawingContext& context)
+GameObjectManager::draw(DrawingContext& context, float step_fraction)
 {
+  m_step_fraction = step_fraction;
+
   for (const auto& object : m_gameobjects)
   {
     if (!object->is_valid())
@@ -160,7 +164,32 @@ GameObjectManager::draw(DrawingContext& context)
         continue;
     }
 
-    object->draw(context);
+    const Vector lag = (step_fraction < 1.0f) ? object->get_draw_lag(step_fraction) : Vector(0.0f, 0.0f);
+    if (lag.x != 0.0f || lag.y != 0.0f)
+    {
+      context.push_transform();
+      context.set_translation(context.get_translation() + lag);
+      object->draw(context);
+      context.pop_transform();
+    }
+    else
+    {
+      object->draw(context);
+    }
+  }
+
+  m_step_fraction = 1.0f;
+}
+
+void
+GameObjectManager::begin_step()
+{
+  for (const auto& object : m_gameobjects)
+  {
+    if (object->is_valid())
+    {
+      object->begin_step();
+    }
   }
 }
 
@@ -225,6 +254,9 @@ GameObjectManager::update_solid(TileMap* tm) {
 void
 GameObjectManager::this_before_object_add(GameObject& object)
 {
+  // A new object starts where it is, with nothing to catch up on
+  object.begin_step();
+
   { // by_name
     if (!object.get_name().empty())
     {

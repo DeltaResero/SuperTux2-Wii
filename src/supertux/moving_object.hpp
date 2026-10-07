@@ -92,6 +92,9 @@ public:
     return &m_col;
   }
 
+  virtual void begin_step() override { m_last_pos = get_pos(); }
+  virtual Vector get_draw_lag(float step_fraction) const override { return get_step_lag(m_last_pos, get_pos(), step_fraction); }
+
   virtual std::string get_class() const override { return "moving-object"; }
 
   virtual void on_flip(float height) override;
@@ -106,6 +109,10 @@ protected:
 
 protected:
   CollisionObject m_col;
+
+private:
+  /** Where it was as the last step began */
+  Vector m_last_pos;
 
 private:
   MovingObject(const MovingObject&) = delete;

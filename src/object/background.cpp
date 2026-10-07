@@ -39,6 +39,7 @@ Background::Background() :
   m_parallax_speed(0.0f, 0.0f),
   m_scroll_speed(0.0f, 0.0f),
   m_scroll_offset(0.0f, 0.0f),
+  m_last_scroll_offset(0.0f, 0.0f),
   m_image_top(),
   m_image(),
   m_image_bottom(),
@@ -64,6 +65,7 @@ Background::Background(const ReaderMapping& reader) :
   m_parallax_speed(1.0f, 1.0f),
   m_scroll_speed(0.0f, 0.0f),
   m_scroll_offset(0.0f, 0.0f),
+  m_last_scroll_offset(0.0f, 0.0f),
   m_image_top(),
   m_image(),
   m_image_bottom(),
@@ -333,7 +335,9 @@ Background::draw(DrawingContext& context)
 
   Vector pos(level_size.width / 2,
              level_size.height / 2);
-  draw_image(context, pos + m_scroll_offset + Vector(center_offset.x * (1.0f - m_parallax_speed.x),
+  // A scrolling background drawn part way through the last step's scroll
+  const Vector scroll = m_scroll_offset - get_step_lag(m_last_scroll_offset, m_scroll_offset, get_step_fraction());
+  draw_image(context, pos + scroll + Vector(center_offset.x * (1.0f - m_parallax_speed.x),
                                                      center_offset.y * (1.0f - m_parallax_speed.y)));
 }
 

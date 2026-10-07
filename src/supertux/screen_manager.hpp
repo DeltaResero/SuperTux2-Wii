@@ -78,8 +78,8 @@ private:
   MobileController m_mobile_controller;
 #endif
 
-  Uint32 last_ticks;
-  Uint32 elapsed_ticks;
+  Uint64 last_counter;
+  double elapsed_ms;
   const Uint32 ms_per_step;
   const float seconds_per_step;
   std::unique_ptr<FPS_Stats> m_fps_statistics;

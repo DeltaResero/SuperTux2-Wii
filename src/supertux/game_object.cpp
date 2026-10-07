@@ -17,7 +17,11 @@
 #include "supertux/game_object.hpp"
 
 #include <algorithm>
+#include <cmath>
 
+#include "supertux/constants.hpp"
+#include "supertux/d_scope.hpp"
+#include "supertux/game_object_manager.hpp"
 #include "supertux/object_remove_listener.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/color.hpp"
@@ -84,6 +88,23 @@ GameObject::update(float dt_sec)
   });
 
   m_fade_helpers.erase(new_end, m_fade_helpers.end());
+}
+
+Vector
+GameObject::get_step_lag(const Vector& last, const Vector& now, float step_fraction)
+{
+  const Vector moved = now - last;
+  if (step_fraction >= 1.0f || std::abs(moved.x) > MAX_STEP_MOVE || std::abs(moved.y) > MAX_STEP_MOVE)
+  {
+    return Vector(0.0f, 0.0f);
+  }
+  return moved * (1.0f - step_fraction);
+}
+
+float
+GameObject::get_step_fraction()
+{
+  return d_gameobject_manager ? d_gameobject_manager->get_step_fraction() : 1.0f;
 }
 
 /* EOF */

@@ -121,8 +121,8 @@ ScreenManager::ScreenManager(VideoSystem& video_system, InputManager& input_mana
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   m_mobile_controller(),
 #endif
-  last_ticks(0),
-  elapsed_ticks(0),
+  last_counter(0),
+  elapsed_ms(0.0),
   ms_per_step(static_cast<Uint32>(1000.0f / LOGICAL_FPS)),
   seconds_per_step(static_cast<float>(ms_per_step) / 1000.0f),
   m_fps_statistics(std::make_unique<FPS_Stats>()),
@@ -501,27 +501,34 @@ ScreenManager::handle_screen_switch()
 void ScreenManager::loop_iter()
 {
   Uint32 ticks = SDL_GetTicks();
-  elapsed_ticks += ticks - last_ticks;
-  last_ticks = ticks;
+  // Finer than whole milliseconds, so a frame between steps is drawn where it belongs
+  const Uint64 counter = SDL_GetPerformanceCounter();
+  if (last_counter != 0) {
+    elapsed_ms += static_cast<double>(counter - last_counter) * 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+  }
+  last_counter = counter;
 
-  if (elapsed_ticks > ms_per_step * 8) {
+  if (elapsed_ms > static_cast<double>(ms_per_step * 8)) {
     // when the game loads up or levels are switched the
-    // elapsed_ticks grows extremely large, so we just ignore those
+    // elapsed time grows extremely large, so we just ignore those
     // large time jumps
-    elapsed_ticks = 0;
+    elapsed_ms = 0.0;
   }
 
-  if (elapsed_ticks < ms_per_step && !g_debug.draw_redundant_frames) {
+  // With vsync the screen paces the loop, and a frame shown between two steps is drawn part way along
+  const bool draw_every_refresh = g_config->vsync != 0;
+
+  if (elapsed_ms < static_cast<double>(ms_per_step) && !draw_every_refresh && !g_debug.draw_redundant_frames) {
     // Sleep a bit because not enough time has passed since the previous
     // logical game step
-    SDL_Delay(ms_per_step - elapsed_ticks);
+    SDL_Delay(ms_per_step - static_cast<Uint32>(elapsed_ms));
     return;
   }
 
   g_real_time = static_cast<float>(ticks) / 1000.0f;
 
   float speed_multiplier = g_debug.get_game_speed_multiplier();
-  int steps = elapsed_ticks / ms_per_step;
+  int steps = static_cast<int>(elapsed_ms / static_cast<double>(ms_per_step));
 
   // Do not calculate more than a few steps at once
   // The maximum number of steps executed before drawing a frame is
@@ -555,10 +562,12 @@ void ScreenManager::loop_iter()
     g_game_time += dtime;
     process_events();
     update_gamelogic(dtime);
-    elapsed_ticks -= ms_per_step;
+    elapsed_ms -= static_cast<double>(ms_per_step);
   }
 
-  if ((steps > 0 && !m_screen_stack.empty())
+  g_step_fraction = std::min(1.0f, static_cast<float>(elapsed_ms / static_cast<double>(ms_per_step)));
+
+  if (((steps > 0 || draw_every_refresh) && !m_screen_stack.empty())
       || g_debug.draw_redundant_frames) {
     // Draw a frame
     Compositor compositor(m_video_system);

@@ -52,6 +52,7 @@ public:
   ~ParticleSystem() override;
 
   virtual void draw(DrawingContext& context) override;
+  virtual void begin_step() override;
 
   virtual std::string get_class() const override { return "particle-system"; }
 
@@ -65,6 +66,7 @@ protected:
   public:
     Particle() :
       pos(0.0f, 0.0f),
+      last_pos(0.0f, 0.0f),
       angle(),
       texture(),
       alpha(),
@@ -75,6 +77,8 @@ protected:
     {}
 
     Vector pos;
+    // where it was as the last step began
+    Vector last_pos;
     // angle at which to draw particle
     float angle;
     SurfacePtr texture;
@@ -85,6 +89,12 @@ protected:
     Particle(const Particle&) = delete;
     Particle& operator=(const Particle&) = delete;
   };
+
+  /** Where a particle is drawn, part way through the last step's move */
+  static Vector get_drawn_pos(const Particle& particle, float step_fraction)
+  {
+    return particle.pos - get_step_lag(particle.last_pos, particle.pos, step_fraction);
+  }
 
 protected:
   float max_particle_size;

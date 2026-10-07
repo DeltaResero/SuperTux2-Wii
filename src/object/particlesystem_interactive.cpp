@@ -59,17 +59,19 @@ ParticleSystem_Interactive::draw(DrawingContext& context)
   context.push_transform();
   const auto& region = Sector::current()->get_active_region();
   std::unordered_map<SurfacePtr, SurfaceBatch> batches;
+  const float step_fraction = get_step_fraction();
   for (const auto& particle : particles) {
-    if(!region.contains(particle->pos))
+    const Vector drawn = get_drawn_pos(*particle, step_fraction);
+    if(!region.contains(drawn))
       continue;
 
     auto it = batches.find(particle->texture);
     if (it == batches.end()) {
       const auto& batch_it = batches.emplace(particle->texture,
         SurfaceBatch(particle->texture));
-      batch_it.first->second.draw(particle->pos, particle->angle);
+      batch_it.first->second.draw(drawn, particle->angle);
     } else {
-      it->second.draw(particle->pos, particle->angle);
+      it->second.draw(drawn, particle->angle);
     }
   }
 

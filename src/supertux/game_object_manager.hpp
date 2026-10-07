@@ -63,7 +63,13 @@ public:
   }
 
   void update(float dt_sec);
-  void draw(DrawingContext& context);
+  void draw(DrawingContext& context, float step_fraction = 1.0f);
+
+  /** Tells every object a game step begins */
+  void begin_step();
+
+  /** How far the frame being drawn is through the last step, or 1 when it shows the step's end */
+  float get_step_fraction() const { return m_step_fraction; }
 
   const std::vector<std::unique_ptr<GameObject> >& get_objects() const;
 
@@ -206,6 +212,8 @@ private:
 
 private:
   UIDGenerator m_uid_generator;
+
+  float m_step_fraction;
 
   std::vector<std::unique_ptr<GameObject>> m_gameobjects;
 

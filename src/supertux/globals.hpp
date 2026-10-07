@@ -36,6 +36,9 @@ extern Config* g_config;
 extern float g_game_time;
 extern float g_real_time;
 
+/** How far the frame being drawn is past the last game step, as a share of a step */
+extern float g_step_fraction;
+
 #endif
 
 /* EOF */

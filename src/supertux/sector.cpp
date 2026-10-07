@@ -17,6 +17,7 @@
 #include "supertux/sector.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
@@ -47,6 +48,7 @@
 #include "supertux/debug.hpp"
 #include "supertux/game_object_factory.hpp"
 #include "supertux/game_session.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/level.hpp"
 #include "supertux/player_status_hud.hpp"
 #include "supertux/resources.hpp"
@@ -72,7 +74,10 @@ Sector::Sector(Level& parent) :
   m_foremost_layer(),
   m_squirrel_environment(std::make_unique<SquirrelEnvironment>(SquirrelVirtualMachine::current()->get_vm(), "sector")),
   m_collision_system(std::make_unique<CollisionSystem>(*this)),
-  m_gravity(10.0)
+  m_gravity(10.0),
+  m_last_translation(0.0f, 0.0f),
+  m_last_scale(1.0f),
+  m_last_step_time(-1.0f)
 {
   Savegame* savegame = GameSession::current() ? &GameSession::current()->get_savegame() : nullptr;
   PlayerStatus& player_status = savegame ? savegame->get_player_status() : dummy_player_status;
@@ -324,6 +329,13 @@ Sector::update(float dt_sec)
 
   BIND_SECTOR(*this);
 
+  // Where everything starts the step, so frames shown before the next one can be drawn part way along
+  Camera& camera = get_camera();
+  m_last_translation = camera.get_translation();
+  m_last_scale = camera.get_current_scale();
+  m_last_step_time = g_game_time;
+  GameObjectManager::begin_step();
+
   m_squirrel_environment->update(dt_sec);
 
   GameObjectManager::update(dt_sec);
@@ -388,11 +400,19 @@ Sector::draw(DrawingContext& context)
 
   Camera& camera = get_camera();
 
-  context.push_transform();
-  context.set_translation(camera.get_translation());
-  context.scale(camera.get_current_scale());
+  // Part way through the last step, unless this sector didn't take it or the camera jumped
+  float step_fraction = (m_last_step_time == g_game_time) ? g_step_fraction : 1.0f;
+  const Vector moved = camera.get_translation() - m_last_translation;
+  if (std::abs(moved.x) > MAX_STEP_MOVE || std::abs(moved.y) > MAX_STEP_MOVE)
+  {
+    step_fraction = 1.0f;
+  }
 
-  GameObjectManager::draw(context);
+  context.push_transform();
+  context.set_translation(m_last_translation + moved * step_fraction);
+  context.scale(m_last_scale + (camera.get_current_scale() - m_last_scale) * step_fraction);
+
+  GameObjectManager::draw(context, step_fraction);
 
   if (g_debug.show_collision_rects) {
     m_collision_system->draw(context);
