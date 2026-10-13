@@ -153,6 +153,9 @@ private:
   int m_held_arrow;
   float m_arrow_repeat_time;
 
+  // The row an arrow was clicked on, where a click after the arrow is gone waits for the pointer to move
+  int m_spent_arrow_row;
+
   // How far each arrow has eased into the highlight colour, and when they were last drawn
   float m_up_hover;
   float m_down_hover;

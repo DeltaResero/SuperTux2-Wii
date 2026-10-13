@@ -89,6 +89,7 @@ Menu::Menu() :
   m_pointer_arrow(0),
   m_held_arrow(0),
   m_arrow_repeat_time(0.0f),
+  m_spent_arrow_row(-1),
   m_up_hover(0.0f),
   m_down_hover(0.0f),
   m_last_draw_time(0.0f),
@@ -248,6 +249,7 @@ Menu::process_input(const Controller& controller)
   {
     scroll(m_held_arrow);
     m_arrow_repeat_time = g_real_time + MENU_REPEAT_RATE;
+    point_at(m_pointer_pos);
   }
 
   MenuAction menuaction = MenuAction::NONE;
@@ -669,6 +671,9 @@ Menu::point_at(const Vector& mouse_pos)
       y > m_pos.y - get_height()/2 &&
       y < m_pos.y + get_height()/2)
   {
+    if (static_cast<int>((y - (m_pos.y - get_height() / 2.0f)) / 24.0f) != m_spent_arrow_row)
+      m_spent_arrow_row = -1;
+
     m_pointer_arrow = get_arrow_at(y);
     if (m_pointer_arrow != 0)
     {
@@ -701,6 +706,7 @@ Menu::point_at(const Vector& mouse_pos)
   {
     m_pointer_item = -1;
     m_pointer_arrow = 0;
+    m_spent_arrow_row = -1;
 
     if (MouseCursor::current())
       MouseCursor::current()->set_state(MouseCursorState::NORMAL);
@@ -728,28 +734,29 @@ Menu::event(const SDL_Event& ev)
     {
       Vector mouse_pos = VideoSystem::current()->get_viewport().to_ui(ev.motion.x, ev.motion.y);
 
+      // The rows may have scrolled since the pointer last moved, so the click goes to whatever is under it now
+      point_at(mouse_pos);
+
       if (mouse_pos.x > m_pos.x - get_width() / 2.0f &&
           mouse_pos.x < m_pos.x + get_width() / 2.0f &&
           mouse_pos.y > m_pos.y - get_height() / 2.0f &&
           mouse_pos.y < m_pos.y + get_height() / 2.0f)
       {
-        const int arrow = get_arrow_at(mouse_pos.y);
-        if (arrow != 0)
+        const int row = static_cast<int>((mouse_pos.y - (m_pos.y - get_height() / 2.0f)) / 24.0f);
+        if (m_pointer_arrow != 0)
         {
           // A click scrolls a row and holding it keeps scrolling
-          scroll(arrow);
-          m_held_arrow = arrow;
+          scroll(m_pointer_arrow);
+          m_held_arrow = m_pointer_arrow;
           m_arrow_repeat_time = g_real_time + MENU_REPEAT_INITIAL;
+          m_spent_arrow_row = row;
+          point_at(mouse_pos);
         }
-        else if (m_active_item >= 0)
+        else if (row != m_spent_arrow_row && m_active_item >= 0 && m_pointer_item == m_active_item)
         {
           // The item knows what it drew where, such as a value's arrows
           const float x = mouse_pos.x - (m_pos.x - get_width() / 2.0f);
           process_action(m_items[m_active_item]->get_click_action(x, static_cast<int>(get_width())));
-        }
-        else
-        {
-          process_action(MenuAction::HIT);
         }
       }
     }
