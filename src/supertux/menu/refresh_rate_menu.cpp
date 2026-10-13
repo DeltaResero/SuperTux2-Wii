@@ -21,7 +21,7 @@
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/resolution_menu.hpp"
-#include "video/video_system.hpp"
+#include "supertux/menu/video_mode_dialog.hpp"
 
 RefreshRateMenu::RefreshRateMenu() :
   m_refresh_rates()
@@ -62,13 +62,25 @@ RefreshRateMenu::menu_action(MenuItem& item)
     return;
   }
 
-  g_config->fullscreen_refresh_rate = m_refresh_rates[static_cast<size_t>(id)];
+  const VideoSetting previous = VideoSetting::current();
+  VideoSetting wanted = previous;
+  wanted.refresh_rate = m_refresh_rates[static_cast<size_t>(id)];
 
-  VideoSystem::current()->apply_config();
-  MenuManager::instance().on_window_resize();
-  MenuManager::instance().refresh();
-  g_config->save();
   MenuManager::instance().pop_menu();
+  if (wanted == previous)
+  {
+    return;
+  }
+
+  wanted.apply();
+  if (g_config->use_fullscreen)
+  {
+    VideoModeDialog::ask(previous);
+  }
+  else
+  {
+    g_config->save();
+  }
 }
 
 /* EOF */

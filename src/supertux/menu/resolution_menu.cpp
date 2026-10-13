@@ -21,14 +21,14 @@
 #include <algorithm>
 #include <sstream>
 
+#include "gui/item_action.hpp"
 #include "gui/item_goto.hpp"
 #include "gui/item_inactive.hpp"
 #include "gui/menu_item.hpp"
-#include "gui/menu_manager.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
-#include "video/video_system.hpp"
+#include "supertux/menu/video_mode_dialog.hpp"
 
 namespace {
 
@@ -193,7 +193,11 @@ ResolutionMenu::ResolutionMenu() :
   sizes.push_back(Size(0, 0));
   for (const Size& size : sizes)
   {
-    add_entry(static_cast<int>(m_sizes.size()), size_text(size));
+    MenuItem& item = add_entry(static_cast<int>(m_sizes.size()), size_text(size));
+    if (m_fullscreen && size != Size(0, 0))
+    {
+      item.set_help("Not every screen shows every size. If it goes black, wait and it switches back");
+    }
     m_sizes.push_back(size);
   }
 
@@ -231,25 +235,39 @@ ResolutionMenu::menu_action(MenuItem& item)
   }
 
   const Size& size = m_sizes[static_cast<size_t>(id)];
+  const VideoSetting previous = VideoSetting::current();
+  VideoSetting wanted = previous;
   if (m_fullscreen)
   {
     // A rate belongs to the size it was picked with
-    g_config->fullscreen_size = size;
-    g_config->fullscreen_refresh_rate = 0;
+    wanted.fullscreen_size = size;
+    wanted.refresh_rate = 0;
   }
   else
   {
-    g_config->window_maximised = (size == Size(0, 0));
-    if (!g_config->window_maximised)
+    wanted.maximised = (size == Size(0, 0));
+    if (!wanted.maximised)
     {
-      g_config->window_size = size;
+      wanted.window_size = size;
     }
   }
 
-  VideoSystem::current()->apply_config();
-  MenuManager::instance().on_window_resize();
-  MenuManager::instance().refresh();
-  g_config->save();
+  if (wanted == previous)
+  {
+    return;
+  }
+
+  wanted.apply();
+
+  // A window can't be left showing nothing, and neither can the desktop's own mode
+  if (g_config->use_fullscreen && wanted.fullscreen_size != Size(0, 0))
+  {
+    VideoModeDialog::ask(previous);
+  }
+  else
+  {
+    g_config->save();
+  }
 }
 
 void
