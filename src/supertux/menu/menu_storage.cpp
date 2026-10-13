@@ -63,10 +63,28 @@ MenuStorage::create(MenuId menu_id)
       return std::make_unique<MainMenu>();
 
     case OPTIONS_MENU:
-      return std::make_unique<OptionsMenu>(true);
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::SECTIONS, true);
 
     case INGAME_OPTIONS_MENU:
-      return std::make_unique<OptionsMenu>(false);
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::SECTIONS, false);
+
+    case VIDEO_MENU:
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::VIDEO, true);
+
+    case AUDIO_MENU:
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::AUDIO, true);
+
+    case CONTROLS_MENU:
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::CONTROLS, true);
+
+    case EXTRAS_MENU:
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::EXTRAS, true);
+
+    case INGAME_EXTRAS_MENU:
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::EXTRAS, false);
+
+    case ADVANCED_MENU:
+      return std::make_unique<OptionsMenu>(OptionsMenu::Section::ADVANCED, true);
 
     case PROFILE_MENU:
       return std::make_unique<ProfileMenu>();

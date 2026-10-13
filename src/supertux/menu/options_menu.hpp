@@ -23,7 +23,20 @@
 class OptionsMenu final : public Menu
 {
 public:
-  OptionsMenu(bool complete);
+  /** The list of sections, or one section's settings */
+  enum class Section
+  {
+    SECTIONS,
+    VIDEO,
+    AUDIO,
+    CONTROLS,
+    EXTRAS,
+    ADVANCED
+  };
+
+public:
+  /** Leaves out what can't change in the middle of a game unless complete */
+  OptionsMenu(Section section, bool complete);
   ~OptionsMenu() override;
 
   void menu_action(MenuItem& item) override;

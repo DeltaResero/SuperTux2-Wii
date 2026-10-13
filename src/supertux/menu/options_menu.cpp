@@ -73,7 +73,7 @@ enum OptionsMenuIDs {
 #endif
 };
 
-OptionsMenu::OptionsMenu(bool complete) :
+OptionsMenu::OptionsMenu(Section section, bool complete) :
   next_magnification(0),
   next_aspect_ratio(0),
   next_vsync(0),
@@ -86,7 +86,40 @@ OptionsMenu::OptionsMenu(bool complete) :
   music_volumes(),
   m_resolution_item(nullptr)
 {
-  add_label("Options");
+  switch (section)
+  {
+    case Section::SECTIONS:
+      add_label("Options");
+      add_hl();
+      add_submenu("Video", MenuStorage::VIDEO_MENU);
+      add_submenu("Audio", MenuStorage::AUDIO_MENU);
+      add_submenu("Controls", MenuStorage::CONTROLS_MENU);
+      add_submenu("Extras", complete ? MenuStorage::EXTRAS_MENU : MenuStorage::INGAME_EXTRAS_MENU);
+      add_submenu("Advanced", MenuStorage::ADVANCED_MENU);
+      add_hl();
+      add_back("Back");
+      return;
+
+    case Section::VIDEO:
+      add_label("Video");
+      break;
+
+    case Section::AUDIO:
+      add_label("Audio");
+      break;
+
+    case Section::CONTROLS:
+      add_label("Controls");
+      break;
+
+    case Section::EXTRAS:
+      add_label("Extras");
+      break;
+
+    case Section::ADVANCED:
+      add_label("Advanced");
+      break;
+  }
   add_hl();
 
   // 100% shows what a 1920x1080 screen showed, and every screen of the same shape shows the same
@@ -229,84 +262,97 @@ OptionsMenu::OptionsMenu(bool complete) :
     ++cnt_;
   }
 
-  if (complete)
+  if (section == Section::VIDEO)
   {
-    // Profile changes are only possible in the main menu as
-    // elsewhere it might not always work fully
-    add_submenu("Select Profile", MenuStorage::PROFILE_MENU)
-      .set_help("Select a profile to play with");
-  }
+#ifndef ENABLE_TOUCHSCREEN_SUPPORT
+    add_toggle(MNID_FULLSCREEN,"Window Resizable", &g_config->window_resizable)
+      .set_help("Allow window resizing, might require a restart to take effect");
+
+    add_toggle(MNID_FULLSCREEN,"Fullscreen", &g_config->use_fullscreen)
+      .set_help("Fill the entire screen");
+
+    m_resolution_item = &add_submenu("", MenuStorage::RESOLUTION_MENU);
+#endif
+
+    MenuItem& magnification = add_string_select(MNID_MAGNIFICATION, "Camera Zoom", &next_magnification, magnifications);
+    magnification.set_help("Zoom the camera view of levels and worldmaps");
+
+    MenuItem& vsync = add_string_select(MNID_VSYNC, "VSync", &next_vsync, vsyncs);
+    vsync.set_help("Set the VSync mode");
 
 #ifndef ENABLE_TOUCHSCREEN_SUPPORT
-  add_toggle(MNID_FULLSCREEN,"Window Resizable", &g_config->window_resizable)
-    .set_help("Allow window resizing, might require a restart to take effect");
-
-  add_toggle(MNID_FULLSCREEN,"Fullscreen", &g_config->use_fullscreen)
-    .set_help("Fill the entire screen");
-
-  m_resolution_item = &add_submenu("", MenuStorage::RESOLUTION_MENU);
+    MenuItem& aspect = add_string_select(MNID_ASPECTRATIO, "Aspect Ratio", &next_aspect_ratio, aspect_ratios);
+    aspect.set_help("Adjust the aspect ratio");
 #endif
-
-#if 0
-#endif
-
-  MenuItem& magnification = add_string_select(MNID_MAGNIFICATION, "Camera Zoom", &next_magnification, magnifications);
-  magnification.set_help("Zoom the camera view of levels and worldmaps");
-
-  MenuItem& vsync = add_string_select(MNID_VSYNC, "VSync", &next_vsync, vsyncs);
-  vsync.set_help("Set the VSync mode");
-
-#ifndef ENABLE_TOUCHSCREEN_SUPPORT
-  MenuItem& aspect = add_string_select(MNID_ASPECTRATIO, "Aspect Ratio", &next_aspect_ratio, aspect_ratios);
-  aspect.set_help("Adjust the aspect ratio");
-#endif
-
-  if (SoundManager::current()->is_audio_enabled())
-  {
-    add_toggle(MNID_SOUND, "Sound", &g_config->sound_enabled)
-      .set_help("Disable all sound effects");
-    add_toggle(MNID_MUSIC, "Music", &g_config->music_enabled)
-      .set_help("Disable all music");
-
-    MenuItem& sound_volume_select = add_string_select(MNID_SOUND_VOLUME, "Sound Volume", &next_sound_volume, sound_volumes);
-    sound_volume_select.set_help("Adjust sound volume");
-
-    MenuItem& music_volume_select = add_string_select(MNID_MUSIC_VOLUME, "Music Volume", &next_music_volume, music_volumes);
-    music_volume_select.set_help("Adjust music volume");
-  }
-  else
-  {
-    add_inactive( "Sound (disabled)");
-    add_inactive( "Music (disabled)");
   }
 
-  add_submenu("Setup Keyboard", MenuStorage::KEYBOARD_MENU)
-    .set_help("Configure key-action mappings");
+  if (section == Section::AUDIO)
+  {
+    if (SoundManager::current()->is_audio_enabled())
+    {
+      add_toggle(MNID_SOUND, "Sound", &g_config->sound_enabled)
+        .set_help("Disable all sound effects");
+      add_toggle(MNID_MUSIC, "Music", &g_config->music_enabled)
+        .set_help("Disable all music");
 
-  add_submenu("Setup Joystick", MenuStorage::JOYSTICK_MENU)
-    .set_help("Configure joystick control-action mappings");
+      MenuItem& sound_volume_select = add_string_select(MNID_SOUND_VOLUME, "Sound Volume", &next_sound_volume, sound_volumes);
+      sound_volume_select.set_help("Adjust sound volume");
+
+      MenuItem& music_volume_select = add_string_select(MNID_MUSIC_VOLUME, "Music Volume", &next_music_volume, music_volumes);
+      music_volume_select.set_help("Adjust music volume");
+    }
+    else
+    {
+      add_inactive( "Sound (disabled)");
+      add_inactive( "Music (disabled)");
+    }
+  }
+
+  if (section == Section::CONTROLS)
+  {
+    add_submenu("Setup Keyboard", MenuStorage::KEYBOARD_MENU)
+      .set_help("Configure key-action mappings");
+
+    add_submenu("Setup Joystick", MenuStorage::JOYSTICK_MENU)
+      .set_help("Configure joystick control-action mappings");
 
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
-  add_toggle(MNID_MOBILE_CONTROLS, "On-screen controls", &g_config->mobile_controls)
-      .set_help("Toggle on-screen controls for mobile devices");
+    add_toggle(MNID_MOBILE_CONTROLS, "On-screen controls", &g_config->mobile_controls)
+        .set_help("Toggle on-screen controls for mobile devices");
 #endif
-  MenuItem& enable_transitions = add_toggle(MNID_TRANSITIONS, "Enable transitions", &g_config->transitions_enabled);
-  enable_transitions.set_help("Enable screen transitions and smooth menu animation");
-
-  if (g_config->developer_mode)
-  {
-    add_toggle(MNID_DEVELOPER_MODE, "Developer Mode", &g_config->developer_mode);
   }
 
-  if (g_config->is_christmas() || g_config->christmas_mode)
+  if (section == Section::EXTRAS)
   {
-    add_toggle(MNID_CHRISTMAS_MODE, "Christmas Mode", &g_config->christmas_mode);
+    if (complete)
+    {
+      // Profile changes are only possible in the main menu as
+      // elsewhere it might not always work fully
+      add_submenu("Select Profile", MenuStorage::PROFILE_MENU)
+        .set_help("Select a profile to play with");
+    }
+
+    MenuItem& enable_transitions = add_toggle(MNID_TRANSITIONS, "Enable transitions", &g_config->transitions_enabled);
+    enable_transitions.set_help("Enable screen transitions and smooth menu animation");
+
+    if (g_config->is_christmas() || g_config->christmas_mode)
+    {
+      add_toggle(MNID_CHRISTMAS_MODE, "Christmas Mode", &g_config->christmas_mode);
+    }
   }
 
-  add_toggle(MNID_CONFIRMATION_DIALOG, "Confirmation Dialog", &g_config->confirmation_dialog).set_help("Confirm aborting level");
-  add_toggle(MNID_PAUSE_ON_FOCUSLOSS, "Pause on focus loss", &g_config->pause_on_focusloss)
-    .set_help("Automatically pause the game when the window loses focus");
-  add_toggle(MNID_CUSTOM_CURSOR, "Use custom mouse cursor", &g_config->custom_mouse_cursor).set_help("Whether the game renders its own cursor or uses the system's cursor");
+  if (section == Section::ADVANCED)
+  {
+    add_toggle(MNID_CONFIRMATION_DIALOG, "Confirmation Dialog", &g_config->confirmation_dialog).set_help("Confirm aborting level");
+    add_toggle(MNID_PAUSE_ON_FOCUSLOSS, "Pause on focus loss", &g_config->pause_on_focusloss)
+      .set_help("Automatically pause the game when the window loses focus");
+    add_toggle(MNID_CUSTOM_CURSOR, "Use custom mouse cursor", &g_config->custom_mouse_cursor).set_help("Whether the game renders its own cursor or uses the system's cursor");
+
+    if (g_config->developer_mode)
+    {
+      add_toggle(MNID_DEVELOPER_MODE, "Developer Mode", &g_config->developer_mode);
+    }
+  }
 
   add_hl();
   add_back("Back");
