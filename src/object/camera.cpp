@@ -90,7 +90,7 @@ public:
   {
     auto doc = ReaderDocument::from_file(filename);
     auto root = doc.get_root();
-    if (root.get_name() == "camera-config")
+    if (root.get_name() != "camera-config")
     {
       throw std::runtime_error("file is not a camera config file.");
     }
