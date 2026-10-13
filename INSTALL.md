@@ -52,7 +52,7 @@ distributions.
 * [SDL2](http://www.libsdl.org) (2.0.1 or later)
 * [SDL2_image](http://www.libsdl.org/projects/SDL_image) (2.0.0 or later)
 * [OpenAL](http://www.openal.org): (1.0 or later)
-* C++ OpenGL library (choose one of the two options below):
+* On Windows, a library to load OpenGL functions (choose one of the two options below):
   - [GLEW](http://glew.sourceforge.net/) or
   - [glbinding](https://github.com/hpicgs/glbinding)
 * [libogg and libvorbis](https://www.xiph.org/)
@@ -73,13 +73,14 @@ code in very exotic setups, so feel free to report issues to our bug tracker on
 GitHub.
 
 **Note III (regarding glbinding):** To use glbinding instead of GLEW, call `cmake`
-with the flag -DGLBINDING_ENABLED=ON
+with the flag -DGLBINDING_ENABLED=ON. Outside Windows the system's own OpenGL library
+is used, and -DENABLE_GLEW=ON brings GLEW back.
 
 For ease of use, here are some installation lines for some Linux distributions:
 
 - Ubuntu 18.04/20.04:
   ```
-  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libglew-dev libglm-dev zlib1g-dev
+  sudo apt-get update && sudo apt-get install -y cmake build-essential libogg-dev libvorbis-dev libopenal-dev libsdl2-dev libsdl2-image-dev libfreetype6-dev libglm-dev zlib1g-dev
   ```
 
 ### Linux/UNIX using CMake
