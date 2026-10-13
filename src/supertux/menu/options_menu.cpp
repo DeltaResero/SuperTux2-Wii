@@ -250,8 +250,8 @@ OptionsMenu::OptionsMenu(bool complete) :
 #if 0
 #endif
 
-  MenuItem& magnification = add_string_select(MNID_MAGNIFICATION, "Magnification", &next_magnification, magnifications);
-  magnification.set_help("Change the magnification of the game area");
+  MenuItem& magnification = add_string_select(MNID_MAGNIFICATION, "Camera Zoom", &next_magnification, magnifications);
+  magnification.set_help("Zoom the camera view of levels and worldmaps");
 
   MenuItem& vsync = add_string_select(MNID_VSYNC, "VSync", &next_vsync, vsyncs);
   vsync.set_help("Set the VSync mode");
