@@ -95,7 +95,7 @@ protected:
 private:
   void process_action(const MenuAction& menuaction);
   void check_controlfield_change_event(const SDL_Event& event);
-  void draw_item(DrawingContext& context, int index);
+  void draw_item(DrawingContext& context, int index, int row);
 
   /** The room the help box takes under the menu, or none when no item has help */
   float get_help_space() const;
@@ -104,12 +104,29 @@ private:
   int get_window_rows() const;
   bool is_scrolling() const;
 
+  /** Which items stay put above and below the scrolling ones, and how many rows those get */
+  struct Layout
+  {
+    int header_end;
+    int body_begin;
+    int body_end;
+    int footer_begin;
+    int body_rows;
+  };
+  Layout get_layout() const;
+
   /** Whether rows are scrolled out of the window above or below it */
   bool has_more_above() const;
   bool has_more_below() const;
 
-  /** Which arrow is at a height: -1 for up, 1 for down, 0 for neither */
-  int get_arrow_at(float y) const;
+  /** The window's row at a height */
+  int get_row_at(float y) const;
+
+  /** The item shown on a row, or -1 for an arrow's row */
+  int get_item_at_row(int row) const;
+
+  /** Which arrow is on a row: -1 for up, 1 for down, 0 for neither */
+  int get_arrow_at_row(int row) const;
 
   /** Moves the rows shown by that many, as far as there are rows to show */
   void scroll(int rows);
@@ -144,7 +161,7 @@ private:
   int m_pointer_item;
   float m_pointer_x;
 
-  // The first row shown when the menu is taller than its window, and whether a key just moved the selection
+  // The first scrolling item shown when the menu is taller than its window, and whether a key just moved the selection
   int m_first_row;
   bool m_show_active;
 
@@ -152,9 +169,6 @@ private:
   int m_pointer_arrow;
   int m_held_arrow;
   float m_arrow_repeat_time;
-
-  // The row an arrow was clicked on, where a click after the arrow is gone waits for the pointer to move
-  int m_spent_arrow_row;
 
   // How far each arrow has eased into the highlight colour, and when they were last drawn
   float m_up_hover;

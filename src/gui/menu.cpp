@@ -60,13 +60,18 @@ const float PANEL_EDGE = 14.0f;
 // The space between the panel and the help box under it
 const float HELP_GAP = 12.0f;
 
-// Eases from the menu's own colour to its highlight colour as hover goes from 0 to 1
-void draw_arrow(DrawingContext& context, const SurfacePtr& arrow, const Vector& pos, float angle, float hover)
+// Fewer scrolling rows than this and the title and Back scroll with the rest
+const int MIN_BODY_ROWS = 3;
+
+// Eases from the menu's own colour to its highlight colour as hover goes from 0 to 1, and greys out with nowhere to go
+void draw_arrow(DrawingContext& context, const SurfacePtr& arrow, const Vector& pos, float angle, float hover,
+                bool enabled)
 {
   const Color& tint = ColorScheme::Menu::active_color;
-  const Color color(1.0f + (tint.red - 1.0f) * hover,
-                    1.0f + (tint.green - 1.0f) * hover,
-                    1.0f + (tint.blue - 1.0f) * hover);
+  const Color color = enabled ? Color(1.0f + (tint.red - 1.0f) * hover,
+                                     1.0f + (tint.green - 1.0f) * hover,
+                                     1.0f + (tint.blue - 1.0f) * hover)
+                              : ColorScheme::Menu::inactive_color;
   context.color().draw_surface(arrow, pos, angle, color, Blend(), LAYER_GUI);
 }
 
@@ -89,7 +94,6 @@ Menu::Menu() :
   m_pointer_arrow(0),
   m_held_arrow(0),
   m_arrow_repeat_time(0.0f),
-  m_spent_arrow_row(-1),
   m_up_hover(0.0f),
   m_down_hover(0.0f),
   m_last_draw_time(0.0f),
@@ -249,7 +253,6 @@ Menu::process_input(const Controller& controller)
   {
     scroll(m_held_arrow);
     m_arrow_repeat_time = g_real_time + MENU_REPEAT_RATE;
-    point_at(m_pointer_pos);
   }
 
   MenuAction menuaction = MenuAction::NONE;
@@ -385,7 +388,7 @@ Menu::process_action(const MenuAction& menuaction)
 }
 
 void
-Menu::draw_item(DrawingContext& context, int index)
+Menu::draw_item(DrawingContext& context, int index, int row)
 {
   const float menu_height = get_height();
   const float menu_width = get_width();
@@ -393,7 +396,6 @@ Menu::draw_item(DrawingContext& context, int index)
   MenuItem* pitem = m_items[index].get();
 
   const float x_pos = m_pos.x - menu_width / 2.0f;
-  const int row = index - m_first_row;
   const float y_pos = m_pos.y + 24.0f * static_cast<float>(row) - menu_height / 2.0f + 12.0f;
 
   pitem->set_pointer_x(index == m_pointer_item ? std::optional<float>(m_pointer_x) : std::nullopt);
@@ -477,27 +479,89 @@ Menu::get_window_rows() const
   return std::min(static_cast<int>(m_items.size()), fit);
 }
 
-int
-Menu::get_arrow_at(float y) const
+Menu::Layout
+Menu::get_layout() const
 {
-  const int row = static_cast<int>((y - (m_pos.y - get_height() / 2.0f)) / 24.0f);
-  if (row == 0 && has_more_above())
-    return -1;
-  if (row == get_window_rows() - 1 && has_more_below())
-    return 1;
-  return 0;
+  const int count = static_cast<int>(m_items.size());
+
+  // The title stays above the up arrow and Back below the down arrow, and a line beside either gives way to the arrow
+  int body_begin = 0;
+  while (body_begin < count && m_items[body_begin]->skippable())
+    ++body_begin;
+  int header_end = body_begin;
+  if (header_end > 0 && dynamic_cast<ItemHorizontalLine*>(m_items[header_end - 1].get()))
+    --header_end;
+
+  int footer_begin = count;
+  int body_end = count;
+  if (count > 0 && dynamic_cast<ItemBack*>(m_items[count - 1].get()))
+  {
+    footer_begin = count - 1;
+    body_end = footer_begin;
+    if (body_end > body_begin && dynamic_cast<ItemHorizontalLine*>(m_items[body_end - 1].get()))
+      --body_end;
+  }
+
+  const int rows = get_window_rows();
+  const int body_rows = rows - 2 - header_end - (count - footer_begin);
+  if (body_rows < MIN_BODY_ROWS || body_end <= body_begin)
+    return Layout{0, 0, count, count, std::max(1, rows - 2)};
+
+  return Layout{header_end, body_begin, body_end, footer_begin, body_rows};
 }
 
 bool
 Menu::has_more_above() const
 {
-  return m_first_row > 0;
+  return m_first_row > get_layout().body_begin;
 }
 
 bool
 Menu::has_more_below() const
 {
-  return m_first_row + get_window_rows() < static_cast<int>(m_items.size());
+  const Layout layout = get_layout();
+  return m_first_row + layout.body_rows < layout.body_end;
+}
+
+int
+Menu::get_row_at(float y) const
+{
+  return static_cast<int>((y - (m_pos.y - get_height() / 2.0f)) / 24.0f);
+}
+
+int
+Menu::get_item_at_row(int row) const
+{
+  const int count = static_cast<int>(m_items.size());
+  if (!is_scrolling())
+    return (row >= 0 && row < count) ? row : -1;
+
+  const Layout layout = get_layout();
+  if (row < layout.header_end)
+    return row;
+  row -= layout.header_end + 1;
+  if (row < 0)
+    return -1;
+  if (row < layout.body_rows)
+    return m_first_row + row;
+  row -= layout.body_rows + 1;
+  if (row < 0)
+    return -1;
+  return (layout.footer_begin + row < count) ? layout.footer_begin + row : -1;
+}
+
+int
+Menu::get_arrow_at_row(int row) const
+{
+  if (!is_scrolling())
+    return 0;
+
+  const Layout layout = get_layout();
+  if (row == layout.header_end)
+    return -1;
+  if (row == layout.header_end + 1 + layout.body_rows)
+    return 1;
+  return 0;
 }
 
 bool
@@ -509,13 +573,14 @@ Menu::is_scrolling() const
 void
 Menu::scroll(int rows)
 {
-  m_first_row = std::clamp(m_first_row + rows, 0, static_cast<int>(m_items.size()) - get_window_rows());
+  const Layout layout = get_layout();
+  m_first_row = std::clamp(m_first_row + rows, layout.body_begin,
+                           std::max(layout.body_begin, layout.body_end - layout.body_rows));
 }
 
 void
 Menu::place()
 {
-  const int count = static_cast<int>(m_items.size());
   const float top = static_cast<float>(UI_HEIGHT) * SAFE_EDGE;
   const float bottom = static_cast<float>(UI_HEIGHT) * ICE_LINE;
 
@@ -524,30 +589,30 @@ Menu::place()
     // Too tall for the screen, so the window fills the space between the TV's edge and the ice and its rows scroll
     m_pos.y = std::floor((top + bottom - get_help_space()) / 2.0f);
 
-    if (m_show_active && m_active_item >= 0)
+    const Layout layout = get_layout();
+    if (m_show_active && m_active_item >= layout.body_begin && m_active_item < layout.body_end)
     {
-      int first_idx = count;
-      int last_idx = count;
-      for (int i = 0; i < count; ++i)
+      int first_idx = layout.body_end;
+      int last_idx = layout.body_end;
+      for (int i = layout.body_begin; i < layout.body_end; ++i)
       {
         if (!m_items[i]->skippable())
         {
-          if (first_idx == count)
+          if (first_idx == layout.body_end)
             first_idx = i;
           last_idx = i;
         }
       }
 
-      // The first item shows the menu's title above it, the last shows everything below it, and none sits under an arrow
-      const int rows = get_window_rows();
+      // The first item shows everything above it and the last everything below it
       if (m_active_item == first_idx)
-        m_first_row = 0;
+        m_first_row = layout.body_begin;
       else if (m_active_item == last_idx)
-        m_first_row = count;
-      else if (m_active_item < m_first_row + (has_more_above() ? 1 : 0))
-        m_first_row = m_active_item - 1;
-      else if (m_active_item > m_first_row + rows - 1 - (has_more_below() ? 1 : 0))
-        m_first_row = m_active_item - rows + 2;
+        m_first_row = layout.body_end;
+      else if (m_active_item < m_first_row)
+        m_first_row = m_active_item;
+      else if (m_active_item >= m_first_row + layout.body_rows)
+        m_first_row = m_active_item - layout.body_rows + 1;
     }
     scroll(0);
   }
@@ -582,36 +647,37 @@ Menu::draw(DrawingContext& context)
   // A resize can move the menu between two game steps, so it's placed again before every frame
   place();
 
-  // The top and bottom rows show an arrow instead of their item while there's more that way
   scroll(0);
-  for (int i = m_first_row + (has_more_above() ? 1 : 0);
-       i < m_first_row + get_window_rows() - (has_more_below() ? 1 : 0); ++i)
+  const int rows = get_window_rows();
+  for (int row = 0; row < rows; ++row)
   {
-    draw_item(context, i);
+    const int index = get_item_at_row(row);
+    if (index >= 0)
+      draw_item(context, index, row);
   }
 
   if (is_scrolling())
   {
     // The arrow under the pointer eases into the highlight colour, as a value's arrows do
+    const bool up = has_more_above();
+    const bool down = has_more_below();
     const float dt = std::clamp(g_real_time - m_last_draw_time, 0.0f, 0.1f);
     m_last_draw_time = g_real_time;
     const float ease = std::min(1.0f, dt * 15.0f);
-    m_up_hover += ((m_pointer_arrow < 0 ? 1.0f : 0.0f) - m_up_hover) * ease;
-    m_down_hover += ((m_pointer_arrow > 0 ? 1.0f : 0.0f) - m_down_hover) * ease;
+    m_up_hover += ((m_pointer_arrow < 0 && up ? 1.0f : 0.0f) - m_up_hover) * ease;
+    m_down_hover += ((m_pointer_arrow > 0 && down ? 1.0f : 0.0f) - m_down_hover) * ease;
 
-    // The side arrows turned to point up and down
+    // The side arrows turned to point up and down, on rows of their own so a click never lands on what was under one
+    const Layout layout = get_layout();
     const float arrow_left = m_pos.x - static_cast<float>(Resources::arrow_left->get_width()) / 2.0f;
-    const float arrow_half = static_cast<float>(Resources::arrow_left->get_height()) / 2.0f;
-    if (has_more_above())
-    {
-      draw_arrow(context, Resources::arrow_left, Vector(arrow_left, m_pos.y - get_height() / 2.0f + 12.0f - arrow_half),
-                 90.0f, m_up_hover);
-    }
-    if (has_more_below())
-    {
-      draw_arrow(context, Resources::arrow_right, Vector(arrow_left, m_pos.y + get_height() / 2.0f - 12.0f - arrow_half),
-                 90.0f, m_down_hover);
-    }
+    const float arrow_top = m_pos.y - get_height() / 2.0f + 12.0f -
+                            static_cast<float>(Resources::arrow_left->get_height()) / 2.0f;
+    draw_arrow(context, Resources::arrow_left,
+               Vector(arrow_left, arrow_top + 24.0f * static_cast<float>(layout.header_end)),
+               90.0f, m_up_hover, up);
+    draw_arrow(context, Resources::arrow_right,
+               Vector(arrow_left, arrow_top + 24.0f * static_cast<float>(layout.header_end + 1 + layout.body_rows)),
+               90.0f, m_down_hover, down);
   }
 
   const float panel_bottom = m_pos.y + get_height() / 2.0f + PANEL_EDGE;
@@ -671,20 +737,17 @@ Menu::point_at(const Vector& mouse_pos)
       y > m_pos.y - get_height()/2 &&
       y < m_pos.y + get_height()/2)
   {
-    if (static_cast<int>((y - (m_pos.y - get_height() / 2.0f)) / 24.0f) != m_spent_arrow_row)
-      m_spent_arrow_row = -1;
-
-    m_pointer_arrow = get_arrow_at(y);
-    if (m_pointer_arrow != 0)
+    const int row = get_row_at(y);
+    m_pointer_arrow = get_arrow_at_row(row);
+    const int new_active_item = get_item_at_row(row);
+    if (m_pointer_arrow != 0 || new_active_item < 0)
     {
       m_pointer_item = -1;
+      const bool live = (m_pointer_arrow < 0 && has_more_above()) || (m_pointer_arrow > 0 && has_more_below());
       if (MouseCursor::current())
-        MouseCursor::current()->set_state(MouseCursorState::LINK);
+        MouseCursor::current()->set_state(live ? MouseCursorState::LINK : MouseCursorState::NORMAL);
       return;
     }
-
-    const int row = static_cast<int>((y - (m_pos.y - get_height() / 2.0f)) / 24.0f);
-    int new_active_item = std::clamp(m_first_row + row, 0, static_cast<int>(m_items.size()) - 1);
 
     m_pointer_item = new_active_item;
     m_pointer_x = x - (m_pos.x - get_width() / 2.0f);
@@ -706,7 +769,6 @@ Menu::point_at(const Vector& mouse_pos)
   {
     m_pointer_item = -1;
     m_pointer_arrow = 0;
-    m_spent_arrow_row = -1;
 
     if (MouseCursor::current())
       MouseCursor::current()->set_state(MouseCursorState::NORMAL);
@@ -742,17 +804,14 @@ Menu::event(const SDL_Event& ev)
           mouse_pos.y > m_pos.y - get_height() / 2.0f &&
           mouse_pos.y < m_pos.y + get_height() / 2.0f)
       {
-        const int row = static_cast<int>((mouse_pos.y - (m_pos.y - get_height() / 2.0f)) / 24.0f);
         if (m_pointer_arrow != 0)
         {
           // A click scrolls a row and holding it keeps scrolling
           scroll(m_pointer_arrow);
           m_held_arrow = m_pointer_arrow;
           m_arrow_repeat_time = g_real_time + MENU_REPEAT_INITIAL;
-          m_spent_arrow_row = row;
-          point_at(mouse_pos);
         }
-        else if (row != m_spent_arrow_row && m_active_item >= 0 && m_pointer_item == m_active_item)
+        else if (m_active_item >= 0 && m_pointer_item == m_active_item)
         {
           // The item knows what it drew where, such as a value's arrows
           const float x = mouse_pos.x - (m_pos.x - get_width() / 2.0f);
