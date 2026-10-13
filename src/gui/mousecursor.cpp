@@ -31,13 +31,53 @@ MouseCursor* MouseCursor::current_ = nullptr;
 MouseCursor::MouseCursor(SpritePtr sprite) :
   m_state(MouseCursorState::NORMAL),
   m_applied_state(MouseCursorState::HIDE),
-  m_sprite(std::move(sprite))
+  m_sprite(std::move(sprite)),
+  m_reported_x(-1),
+  m_reported_y(-1),
+  m_pointer(0.0f, 0.0f),
+  m_window_size(0, 0),
+  m_fullscreen(false),
+  m_lost(false)
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   , m_x(),
   m_y(),
   m_mobile_mode(false)
 #endif
 {
+}
+
+bool
+MouseCursor::find_pointer(int& x, int& y)
+{
+  const Size window_size = VideoSystem::current()->get_window_size();
+  if (x != m_reported_x || y != m_reported_y || m_window_size == Size(0, 0))
+  {
+    // SDL only reports anything new once the pointer moves
+    m_reported_x = x;
+    m_reported_y = y;
+    m_pointer = Vector(static_cast<float>(x), static_cast<float>(y));
+    m_lost = false;
+  }
+  else if (window_size != m_window_size || g_config->use_fullscreen != m_fullscreen)
+  {
+    // SDL keeps the old size's pixels until the pointer moves, so a screen filled before and after is rescaled here
+    if (m_fullscreen && g_config->use_fullscreen)
+    {
+      m_pointer.x *= static_cast<float>(window_size.width) / static_cast<float>(m_window_size.width);
+      m_pointer.y *= static_cast<float>(window_size.height) / static_cast<float>(m_window_size.height);
+    }
+    else
+    {
+      // A window that moved or changed size leaves no way to tell where the pointer is now
+      m_lost = true;
+    }
+  }
+  m_window_size = window_size;
+  m_fullscreen = g_config->use_fullscreen;
+
+  x = static_cast<int>(m_pointer.x);
+  y = static_cast<int>(m_pointer.y);
+  return !m_lost;
 }
 
 void
@@ -81,14 +121,21 @@ MouseCursor::draw(DrawingContext& context)
   {
     int x, y;
     Uint32 ispressed = SDL_GetMouseState(&x, &y);
+    bool known = find_pointer(x, y);
 
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
     if (m_mobile_mode)
     {
       x = m_x;
       y = m_y;
+      known = true;
     }
 #endif
+
+    if (!known)
+    {
+      return;
+    }
 
     if (ispressed & SDL_BUTTON(1) || ispressed & SDL_BUTTON(2))
     {

@@ -22,6 +22,8 @@
 
 #include "config.h"
 
+#include "math/size.hpp"
+#include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "util/currenton.hpp"
 
@@ -62,10 +64,21 @@ public:
 private:
   void apply_state(MouseCursorState state);
 
+  /** Where to draw the pointer in window pixels, or false while it can't be known */
+  bool find_pointer(int& x, int& y);
+
 private:
   MouseCursorState m_state;
   MouseCursorState m_applied_state;
   SpritePtr m_sprite;
+
+  // What SDL last reported, where the cursor takes the pointer to be, and the window it was measured in
+  int m_reported_x;
+  int m_reported_y;
+  Vector m_pointer;
+  Size m_window_size;
+  bool m_fullscreen;
+  bool m_lost;
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   int m_x, m_y;
   bool m_mobile_mode;
