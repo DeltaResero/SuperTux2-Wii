@@ -93,8 +93,8 @@ SDLVideoSystem::apply_config()
   apply_video_mode();
 
   { // apply_viewport
-    Size target_size = (g_config->use_fullscreen && g_config->fullscreen_size != Size(0, 0)) ?
-      g_config->fullscreen_size :
+    Size target_size = g_config->use_fullscreen ?
+      ((g_config->fullscreen_size == Size(0, 0)) ? m_desktop_size : g_config->fullscreen_size) :
       g_config->window_size;
 
     m_viewport = Viewport::from_size(target_size, m_desktop_size);

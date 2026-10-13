@@ -71,7 +71,11 @@ SDLBaseVideoSystem::get_window_size() const
 void
 SDLBaseVideoSystem::on_resize(int w, int h)
 {
-  g_config->window_size = Size(w, h);
+  // A fullscreen window is the screen's size, not one anybody chose for the window
+  if (!g_config->use_fullscreen)
+  {
+    g_config->window_size = Size(w, h);
+  }
   apply_config();
 }
 
