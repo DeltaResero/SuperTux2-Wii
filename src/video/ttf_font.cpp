@@ -86,6 +86,11 @@ TTFFont::get_ttf_font(int pixel_size, unsigned int horizontal_dpi) const
     std::cerr << "TTFFont::get_ttf_font(): " << TTF_GetError() << std::endl;
     return m_font;
   }
+  // Snapping strokes across collapses the curves of narrow letters, so only their height is snapped
+  if (horizontal_dpi != 72)
+  {
+    TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
+  }
   return m_sized_fonts[key] = font;
 }
 

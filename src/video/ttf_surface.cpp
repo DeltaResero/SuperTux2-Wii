@@ -106,25 +106,26 @@ Offsets outline_offsets(int size_x, int size_y)
   return offsets;
 }
 
-Offsets shadow_offsets(int size_x, int size_y)
+// Takes how far the shadow spreads each way rather than its size, so a narrow side isn't rounded down to nothing
+Offsets shadow_spread_offsets(int spread_x, int spread_y)
 {
-  if (size_x == size_y)
+  if (spread_x == spread_y)
   {
-    return shadow_offsets(size_x);
+    return shadow_offsets(spread_x + 1);
   }
 
   Offsets offsets;
-  for (int y = 1 - size_y; y < size_y; ++y)
+  for (int y = -spread_y; y <= spread_y; ++y)
   {
-    for (int x = 1 - size_x; x < size_x; ++x)
+    for (int x = -spread_x; x <= spread_x; ++x)
     {
-      if ((x != 0 || y != 0) && inside(x, y, size_x - 1, size_y - 1))
+      if ((x != 0 || y != 0 || spread_x == 0 || spread_y == 0) && inside(x, y, spread_x, spread_y))
       {
         offsets.emplace_back(x, y);
       }
     }
   }
-  return offsets.empty() ? Offsets{ {0, 0} } : offsets;
+  return offsets;
 }
 
 // A decoration a font has at its own size, at the size the text is rendered
@@ -185,7 +186,12 @@ TTFSurface::create(const TTFFont& font, const std::string& text, const Vector& p
 
     if (shadow_size_x > 0 && shadow_size_y > 0)
     {
-      for (const auto& p : shadow_offsets(shadow_size_x, shadow_size_y))
+      // The spread is worked out on the larger side and narrowed to the pixel's shape
+      const float widest = std::max(glyph_scale.x, glyph_scale.y);
+      const int spread = std::max(shadow_size_x, shadow_size_y) - 1;
+      const int spread_x = static_cast<int>(std::lround(static_cast<float>(spread) * glyph_scale.x / widest));
+      const int spread_y = static_cast<int>(std::lround(static_cast<float>(spread) * glyph_scale.y / widest));
+      for (const auto& p : shadow_spread_offsets(spread_x, spread_y))
       {
         SDL_Rect dstrect{std::get<0>(p) + shadow_offset_x, std::get<1>(p) + shadow_offset_y, text_surface->w, text_surface->h};
         SDL_BlitSurface(text_surface.get(), nullptr,
