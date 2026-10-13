@@ -49,7 +49,9 @@ public:
     WORLDMAP_LEVEL_SELECT_MENU,
     GAME_MENU,
     CHEAT_MENU,
-    DEBUG_MENU
+    DEBUG_MENU,
+    RESOLUTION_MENU,
+    REFRESH_RATE_MENU
   };
 
 public:

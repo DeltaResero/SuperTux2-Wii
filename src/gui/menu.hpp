@@ -89,6 +89,9 @@ public:
 protected:
   MenuItem& add_item(std::unique_ptr<MenuItem> menu_item);
 
+  /** Recalculates the width for this menu */
+  void calculate_width();
+
 private:
   void process_action(const MenuAction& menuaction);
   void check_controlfield_change_event(const SDL_Event& event);
@@ -116,8 +119,6 @@ private:
 
   /** Selects the row under the pointer, or notes the arrow it's on */
   void point_at(const Vector& mouse_pos);
-  /** Recalculates the width for this menu */
-  void calculate_width();
 
 private:
   /** position of the menu (ie. center of the menu, not top/left) */

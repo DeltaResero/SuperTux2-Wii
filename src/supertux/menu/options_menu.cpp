@@ -30,6 +30,7 @@
 #include "supertux/game_session.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
+#include "supertux/menu/resolution_menu.hpp"
 #include "util/log.hpp"
 #include "video/renderer.hpp"
 #include "video/viewport.hpp"
@@ -53,9 +54,7 @@ bool less_than_volume(const std::string& lhs, const std::string& rhs) {
 
 enum OptionsMenuIDs {
   MNID_WINDOW_RESIZABLE,
-  MNID_WINDOW_RESOLUTION,
   MNID_FULLSCREEN,
-  MNID_FULLSCREEN_RESOLUTION,
   MNID_MAGNIFICATION,
   MNID_ASPECTRATIO,
   MNID_VSYNC,
@@ -77,18 +76,15 @@ enum OptionsMenuIDs {
 OptionsMenu::OptionsMenu(bool complete) :
   next_magnification(0),
   next_aspect_ratio(0),
-  next_window_resolution(0),
-  next_resolution(0),
   next_vsync(0),
   next_sound_volume(0),
   next_music_volume(0),
   magnifications(),
   aspect_ratios(),
-  window_resolutions(),
-  resolutions(),
   vsyncs(),
   sound_volumes(),
-  music_volumes()
+  music_volumes(),
+  m_resolution_item(nullptr)
 {
   add_label("Options");
   add_hl();
@@ -138,83 +134,6 @@ OptionsMenu::OptionsMenu(bool complete) :
       next_aspect_ratio = static_cast<int>(aspect_ratios.size());
       aspect_ratios.push_back(aspect_ratio);
     }
-  }
-
-  {
-    window_resolutions = { "640x480", "854x480", "800x600", "1280x720", "1280x800",
-                           "1440x900", "1920x1080", "1920x1200", "2560x1440" };
-    next_window_resolution = -1;
-    Size window_size = VideoSystem::current()->get_window_size();
-    std::ostringstream out;
-    out << window_size.width << "x" << window_size.height;
-    std::string window_size_text = out.str();
-    for (size_t i = 0; i < window_resolutions.size(); ++i)
-    {
-      if (window_resolutions[i] == window_size_text)
-      {
-        next_window_resolution = static_cast<int>(i);
-        break;
-      }
-    }
-    if (next_window_resolution == -1)
-    {
-      window_resolutions.insert(window_resolutions.begin(), window_size_text);
-      next_window_resolution = 0;
-    }
-  }
-
-  resolutions.clear();
-  int display_mode_count = SDL_GetNumDisplayModes(0);
-  std::string last_display_mode;
-  for (int i = 0; i < display_mode_count; ++i)
-  {
-    SDL_DisplayMode mode;
-    int ret = SDL_GetDisplayMode(0, i, &mode);
-    if (ret != 0)
-    {
-      log_warning << "failed to get display mode: " << SDL_GetError() << std::endl;
-    }
-    else
-    {
-      std::ostringstream out;
-      out << mode.w << "x" << mode.h;
-      if (mode.refresh_rate)
-        out << "@" << mode.refresh_rate;
-      if (last_display_mode == out.str())
-        continue;
-      last_display_mode = out.str();
-      resolutions.insert(resolutions.begin(), out.str());
-    }
-  }
-  resolutions.push_back("Desktop");
-
-  std::string fullscreen_size_str = "Desktop";
-  {
-    std::ostringstream out;
-    if (g_config->fullscreen_size != Size(0, 0))
-    {
-      out << g_config->fullscreen_size.width << "x" << g_config->fullscreen_size.height;
-      if (g_config->fullscreen_refresh_rate)
-         out << "@" << g_config->fullscreen_refresh_rate;
-      fullscreen_size_str = out.str();
-    }
-  }
-
-  int cnt = 0;
-  for (const auto& res : resolutions)
-  {
-    if (res == fullscreen_size_str)
-    {
-      fullscreen_size_str.clear();
-      next_resolution = cnt;
-      break;
-    }
-    ++cnt;
-  }
-  if (!fullscreen_size_str.empty())
-  {
-    next_resolution = static_cast<int>(resolutions.size());
-    resolutions.push_back(fullscreen_size_str);
   }
 
   { // vsync
@@ -322,14 +241,10 @@ OptionsMenu::OptionsMenu(bool complete) :
   add_toggle(MNID_FULLSCREEN,"Window Resizable", &g_config->window_resizable)
     .set_help("Allow window resizing, might require a restart to take effect");
 
-  MenuItem& window_res = add_string_select(MNID_WINDOW_RESOLUTION, "Window Resolution", &next_window_resolution, window_resolutions);
-  window_res.set_help("Resize the window to the given size");
-
   add_toggle(MNID_FULLSCREEN,"Fullscreen", &g_config->use_fullscreen)
     .set_help("Fill the entire screen");
 
-  MenuItem& fullscreen_res = add_string_select(MNID_FULLSCREEN_RESOLUTION, "Fullscreen Resolution", &next_resolution, resolutions);
-  fullscreen_res.set_help("Determine the resolution used in fullscreen mode (you must toggle fullscreen to complete the change)");
+  m_resolution_item = &add_submenu("", MenuStorage::RESOLUTION_MENU);
 #endif
 
 #if 0
@@ -395,10 +310,33 @@ OptionsMenu::OptionsMenu(bool complete) :
 
   add_hl();
   add_back("Back");
+
+  refresh();
 }
 
 OptionsMenu::~OptionsMenu()
 {
+}
+
+void
+OptionsMenu::on_window_resize()
+{
+  Menu::on_window_resize();
+
+  // F11 and dragging the window change the size without passing through this menu
+  refresh();
+}
+
+void
+OptionsMenu::refresh()
+{
+  if (m_resolution_item)
+  {
+    m_resolution_item->set_text("Resolution: " + current_resolution_text());
+    m_resolution_item->set_help(g_config->use_fullscreen ? "The resolution the screen is switched to" :
+                                                           "The size of the window the game is drawn in");
+    calculate_width();
+  }
 }
 
 void
@@ -435,60 +373,6 @@ OptionsMenu::menu_action(MenuItem& item)
       VideoSystem::current()->apply_config();
       MenuManager::instance().on_window_resize();
       break;
-
-    case MNID_WINDOW_RESIZABLE:
-      if (!g_config->window_resizable) {
-        next_window_resolution = 0;
-      }
-      break;
-
-    case MNID_WINDOW_RESOLUTION:
-      {
-        int width;
-        int height;
-        if (sscanf(window_resolutions[next_window_resolution].c_str(), "%dx%d",
-                   &width, &height) != 2)
-        {
-          log_fatal << "can't parse " << window_resolutions[next_window_resolution] << std::endl;
-        }
-        else
-        {
-          g_config->window_size = Size(width, height);
-          VideoSystem::current()->apply_config();
-          MenuManager::instance().on_window_resize();
-        }
-      }
-      break;
-
-    case MNID_FULLSCREEN_RESOLUTION:
-      {
-        int width;
-        int height;
-        int refresh_rate;
-        if (resolutions[next_resolution] == "Desktop")
-        {
-          g_config->fullscreen_size.width = 0;
-          g_config->fullscreen_size.height = 0;
-          g_config->fullscreen_refresh_rate = 0;
-        }
-        else if (sscanf(resolutions[next_resolution].c_str(), "%dx%d@%d",
-                  &width, &height, &refresh_rate) == 3)
-        {
-          // do nothing, changes are only applied when toggling fullscreen mode
-          g_config->fullscreen_size.width = width;
-          g_config->fullscreen_size.height = height;
-          g_config->fullscreen_refresh_rate = refresh_rate;
-        }
-        else if (sscanf(resolutions[next_resolution].c_str(), "%dx%d",
-                       &width, &height) == 2)
-        {
-            g_config->fullscreen_size.width = width;
-            g_config->fullscreen_size.height = height;
-            g_config->fullscreen_refresh_rate = 0;
-        }
-      }
-      break;
-
 
     case MNID_VSYNC:
       switch (next_vsync)

@@ -51,6 +51,9 @@ public:
   /** Window is resizable */
   bool window_resizable;
 
+  /** As large as the window manager makes it, with no size of its own kept */
+  bool window_maximised;
+
   /** the aspect ratio */
   Size aspect_size;
 

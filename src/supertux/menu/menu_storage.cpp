@@ -27,6 +27,8 @@
 #include "supertux/menu/main_menu.hpp"
 #include "supertux/menu/options_menu.hpp"
 #include "supertux/menu/profile_menu.hpp"
+#include "supertux/menu/refresh_rate_menu.hpp"
+#include "supertux/menu/resolution_menu.hpp"
 #include "supertux/menu/worldmap_menu.hpp"
 #include "supertux/menu/worldmap_cheat_menu.hpp"
 #include "supertux/menu/world_set_menu.hpp"
@@ -92,6 +94,12 @@ MenuStorage::create(MenuId menu_id)
 
     case DEBUG_MENU:
       return std::make_unique<DebugMenu>();
+
+    case RESOLUTION_MENU:
+      return std::make_unique<ResolutionMenu>();
+
+    case REFRESH_RATE_MENU:
+      return std::make_unique<RefreshRateMenu>();
 
     case WORLDSET_MENU:
       return std::make_unique<WorldSetMenu>();
