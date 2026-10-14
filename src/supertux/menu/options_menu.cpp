@@ -143,7 +143,6 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
   aspect_ratios.push_back("4:3");
   aspect_ratios.push_back("16:10");
   aspect_ratios.push_back("16:9");
-  aspect_ratios.push_back("1368:768");
   // Gets the actual aspect ratio:
   if (g_config->aspect_size != Size(0, 0)) //auto
   {
