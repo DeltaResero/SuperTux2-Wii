@@ -66,7 +66,8 @@ Resources::load()
 
     fixed_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 18, 1.25f, 2, 1);
     normal_font = fixed_font;
-    small_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 10, 1.25f, 2, 1);
+    // The smallest text, still 10 pixels tall on a 480-line screen
+    small_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 12, 1.25f, 2, 1);
     big_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 22, 1.25f, 2, 1);
   }
 
