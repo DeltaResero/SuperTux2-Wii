@@ -119,6 +119,8 @@
     (decal
       (z-pos 200)
       (sprite "/images/background/halloween/vignette.png")
+      (width 1280)
+      (height 800)
       (x 0)
       (y 0)
     )

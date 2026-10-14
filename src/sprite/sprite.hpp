@@ -34,6 +34,10 @@ public:
   void draw(Canvas& canvas, const Vector& pos, int layer,
             Flip flip = NO_FLIP);
 
+  /** Draw sprite stretched over a rectangle, ignoring the action's offset and the sprite's angle */
+  void draw_scaled(Canvas& canvas, const Rectf& dest, int layer,
+                   Flip flip = NO_FLIP);
+
   /** Set action (or state) */
   void set_action(const std::string& name, int loops = -1);
 

@@ -30,8 +30,16 @@ Decal::Decal(const ReaderMapping& reader) :
   m_fade_sprite(m_sprite.get()->clone()),
   m_fade_timer(),
   m_sprite_timer(),
-  m_visible(true)
+  m_visible(true),
+  m_size()
 {
+  float width = 0.0f;
+  float height = 0.0f;
+  if (reader.get("width", width) && reader.get("height", height))
+  {
+    m_size = Sizef(width, height);
+  }
+
   m_layer = reader_get_layer(reader, LAYER_OBJECTS);
 
   reader.get("solid", m_solid, false);
@@ -48,10 +56,22 @@ Decal::~Decal()
 void
 Decal::draw(DrawingContext& context)
 {
+  const bool sized = (m_size.width > 0.0f && m_size.height > 0.0f);
+  const Rectf dest(get_pos(), m_size);
   if (m_visible || m_fade_timer.started())
-    m_sprite->draw(context.color(), get_pos(), m_layer, m_flip);
+  {
+    if (sized)
+      m_sprite->draw_scaled(context.color(), dest, m_layer, m_flip);
+    else
+      m_sprite->draw(context.color(), get_pos(), m_layer, m_flip);
+  }
   if (m_visible && m_sprite_timer.started())
-    m_fade_sprite->draw(context.color(), get_pos(), m_layer, m_flip);
+  {
+    if (sized)
+      m_fade_sprite->draw_scaled(context.color(), dest, m_layer, m_flip);
+    else
+      m_fade_sprite->draw(context.color(), get_pos(), m_layer, m_flip);
+  }
 }
 
 void

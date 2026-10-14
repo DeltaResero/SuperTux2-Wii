@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_OBJECT_DECAL_HPP
 #define HEADER_SUPERTUX_OBJECT_DECAL_HPP
 
+#include "math/sizef.hpp"
 #include "object/moving_sprite.hpp"
 #include "scripting/decal.hpp"
 #include "squirrel/exposed_object.hpp"
@@ -55,6 +56,9 @@ private:
   Timer m_fade_timer;
   Timer m_sprite_timer;
   bool m_visible;
+
+  /** Drawn at this size rather than the picture's own, when given */
+  Sizef m_size;
 
 private:
   Decal(const Decal&) = delete;
