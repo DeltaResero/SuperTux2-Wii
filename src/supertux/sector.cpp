@@ -424,9 +424,10 @@ Sector::draw(DrawingContext& context)
   {
     context.push_transform();
     context.use_ui_space();
+    // A tenth of the way in, where a TV that crops its edges still shows it
     context.color().draw_text(Resources::normal_font,
                               "Press escape to skip",
-                              Vector(32.f, 32.f),
+                              Vector(static_cast<float>(context.get_width()) * 0.1f, 32.f),
                               ALIGN_LEFT,
                               LAYER_OBJECTS + 1000,
                               ColorScheme::Text::heading_color);

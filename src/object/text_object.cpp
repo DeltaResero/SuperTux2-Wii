@@ -16,8 +16,10 @@
 
 #include "object/text_object.hpp"
 
+#include "object/display_effect.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
+#include "supertux/sector.hpp"
 #include "video/drawing_context.hpp"
 #include "video/renderer.hpp"
 #include "video/video_system.hpp"
@@ -141,6 +143,15 @@ TextObject::draw(DrawingContext& context)
   } else if (m_fading < 0) {
     context.set_alpha(-m_fading / m_fadetime);
   } else if (!m_visible) {
+    context.pop_transform();
+    return;
+  }
+
+  // While a cutscene shows its bars, the text sits in the bottom one and covers nothing
+  const float bar = (Sector::current() != nullptr) ? Sector::get().get_effect().get_border_size() : 0.0f;
+  if (bar > 0.0f) {
+    const float top = static_cast<float>(context.get_height()) - (bar + m_font->get_text_height(m_wrapped_text)) / 2.0f;
+    context.color().draw_center_text(m_font, m_wrapped_text, Vector(0.0f, top), LAYER_GUI+60, TextObject::default_color);
     context.pop_transform();
     return;
   }
