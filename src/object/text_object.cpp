@@ -23,6 +23,13 @@
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
+namespace {
+
+// Narrow enough to keep clear of what a 4:3 TV crops at its sides
+const float WRAP_WIDTH = 600.0f;
+
+} // namespace
+
 TextObject::TextObject(const std::string& name) :
   GameObject(name),
   ExposedObject<TextObject, scripting::Text>(this),
@@ -82,7 +89,7 @@ TextObject::wrap_text()
 
   do {
     std::string overflow;
-    m_wrapped_text += m_font->wrap_to_width(rest, 500, &overflow);
+    m_wrapped_text += m_font->wrap_to_width(rest, WRAP_WIDTH, &overflow);
     if (!overflow.empty()) {
       m_wrapped_text += "\n";
     }
