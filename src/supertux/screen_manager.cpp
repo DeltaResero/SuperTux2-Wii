@@ -518,7 +518,8 @@ void ScreenManager::loop_iter()
     // when the game loads up or levels are switched the
     // elapsed time grows extremely large, so we just ignore those
     // large time jumps
-    elapsed_ms = 0.0;
+    // One step is kept, so the frame drawn next is never an older moment than the one before
+    elapsed_ms = static_cast<double>(ms_per_step);
   }
 
   // With vsync the screen paces the loop, and a frame shown between two steps is drawn part way along
