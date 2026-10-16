@@ -411,6 +411,8 @@ Sector::draw(DrawingContext& context)
   context.push_transform();
   context.set_translation(m_last_translation + moved * step_fraction);
   context.scale(m_last_scale + (camera.get_current_scale() - m_last_scale) * step_fraction);
+  // Between pixels, so things glide at any speed and zoom instead of stepping a whole pixel now and then
+  context.transform().between_pixels = true;
 
   GameObjectManager::draw(context, step_fraction);
 

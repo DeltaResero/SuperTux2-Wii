@@ -31,12 +31,16 @@ public:
   /** Rounds each picture and the camera to whole pixels apart, so things standing still keep their place against the ground */
   bool pixel_grid;
 
+  /** Pictures keep their fractions, so things glide at any speed instead of stepping a whole pixel now and then */
+  bool between_pixels;
+
   DrawingTransform() :
     translation(0.0f, 0.0f),
     flip(NO_FLIP),
     alpha(1.0f),
     scale(1.0f),
-    pixel_grid(false)
+    pixel_grid(false),
+    between_pixels(false)
   {}
 };
 

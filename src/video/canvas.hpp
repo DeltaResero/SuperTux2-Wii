@@ -97,6 +97,12 @@ private:
   /** Where a picture lands, both edges on the pixel grid when the transform asks for it */
   Rectf place(const Vector& pos, const Sizef& size) const;
 
+  /** The transform asks for fractions and the renderer can show them */
+  bool between_pixels() const;
+
+  /** Whole pixels counted from the level, unless the picture lands between pixels anyway */
+  bool on_pixel_grid() const;
+
 private:
   DrawingContext& m_context;
   obstack& m_obst;

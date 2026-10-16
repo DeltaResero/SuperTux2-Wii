@@ -151,6 +151,11 @@ TTFFont::draw_text(Canvas& canvas, const std::string& text,
 
   float last_y = pos.y - (static_cast<float>(TTF_FontHeight(m_font)) - get_height()) / 2.0f;
 
+  // Text keeps to whole pixels so it stays crisp, even in a level drawn between them
+  DrawingContext& context = canvas.get_context();
+  context.push_transform();
+  context.transform().between_pixels = false;
+
   LineIterator iter(text);
   while (iter.next())
   {
@@ -181,6 +186,8 @@ TTFFont::draw_text(Canvas& canvas, const std::string& text,
 
     last_y += get_height();
   }
+
+  context.pop_transform();
 }
 
 std::string

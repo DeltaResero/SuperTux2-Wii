@@ -84,7 +84,7 @@ GLPainter::draw_texture(const TextureRequest& request)
 
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {
-    const Rectf dstrect = to_target(request.dstrects[i]);
+    const Rectf dstrect = to_target(request.dstrects[i], request.between_pixels);
     const float left = dstrect.get_left();
     const float top = dstrect.get_top();
     const float right  = dstrect.get_right();
@@ -182,10 +182,10 @@ GLPainter::draw_texture(const TextureRequest& request)
 }
 
 Rectf
-GLPainter::to_target(const Rectf& rect) const
+GLPainter::to_target(const Rectf& rect, bool between_pixels) const
 {
-  // A lightmap pixel covers several screen pixels, so whole ones there would move a light in steps
-  if (m_renderer.get_texture())
+  // Fractions kept for a gliding layer, and on the lightmap, where whole pixels would move a light in steps
+  if (m_renderer.get_texture() || between_pixels)
   {
     return rect;
   }

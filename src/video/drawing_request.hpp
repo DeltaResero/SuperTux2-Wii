@@ -63,7 +63,8 @@ struct TextureRequest : public DrawingRequest
     srcrects(),
     dstrects(),
     angles(),
-    color(1.0f, 1.0f, 1.0f)
+    color(1.0f, 1.0f, 1.0f),
+    between_pixels(false)
   {}
 
   const Texture* texture;
@@ -72,6 +73,7 @@ struct TextureRequest : public DrawingRequest
   std::vector<Rectf> dstrects;
   std::vector<float> angles;
   Color color;
+  bool between_pixels;
 
 private:
   TextureRequest(const TextureRequest&) = delete;

@@ -129,6 +129,7 @@ Canvas::draw_surface(const SurfacePtr& surface,
   request->blend = blend;
 
   request->srcrects.emplace_back(Rectf(surface->get_region()));
+  request->between_pixels = between_pixels();
   request->dstrects.emplace_back(place(position, Sizef(static_cast<float>(surface->get_width()),
                                                       static_cast<float>(surface->get_height()))));
   request->angles.emplace_back(angle);
@@ -168,6 +169,7 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
   request->blend = style.get_blend();
 
   request->srcrects.emplace_back(srcrect);
+  request->between_pixels = between_pixels();
   request->dstrects.emplace_back(place(dstrect.p1(), dstrect.get_size()));
   request->angles.emplace_back(0.0f);
   request->texture = surface->get_texture().get();
@@ -214,6 +216,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
   request->dstrects = std::move(dstrects);
   request->angles = std::move(angles);
 
+  request->between_pixels = between_pixels();
   for (auto& dstrect : request->dstrects)
   {
     dstrect = place(dstrect.p1(), dstrect.get_size());
@@ -381,7 +384,7 @@ Canvas::apply_translate(const Vector& pos) const
   const Vector offset(static_cast<float>(m_context.get_viewport().left),
                       static_cast<float>(m_context.get_viewport().top));
 
-  if (m_context.transform().pixel_grid)
+  if (on_pixel_grid())
   {
     // Rounded apart, so where the camera is never changes how a picture rounds
     const Vector pixels = VideoSystem::current()->get_viewport().get_scale() * scale();
@@ -397,12 +400,24 @@ Canvas::apply_translate(const Vector& pos) const
 Rectf
 Canvas::place(const Vector& pos, const Sizef& size) const
 {
-  if (m_context.transform().pixel_grid)
+  if (on_pixel_grid())
   {
     return Rectf(apply_translate(pos) * scale(), apply_translate(pos + Vector(size.width, size.height)) * scale());
   }
 
   return Rectf(apply_translate(pos) * scale(), size * scale());
+}
+
+bool
+Canvas::between_pixels() const
+{
+  return m_context.transform().between_pixels && VideoSystem::current()->draws_between_pixels();
+}
+
+bool
+Canvas::on_pixel_grid() const
+{
+  return m_context.transform().pixel_grid && !between_pixels();
 }
 
 float

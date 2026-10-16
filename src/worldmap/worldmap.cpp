@@ -516,6 +516,8 @@ WorldMap::draw(DrawingContext& context)
 
   context.push_transform();
   context.set_translation(m_last_camera_offset + moved * step_fraction);
+  // Between pixels, as in a level
+  context.transform().between_pixels = true;
 
   GameObjectManager::draw(context, step_fraction);
 

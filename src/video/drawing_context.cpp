@@ -45,6 +45,7 @@ DrawingContext::use_ui_space()
 {
   set_translation(Vector(0.0f, 0.0f));
   transform().scale = m_video_system.get_viewport().get_ui_scale();
+  transform().between_pixels = false;
 }
 
 DrawingContext::~DrawingContext()

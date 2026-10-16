@@ -35,7 +35,8 @@ SDLVideoSystem::SDLVideoSystem() :
   m_viewport(),
   m_renderer(),
   m_lightmap(),
-  m_texture_manager()
+  m_texture_manager(),
+  m_between_pixels()
 {
   create_window();
 
@@ -85,6 +86,10 @@ SDLVideoSystem::create_window()
     msg << "Couldn't create SDL_Renderer: " << SDL_GetError();
     throw std::runtime_error(msg.str());
   }
+
+  // The software renderer cuts a picture's fractions off, so neighbours would part
+  SDL_RendererInfo info;
+  m_between_pixels = SDL_GetRendererInfo(m_sdl_renderer.get(), &info) == 0 && (info.flags & SDL_RENDERER_SOFTWARE) == 0;
 }
 
 void

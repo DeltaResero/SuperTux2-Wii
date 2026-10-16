@@ -242,7 +242,7 @@ SDLPainter::draw_texture(const TextureRequest& request)
     const Vector& texel_scale = texture.get_texel_scale();
     const SDL_Rect& src_rect = to_sdl_rect(Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
                                                  src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y));
-    const SDL_FRect dst_rect = to_target(request.dstrects[i]);
+    const SDL_FRect dst_rect = to_target(request.dstrects[i], request.between_pixels);
 
     Uint8 r = static_cast<Uint8>(request.color.red * 255);
     Uint8 g = static_cast<Uint8>(request.color.green * 255);
@@ -272,10 +272,10 @@ SDLPainter::draw_texture(const TextureRequest& request)
 }
 
 SDL_FRect
-SDLPainter::to_target(const Rectf& rect) const
+SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
 {
-  // A lightmap pixel covers several screen pixels, so whole ones there would move a light in steps
-  if (SDL_GetRenderTarget(m_sdl_renderer))
+  // Fractions kept for a gliding layer, and on the lightmap, where whole pixels would move a light in steps
+  if (SDL_GetRenderTarget(m_sdl_renderer) || between_pixels)
   {
     return SDL_FRect{ rect.get_left() * m_scale, rect.get_top() * m_scale,
                       rect.get_width() * m_scale, rect.get_height() * m_scale };

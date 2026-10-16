@@ -45,7 +45,7 @@ public:
   virtual void clear_clip_rect() override;
 
 private:
-  Rectf to_target(const Rectf& rect) const;
+  Rectf to_target(const Rectf& rect, bool between_pixels) const;
 
 private:
   GLVideoSystem& m_video_system;

@@ -48,7 +48,7 @@ public:
   virtual void clear_clip_rect() override;
 
 private:
-  SDL_FRect to_target(const Rectf& rect) const;
+  SDL_FRect to_target(const Rectf& rect, bool between_pixels) const;
 
 private:
   SDLVideoSystem& m_video_system;
