@@ -17,10 +17,14 @@
 
 #include "object/textscroller.hpp"
 
+#include <SDL.h>
+#include <algorithm>
+#include <cmath>
 #include <optional>
 #include <sexp/value.hpp>
 
 #include "control/input_manager.hpp"
+#include "supertux/d_scope.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/fadetoblack.hpp"
 #include "supertux/info_box_line.hpp"
@@ -48,6 +52,17 @@ TextScroller::TextScroller(const ReaderMapping& mapping) :
   m_finish_script(),
   m_lines(),
   m_scroll(),
+  m_last_scroll(),
+  m_drawn(),
+  m_last_target(),
+  m_frame_pixels(),
+  m_frame_time(),
+  m_pixel_scale(),
+  m_last_draw(),
+  m_frame_times(),
+  m_frame_count(),
+  m_even_pace(),
+  m_keys_held(),
   m_default_speed(DEFAULT_SPEED),
   m_x_offset(),
   m_controllable(true),
@@ -100,6 +115,17 @@ TextScroller::TextScroller(const ReaderObject& root) :
   m_finish_script(),
   m_lines(),
   m_scroll(),
+  m_last_scroll(),
+  m_drawn(),
+  m_last_target(),
+  m_frame_pixels(),
+  m_frame_time(),
+  m_pixel_scale(),
+  m_last_draw(),
+  m_frame_times(),
+  m_frame_count(),
+  m_even_pace(),
+  m_keys_held(),
   m_default_speed(DEFAULT_SPEED),
   m_x_offset(),
   m_controllable(true),
@@ -245,12 +271,45 @@ TextScroller::draw(DrawingContext& context)
   const float ctx_w = static_cast<float>(context.get_width());
   const float ctx_h = static_cast<float>(context.get_height());
 
-  float y = floorf(ctx_h - m_scroll);
+  // Part way through the last step
+  const float fraction = d_gameobject_manager ? get_step_fraction() : g_step_fraction;
+  m_pixel_scale = VideoSystem::current()->get_viewport().get_scale().y * context.transform().scale;
+  const float target = (m_last_scroll + (m_scroll - m_last_scroll) * fraction) * m_pixel_scale;
+  pick_frame_pixels();
+
+  // The same move every frame, so the page never stalls or skips, nudged a pixel if it drifts from the clock
+  const float forward = (m_default_speed < 0.0f) ? -1.0f : 1.0f;
+  const float behind = (target - m_drawn) * forward;
+  if (m_keys_held)
+  {
+    m_drawn = std::round(target);
+  }
+  else if (!m_even_pace || behind > 8.0f)
+  {
+    // Until the screen's pace is known, or after a jump ahead, it follows the clock but only ever forwards
+    if (behind > 0.0f)
+    {
+      m_drawn = std::round(target);
+    }
+  }
+  else if (target != m_last_target && behind >= -2.0f)
+  {
+    // Behind takes an extra pixel and ahead waits a frame, so it never steps backwards
+    m_drawn += m_frame_pixels + ((behind > 2.0f) ? forward : 0.0f);
+  }
+  m_last_target = target;
+
+  // Every line moves on the pixel grid as one piece
+  const float scroll = std::round(m_drawn) / m_pixel_scale;
+  context.set_translation(Vector(0.0f, scroll));
+  context.transform().pixel_grid = true;
+
+  float y = ctx_h;
 
   { // draw text
     for (const auto& line : m_lines)
     {
-      if (y + line->get_height() >= 0 && ctx_h - y >= 0) {
+      if (y - scroll + line->get_height() >= 0 && ctx_h - (y - scroll) >= 0) {
         line->draw(context, Rectf(LEFT_BORDER, y, ctx_w * (m_x_anchor == XAnchor::SCROLLER_ANCHOR_LEFT ? 0.f :
            m_x_anchor == XAnchor::SCROLLER_ANCHOR_RIGHT ? 2.f : 1.f) + m_x_offset, y), LAYER_GUI,
           (m_text_align == TextAlign::SCROLLER_ALIGN_LEFT ? line->LineAlignment::LEFT :
@@ -265,7 +324,7 @@ TextScroller::draw(DrawingContext& context)
   context.pop_transform();
 
   // close when done
-  if (y < 0)
+  if (y - m_scroll < 0)
   {
     m_finished = true;
     set_default_speed(0.f);
@@ -275,14 +334,25 @@ TextScroller::draw(DrawingContext& context)
 void
 TextScroller::update(float dt_sec)
 {
-  float speed = m_default_speed;
+  m_last_scroll = m_scroll;
 
+  // At the pace of the whole pixels it moves each frame
+  float speed = m_default_speed;
+  m_even_pace = (m_default_speed != 0.0f && m_frame_pixels != 0.0f && m_frame_time > 0.0f && m_pixel_scale > 0.0f);
+  if (m_even_pace)
+  {
+    speed = m_frame_pixels / m_frame_time / m_pixel_scale;
+  }
+
+  m_keys_held = false;
   if (controller && m_controllable) {
     // allow changing speed with up and down keys
     if (controller->hold(Control::UP)) {
       speed = -m_default_speed * 5;
+      m_keys_held = true;
     } else if (controller->hold(Control::DOWN)) {
       speed = m_default_speed * 5;
+      m_keys_held = true;
     }
 
     // allow jumping ahead with certain keys
@@ -319,6 +389,51 @@ TextScroller::update(float dt_sec)
       m_fading = true;
       ScreenManager::current()->pop_screen(std::make_unique<FadeToBlack>(FadeToBlack::FADEOUT, 0.25f));
     }
+  }
+}
+
+void
+TextScroller::pick_frame_pixels()
+{
+  const std::uint64_t now = SDL_GetPerformanceCounter();
+  if (m_last_draw != 0)
+  {
+    const float dt = static_cast<float>(static_cast<double>(now - m_last_draw) / static_cast<double>(SDL_GetPerformanceFrequency()));
+    // A long gap is a pause or a load, not the screen's pace
+    if (dt > 0.0f && dt < 0.25f)
+    {
+      m_frame_times[m_frame_count % m_frame_times.size()] = dt;
+      ++m_frame_count;
+    }
+  }
+  m_last_draw = now;
+
+  // The middle of the last few frames, so a slow one while the level warms up doesn't set the pace
+  const size_t samples = std::min(m_frame_count, m_frame_times.size());
+  if (samples < m_frame_times.size() / 2)
+  {
+    return;
+  }
+  std::array<float, 15> sorted = m_frame_times;
+  std::nth_element(sorted.begin(), sorted.begin() + samples / 2, sorted.begin() + samples);
+  m_frame_time = sorted[samples / 2];
+
+  // The closest of a whole number of pixels every frame or one pixel every whole number of frames
+  const float wanted = m_default_speed * m_pixel_scale * m_frame_time;
+  float frame_pixels = 0.0f;
+  if (wanted != 0.0f)
+  {
+    const float speed = std::abs(wanted);
+    const float pixels = std::max(1.0f, std::round(speed));
+    const float every = 1.0f / std::max(1.0f, std::round(1.0f / speed));
+    const float best = (std::abs(std::log(pixels / speed)) <= std::abs(std::log(every / speed))) ? pixels : every;
+    frame_pixels = std::copysign(best, wanted);
+  }
+
+  // Kept unless clearly off, so a pace near the middle of two doesn't flip between them
+  if (m_frame_pixels == 0.0f || frame_pixels == 0.0f || std::abs(wanted / m_frame_pixels - 1.0f) > 0.4f)
+  {
+    m_frame_pixels = frame_pixels;
   }
 }
 
