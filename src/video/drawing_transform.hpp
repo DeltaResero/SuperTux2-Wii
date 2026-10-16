@@ -28,11 +28,15 @@ public:
   float alpha;
   float scale;
 
+  /** Rounds each picture and the camera to whole pixels apart, so things standing still keep their place against the ground */
+  bool pixel_grid;
+
   DrawingTransform() :
     translation(0.0f, 0.0f),
     flip(NO_FLIP),
     alpha(1.0f),
-    scale(1.0f)
+    scale(1.0f),
+    pixel_grid(false)
   {}
 };
 

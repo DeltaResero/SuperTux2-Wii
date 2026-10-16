@@ -35,6 +35,7 @@ public:
   ~SpecialTile() override;
 
   virtual void draw(DrawingContext& context) override;
+  virtual bool is_still() const override { return true; }
   virtual void update(float dt_sec) override;
 
   Vector get_pos() const { return m_pos; }

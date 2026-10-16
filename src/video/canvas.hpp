@@ -94,6 +94,9 @@ private:
   Vector apply_translate(const Vector& pos) const;
   float scale() const;
 
+  /** Where a picture lands, both edges on the pixel grid when the transform asks for it */
+  Rectf place(const Vector& pos, const Sizef& size) const;
+
 private:
   DrawingContext& m_context;
   obstack& m_obst;

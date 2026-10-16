@@ -94,6 +94,7 @@ public:
 
   virtual void begin_step() override { m_last_pos = get_pos(); }
   virtual Vector get_draw_lag(float step_fraction) const override { return get_step_lag(m_last_pos, get_pos(), step_fraction); }
+  virtual bool is_still() const override { return get_pos() == m_last_pos; }
 
   virtual std::string get_class() const override { return "moving-object"; }
 

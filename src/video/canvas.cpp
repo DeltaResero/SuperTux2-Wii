@@ -26,6 +26,7 @@
 #include "video/renderer.hpp"
 #include "video/surface.hpp"
 #include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
 Canvas::Canvas(DrawingContext& context, obstack& obst) :
   m_context(context),
@@ -128,9 +129,8 @@ Canvas::draw_surface(const SurfacePtr& surface,
   request->blend = blend;
 
   request->srcrects.emplace_back(Rectf(surface->get_region()));
-  request->dstrects.emplace_back(Rectf(apply_translate(position) * scale(),
-                                 Sizef(static_cast<float>(surface->get_width()) * scale(),
-                                       static_cast<float>(surface->get_height()) * scale())));
+  request->dstrects.emplace_back(place(position, Sizef(static_cast<float>(surface->get_width()),
+                                                      static_cast<float>(surface->get_height()))));
   request->angles.emplace_back(angle);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
@@ -168,7 +168,7 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
   request->blend = style.get_blend();
 
   request->srcrects.emplace_back(srcrect);
-  request->dstrects.emplace_back(apply_translate(dstrect.p1())*scale(), dstrect.get_size()*scale());
+  request->dstrects.emplace_back(place(dstrect.p1(), dstrect.get_size()));
   request->angles.emplace_back(0.0f);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
@@ -216,7 +216,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
 
   for (auto& dstrect : request->dstrects)
   {
-    dstrect = Rectf(apply_translate(dstrect.p1())*scale(), dstrect.get_size()*scale());
+    dstrect = place(dstrect.p1(), dstrect.get_size());
   }
 
   request->texture = surface->get_texture().get();
@@ -378,8 +378,31 @@ Vector
 Canvas::apply_translate(const Vector& pos) const
 {
   Vector translation = m_context.transform().translation;
-  return (pos - translation) + Vector(static_cast<float>(m_context.get_viewport().left),
-                                      static_cast<float>(m_context.get_viewport().top));
+  const Vector offset(static_cast<float>(m_context.get_viewport().left),
+                      static_cast<float>(m_context.get_viewport().top));
+
+  if (m_context.transform().pixel_grid)
+  {
+    // Rounded apart, so where the camera is never changes how a picture rounds
+    const Vector pixels = VideoSystem::current()->get_viewport().get_scale() * scale();
+    if (pixels.x > 0.0f && pixels.y > 0.0f)
+    {
+      return (glm::round(pos * pixels) - glm::round(translation * pixels)) / pixels + offset;
+    }
+  }
+
+  return (pos - translation) + offset;
+}
+
+Rectf
+Canvas::place(const Vector& pos, const Sizef& size) const
+{
+  if (m_context.transform().pixel_grid)
+  {
+    return Rectf(apply_translate(pos) * scale(), apply_translate(pos + Vector(size.width, size.height)) * scale());
+  }
+
+  return Rectf(apply_translate(pos) * scale(), size * scale());
 }
 
 float
