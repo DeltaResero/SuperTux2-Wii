@@ -21,6 +21,7 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <vector>
 
 #include "supertux/globals.hpp"
 #include "math/util.hpp"
@@ -159,6 +160,67 @@ void render_texture(SDL_Renderer* renderer,
   }
 }
 
+/** Draws the picture with its FADE_ sides fading out over 1 screen pixel, so a pixel on the edge shows as much as it covers */
+void RenderCopyFaded(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& src, const SDL_FRect& dst,
+                     uint8_t fades, SDL_RendererFlip flip, SDL_Color color)
+{
+  int texture_width = 0;
+  int texture_height = 0;
+  SDL_QueryTexture(texture, nullptr, nullptr, &texture_width, &texture_height);
+  Vector scale;
+  SDL_RenderGetScale(renderer, &scale.x, &scale.y);
+  const Vector half(0.5f / scale.x, 0.5f / scale.y);
+
+  float u0 = static_cast<float>(src.x) / static_cast<float>(texture_width);
+  float u1 = static_cast<float>(src.x + src.w) / static_cast<float>(texture_width);
+  float v0 = static_cast<float>(src.y) / static_cast<float>(texture_height);
+  float v1 = static_cast<float>(src.y + src.h) / static_cast<float>(texture_height);
+  // A side cut from inside a bigger texture doesn't fade, or it would show what lies beside it
+  bool cut_left = src.x > 0, cut_right = src.x + src.w < texture_width;
+  bool cut_top = src.y > 0, cut_bottom = src.y + src.h < texture_height;
+  if (flip & SDL_FLIP_HORIZONTAL) { std::swap(u0, u1); std::swap(cut_left, cut_right); }
+  if (flip & SDL_FLIP_VERTICAL) { std::swap(v0, v1); std::swap(cut_top, cut_bottom); }
+
+  const bool wide = dst.w > 4.0f * half.x, tall = dst.h > 4.0f * half.y;
+  const auto xs = Painter::fade_lines(dst.x, dst.x + dst.w, half.x,
+                                      wide && (fades & FADE_LEFT) && !cut_left, wide && (fades & FADE_RIGHT) && !cut_right);
+  const auto ys = Painter::fade_lines(dst.y, dst.y + dst.h, half.y,
+                                      tall && (fades & FADE_TOP) && !cut_top, tall && (fades & FADE_BOTTOM) && !cut_bottom);
+
+  std::vector<SDL_Vertex> vertices;
+  for (const auto& [y, shown_y] : ys)
+  {
+    for (const auto& [x, shown_x] : xs)
+    {
+      SDL_Vertex vertex;
+      vertex.position = SDL_FPoint{ x, y };
+      vertex.color = color;
+      vertex.color.a = static_cast<Uint8>(std::lround(static_cast<float>(color.a) * shown_x * shown_y));
+      // Held inside the picture, as SDL may wrap a point past the texture's edge round to the far side
+      vertex.tex_coord = SDL_FPoint{ u0 + std::clamp((x - dst.x) / dst.w, 0.0f, 1.0f) * (u1 - u0),
+                                     v0 + std::clamp((y - dst.y) / dst.h, 0.0f, 1.0f) * (v1 - v0) };
+      vertices.push_back(vertex);
+    }
+  }
+
+  std::vector<int> indices;
+  const int columns = static_cast<int>(xs.size());
+  for (int row = 0; row + 1 < static_cast<int>(ys.size()); ++row)
+  {
+    for (int column = 0; column + 1 < columns; ++column)
+    {
+      const int corner = row * columns + column;
+      for (int index : { corner, corner + 1, corner + columns + 1, corner, corner + columns + 1, corner + columns })
+      {
+        indices.push_back(index);
+      }
+    }
+  }
+
+  SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
+                     indices.data(), static_cast<int>(indices.size()));
+}
+
 /* A version SDL_RenderCopyEx that supports texture animation as specified by Sampler */
 void RenderCopyEx(SDL_Renderer*          renderer,
                   SDL_Texture*           texture,
@@ -264,10 +326,22 @@ SDLPainter::draw_texture(const TextureRequest& request)
       flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_VERTICAL);
     }
 
-    RenderCopyEx(m_sdl_renderer, texture.get_texture(),
-                 &src_rect, &dst_rect,
-                 static_cast<double>(request.angles[i]), nullptr, flip,
-                 texture.get_sampler(), texel_scale);
+    const uint8_t fades = (i < request.fades.size()) ? request.fades[i] : 0;
+    if (fades != 0 && request.between_pixels && request.angles[i] == 0.0f && !SDL_GetRenderTarget(m_sdl_renderer) &&
+        texture.get_sampler().get_animate() == Vector(0.0f, 0.0f))
+    {
+      // The colour goes in with the corners, so the texture's own tint is left plain
+      SDL_SetTextureColorMod(texture.get_texture(), 255, 255, 255);
+      SDL_SetTextureAlphaMod(texture.get_texture(), 255);
+      RenderCopyFaded(m_sdl_renderer, texture.get_texture(), src_rect, dst_rect, fades, flip, SDL_Color{ r, g, b, a });
+    }
+    else
+    {
+      RenderCopyEx(m_sdl_renderer, texture.get_texture(),
+                   &src_rect, &dst_rect,
+                   static_cast<double>(request.angles[i]), nullptr, flip,
+                   texture.get_sampler(), texel_scale);
+    }
   }
 }
 

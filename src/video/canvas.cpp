@@ -130,6 +130,7 @@ Canvas::draw_surface(const SurfacePtr& surface,
 
   request->srcrects.emplace_back(Rectf(surface->get_region()));
   request->between_pixels = between_pixels();
+  request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
   request->dstrects.emplace_back(place(position, Sizef(static_cast<float>(surface->get_width()),
                                                       static_cast<float>(surface->get_height()))));
   request->angles.emplace_back(angle);
@@ -170,6 +171,7 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
 
   request->srcrects.emplace_back(srcrect);
   request->between_pixels = between_pixels();
+  request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
   request->dstrects.emplace_back(place(dstrect.p1(), dstrect.get_size()));
   request->angles.emplace_back(0.0f);
   request->texture = surface->get_texture().get();
@@ -184,14 +186,15 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
                            std::vector<Rectf> srcrects,
                            std::vector<Rectf> dstrects,
                            const Color& color,
-                           int layer)
+                           int layer,
+                           std::vector<uint8_t> fades)
 {
   const size_t len = srcrects.size();
   draw_surface_batch(surface,
                      std::move(srcrects),
                      std::move(dstrects),
                      std::vector<float>(len, 0.0f),
-                     color, layer);
+                     color, layer, std::move(fades));
 }
 
 void
@@ -200,7 +203,8 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
                            std::vector<Rectf> dstrects,
                            std::vector<float> angles,
                            const Color& color,
-                           int layer)
+                           int layer,
+                           std::vector<uint8_t> fades)
 {
   if (!surface) return;
 
@@ -217,6 +221,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
   request->angles = std::move(angles);
 
   request->between_pixels = between_pixels();
+  request->fades = std::move(fades);
   for (auto& dstrect : request->dstrects)
   {
     dstrect = place(dstrect.p1(), dstrect.get_size());

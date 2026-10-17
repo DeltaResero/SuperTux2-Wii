@@ -19,10 +19,14 @@
 
 #include "video/painter.hpp"
 
+#include <cstdint>
+#include <vector>
+
 #include "video/flip.hpp"
 
 enum class Blend;
 class GLRenderer;
+class GLTexture;
 class GLVideoSystem;
 class Rectf;
 
@@ -47,6 +51,11 @@ public:
 private:
   Rectf to_target(const Rectf& rect, bool between_pixels) const;
 
+  /** Adds the picture with its FADE_ sides fading out over 1 screen pixel, so a pixel on the edge shows as much as it covers */
+  void add_faded(const Rectf& src, const GLTexture& texture, uint8_t fades, Flip flip,
+                 float left, float top, float right, float bottom,
+                 float uv_left, float uv_top, float uv_right, float uv_bottom);
+
 private:
   GLVideoSystem& m_video_system;
   GLRenderer& m_renderer;
@@ -54,6 +63,7 @@ private:
 private:
   std::vector<float> m_vertices;
   std::vector<float> m_uvs;
+  std::vector<float> m_shown;
 
 private:
   GLPainter(const GLPainter&) = delete;

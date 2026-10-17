@@ -62,7 +62,8 @@ GLPainter::GLPainter(GLVideoSystem& video_system, GLRenderer& renderer) :
   m_video_system(video_system),
   m_renderer(renderer),
   m_vertices(),
-  m_uvs()
+  m_uvs(),
+  m_shown()
 {
 }
 
@@ -78,9 +79,12 @@ GLPainter::draw_texture(const TextureRequest& request)
 
   m_vertices.clear();
   m_uvs.clear();
+  m_shown.clear();
 
   m_vertices.reserve(request.srcrects.size() * 12);
   m_uvs.reserve(request.srcrects.size() * 12);
+  m_shown.reserve(request.srcrects.size() * 6);
+  bool faded = false;
 
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {
@@ -102,7 +106,14 @@ GLPainter::draw_texture(const TextureRequest& request)
     if (request.flip & VERTICAL_FLIP)
       std::swap(uv_top, uv_bottom);
 
-    if (request.angles[i] == 0.0f)
+    const uint8_t fades = (i < request.fades.size()) ? request.fades[i] : 0;
+    if (fades != 0 && request.between_pixels && request.angles[i] == 0.0f && !m_renderer.get_texture() &&
+        !request.displacement_texture && texture.get_sampler().get_animate() == Vector(0.0f, 0.0f))
+    {
+      add_faded(request.srcrects[i], texture, fades, request.flip, left, top, right, bottom, uv_left, uv_top, uv_right, uv_bottom);
+      faded = true;
+    }
+    else if (request.angles[i] == 0.0f)
     {
       auto vertices_lst = {
         left, top,
@@ -125,6 +136,7 @@ GLPainter::draw_texture(const TextureRequest& request)
         uv_right, uv_bottom,
       };
       m_uvs.insert(m_uvs.end(), std::begin(uvs_lst), std::end(uvs_lst));
+      m_shown.insert(m_shown.end(), 6, 1.0f);
     }
     else
     {
@@ -162,6 +174,7 @@ GLPainter::draw_texture(const TextureRequest& request)
         uv_right, uv_bottom,
       };
       m_uvs.insert(m_uvs.end(), std::begin(uvs_lst), std::end(uvs_lst));
+      m_shown.insert(m_shown.end(), 6, 1.0f);
     }
   }
 
@@ -171,14 +184,63 @@ GLPainter::draw_texture(const TextureRequest& request)
   context.bind_texture(texture, request.displacement_texture);
   context.set_texcoords(m_uvs.data(), sizeof(float) * m_uvs.size());
   context.set_positions(m_vertices.data(), sizeof(float) * m_vertices.size());
-  context.set_color(Color(request.color.red,
-                          request.color.green,
-                          request.color.blue,
-                          request.color.alpha * request.alpha));
+  const Color color(request.color.red, request.color.green, request.color.blue, request.color.alpha * request.alpha);
+  std::vector<float> colors;
+  if (faded)
+  {
+    // A fading edge needs its own alpha at each corner
+    colors.reserve(m_shown.size() * 4);
+    for (float shown : m_shown)
+    {
+      colors.insert(colors.end(), { color.red, color.green, color.blue, color.alpha * shown });
+    }
+    context.set_colors(colors.data(), sizeof(float) * colors.size());
+  }
+  else
+  {
+    context.set_color(color);
+  }
 
-  context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(request.srcrects.size() * 2 * 3));
+  context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size() / 2));
 
   assert_gl();
+}
+
+void
+GLPainter::add_faded(const Rectf& src, const GLTexture& texture, uint8_t fades, Flip flip,
+                     float left, float top, float right, float bottom,
+                     float uv_left, float uv_top, float uv_right, float uv_bottom)
+{
+  const Rect viewport = m_renderer.get_rect();
+  const Sizef logical_size = m_renderer.get_logical_size();
+  const Vector half(0.5f * logical_size.width / static_cast<float>(viewport.get_width()),
+                    0.5f * logical_size.height / static_cast<float>(viewport.get_height()));
+
+  // A side cut from inside a bigger texture doesn't fade, or it would show what lies beside it
+  bool cut_left = src.get_left() > 0.0f, cut_right = src.get_right() < static_cast<float>(texture.get_image_width());
+  bool cut_top = src.get_top() > 0.0f, cut_bottom = src.get_bottom() < static_cast<float>(texture.get_image_height());
+  if (flip & HORIZONTAL_FLIP) std::swap(cut_left, cut_right);
+  if (flip & VERTICAL_FLIP) std::swap(cut_top, cut_bottom);
+
+  const bool wide = right - left > 4.0f * half.x, tall = bottom - top > 4.0f * half.y;
+  const auto xs = fade_lines(left, right, half.x, wide && (fades & FADE_LEFT) && !cut_left, wide && (fades & FADE_RIGHT) && !cut_right);
+  const auto ys = fade_lines(top, bottom, half.y, tall && (fades & FADE_TOP) && !cut_top, tall && (fades & FADE_BOTTOM) && !cut_bottom);
+
+  const auto corner = [&](size_t column, size_t row) {
+    const float x = xs[column].first, y = ys[row].first;
+    m_vertices.insert(m_vertices.end(), { x, y });
+    m_uvs.insert(m_uvs.end(), { uv_left + std::clamp((x - left) / (right - left), 0.0f, 1.0f) * (uv_right - uv_left),
+                                uv_top + std::clamp((y - top) / (bottom - top), 0.0f, 1.0f) * (uv_bottom - uv_top) });
+    m_shown.push_back(xs[column].second * ys[row].second);
+  };
+  for (size_t row = 0; row + 1 < ys.size(); ++row)
+  {
+    for (size_t column = 0; column + 1 < xs.size(); ++column)
+    {
+      corner(column, row); corner(column + 1, row); corner(column + 1, row + 1);
+      corner(column, row); corner(column + 1, row + 1); corner(column, row + 1);
+    }
+  }
 }
 
 Rectf

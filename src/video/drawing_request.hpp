@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_DRAWING_REQUEST_HPP
 #define HEADER_SUPERTUX_VIDEO_DRAWING_REQUEST_HPP
 
+#include <cstdint>
 #include <string>
 #include <memory>
 
@@ -28,6 +29,16 @@
 #include "video/font.hpp"
 
 class Surface;
+
+/** Sides of a picture that fade out over a pixel when it lands between pixels */
+enum : uint8_t
+{
+  FADE_LEFT = 1,
+  FADE_RIGHT = 2,
+  FADE_TOP = 4,
+  FADE_BOTTOM = 8,
+  FADE_ALL = FADE_LEFT | FADE_RIGHT | FADE_TOP | FADE_BOTTOM
+};
 
 enum RequestType
 {
@@ -64,7 +75,8 @@ struct TextureRequest : public DrawingRequest
     dstrects(),
     angles(),
     color(1.0f, 1.0f, 1.0f),
-    between_pixels(false)
+    between_pixels(false),
+    fades()
   {}
 
   const Texture* texture;
@@ -74,6 +86,7 @@ struct TextureRequest : public DrawingRequest
   std::vector<float> angles;
   Color color;
   bool between_pixels;
+  std::vector<uint8_t> fades;
 
 private:
   TextureRequest(const TextureRequest&) = delete;

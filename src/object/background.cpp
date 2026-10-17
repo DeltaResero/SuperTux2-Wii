@@ -337,8 +337,13 @@ Background::draw(DrawingContext& context)
              level_size.height / 2);
   // A scrolling background drawn part way through the last step's scroll
   const Vector scroll = m_scroll_offset - get_step_lag(m_last_scroll_offset, m_scroll_offset, get_step_fraction());
+
+  // Copies sit edge to edge, so their edges don't fade
+  context.push_transform();
+  context.transform().fade_edges = false;
   draw_image(context, pos + scroll + Vector(center_offset.x * (1.0f - m_parallax_speed.x),
                                                      center_offset.y * (1.0f - m_parallax_speed.y)));
+  context.pop_transform();
 }
 
 namespace {

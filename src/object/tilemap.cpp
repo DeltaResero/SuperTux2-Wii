@@ -18,6 +18,7 @@
 
 #include <tuple>
 
+#include "supertux/d_scope.hpp"
 #include "supertux/debug.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"
@@ -30,6 +31,7 @@
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 #include "video/drawing_context.hpp"
+#include "video/drawing_request.hpp"
 #include "video/layer.hpp"
 #include "video/surface.hpp"
 #include "worldmap/worldmap.hpp"
@@ -343,7 +345,15 @@ TileMap::draw(DrawingContext& context)
 
   std::unordered_map<SurfacePtr,
                      std::tuple<std::vector<Rectf>,
-                                std::vector<Rectf>>> batches;
+                                std::vector<Rectf>,
+                                std::vector<uint8_t>>> batches;
+
+  // Worldmap roads carry on across layers, so an empty side here isn't an edge
+  const bool fades = !d_worldmap;
+  // A tile's side fades only where no tile meets it, as fading both sides of a joint would let a seam through
+  const auto empty = [this, fades](int x, int y) {
+    return fades && x >= 0 && y >= 0 && x < m_width && y < m_height && m_tiles[y * m_width + x] == 0;
+  };
 
   for (pos.x = start.x, tx = t_draw_rect.left; tx < t_draw_rect.right; pos.x += 32, ++tx) {
     for (pos.y = start.y, ty = t_draw_rect.top; ty < t_draw_rect.bottom; pos.y += 32, ++ty) {
@@ -364,6 +374,10 @@ TileMap::draw(DrawingContext& context)
         std::get<1>(batches[surface]).emplace_back(pos,
                                                    Sizef(static_cast<float>(surface->get_width()),
                                                          static_cast<float>(surface->get_height())));
+        std::get<2>(batches[surface]).push_back(static_cast<uint8_t>((empty(tx - 1, ty) ? FADE_LEFT : 0) |
+                                                                     (empty(tx + 1, ty) ? FADE_RIGHT : 0) |
+                                                                     (empty(tx, ty - 1) ? FADE_TOP : 0) |
+                                                                     (empty(tx, ty + 1) ? FADE_BOTTOM : 0)));
       }
     }
   }
@@ -377,7 +391,8 @@ TileMap::draw(DrawingContext& context)
       canvas.draw_surface_batch(surface,
                                 std::move(std::get<0>(it.second)),
                                 std::move(std::get<1>(it.second)),
-                                m_current_tint, m_z_pos);
+                                m_current_tint, m_z_pos,
+                                std::move(std::get<2>(it.second)));
     }
   }
 

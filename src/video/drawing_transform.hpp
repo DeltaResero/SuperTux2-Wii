@@ -34,13 +34,17 @@ public:
   /** Pictures keep their fractions, so things glide at any speed instead of stepping a whole pixel now and then */
   bool between_pixels;
 
+  /** Between pixels, a picture's edges fade out over a pixel so they glide like its insides; off for pictures that sit edge to edge */
+  bool fade_edges;
+
   DrawingTransform() :
     translation(0.0f, 0.0f),
     flip(NO_FLIP),
     alpha(1.0f),
     scale(1.0f),
     pixel_grid(false),
-    between_pixels(false)
+    between_pixels(false),
+    fade_edges(true)
   {}
 };
 
