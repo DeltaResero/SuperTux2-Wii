@@ -54,7 +54,7 @@ private:
   void parse_root(const ReaderObject& root);
   void parse_content(const ReaderCollection& collection);
 
-  /** Picks the whole pixels each frame that come closest to the speed at the screen's pace */
+  /** Picks the whole pixels each frame that come closest to the speed at the screen's pace, and with a key held */
   void pick_frame_pixels();
 
 private:
@@ -68,15 +68,17 @@ private:
   float m_drawn;
   float m_last_target;
 
-  /** Pixels the page moves each frame, a fraction for one pixel every few frames */
+  /** Pixels the page moves each frame, a fraction for one pixel every few frames, and with up or down held */
   float m_frame_pixels;
+  float m_held_pixels;
   float m_frame_time;
   float m_pixel_scale;
   std::uint64_t m_last_draw;
   std::array<float, 15> m_frame_times;
   size_t m_frame_count;
   bool m_even_pace;
-  bool m_keys_held;
+  /** 1 while down is held and -1 while up is */
+  int m_held;
   float m_default_speed;
   float m_x_offset;
   bool m_controllable;
