@@ -294,6 +294,7 @@ Canvas::draw_filled_rect(const Rectf& rect, const Color& color, float radius, in
   request->color = color;
   request->color.alpha = color.alpha * m_context.transform().alpha;
   request->radius = radius;
+  request->whole_pixels = on_pixel_grid();
 
   m_requests.push_back(request);
 }

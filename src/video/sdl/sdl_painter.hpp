@@ -49,6 +49,8 @@ public:
 
 private:
   SDL_FRect to_target(const Rectf& rect, bool between_pixels) const;
+  /** Fills rect, rounded by radius, in whole screen pixels */
+  void fill_whole_pixels(const Rectf& rect, float radius) const;
 
 private:
   SDLVideoSystem& m_video_system;

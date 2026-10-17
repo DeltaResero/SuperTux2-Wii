@@ -370,6 +370,43 @@ SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
 }
 
 void
+SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
+{
+  // Edges on whole screen pixels as to_target puts pictures', corners rounded row by row of whole pixels
+  const Viewport& viewport = m_video_system.get_viewport();
+  Vector scale;
+  SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
+  const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
+  const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
+  const int left = static_cast<int>(std::round((origin_x + rect.get_left() * m_scale) * scale.x));
+  const int top = static_cast<int>(std::round((origin_y + rect.get_top() * m_scale) * scale.y));
+  const int right = static_cast<int>(std::round((origin_x + rect.get_right() * m_scale) * scale.x));
+  const int bottom = static_cast<int>(std::round((origin_y + rect.get_bottom() * m_scale) * scale.y));
+  if (right <= left || bottom <= top) return;
+
+  const float radius_x = std::min(radius * m_scale * scale.x, static_cast<float>(right - left) / 2.0f);
+  const float radius_y = std::min(radius * m_scale * scale.y, static_cast<float>(bottom - top) / 2.0f);
+  const int rows = static_cast<int>(radius_y);
+  std::vector<SDL_FRect> rects;
+  const auto add = [&](int x0, int y0, int x1, int y1) {
+    rects.push_back(SDL_FRect{ static_cast<float>(x0) / scale.x - origin_x, static_cast<float>(y0) / scale.y - origin_y,
+                               static_cast<float>(x1 - x0) / scale.x, static_cast<float>(y1 - y0) / scale.y });
+  };
+  for (int i = 0; i < rows; ++i)
+  {
+    const float dy = (radius_y - (static_cast<float>(i) + 0.5f)) / radius_y;
+    const int inset = static_cast<int>(std::round(radius_x - std::sqrt(std::max(0.0f, 1.0f - dy * dy)) * radius_x));
+    add(left + inset, top + i, right - inset, top + i + 1);
+    add(left + inset, bottom - 1 - i, right - inset, bottom - i);
+  }
+  if (bottom - top > 2 * rows)
+  {
+    add(left, top + rows, right, bottom - rows);
+  }
+  SDL_RenderFillRectsF(m_sdl_renderer, rects.data(), static_cast<int>(rects.size()));
+}
+
+void
 SDLPainter::draw_gradient(const GradientRequest& request)
 {
   const Color& top = request.top;
@@ -436,6 +473,14 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
   Uint8 g = static_cast<Uint8>(request.color.green * 255);
   Uint8 b = static_cast<Uint8>(request.color.blue * 255);
   Uint8 a = static_cast<Uint8>(request.color.alpha * 255);
+
+  if (request.whole_pixels)
+  {
+    SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
+    fill_whole_pixels(request.rect, request.radius);
+    return;
+  }
 
   int radius = std::min(std::min(rect.h / 2, rect.w / 2),
                         static_cast<int>(request.radius));

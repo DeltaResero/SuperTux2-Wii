@@ -119,12 +119,15 @@ struct FillRectRequest : public DrawingRequest
     DrawingRequest(FILLRECT),
     rect(),
     color(),
-    radius()
+    radius(),
+    whole_pixels(false)
   {}
 
   Rectf rect;
   Color color;
   float radius;
+  /** Edges on whole screen pixels, as pictures on the pixel grid have */
+  bool whole_pixels;
 };
 
 struct InverseEllipseRequest : public DrawingRequest
