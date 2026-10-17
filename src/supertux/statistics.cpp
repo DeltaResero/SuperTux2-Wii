@@ -28,6 +28,7 @@
 #include "supertux/globals.hpp"
 #include "supertux/level.hpp"
 #include "supertux/resources.hpp"
+#include "supertux/screen_manager.hpp"
 #include "util/log.hpp"
 #include "video/drawing_context.hpp"
 #include "video/surface.hpp"
@@ -61,6 +62,9 @@ Statistics::Statistics() :
   m_coins_time(0.f),
   m_badguys_time(0.f),
   m_secrets_time(0.f),
+  m_coins_slide(),
+  m_badguys_slide(),
+  m_secrets_slide(),
   m_max_width(256),
   CAPTION_MAX_COINS("Max coins collected:"),
   CAPTION_MAX_FRAGGING("Max fragging:"),
@@ -315,10 +319,41 @@ Statistics::draw_endseq_panel(DrawingContext& context, Statistics* best_stats, c
   }
 }
 
+namespace {
+
+/** Moves what's drawn next so pos is at the origin, on whole pixels, so a panel's text never shifts against its box */
+void
+move_to_whole_pixels(DrawingContext& context, const Vector& pos)
+{
+  const Vector pixels = VideoSystem::current()->get_viewport().get_scale() * context.transform().scale;
+  context.set_translation(context.get_translation() - glm::round(pos * pixels) / pixels);
+  context.transform().pixel_grid = true;
+}
+
+} // namespace
+
+float
+Statistics::slide(Slide& panel, float time, float full, float pixels)
+{
+  // From where its border is off screen too
+  const float distance = std::round((full + 5.f) * pixels);
+  if (panel.shown <= 0.f && time < 4.f)
+  {
+    // About a second each way, at a whole number of pixels a frame or 1 every few frames
+    const float fps = ScreenManager::current()->get_fps();
+    const float wanted = distance / ((fps > 0.f) ? fps : 60.f);
+    panel.pace = (wanted >= 1.f) ? std::round(wanted) : 1.f / std::round(1.f / wanted);
+  }
+  panel.shown = (time < 4.f) ? std::min(distance, panel.shown + panel.pace) : std::max(0.f, panel.shown - panel.pace);
+  return panel.shown / pixels - 5.f;
+}
+
 void
 Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
 {
-  if (on_pause_menu || (m_cleared_coins && m_coins_time < 5.f))
+  const float pixels = VideoSystem::current()->get_viewport().get_scale().x * context.transform().scale;
+
+  if (on_pause_menu || (m_cleared_coins && (m_coins_time < 4.f || m_coins_slide.shown > 0.f)))
   {
     std::string text(coins_to_string(m_coins, m_total_coins));
     float width = Resources::normal_font->get_text_width(text),
@@ -326,10 +361,13 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
           x_offset = width + 75.f;
 
     if (!on_pause_menu)
-      x_offset *= std::min(1.f, -std::abs(m_coins_time - 2.5f) + 2.5f);
+      x_offset = slide(m_coins_slide, m_coins_time, x_offset, pixels);
 
+    context.push_transform();
     Vector pos(static_cast<float>(context.get_width()) - x_offset,
                static_cast<float>(context.get_height()) - height * 6.f - 20.f);
+    move_to_whole_pixels(context, pos);
+    pos = Vector(0.f, 0.f);
 
     context.color().draw_filled_rect(Rectf(pos.x, pos.y, pos.x + width + 21.f,
                                            pos.y + height).grown(5.f),
@@ -345,9 +383,10 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
                                         Rectf(pos.x + width + 1.f, pos.y + 1.f,
                                               pos.x + width + 16.f, pos.y + 16.f),
                                         LAYER_HUD);
+    context.pop_transform();
   }
 
-  if (on_pause_menu || (m_cleared_badguys && m_badguys_time < 5.f))
+  if (on_pause_menu || (m_cleared_badguys && (m_badguys_time < 4.f || m_badguys_slide.shown > 0.f)))
   {
     std::string text(frags_to_string(m_badguys, m_total_badguys));
     float width = Resources::normal_font->get_text_width(text),
@@ -355,10 +394,13 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
           x_offset = width + 75.f;
 
     if (!on_pause_menu)
-      x_offset *= std::min(1.f, -std::abs(m_badguys_time - 2.5f) + 2.5f);
+      x_offset = slide(m_badguys_slide, m_badguys_time, x_offset, pixels);
 
+    context.push_transform();
     Vector pos(static_cast<float>(context.get_width()) - x_offset,
                static_cast<float>(context.get_height()) - height * 5.f - 10.f);
+    move_to_whole_pixels(context, pos);
+    pos = Vector(0.f, 0.f);
 
     context.color().draw_filled_rect(Rectf(pos.x, pos.y, pos.x + width + 21.f,
                                            pos.y + height).grown(5.f),
@@ -374,9 +416,10 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
                                         Rectf(pos.x + width + 1.f, pos.y + 1.f,
                                               pos.x + width + 16.f, pos.y + 16.f),
                                         LAYER_HUD);
+    context.pop_transform();
   }
 
-  if (on_pause_menu || (m_cleared_secrets && m_secrets_time < 5.f))
+  if (on_pause_menu || (m_cleared_secrets && (m_secrets_time < 4.f || m_secrets_slide.shown > 0.f)))
   {
     std::string text(secrets_to_string(m_secrets, m_total_secrets));
     float width = Resources::normal_font->get_text_width(text),
@@ -384,10 +427,13 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
           x_offset = width + 75.f;
 
     if (!on_pause_menu)
-      x_offset *= std::min(1.f, -std::abs(m_secrets_time - 2.5f) + 2.5f);
+      x_offset = slide(m_secrets_slide, m_secrets_time, x_offset, pixels);
 
+    context.push_transform();
     Vector pos(static_cast<float>(context.get_width()) - x_offset,
                static_cast<float>(context.get_height()) - height * 4.f);
+    move_to_whole_pixels(context, pos);
+    pos = Vector(0.f, 0.f);
 
     context.color().draw_filled_rect(Rectf(pos.x, pos.y, pos.x + width + 21.f,
                                            pos.y + height).grown(5.f),
@@ -403,6 +449,7 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
                                         Rectf(pos.x + width + 1.f, pos.y + 1.f,
                                               pos.x + width + 16.f, pos.y + 16.f),
                                         LAYER_HUD);
+    context.pop_transform();
   }
 }
 

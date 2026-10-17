@@ -106,6 +106,19 @@ private:
         m_badguys_time,
         m_secrets_time;
 
+  /** How far a panel has slid out, in screen pixels, and how far it moves each frame */
+  struct Slide
+  {
+    float shown;
+    float pace;
+  };
+  Slide m_coins_slide,
+        m_badguys_slide,
+        m_secrets_slide;
+
+  /** Where a panel resting full units in sits this frame: in, then out after 4 seconds, by the same pixels each frame */
+  static float slide(Slide& panel, float time, float full, float pixels);
+
 private:
   int m_max_width; /** < Gets the max width of a stats line, 255 by default */
 

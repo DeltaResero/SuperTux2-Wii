@@ -504,6 +504,12 @@ ScreenManager::handle_screen_switch()
   }
 }
 
+float
+ScreenManager::get_fps() const
+{
+  return m_fps_statistics->get_fps();
+}
+
 void ScreenManager::loop_iter()
 {
   Uint32 ticks = SDL_GetTicks();

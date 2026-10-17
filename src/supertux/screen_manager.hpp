@@ -59,6 +59,9 @@ public:
 
   void loop_iter();
 
+  /** Frames drawn a second, measured each half second, or 0 at first */
+  float get_fps() const;
+
 private:
   struct FPS_Stats;
   void draw_fps(DrawingContext& context, FPS_Stats& fps_statistics);
