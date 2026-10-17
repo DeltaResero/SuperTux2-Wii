@@ -301,7 +301,17 @@ TextureManager::make_texture(const std::string& filename, const SDL_Surface& ima
                                 std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * m_shrink.x))),
                                 std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * m_shrink.y))));
   }
-  const SDL_Surface& pixels = shrunk ? *shrunk : image;
+  SDLSurfacePtr copy;
+  if (!shrunk && SDL_ISPIXELFORMAT_ALPHA(image.format->format))
+  {
+    copy.reset(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+  }
+  SDL_Surface* own = shrunk ? shrunk.get() : copy.get();
+  if (own)
+  {
+    SDLSurface::fill_clear_pixels(*own);
+  }
+  const SDL_Surface& pixels = own ? *own : image;
 
   if (reload)
   {

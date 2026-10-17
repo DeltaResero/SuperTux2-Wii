@@ -143,6 +143,72 @@ SDLSurface::save_png(const SDL_Surface& surface, const std::string& filename)
   }
 }
 
+void
+SDLSurface::fill_clear_pixels(SDL_Surface& surface)
+{
+  if (surface.format->format != SDL_PIXELFORMAT_RGBA32)
+  {
+    return;
+  }
+
+  if (SDL_MUSTLOCK(&surface)) SDL_LockSurface(&surface);
+  const int width = surface.w;
+  const int height = surface.h;
+  const auto pixel = [&surface](int x, int y) { return static_cast<Uint8*>(surface.pixels) + y * surface.pitch + x * 4; };
+  const auto at = [width](int x, int y) { return static_cast<size_t>(y) * static_cast<size_t>(width) + static_cast<size_t>(x); };
+
+  std::vector<Uint8> known(static_cast<size_t>(width) * static_cast<size_t>(height));
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      known[at(x, y)] = pixel(x, y)[3] > 0;
+    }
+  }
+
+  // As far out as a blend reaches when the picture is drawn smaller
+  for (int ring = 0; ring < 2; ++ring)
+  {
+    std::vector<Uint8> next = known;
+    for (int y = 0; y < height; ++y)
+    {
+      for (int x = 0; x < width; ++x)
+      {
+        if (known[at(x, y)])
+        {
+          continue;
+        }
+
+        int red = 0, green = 0, blue = 0, count = 0;
+        for (int ny = std::max(y - 1, 0); ny <= std::min(y + 1, height - 1); ++ny)
+        {
+          for (int nx = std::max(x - 1, 0); nx <= std::min(x + 1, width - 1); ++nx)
+          {
+            if (known[at(nx, ny)])
+            {
+              const Uint8* in = pixel(nx, ny);
+              red += in[0];
+              green += in[1];
+              blue += in[2];
+              ++count;
+            }
+          }
+        }
+        if (count > 0)
+        {
+          Uint8* out = pixel(x, y);
+          out[0] = static_cast<Uint8>(red / count);
+          out[1] = static_cast<Uint8>(green / count);
+          out[2] = static_cast<Uint8>(blue / count);
+          next[at(x, y)] = 1;
+        }
+      }
+    }
+    known.swap(next);
+  }
+  if (SDL_MUSTLOCK(&surface)) SDL_UnlockSurface(&surface);
+}
+
 SDLSurfacePtr
 SDLSurface::shrink(const SDL_Surface& surface, int width, int height)
 {

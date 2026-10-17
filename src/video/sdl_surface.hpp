@@ -32,6 +32,9 @@ public:
 
   /** An even average of every pixel the smaller picture covers, weighted by alpha so edges don't darken */
   static SDLSurfacePtr shrink(const SDL_Surface& surface, int width, int height);
+
+  /** Gives clear pixels the colour beside them, so blending between pixels keeps the edge's colour */
+  static void fill_clear_pixels(SDL_Surface& surface);
 };
 
 #endif
