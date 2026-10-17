@@ -525,11 +525,22 @@ void ScreenManager::loop_iter()
   // With vsync the screen paces the loop, and a frame shown between two steps is drawn part way along
   const bool draw_every_refresh = g_config->vsync != 0;
 
-  if (elapsed_ms < static_cast<double>(ms_per_step) && !draw_every_refresh && !g_debug.draw_redundant_frames) {
-    // Sleep a bit because not enough time has passed since the previous
-    // logical game step
-    SDL_Delay(ms_per_step - static_cast<Uint32>(elapsed_ms));
-    return;
+  // Without it nothing paces the loop, so frames are drawn part way along too, up to 4 a refresh
+  static Uint64 last_draw = 0;
+  static double min_frame_ms = 0.0;
+  const bool capped = !draw_every_refresh && !g_debug.draw_redundant_frames;
+  if (capped) {
+    if (min_frame_ms == 0.0) {
+      SDL_DisplayMode mode;
+      const int refresh = (SDL_GetCurrentDisplayMode(0, &mode) == 0 && mode.refresh_rate > 0) ? mode.refresh_rate : 60;
+      min_frame_ms = 1000.0 / (4.0 * static_cast<double>(refresh));
+    }
+    const double since = (last_draw == 0) ? min_frame_ms :
+      static_cast<double>(counter - last_draw) * 1000.0 / static_cast<double>(SDL_GetPerformanceFrequency());
+    if (since < min_frame_ms) {
+      SDL_Delay(static_cast<Uint32>(min_frame_ms - since));
+      return;
+    }
   }
 
   g_real_time = static_cast<float>(ticks) / 1000.0f;
@@ -574,8 +585,9 @@ void ScreenManager::loop_iter()
 
   g_step_fraction = std::min(1.0f, static_cast<float>(elapsed_ms / static_cast<double>(ms_per_step)));
 
-  if (((steps > 0 || draw_every_refresh) && !m_screen_stack.empty())
+  if (((steps > 0 || draw_every_refresh || capped) && !m_screen_stack.empty())
       || g_debug.draw_redundant_frames) {
+    last_draw = counter;
     // Draw a frame
     Compositor compositor(m_video_system);
     draw(compositor, *m_fps_statistics);
