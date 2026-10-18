@@ -77,13 +77,24 @@ GLPainter::draw_texture(const TextureRequest& request)
   assert(request.srcrects.size() == request.dstrects.size());
   assert(request.srcrects.size() == request.angles.size());
 
-  m_vertices.clear();
-  m_uvs.clear();
-  m_shown.clear();
-
-  m_vertices.reserve(request.srcrects.size() * 12);
-  m_uvs.reserve(request.srcrects.size() * 12);
-  m_shown.reserve(request.srcrects.size() * 6);
+  // With nothing turned or faded, every picture is 6 corners, so the lists only grow and the corners go straight in
+  const bool plain = std::all_of(request.angles.begin(), request.angles.end(), [](float angle) { return angle == 0.0f; }) &&
+                     std::all_of(request.fades.begin(), request.fades.end(), [](uint8_t fades) { return fades == 0; });
+  const size_t plain_floats = request.srcrects.size() * 12;
+  if (plain)
+  {
+    if (m_vertices.size() < plain_floats) m_vertices.resize(plain_floats);
+    if (m_uvs.size() < plain_floats) m_uvs.resize(plain_floats);
+  }
+  else
+  {
+    m_vertices.clear();
+    m_uvs.clear();
+    m_shown.clear();
+    m_vertices.reserve(request.srcrects.size() * 12);
+    m_uvs.reserve(request.srcrects.size() * 12);
+    m_shown.reserve(request.srcrects.size() * 6);
+  }
   bool faded = false;
 
   for (size_t i = 0; i < request.srcrects.size(); ++i)
@@ -115,28 +126,23 @@ GLPainter::draw_texture(const TextureRequest& request)
     }
     else if (request.angles[i] == 0.0f)
     {
-      auto vertices_lst = {
-        left, top,
-        right, top,
-        right, bottom,
-
-        left, bottom,
-        left, top,
-        right, bottom,
-      };
-      m_vertices.insert(m_vertices.end(), std::begin(vertices_lst), std::end(vertices_lst));
-
-      auto uvs_lst = {
-        uv_left, uv_top,
-        uv_right, uv_top,
-        uv_right, uv_bottom,
-
-        uv_left, uv_bottom,
-        uv_left, uv_top,
-        uv_right, uv_bottom,
-      };
-      m_uvs.insert(m_uvs.end(), std::begin(uvs_lst), std::end(uvs_lst));
-      m_shown.insert(m_shown.end(), 6, 1.0f);
+      // Written in place, as a range insert per picture costs more than the drawing in a build without optimising
+      const size_t at = plain ? i * 12 : m_vertices.size();
+      const size_t uv_at = plain ? i * 12 : m_uvs.size();
+      if (!plain)
+      {
+        m_vertices.resize(at + 12);
+        m_uvs.resize(uv_at + 12);
+        m_shown.resize(m_shown.size() + 6, 1.0f);
+      }
+      float* vertex = &m_vertices[at];
+      float* uv = &m_uvs[uv_at];
+      vertex[0] = left;   vertex[1] = top;     uv[0] = uv_left;   uv[1] = uv_top;
+      vertex[2] = right;  vertex[3] = top;     uv[2] = uv_right;  uv[3] = uv_top;
+      vertex[4] = right;  vertex[5] = bottom;  uv[4] = uv_right;  uv[5] = uv_bottom;
+      vertex[6] = left;   vertex[7] = bottom;  uv[6] = uv_left;   uv[7] = uv_bottom;
+      vertex[8] = left;   vertex[9] = top;     uv[8] = uv_left;   uv[9] = uv_top;
+      vertex[10] = right; vertex[11] = bottom; uv[10] = uv_right; uv[11] = uv_bottom;
     }
     else
     {
@@ -182,8 +188,9 @@ GLPainter::draw_texture(const TextureRequest& request)
 
   context.blend_func(sfactor(request.blend), dfactor(request.blend));
   context.bind_texture(texture, request.displacement_texture);
-  context.set_texcoords(m_uvs.data(), sizeof(float) * m_uvs.size());
-  context.set_positions(m_vertices.data(), sizeof(float) * m_vertices.size());
+  const size_t floats = plain ? plain_floats : m_vertices.size();
+  context.set_texcoords(m_uvs.data(), sizeof(float) * (plain ? plain_floats : m_uvs.size()));
+  context.set_positions(m_vertices.data(), sizeof(float) * floats);
   const Color color(request.color.red, request.color.green, request.color.blue, request.color.alpha * request.alpha);
   std::vector<float> colors;
   if (faded)
@@ -201,7 +208,7 @@ GLPainter::draw_texture(const TextureRequest& request)
     context.set_color(color);
   }
 
-  context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size() / 2));
+  context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(floats / 2));
 
   assert_gl();
 }

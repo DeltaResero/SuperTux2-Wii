@@ -231,10 +231,9 @@ void RenderCopyParts(SDL_Renderer* renderer, SDL_Texture* texture, const std::ve
   const float width = static_cast<float>(texture_width);
   const float height = static_cast<float>(texture_height);
 
-  std::vector<SDL_Vertex> vertices;
-  std::vector<int> indices;
-  vertices.reserve(texels.size() * 4);
-  indices.reserve(texels.size() * 6);
+  // Written in place, as a push per corner costs more than the drawing in a build without optimising
+  std::vector<SDL_Vertex> vertices(texels.size() * 4);
+  std::vector<int> indices(texels.size() * 6);
   for (size_t i = 0; i < texels.size(); ++i)
   {
     const float u0 = texels[i].get_left() / width;
@@ -242,15 +241,19 @@ void RenderCopyParts(SDL_Renderer* renderer, SDL_Texture* texture, const std::ve
     const float v0 = texels[i].get_top() / height;
     const float v1 = texels[i].get_bottom() / height;
     const SDL_FRect& dst = dsts[i];
-    const int corner = static_cast<int>(vertices.size());
-    vertices.push_back({ SDL_FPoint{ dst.x, dst.y }, color, SDL_FPoint{ u0, v0 } });
-    vertices.push_back({ SDL_FPoint{ dst.x + dst.w, dst.y }, color, SDL_FPoint{ u1, v0 } });
-    vertices.push_back({ SDL_FPoint{ dst.x + dst.w, dst.y + dst.h }, color, SDL_FPoint{ u1, v1 } });
-    vertices.push_back({ SDL_FPoint{ dst.x, dst.y + dst.h }, color, SDL_FPoint{ u0, v1 } });
-    for (int index : { corner, corner + 1, corner + 2, corner, corner + 2, corner + 3 })
-    {
-      indices.push_back(index);
-    }
+    SDL_Vertex* vertex = &vertices[i * 4];
+    vertex[0] = { SDL_FPoint{ dst.x, dst.y }, color, SDL_FPoint{ u0, v0 } };
+    vertex[1] = { SDL_FPoint{ dst.x + dst.w, dst.y }, color, SDL_FPoint{ u1, v0 } };
+    vertex[2] = { SDL_FPoint{ dst.x + dst.w, dst.y + dst.h }, color, SDL_FPoint{ u1, v1 } };
+    vertex[3] = { SDL_FPoint{ dst.x, dst.y + dst.h }, color, SDL_FPoint{ u0, v1 } };
+    const int corner = static_cast<int>(i * 4);
+    int* index = &indices[i * 6];
+    index[0] = corner;
+    index[1] = corner + 1;
+    index[2] = corner + 2;
+    index[3] = corner;
+    index[4] = corner + 2;
+    index[5] = corner + 3;
   }
   SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
                      indices.data(), static_cast<int>(indices.size()));
@@ -337,16 +340,14 @@ SDLPainter::draw_texture(const TextureRequest& request)
       std::all_of(request.fades.begin(), request.fades.end(), [](uint8_t fades) { return fades == 0; }))
   {
     const Vector& texel_scale = texture.get_texel_scale();
-    std::vector<Rectf> texels;
-    std::vector<SDL_FRect> dsts;
-    texels.reserve(request.srcrects.size());
-    dsts.reserve(request.srcrects.size());
+    std::vector<Rectf> texels(request.srcrects.size());
+    std::vector<SDL_FRect> dsts(request.srcrects.size());
     for (size_t i = 0; i < request.srcrects.size(); ++i)
     {
       const Rectf& src = request.srcrects[i];
-      texels.emplace_back(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
-                          src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y);
-      dsts.push_back(to_target(request.dstrects[i], request.between_pixels));
+      texels[i] = Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
+                        src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y);
+      dsts[i] = to_target(request.dstrects[i], request.between_pixels);
     }
     // The colour goes in with the corners, so the texture's own tint is left plain
     SDL_SetTextureColorMod(texture.get_texture(), 255, 255, 255);
