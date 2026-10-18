@@ -223,9 +223,10 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
   request->between_pixels = between_pixels();
   request->fades = std::move(fades);
   request->part_texels = m_context.transform().part_texels;
+  const Placing taken = placing();
   for (auto& dstrect : request->dstrects)
   {
-    dstrect = place(dstrect.p1(), dstrect.get_size());
+    dstrect = place(taken, dstrect.p1(), dstrect.get_size());
   }
 
   request->texture = surface->get_texture().get();
@@ -384,35 +385,52 @@ Canvas::get_pixel(const Vector& position, const std::shared_ptr<Color>& color_ou
   m_requests.push_back(request);
 }
 
+Canvas::Placing
+Canvas::placing() const
+{
+  Placing result;
+  result.translation = m_context.transform().translation;
+  result.offset = Vector(static_cast<float>(m_context.get_viewport().left), static_cast<float>(m_context.get_viewport().top));
+  result.scale = scale();
+  result.grid = on_pixel_grid();
+  result.pixels = result.grid ? VideoSystem::current()->get_viewport().get_scale() * result.scale : Vector(0.0f, 0.0f);
+  return result;
+}
+
+Vector
+Canvas::apply_translate(const Placing& placing, const Vector& pos)
+{
+  if (placing.grid && placing.pixels.x > 0.0f && placing.pixels.y > 0.0f)
+  {
+    // Rounded apart, so where the camera is never changes how a picture rounds
+    return (glm::round(pos * placing.pixels) - glm::round(placing.translation * placing.pixels)) / placing.pixels + placing.offset;
+  }
+
+  return (pos - placing.translation) + placing.offset;
+}
+
 Vector
 Canvas::apply_translate(const Vector& pos) const
 {
-  Vector translation = m_context.transform().translation;
-  const Vector offset(static_cast<float>(m_context.get_viewport().left),
-                      static_cast<float>(m_context.get_viewport().top));
+  return apply_translate(placing(), pos);
+}
 
-  if (on_pixel_grid())
+Rectf
+Canvas::place(const Placing& placing, const Vector& pos, const Sizef& size)
+{
+  if (placing.grid)
   {
-    // Rounded apart, so where the camera is never changes how a picture rounds
-    const Vector pixels = VideoSystem::current()->get_viewport().get_scale() * scale();
-    if (pixels.x > 0.0f && pixels.y > 0.0f)
-    {
-      return (glm::round(pos * pixels) - glm::round(translation * pixels)) / pixels + offset;
-    }
+    return Rectf(apply_translate(placing, pos) * placing.scale,
+                 apply_translate(placing, pos + Vector(size.width, size.height)) * placing.scale);
   }
 
-  return (pos - translation) + offset;
+  return Rectf(apply_translate(placing, pos) * placing.scale, size * placing.scale);
 }
 
 Rectf
 Canvas::place(const Vector& pos, const Sizef& size) const
 {
-  if (on_pixel_grid())
-  {
-    return Rectf(apply_translate(pos) * scale(), apply_translate(pos + Vector(size.width, size.height)) * scale());
-  }
-
-  return Rectf(apply_translate(pos) * scale(), size * scale());
+  return place(placing(), pos, size);
 }
 
 bool

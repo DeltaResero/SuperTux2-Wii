@@ -94,10 +94,23 @@ public:
   DrawingContext& get_context() { return m_context; }
 
 private:
+  /** What placing a picture works from, taken once for a whole batch */
+  struct Placing
+  {
+    Vector translation;
+    Vector offset;
+    float scale;
+    bool grid;
+    Vector pixels;
+  };
+
+  Placing placing() const;
+  static Vector apply_translate(const Placing& placing, const Vector& pos);
   Vector apply_translate(const Vector& pos) const;
   float scale() const;
 
   /** Where a picture lands, both edges on the pixel grid when the transform asks for it */
+  static Rectf place(const Placing& placing, const Vector& pos, const Sizef& size);
   Rectf place(const Vector& pos, const Sizef& size) const;
 
   /** The transform asks for fractions and the renderer can show them */
