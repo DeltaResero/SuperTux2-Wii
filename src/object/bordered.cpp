@@ -143,16 +143,36 @@ id_at(const TileMap& map, int x, int y)
   return (x < 0 || y < 0 || x >= map.get_width() || y >= map.get_height()) ? 0 : map.get_tile_id(x, y);
 }
 
-/** A tile-sized picture whose pixels a copy can take, else null */
-const Surface*
-fitting(const Surface* surface)
+/** A picture drawn whole and unflipped from its texture, else null */
+const Texture*
+whole(const Surface* surface)
 {
-  const SDL_Surface* pixels = pixels_of(surface);
-  if (!pixels || surface->get_width() != 32 || surface->get_height() != 32)
+  if (!surface || surface->get_flip() != NO_FLIP || !surface->get_texture())
   {
     return nullptr;
   }
-  return (s_texels.width == 0 || (pixels->w == s_texels.width && pixels->h == s_texels.height)) ? surface : nullptr;
+  const Texture& texture = *surface->get_texture();
+  const Rect region = surface->get_region();
+  if (region.left != 0 || region.top != 0 ||
+      region.get_width() != texture.get_image_width() || region.get_height() != texture.get_image_height())
+  {
+    return nullptr;
+  }
+  return &texture;
+}
+
+/** A tile-sized picture whose pixels a copy can take, else null; its pixels are only made once a copy needs them */
+const Surface*
+fitting(const Surface* surface)
+{
+  const Texture* texture = whole(surface);
+  if (!texture || surface->get_width() != 32 || surface->get_height() != 32)
+  {
+    return nullptr;
+  }
+  const Size texels = TextureManager::current()->get_pixel_size(*texture);
+  if (texels.width == 0) return nullptr;
+  return (s_texels.width == 0 || texels == s_texels) ? surface : nullptr;
 }
 
 /** SDLSurface::fill_clear_pixels on grid, only inside regions */
@@ -476,8 +496,7 @@ find_or_build(Key&& key)
 
   if (s_texels.width == 0)
   {
-    const SDL_Surface* pixels = pixels_of(key.cells[4]);
-    s_texels = Size(pixels->w, pixels->h);
+    s_texels = TextureManager::current()->get_pixel_size(*key.cells[4]->get_texture());
     s_per_row = PAGE / (s_texels.width + 2);
     s_per_page = s_per_row * (PAGE / (s_texels.height + 2));
   }
@@ -597,18 +616,9 @@ cover_after(const std::vector<const TileMap*>& above)
 const SDL_Surface*
 pixels_of(const Surface* surface)
 {
-  if (!surface || surface->get_flip() != NO_FLIP || !surface->get_texture())
-  {
-    return nullptr;
-  }
-  const Texture& texture = *surface->get_texture();
-  const Rect region = surface->get_region();
-  if (region.left != 0 || region.top != 0 ||
-      region.get_width() != texture.get_image_width() || region.get_height() != texture.get_image_height())
-  {
-    return nullptr;
-  }
-  const SDL_Surface* pixels = TextureManager::current()->get_pixels(texture);
+  const Texture* texture = whole(surface);
+  if (!texture) return nullptr;
+  const SDL_Surface* pixels = TextureManager::current()->get_pixels(*texture);
   return (pixels && pixels->format->format == SDL_PIXELFORMAT_RGBA32) ? pixels : nullptr;
 }
 
@@ -677,6 +687,8 @@ begin_frame(const void* scene)
 {
   ++s_frame;
   s_now = SDL_GetTicks();
+  // Enough tile pixels for the copies a frame makes, the rest let go of
+  TextureManager::current()->trim_pixels(256);
   s_scene_start = scene != s_scene || s_frame != s_scene_frame + 1;
   s_scene = scene;
   s_scene_frame = s_frame;

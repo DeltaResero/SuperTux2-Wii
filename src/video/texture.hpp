@@ -22,6 +22,7 @@
 #include <optional>
 
 #include "math/rect.hpp"
+#include "math/size.hpp"
 #include "video/flip.hpp"
 
 struct SDL_Surface;
@@ -57,6 +58,8 @@ public:
 
 private:
   std::optional<Key> m_cache_key;
+  // The pixels a tile-sized picture holds, else 0 by 0
+  Size m_pixel_size;
 
 private:
   Texture(const Texture&) = delete;

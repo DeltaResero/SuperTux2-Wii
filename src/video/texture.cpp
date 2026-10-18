@@ -19,7 +19,8 @@
 #include "video/texture_manager.hpp"
 
 Texture::Texture() :
-  m_cache_key()
+  m_cache_key(),
+  m_pixel_size(0, 0)
 {
 }
 
