@@ -17,11 +17,13 @@
 #include "object/bordered.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <unordered_map>
 
 #include <SDL.h>
 
+#include "object/block.hpp"
 #include "object/tilemap.hpp"
 #include "supertux/game_object_manager.hpp"
 #include "supertux/tile.hpp"
@@ -39,7 +41,7 @@ namespace {
 /** What a copy is made from: the 3 x 3 pictures round a tile, then 3 x 3 more for each layer over it whose edges reach it */
 struct Key
 {
-  // A tile picture lasts as long as the game's tile sets, so its address stays its own
+  // Tile and sprite pictures last as long as the game, so an address stays one picture's
   std::array<const Surface*, 9> cells;
   std::vector<const Surface*> over;
 
@@ -111,6 +113,7 @@ std::unordered_map<const Surface*, uint8_t> s_kinds;
 std::vector<const TileMap*> s_layers;
 int s_layers_frame = -1;
 bool s_layers_fading = false;
+std::unordered_map<int64_t, const Block*> s_blocks;
 
 template<typename Work>
 void
@@ -126,6 +129,12 @@ const Uint8*
 texel(const SDL_Surface& surface, int x, int y)
 {
   return static_cast<const Uint8*>(surface.pixels) + y * surface.pitch + x * 4;
+}
+
+int64_t
+cell_key(int x, int y)
+{
+  return (static_cast<int64_t>(x) << 32) ^ static_cast<int64_t>(static_cast<uint32_t>(y));
 }
 
 uint32_t
@@ -657,6 +666,7 @@ release()
   if (--s_holders == 0)
   {
     clear_all();
+    s_blocks.clear();
     s_layers.clear();
     s_layers_frame = -1;
   }
@@ -710,6 +720,56 @@ layers_fading(const GameObjectManager& objects)
 {
   take_layers(objects);
   return s_layers_fading;
+}
+
+void
+gather_blocks(const GameObjectManager& objects, const Rectf& near)
+{
+  s_blocks.clear();
+  for (const auto& object : objects.get_objects())
+  {
+    const auto* block = dynamic_cast<const Block*>(object.get());
+    if (!block || !near.contains(block->get_pos()) || !block->get_resting_surface()) continue;
+    const Vector pos = block->get_pos();
+    s_blocks[cell_key(static_cast<int>(std::round(pos.x / 32.0f)), static_cast<int>(std::round(pos.y / 32.0f)))] = block;
+  }
+}
+
+const Block*
+block_at(int x, int y)
+{
+  const auto it = s_blocks.find(cell_key(x, y));
+  return it == s_blocks.end() ? nullptr : it->second;
+}
+
+const Surface*
+grid_surface_at(const GameObjectManager& objects, int x, int y)
+{
+  for (const TileMap* tilemap : objects.get_solid_tilemaps())
+  {
+    if (tilemap->get_offset() != Vector(0.0f, 0.0f) || tilemap->get_path() || id_at(*tilemap, x, y) == 0) continue;
+    const Surface* surface = tilemap->get_tile(x, y).get_current_surface_ptr();
+    if (surface) return surface;
+  }
+  const Block* block = block_at(x, y);
+  return block ? block->get_resting_surface().get() : nullptr;
+}
+
+SurfacePtr
+copy_of(const std::array<const Surface*, 9>& cells, Vector& origin, Size& texels)
+{
+  Key key;
+  for (size_t c = 0; c < 9; ++c)
+  {
+    key.cells[c] = fitting(cells[c]);
+  }
+  if (!key.cells[4]) return {};
+  const int slot = find_or_build(std::move(key));
+  if (slot < 0) return {};
+  s_slots[static_cast<size_t>(slot)].last = s_now;
+  origin = origin_of(slot);
+  texels = s_texels;
+  return s_pages[static_cast<size_t>(slot / s_per_page)].picture;
 }
 
 Layer::Layer() :

@@ -180,6 +180,20 @@ Sprite::draw_scaled(Canvas& canvas, const Rectf& dest, int layer,
   context.pop_transform();
 }
 
+SurfacePtr
+Sprite::get_current_surface()
+{
+  update();
+  return m_action->surfaces[m_frameidx];
+}
+
+bool
+Sprite::is_plain() const
+{
+  return m_action->x_offset == 0.0f && m_action->y_offset == 0.0f && m_angle == 0.0f && m_alpha == 1.0f &&
+         m_color == Color::WHITE && m_blend == Blend::BLEND;
+}
+
 int
 Sprite::get_width() const
 {

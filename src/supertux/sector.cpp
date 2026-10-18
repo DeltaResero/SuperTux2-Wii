@@ -417,6 +417,7 @@ Sector::draw(DrawingContext& context)
   if (VideoSystem::current()->draws_between_pixels())
   {
     bordered::begin_frame(this);
+    bordered::gather_blocks(*this, context.get_cliprect().grown(96.0f));
   }
 
   GameObjectManager::draw(context, step_fraction);

@@ -30,6 +30,7 @@
 #include "math/vector.hpp"
 #include "video/surface_ptr.hpp"
 
+class Block;
 class GameObjectManager;
 class Surface;
 class Tile;
@@ -67,6 +68,16 @@ std::vector<const TileMap*> layers_above(const GameObjectManager& objects, const
 
 /** A tile layer on the grid is fading, so all are drawn tile by tile this frame */
 bool layers_fading(const GameObjectManager& objects);
+
+/** Blocks resting on the grid near a part of the level, gathered once a frame */
+void gather_blocks(const GameObjectManager& objects, const Rectf& near);
+const Block* block_at(int x, int y);
+
+/** The tile of a solid layer at cell x, y as it shows now, else a resting block's picture */
+const Surface* grid_surface_at(const GameObjectManager& objects, int x, int y);
+
+/** The texture holding the copy of a block's picture from the 3 x 3 pictures round it, with the copy's place and size, or null */
+SurfacePtr copy_of(const std::array<const Surface*, 9>& cells, Vector& origin, Size& texels);
 
 /** A tile layer drawn from copies of its tiles, kept in a few textures shared by every layer */
 class Layer final
