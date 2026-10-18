@@ -25,6 +25,10 @@ Texture::Texture() :
 
 Texture::~Texture()
 {
+  if (TextureManager::current())
+  {
+    TextureManager::current()->m_pixels.erase(this);
+  }
   if (TextureManager::current() && m_cache_key)
   {
     // The cache entry is now useless: its weak pointer to us has

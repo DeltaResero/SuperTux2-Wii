@@ -90,7 +90,9 @@ bool shrinks_with_view(const std::string& filename)
 TextureManager::TextureManager() :
   m_image_textures(),
   m_surfaces(),
-  m_shrink(1.0f, 1.0f)
+  m_shrink(1.0f, 1.0f),
+  m_pixels(),
+  m_generation(0)
 {
 }
 
@@ -261,6 +263,7 @@ TextureManager::set_viewport(const Viewport& viewport)
     return;
   }
   m_shrink = shrink;
+  ++m_generation;
 
   for (const auto& entry : m_image_textures)
   {
@@ -313,12 +316,28 @@ TextureManager::make_texture(const std::string& filename, const SDL_Surface& ima
   }
   const SDL_Surface& pixels = own ? *own : image;
 
-  if (reload)
+  TexturePtr texture = reload;
+  if (texture)
   {
-    reload->reload(pixels);
-    return reload;
+    texture->reload(pixels);
   }
-  return VideoSystem::current()->new_texture(pixels, sampler, Size(image.w, image.h));
+  else
+  {
+    texture = VideoSystem::current()->new_texture(pixels, sampler, Size(image.w, image.h));
+  }
+  // Only tile-sized pictures are bordered at their joints, so only they keep their pixels
+  if (image.w == 32 && image.h == 32)
+  {
+    m_pixels[texture.get()].reset(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&pixels), SDL_PIXELFORMAT_RGBA32, 0));
+  }
+  return texture;
+}
+
+const SDL_Surface*
+TextureManager::get_pixels(const Texture& texture) const
+{
+  const auto it = m_pixels.find(&texture);
+  return it == m_pixels.end() ? nullptr : it->second.get();
 }
 
 void

@@ -23,6 +23,7 @@
 #include <ostream>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <optional>
 
@@ -59,6 +60,12 @@ public:
   /** The level's pictures are kept at the size this view draws them, and loaded ones are redone when that changes */
   void set_viewport(const Viewport& viewport);
 
+  /** The pixels a tile-sized texture holds, in RGBA32, or null for any other */
+  const SDL_Surface* get_pixels(const Texture& texture) const;
+
+  /** Changes each time the level's pictures are redone at a new size */
+  int get_generation() const { return m_generation; }
+
 private:
   const SDL_Surface& get_surface(const std::string& filename);
   void reap_cache_entry(const Texture::Key& key);
@@ -83,6 +90,8 @@ private:
   std::map<Texture::Key, std::weak_ptr<Texture> > m_image_textures;
   std::map<std::string, SDLSurfacePtr> m_surfaces;
   Vector m_shrink;
+  std::unordered_map<const Texture*, SDLSurfacePtr> m_pixels;
+  int m_generation;
 
 private:
   TextureManager(const TextureManager&) = delete;

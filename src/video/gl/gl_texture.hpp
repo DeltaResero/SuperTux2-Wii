@@ -45,6 +45,7 @@ public:
   virtual int get_image_height() const override { return m_image_height; }
 
   virtual void reload(const SDL_Surface& image) override;
+  virtual void update(const SDL_Surface& pixels, int x, int y) override;
 
   /** Turns a spot in the picture into texture coordinates, allowing for padding and for fewer pixels stored */
   const Vector& get_uv_scale() const { return m_uv_scale; }

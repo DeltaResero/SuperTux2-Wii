@@ -76,7 +76,8 @@ struct TextureRequest : public DrawingRequest
     angles(),
     color(1.0f, 1.0f, 1.0f),
     between_pixels(false),
-    fades()
+    fades(),
+    part_texels(false)
   {}
 
   const Texture* texture;
@@ -87,6 +88,7 @@ struct TextureRequest : public DrawingRequest
   Color color;
   bool between_pixels;
   std::vector<uint8_t> fades;
+  bool part_texels;
 
 private:
   TextureRequest(const TextureRequest&) = delete;

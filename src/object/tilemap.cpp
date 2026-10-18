@@ -18,6 +18,7 @@
 
 #include <tuple>
 
+#include "object/bordered.hpp"
 #include "supertux/d_scope.hpp"
 #include "supertux/debug.hpp"
 #include "supertux/globals.hpp"
@@ -34,6 +35,7 @@
 #include "video/drawing_request.hpp"
 #include "video/layer.hpp"
 #include "video/surface.hpp"
+#include "video/video_system.hpp"
 #include "worldmap/worldmap.hpp"
 
 TileMap::TileMap(const TileSet *new_tileset) :
@@ -62,8 +64,11 @@ TileMap::TileMap(const TileSet *new_tileset) :
   m_current_tint(1, 1, 1),
   m_remaining_tint_fade_time(0),
   m_draw_target(DrawingTarget::COLORMAP),
-  m_starting_node(0)
+  m_starting_node(0),
+  m_revision(0),
+  m_bordered()
 {
+  bordered::hold();
 }
 
 TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
@@ -93,8 +98,11 @@ TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
   m_current_tint(1, 1, 1),
   m_remaining_tint_fade_time(0),
   m_draw_target(DrawingTarget::COLORMAP),
-  m_starting_node(0)
+  m_starting_node(0),
+  m_revision(0),
+  m_bordered()
 {
+  bordered::hold();
   assert(m_tileset);
 
   reader.get("solid",  m_real_solid);
@@ -194,6 +202,7 @@ TileMap::finish_construction()
 
 TileMap::~TileMap()
 {
+  bordered::release();
 }
 
 void
@@ -207,6 +216,7 @@ TileMap::float_channel(float target, float &current, float remaining_time, float
 void
 TileMap::apply_offset_x(int fill_id, int xoffset)
 {
+  ++m_revision;
   if (!xoffset)
     return;
   for (int y = 0; y < m_height; y++) {
@@ -224,6 +234,7 @@ TileMap::apply_offset_x(int fill_id, int xoffset)
 void
 TileMap::apply_offset_y(int fill_id, int yoffset)
 {
+  ++m_revision;
   if (!yoffset)
     return;
   for (int y = 0; y < m_height; y++) {
@@ -336,7 +347,19 @@ TileMap::draw(DrawingContext& context)
   context.set_translation(translation);
   context.transform().pixel_grid = true;
 
+  // Between pixels, a level's tiles are drawn from bordered copies so the pixel across a joint blends both sides
+  const bool between = !d_worldmap && m_flip == NO_FLIP && context.transform().between_pixels &&
+                       VideoSystem::current()->draws_between_pixels();
+  // While a layer on the grid fades, all are drawn tile by tile, their copies made ready for after the fade
+  const bool draw_bordered = between && !(d_gameobject_manager && bordered::layers_fading(*d_gameobject_manager));
+
   Rectf draw_rect = context.get_cliprect();
+  if (between)
+  {
+    // A tile just off screen still reaches half a texel in
+    draw_rect = Rectf(draw_rect.get_left() - 32.0f, draw_rect.get_top() - 32.0f,
+                      draw_rect.get_right() + 32.0f, draw_rect.get_bottom() + 32.0f);
+  }
   Rect t_draw_rect = get_tiles_overlapping(draw_rect);
   Vector start = get_tile_position(t_draw_rect.left, t_draw_rect.top);
 
@@ -354,35 +377,73 @@ TileMap::draw(DrawingContext& context)
   const auto empty = [this, fades](int x, int y) {
     return fades && x >= 0 && y >= 0 && x < m_width && y < m_height && m_tiles[y * m_width + x] == 0;
   };
+  const auto add_tile = [&](int x, int y, const Vector& at) {
+    const SurfacePtr surface = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
+    if (!surface) return;
+    auto& batch = batches[surface];
+    std::get<0>(batch).emplace_back(surface->get_region());
+    std::get<1>(batch).emplace_back(at, Sizef(static_cast<float>(surface->get_width()),
+                                              static_cast<float>(surface->get_height())));
+    std::get<2>(batch).push_back(static_cast<uint8_t>((empty(x - 1, y) ? FADE_LEFT : 0) |
+                                                      (empty(x + 1, y) ? FADE_RIGHT : 0) |
+                                                      (empty(x, y - 1) ? FADE_TOP : 0) |
+                                                      (empty(x, y + 1) ? FADE_BOTTOM : 0)));
+  };
 
-  for (pos.x = start.x, tx = t_draw_rect.left; tx < t_draw_rect.right; pos.x += 32, ++tx) {
-    for (pos.y = start.y, ty = t_draw_rect.top; ty < t_draw_rect.bottom; pos.y += 32, ++ty) {
-      int index = ty*m_width + tx;
-      assert (index >= 0);
-      assert (index < (m_width * m_height));
-
-      if (m_tiles[index] == 0) continue;
-      const Tile& tile = m_tileset->get(m_tiles[index]);
-
-      if (g_debug.show_collision_rects) {
-        tile.draw_debug(context.color(), pos, LAYER_FOREGROUND1);
+  bool in_copies = false;
+  if (between && (draw_bordered || m_alpha > 0.0f))
+  {
+    if (!m_bordered) m_bordered = std::make_unique<bordered::Layer>();
+    std::vector<const TileMap*> above;
+    if (d_gameobject_manager && m_offset == Vector(0.0f, 0.0f) && !get_path() && m_speed_x == 1.0f && m_speed_y == 1.0f)
+    {
+      above = bordered::layers_above(*d_gameobject_manager, *this);
+    }
+    if (!draw_bordered)
+    {
+      m_bordered->prepare(*this, t_draw_rect, above);
+    }
+    else
+    {
+      std::vector<bordered::Layer::Draw> draws;
+      std::vector<int> loose;
+      in_copies = m_bordered->draw(*this, t_draw_rect, above, draws, loose);
+      if (in_copies)
+      {
+        for (auto& draw : draws)
+        {
+          auto& batch = batches[draw.page];
+          std::get<2>(batch).resize(draw.srcrects.size(), 0);
+          std::get<0>(batch) = std::move(draw.srcrects);
+          std::get<1>(batch) = std::move(draw.dstrects);
+        }
+        for (const int index : loose)
+        {
+          add_tile(index % m_width, index / m_width, get_tile_position(index % m_width, index / m_width));
+        }
       }
+    }
+  }
 
-      const SurfacePtr& surface = tile.get_current_surface();
-      if (surface) {
-        std::get<0>(batches[surface]).emplace_back(surface->get_region());
-        std::get<1>(batches[surface]).emplace_back(pos,
-                                                   Sizef(static_cast<float>(surface->get_width()),
-                                                         static_cast<float>(surface->get_height())));
-        std::get<2>(batches[surface]).push_back(static_cast<uint8_t>((empty(tx - 1, ty) ? FADE_LEFT : 0) |
-                                                                     (empty(tx + 1, ty) ? FADE_RIGHT : 0) |
-                                                                     (empty(tx, ty - 1) ? FADE_TOP : 0) |
-                                                                     (empty(tx, ty + 1) ? FADE_BOTTOM : 0)));
+  if (!in_copies || g_debug.show_collision_rects) {
+    for (pos.x = start.x, tx = t_draw_rect.left; tx < t_draw_rect.right; pos.x += 32, ++tx) {
+      for (pos.y = start.y, ty = t_draw_rect.top; ty < t_draw_rect.bottom; pos.y += 32, ++ty) {
+        int index = ty*m_width + tx;
+        assert (index >= 0);
+        assert (index < (m_width * m_height));
+
+        if (m_tiles[index] == 0) continue;
+
+        if (g_debug.show_collision_rects) {
+          m_tileset->get(m_tiles[index]).draw_debug(context.color(), pos, LAYER_FOREGROUND1);
+        }
+        if (!in_copies) add_tile(tx, ty, pos);
       }
     }
   }
 
   Canvas& canvas = context.get_canvas(m_draw_target);
+  context.transform().part_texels = in_copies;
 
   for (auto& it : batches)
   {
@@ -424,6 +485,7 @@ void
 TileMap::set(int newwidth, int newheight, const std::vector<unsigned int>&newt,
              int new_z_pos, bool newsolid)
 {
+  ++m_revision;
   if (int(newt.size()) != newwidth * newheight)
     throw std::runtime_error("Wrong tilecount count.");
 
@@ -449,6 +511,7 @@ void
 TileMap::resize(int new_width, int new_height, int fill_id,
                 int xoffset, int yoffset)
 {
+  ++m_revision;
   bool offset_finished_x = false;
   bool offset_finished_y = false;
   if (xoffset < 0 && new_width - m_width < 0)
@@ -525,6 +588,14 @@ TileMap::set_solid(bool solid)
   update_effective_solid ();
 }
 
+const Surface*
+TileMap::get_still_picture_at(int x, int y) const
+{
+  if (x < 0 || y < 0 || x >= m_width || y >= m_height) return nullptr;
+  const uint32_t id = m_tiles[y * m_width + x];
+  return id == 0 ? nullptr : m_tileset->get(id).get_first_surface_ptr();
+}
+
 uint32_t
 TileMap::get_tile_id(int x, int y) const
 {
@@ -574,6 +645,7 @@ TileMap::get_tile_at(const Vector& pos) const
 void
 TileMap::change(int x, int y, uint32_t newtile)
 {
+  ++m_revision;
   assert(x >= 0 && x < m_width && y >= 0 && y < m_height);
   m_tiles[y*m_width + x] = newtile;
 }

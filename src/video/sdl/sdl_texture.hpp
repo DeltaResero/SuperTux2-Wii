@@ -41,6 +41,7 @@ public:
   virtual int get_image_height() const override { return m_height; }
 
   virtual void reload(const SDL_Surface& image) override;
+  virtual void update(const SDL_Surface& pixels, int x, int y) override;
 
   SDL_Texture *get_texture() const { return m_texture; }
   const Sampler& get_sampler() const { return m_sampler; }

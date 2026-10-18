@@ -221,6 +221,41 @@ void RenderCopyFaded(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rec
                      indices.data(), static_cast<int>(indices.size()));
 }
 
+/** Draws every rectangle at once, from texel rectangles that may start or end inside a texel where SDL_RenderCopy can't */
+void RenderCopyParts(SDL_Renderer* renderer, SDL_Texture* texture, const std::vector<Rectf>& texels,
+                     const std::vector<SDL_FRect>& dsts, SDL_Color color)
+{
+  int texture_width = 0;
+  int texture_height = 0;
+  SDL_QueryTexture(texture, nullptr, nullptr, &texture_width, &texture_height);
+  const float width = static_cast<float>(texture_width);
+  const float height = static_cast<float>(texture_height);
+
+  std::vector<SDL_Vertex> vertices;
+  std::vector<int> indices;
+  vertices.reserve(texels.size() * 4);
+  indices.reserve(texels.size() * 6);
+  for (size_t i = 0; i < texels.size(); ++i)
+  {
+    const float u0 = texels[i].get_left() / width;
+    const float u1 = texels[i].get_right() / width;
+    const float v0 = texels[i].get_top() / height;
+    const float v1 = texels[i].get_bottom() / height;
+    const SDL_FRect& dst = dsts[i];
+    const int corner = static_cast<int>(vertices.size());
+    vertices.push_back({ SDL_FPoint{ dst.x, dst.y }, color, SDL_FPoint{ u0, v0 } });
+    vertices.push_back({ SDL_FPoint{ dst.x + dst.w, dst.y }, color, SDL_FPoint{ u1, v0 } });
+    vertices.push_back({ SDL_FPoint{ dst.x + dst.w, dst.y + dst.h }, color, SDL_FPoint{ u1, v1 } });
+    vertices.push_back({ SDL_FPoint{ dst.x, dst.y + dst.h }, color, SDL_FPoint{ u0, v1 } });
+    for (int index : { corner, corner + 1, corner + 2, corner, corner + 2, corner + 3 })
+    {
+      indices.push_back(index);
+    }
+  }
+  SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
+                     indices.data(), static_cast<int>(indices.size()));
+}
+
 /* A version SDL_RenderCopyEx that supports texture animation as specified by Sampler */
 void RenderCopyEx(SDL_Renderer*          renderer,
                   SDL_Texture*           texture,
@@ -296,6 +331,33 @@ SDLPainter::draw_texture(const TextureRequest& request)
 
   assert(request.srcrects.size() == request.dstrects.size());
   assert(request.srcrects.size() == request.angles.size());
+
+  if (request.part_texels && request.flip == NO_FLIP && texture.get_sampler().get_animate() == Vector(0.0f, 0.0f) &&
+      std::all_of(request.angles.begin(), request.angles.end(), [](float angle) { return angle == 0.0f; }) &&
+      std::all_of(request.fades.begin(), request.fades.end(), [](uint8_t fades) { return fades == 0; }))
+  {
+    const Vector& texel_scale = texture.get_texel_scale();
+    std::vector<Rectf> texels;
+    std::vector<SDL_FRect> dsts;
+    texels.reserve(request.srcrects.size());
+    dsts.reserve(request.srcrects.size());
+    for (size_t i = 0; i < request.srcrects.size(); ++i)
+    {
+      const Rectf& src = request.srcrects[i];
+      texels.emplace_back(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
+                          src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y);
+      dsts.push_back(to_target(request.dstrects[i], request.between_pixels));
+    }
+    // The colour goes in with the corners, so the texture's own tint is left plain
+    SDL_SetTextureColorMod(texture.get_texture(), 255, 255, 255);
+    SDL_SetTextureAlphaMod(texture.get_texture(), 255);
+    SDL_SetTextureBlendMode(texture.get_texture(), blend2sdl(request.blend));
+    RenderCopyParts(m_sdl_renderer, texture.get_texture(), texels, dsts,
+                    SDL_Color{ static_cast<Uint8>(request.color.red * 255), static_cast<Uint8>(request.color.green * 255),
+                               static_cast<Uint8>(request.color.blue * 255),
+                               static_cast<Uint8>(request.color.alpha * request.alpha * 255) });
+    return;
+  }
 
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {

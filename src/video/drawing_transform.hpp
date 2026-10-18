@@ -37,6 +37,9 @@ public:
   /** Between pixels, a picture's edges fade out over a pixel so they glide like its insides; off for pictures that sit edge to edge */
   bool fade_edges;
 
+  /** Source rectangles may start or end inside a texel and are drawn exactly so */
+  bool part_texels;
+
   DrawingTransform() :
     translation(0.0f, 0.0f),
     flip(NO_FLIP),
@@ -44,7 +47,8 @@ public:
     scale(1.0f),
     pixel_grid(false),
     between_pixels(false),
-    fade_edges(true)
+    fade_edges(true),
+    part_texels(false)
   {}
 };
 

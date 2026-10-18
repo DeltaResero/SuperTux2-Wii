@@ -222,6 +222,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
 
   request->between_pixels = between_pixels();
   request->fades = std::move(fades);
+  request->part_texels = m_context.transform().part_texels;
   for (auto& dstrect : request->dstrects)
   {
     dstrect = place(dstrect.p1(), dstrect.get_size());

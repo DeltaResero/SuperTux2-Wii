@@ -179,13 +179,24 @@ SurfacePtr
 Tile::get_current_surface() const
 {
   if (m_images.size() > 1) {
-    size_t frame = size_t(g_game_time * m_fps) % m_images.size();
-    return m_images[frame];
+    return m_images[get_frame()];
   } else if (m_images.size() == 1) {
     return m_images[0];
   } else {
     return {};
   }
+}
+
+const Surface*
+Tile::get_current_surface_ptr() const
+{
+  return m_images.empty() ? nullptr : m_images[get_frame()].get();
+}
+
+size_t
+Tile::get_frame() const
+{
+  return (m_images.size() > 1) ? size_t(g_game_time * m_fps) % m_images.size() : 0;
 }
 
 // Check if the tile is solid given the current movement. This works

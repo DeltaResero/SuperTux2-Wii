@@ -52,6 +52,9 @@ public:
   /** Puts new pixels in, still drawn at the picture's size; they may be fewer */
   virtual void reload(const SDL_Surface& image) = 0;
 
+  /** Puts pixels in over part of a picture made at its texture's size, with their top left at x, y */
+  virtual void update(const SDL_Surface& pixels, int x, int y) = 0;
+
 private:
   std::optional<Key> m_cache_key;
 
