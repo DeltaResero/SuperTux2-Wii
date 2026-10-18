@@ -511,48 +511,54 @@ find_or_build(Key&& key)
   return index;
 }
 
-/** Moves a few copies out of the last page in use while the others have room, so it can let go of its texture */
+/** Moves copies out of the page holding fewest while the others have room, for budget ms, so it can let go of its texture */
 void
-compact()
+compact(double budget)
 {
-  size_t last = s_pages.size();
+  size_t source = s_pages.size();
+  size_t fewest = 0;
   size_t room = 0;
   for (size_t number = 0; number < s_pages.size(); ++number)
   {
     if (!s_pages[number].picture) continue;
-    if (last != s_pages.size()) room += s_pages[last].free.size();
-    last = number;
+    const size_t held = static_cast<size_t>(s_per_page) - s_pages[number].free.size();
+    room += s_pages[number].free.size();
+    if (source == s_pages.size() || held < fewest)
+    {
+      source = number;
+      fewest = held;
+    }
   }
-  if (last == s_pages.size()) return;
-  const size_t held = static_cast<size_t>(s_per_page) - s_pages[last].free.size();
+  if (source == s_pages.size()) return;
+  room -= s_pages[source].free.size();
   // With a quarter of a page left over, so new copies don't need it again straight away
-  if (room < held + static_cast<size_t>(s_per_page / 4)) return;
+  if (room < fewest + static_cast<size_t>(s_per_page / 4)) return;
 
-  double budget = 1.0;
-  for (int from = static_cast<int>(last) * s_per_page; from < static_cast<int>(last + 1) * s_per_page && budget > 0.0; ++from)
+  const int first = static_cast<int>(source) * s_per_page;
+  for (int from = first; from < first + s_per_page && budget > 0.0; ++from)
   {
-    Slot& source = s_slots[static_cast<size_t>(from)];
-    if (!source.key) continue;
+    Slot& origin = s_slots[static_cast<size_t>(from)];
+    if (!origin.key) continue;
     int to = -1;
-    for (size_t number = 0; number < last && to < 0; ++number)
+    for (size_t number = 0; number < s_pages.size() && to < 0; ++number)
     {
       Page& page = s_pages[number];
-      if (!page.picture || page.free.empty()) continue;
+      if (number == source || !page.picture || page.free.empty()) continue;
       to = page.free.back();
       page.free.pop_back();
     }
     if (to < 0) break;
-    timed(budget, [&] { put(to, *source.key); });
+    timed(budget, [&] { put(to, *origin.key); });
     Slot& target = s_slots[static_cast<size_t>(to)];
-    target.key = source.key;
-    target.last = source.last;
+    target.key = origin.key;
+    target.last = origin.last;
     target.stamp = ++s_stamps;
-    s_copies.find(*source.key)->second = to;
-    source.key = nullptr;
-    source.stamp = ++s_stamps;
-    s_pages[last].free.push_back(from);
+    s_copies.find(*origin.key)->second = to;
+    origin.key = nullptr;
+    origin.stamp = ++s_stamps;
+    s_pages[source].free.push_back(from);
   }
-  if (static_cast<int>(s_pages[last].free.size()) == s_per_page) s_pages[last].picture.reset();
+  if (static_cast<int>(s_pages[source].free.size()) == s_per_page) s_pages[source].picture.reset();
 }
 
 void
@@ -709,8 +715,9 @@ begin_frame(const void* scene)
     {
       if (page.picture && static_cast<int>(page.free.size()) == s_per_page) page.picture.reset();
     }
-    compact();
   }
+  // A little each frame, so pages follow the copies in use
+  compact(0.25);
 }
 
 std::vector<const TileMap*>
