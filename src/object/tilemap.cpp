@@ -347,8 +347,8 @@ TileMap::draw(DrawingContext& context)
   context.set_translation(translation);
   context.transform().pixel_grid = true;
 
-  // Between pixels, a level's tiles are drawn from bordered copies so the pixel across a joint blends both sides
-  const bool between = !d_worldmap && m_flip == NO_FLIP && context.transform().between_pixels &&
+  // Between pixels, tiles are drawn from bordered copies so the pixel across a joint blends both sides
+  const bool between = m_flip == NO_FLIP && context.transform().between_pixels &&
                        VideoSystem::current()->draws_between_pixels();
   // While a layer on the grid fades, all are drawn tile by tile, their copies made ready for after the fade
   const bool draw_bordered = between && !(d_gameobject_manager && bordered::layers_fading(*d_gameobject_manager));
