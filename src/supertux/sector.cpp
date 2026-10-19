@@ -27,6 +27,7 @@
 #include "math/rect.hpp"
 #include "object/ambient_light.hpp"
 #include "object/background.hpp"
+#include "object/bordered.hpp"
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
 #include "object/display_effect.hpp"
@@ -411,6 +412,13 @@ Sector::draw(DrawingContext& context)
   context.push_transform();
   context.set_translation(m_last_translation + moved * step_fraction);
   context.scale(m_last_scale + (camera.get_current_scale() - m_last_scale) * step_fraction);
+  // Between pixels, so things glide at any speed and zoom instead of stepping a whole pixel now and then
+  context.transform().between_pixels = true;
+  if (VideoSystem::current()->draws_between_pixels())
+  {
+    bordered::begin_frame(*this, this, context.get_cliprect());
+    bordered::gather_blocks(*this, context.get_cliprect().grown(96.0f));
+  }
 
   GameObjectManager::draw(context, step_fraction);
 

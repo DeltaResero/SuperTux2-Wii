@@ -21,6 +21,7 @@
 #include "sprite/sprite_ptr.hpp"
 #include "video/canvas.hpp"
 #include "video/drawing_context.hpp"
+#include "video/surface_ptr.hpp"
 
 class Sprite final
 {
@@ -93,6 +94,12 @@ public:
   void set_blend(const Blend& blend);
 
   bool has_action (const std::string& name) const { return (m_data.get_action(name) != nullptr); }
+
+  /** The frame drawn now */
+  SurfacePtr get_current_surface();
+
+  /** Drawn as its frame alone, with no offset, turn, tint or blend */
+  bool is_plain() const;
 
 private:
   void update();

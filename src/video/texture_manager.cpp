@@ -20,8 +20,10 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <functional>
 #include <sstream>
 #include <string_view>
+#include <vector>
 
 #include "math/rect.hpp"
 #include "io/sdl_file.hpp"
@@ -90,7 +92,10 @@ bool shrinks_with_view(const std::string& filename)
 TextureManager::TextureManager() :
   m_image_textures(),
   m_surfaces(),
-  m_shrink(1.0f, 1.0f)
+  m_shrink(1.0f, 1.0f),
+  m_pixels(),
+  m_pixels_clock(0),
+  m_generation(0)
 {
 }
 
@@ -261,6 +266,8 @@ TextureManager::set_viewport(const Viewport& viewport)
     return;
   }
   m_shrink = shrink;
+  ++m_generation;
+  m_pixels.clear();
 
   for (const auto& entry : m_image_textures)
   {
@@ -290,25 +297,95 @@ TextureManager::set_viewport(const Viewport& viewport)
   }
 }
 
+SDLSurfacePtr
+TextureManager::prepare(const std::string& filename, const SDL_Surface& image) const
+{
+  SDLSurfacePtr own;
+  if ((m_shrink.x < 1.0f || m_shrink.y < 1.0f) && shrinks_with_view(filename))
+  {
+    own = SDLSurface::shrink(image,
+                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * m_shrink.x))),
+                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * m_shrink.y))));
+  }
+  else if (SDL_ISPIXELFORMAT_ALPHA(image.format->format))
+  {
+    own.reset(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+  }
+  if (own)
+  {
+    SDLSurface::fill_clear_pixels(*own);
+  }
+  return own;
+}
+
 TexturePtr
 TextureManager::make_texture(const std::string& filename, const SDL_Surface& image, const Sampler& sampler,
                              const TexturePtr& reload)
 {
-  SDLSurfacePtr shrunk;
-  if ((m_shrink.x < 1.0f || m_shrink.y < 1.0f) && shrinks_with_view(filename))
-  {
-    shrunk = SDLSurface::shrink(image,
-                                std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * m_shrink.x))),
-                                std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * m_shrink.y))));
-  }
-  const SDL_Surface& pixels = shrunk ? *shrunk : image;
+  SDLSurfacePtr own = prepare(filename, image);
+  const SDL_Surface& pixels = own ? *own : image;
 
-  if (reload)
+  TexturePtr texture = reload;
+  if (texture)
   {
-    reload->reload(pixels);
-    return reload;
+    texture->reload(pixels);
   }
-  return VideoSystem::current()->new_texture(pixels, sampler, Size(image.w, image.h));
+  else
+  {
+    texture = VideoSystem::current()->new_texture(pixels, sampler, Size(image.w, image.h));
+  }
+  // Only tile-sized pictures are bordered at their joints, and their pixels are made again only when that needs them
+  m_pixels.erase(texture.get());
+  texture->m_pixel_size = (image.w == 32 && image.h == 32) ? Size(pixels.w, pixels.h) : Size(0, 0);
+  return texture;
+}
+
+const SDL_Surface*
+TextureManager::get_pixels(const Texture& texture)
+{
+  if (texture.m_pixel_size.width == 0 || !texture.m_cache_key)
+  {
+    return nullptr;
+  }
+  auto it = m_pixels.find(&texture);
+  if (it == m_pixels.end())
+  {
+    const std::string& filename = std::get<0>(*texture.m_cache_key);
+    const Rect& rect = std::get<1>(*texture.m_cache_key);
+    SDLSurfacePtr rgba;
+    try
+    {
+      SDLSurfacePtr keep;
+      SDLSurfacePtr image = rect.empty() ? SDLSurface::from_file(filename) : cut(filename, rect, keep);
+      if (!image) return nullptr;
+      SDLSurfacePtr own = prepare(filename, *image);
+      rgba.reset(SDL_ConvertSurfaceFormat(own ? own.get() : image.get(), SDL_PIXELFORMAT_RGBA32, 0));
+    }
+    catch (const std::exception& err)
+    {
+      log_warning << "Couldn't load the pixels of '" << filename << "': " << err.what() << std::endl;
+    }
+    if (!rgba) return nullptr;
+    it = m_pixels.emplace(&texture, Pixels{ std::move(rgba), 0 }).first;
+  }
+  it->second.used = m_pixels_clock;
+  return it->second.surface.get();
+}
+
+void
+TextureManager::trim_pixels(size_t keep)
+{
+  ++m_pixels_clock;
+  if (m_pixels.size() <= keep) return;
+  std::vector<uint32_t> used;
+  used.reserve(m_pixels.size());
+  for (const auto& entry : m_pixels) used.push_back(entry.second.used);
+  std::nth_element(used.begin(), used.begin() + static_cast<long>(keep), used.end(), std::greater<uint32_t>());
+  const uint32_t oldest_kept = used[keep];
+  for (auto it = m_pixels.begin(); it != m_pixels.end();)
+  {
+    it = (it->second.used <= oldest_kept) ? m_pixels.erase(it) : std::next(it);
+  }
 }
 
 void
@@ -366,11 +443,19 @@ TexturePtr
 TextureManager::create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler,
                                          const TexturePtr& reload)
 {
+  SDLSurfacePtr keep;
+  SDLSurfacePtr subimage = cut(filename, rect, keep);
+  return make_texture(filename, *subimage, sampler, reload);
+}
+
+SDLSurfacePtr
+TextureManager::cut(const std::string& filename, const Rect& rect, SDLSurfacePtr& keep)
+{
   assert(rect.valid());
 
   const SDL_Surface& src_surface = get_surface(filename);
 
-  SDLSurfacePtr convert;
+  SDLSurfacePtr& convert = keep;
   if (src_surface.format->Rmask == 0 &&
       src_surface.format->Gmask == 0 &&
       src_surface.format->Bmask == 0 &&
@@ -422,8 +507,7 @@ TextureManager::create_image_texture_raw(const std::string& filename, const Rect
       throw std::runtime_error("SDL_CreateRGBSurfaceFrom() call failed");
     }
   }
-
-  return make_texture(filename, *subimage, sampler, reload);
+  return subimage;
 }
 
 TexturePtr

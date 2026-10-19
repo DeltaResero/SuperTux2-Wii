@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_OBJECT_TILEMAP_HPP
 
 #include <algorithm>
+#include <memory>
 #include <unordered_set>
 
 #include "math/rect.hpp"
@@ -35,8 +36,13 @@
 class DrawingContext;
 class CollisionObject;
 class CollisionGroundMovementManager;
+class Surface;
 class Tile;
 class TileSet;
+
+namespace bordered {
+class Layer;
+}
 
 /** This class is responsible for drawing the level tiles */
 class TileMap final :
@@ -135,6 +141,17 @@ public:
 
   bool is_outside_bounds(const Vector& pos) const;
   const Tile& get_tile(int x, int y) const;
+  /** The first frame of the tile in cell x, y, or null; every frame has its shape */
+  const Surface* get_still_picture_at(int x, int y) const;
+  Vector get_speed() const { return Vector(m_speed_x, m_speed_y); }
+  /** Counts changes to the tiles */
+  int get_revision() const { return m_revision; }
+  bool is_fading() const { return m_current_alpha != m_alpha; }
+  float get_target_alpha() const { return m_alpha; }
+  /** On the level's own grid: whole tiles from its corner, with no flip, parallax or path that moves it */
+  bool is_on_grid() const;
+  /** Readies this frame's copies of the tiles in view, or during a fade those for after it; false till all are */
+  bool prepare_copies(const Rectf& view, bool fading);
   const Tile& get_tile_at(const Vector& pos) const;
   uint32_t get_tile_id(int x, int y) const;
   uint32_t get_tile_id_at(const Vector& pos) const;
@@ -220,6 +237,9 @@ private:
 
 
   int m_starting_node;
+
+  int m_revision;
+  std::unique_ptr<bordered::Layer> m_bordered;
 
 private:
   TileMap(const TileMap&) = delete;

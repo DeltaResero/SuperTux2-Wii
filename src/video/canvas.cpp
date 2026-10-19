@@ -26,6 +26,7 @@
 #include "video/renderer.hpp"
 #include "video/surface.hpp"
 #include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
 Canvas::Canvas(DrawingContext& context, obstack& obst) :
   m_context(context),
@@ -128,9 +129,10 @@ Canvas::draw_surface(const SurfacePtr& surface,
   request->blend = blend;
 
   request->srcrects.emplace_back(Rectf(surface->get_region()));
-  request->dstrects.emplace_back(Rectf(apply_translate(position) * scale(),
-                                 Sizef(static_cast<float>(surface->get_width()) * scale(),
-                                       static_cast<float>(surface->get_height()) * scale())));
+  request->between_pixels = between_pixels();
+  request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
+  request->dstrects.emplace_back(place(position, Sizef(static_cast<float>(surface->get_width()),
+                                                      static_cast<float>(surface->get_height()))));
   request->angles.emplace_back(angle);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
@@ -168,7 +170,9 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
   request->blend = style.get_blend();
 
   request->srcrects.emplace_back(srcrect);
-  request->dstrects.emplace_back(apply_translate(dstrect.p1())*scale(), dstrect.get_size()*scale());
+  request->between_pixels = between_pixels();
+  request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
+  request->dstrects.emplace_back(place(dstrect.p1(), dstrect.get_size()));
   request->angles.emplace_back(0.0f);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
@@ -182,14 +186,15 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
                            std::vector<Rectf> srcrects,
                            std::vector<Rectf> dstrects,
                            const Color& color,
-                           int layer)
+                           int layer,
+                           std::vector<uint8_t> fades)
 {
   const size_t len = srcrects.size();
   draw_surface_batch(surface,
                      std::move(srcrects),
                      std::move(dstrects),
                      std::vector<float>(len, 0.0f),
-                     color, layer);
+                     color, layer, std::move(fades));
 }
 
 void
@@ -198,7 +203,8 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
                            std::vector<Rectf> dstrects,
                            std::vector<float> angles,
                            const Color& color,
-                           int layer)
+                           int layer,
+                           std::vector<uint8_t> fades)
 {
   if (!surface) return;
 
@@ -214,9 +220,13 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
   request->dstrects = std::move(dstrects);
   request->angles = std::move(angles);
 
+  request->between_pixels = between_pixels();
+  request->fades = std::move(fades);
+  request->part_texels = m_context.transform().part_texels;
+  const Placing taken = placing();
   for (auto& dstrect : request->dstrects)
   {
-    dstrect = Rectf(apply_translate(dstrect.p1())*scale(), dstrect.get_size()*scale());
+    dstrect = place(taken, dstrect.p1(), dstrect.get_size());
   }
 
   request->texture = surface->get_texture().get();
@@ -286,6 +296,7 @@ Canvas::draw_filled_rect(const Rectf& rect, const Color& color, float radius, in
   request->color = color;
   request->color.alpha = color.alpha * m_context.transform().alpha;
   request->radius = radius;
+  request->whole_pixels = on_pixel_grid();
 
   m_requests.push_back(request);
 }
@@ -374,12 +385,64 @@ Canvas::get_pixel(const Vector& position, const std::shared_ptr<Color>& color_ou
   m_requests.push_back(request);
 }
 
+Canvas::Placing
+Canvas::placing() const
+{
+  Placing result;
+  result.translation = m_context.transform().translation;
+  result.offset = Vector(static_cast<float>(m_context.get_viewport().left), static_cast<float>(m_context.get_viewport().top));
+  result.scale = scale();
+  result.grid = on_pixel_grid();
+  result.pixels = result.grid ? VideoSystem::current()->get_viewport().get_scale() * result.scale : Vector(0.0f, 0.0f);
+  return result;
+}
+
+Vector
+Canvas::apply_translate(const Placing& placing, const Vector& pos)
+{
+  if (placing.grid && placing.pixels.x > 0.0f && placing.pixels.y > 0.0f)
+  {
+    // Rounded apart, so where the camera is never changes how a picture rounds
+    return (glm::round(pos * placing.pixels) - glm::round(placing.translation * placing.pixels)) / placing.pixels + placing.offset;
+  }
+
+  return (pos - placing.translation) + placing.offset;
+}
+
 Vector
 Canvas::apply_translate(const Vector& pos) const
 {
-  Vector translation = m_context.transform().translation;
-  return (pos - translation) + Vector(static_cast<float>(m_context.get_viewport().left),
-                                      static_cast<float>(m_context.get_viewport().top));
+  return apply_translate(placing(), pos);
+}
+
+Rectf
+Canvas::place(const Placing& placing, const Vector& pos, const Sizef& size)
+{
+  if (placing.grid)
+  {
+    return Rectf(apply_translate(placing, pos) * placing.scale,
+                 apply_translate(placing, pos + Vector(size.width, size.height)) * placing.scale);
+  }
+
+  return Rectf(apply_translate(placing, pos) * placing.scale, size * placing.scale);
+}
+
+Rectf
+Canvas::place(const Vector& pos, const Sizef& size) const
+{
+  return place(placing(), pos, size);
+}
+
+bool
+Canvas::between_pixels() const
+{
+  return m_context.transform().between_pixels && VideoSystem::current()->draws_between_pixels();
+}
+
+bool
+Canvas::on_pixel_grid() const
+{
+  return m_context.transform().pixel_grid && !between_pixels();
 }
 
 float

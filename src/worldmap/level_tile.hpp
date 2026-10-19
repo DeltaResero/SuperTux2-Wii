@@ -36,6 +36,7 @@ public:
   ~LevelTile() override;
 
   virtual void draw(DrawingContext& context) override;
+  virtual bool is_still() const override { return true; }
   virtual void update(float dt_sec) override;
 
   void set_solved(bool v);

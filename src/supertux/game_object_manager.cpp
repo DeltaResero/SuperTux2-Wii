@@ -165,7 +165,15 @@ GameObjectManager::draw(DrawingContext& context, float step_fraction)
     }
 
     const Vector lag = (step_fraction < 1.0f) ? object->get_draw_lag(step_fraction) : Vector(0.0f, 0.0f);
-    if (lag.x != 0.0f || lag.y != 0.0f)
+    if (object->is_still())
+    {
+      // Rounded with the ground, or it would slip a pixel against it as the camera moves
+      context.push_transform();
+      context.transform().pixel_grid = true;
+      object->draw(context);
+      context.pop_transform();
+    }
+    else if (lag.x != 0.0f || lag.y != 0.0f)
     {
       context.push_transform();
       context.set_translation(context.get_translation() + lag);

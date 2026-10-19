@@ -56,17 +56,20 @@ public:
                          int layer, const PaintStyle& style = PaintStyle());
   void draw_surface_scaled(const SurfacePtr& surface, const Rectf& dstrect,
                            int layer, const PaintStyle& style = PaintStyle());
+  /** fades: for each picture, the FADE_ sides that fade out between pixels; none when left empty */
   void draw_surface_batch(const SurfacePtr& surface,
                           std::vector<Rectf> srcrects,
                           std::vector<Rectf> dstrects,
                           const Color& color,
-                          int layer);
+                          int layer,
+                          std::vector<uint8_t> fades = {});
   void draw_surface_batch(const SurfacePtr& surface,
                           std::vector<Rectf> srcrects,
                           std::vector<Rectf> dstrects,
                           std::vector<float> angles,
                           const Color& color,
-                          int layer);
+                          int layer,
+                          std::vector<uint8_t> fades = {});
   void draw_text(const FontPtr& font, const std::string& text,
                  const Vector& position, FontAlignment alignment, int layer, const Color& color = Color(1.0,1.0,1.0));
   /** Draw text to the center of the screen */
@@ -91,8 +94,30 @@ public:
   DrawingContext& get_context() { return m_context; }
 
 private:
+  /** What placing a picture works from, taken once for a whole batch */
+  struct Placing
+  {
+    Vector translation;
+    Vector offset;
+    float scale;
+    bool grid;
+    Vector pixels;
+  };
+
+  Placing placing() const;
+  static Vector apply_translate(const Placing& placing, const Vector& pos);
   Vector apply_translate(const Vector& pos) const;
   float scale() const;
+
+  /** Where a picture lands, both edges on the pixel grid when the transform asks for it */
+  static Rectf place(const Placing& placing, const Vector& pos, const Sizef& size);
+  Rectf place(const Vector& pos, const Sizef& size) const;
+
+  /** The transform asks for fractions and the renderer can show them */
+  bool between_pixels() const;
+
+  /** Whole pixels counted from the level, unless the picture lands between pixels anyway */
+  bool on_pixel_grid() const;
 
 private:
   DrawingContext& m_context;

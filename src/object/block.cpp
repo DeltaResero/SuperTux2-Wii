@@ -17,10 +17,14 @@
 
 #include "object/block.hpp"
 
+#include <array>
+#include <cmath>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "badguy/bomb.hpp"
 #include "math/random.hpp"
+#include "object/bordered.hpp"
 #include "object/coin.hpp"
 #include "object/growup.hpp"
 #include "object/player.hpp"
@@ -28,10 +32,14 @@
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/constants.hpp"
+#include "supertux/d_scope.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
+#include "video/drawing_context.hpp"
+#include "video/surface.hpp"
+#include "video/video_system.hpp"
 
 static const float BOUNCY_BRICK_MAX_OFFSET = 8;
 static const float BOUNCY_BRICK_SPEED = 90;
@@ -147,9 +155,54 @@ Block::update(float dt_sec)
   }
 }
 
+SurfacePtr
+Block::get_resting_surface() const
+{
+  const Vector pos = get_pos();
+  if (m_bouncing || m_breaking || !m_sprite->is_plain() ||
+      std::abs(pos.x - std::round(pos.x / 32.0f) * 32.0f) > 0.001f || std::abs(pos.y - std::round(pos.y / 32.0f) * 32.0f) > 0.001f)
+  {
+    return {};
+  }
+  // A picture that bends what's behind it, like an emptied block's reflection, can't come from a copy
+  SurfacePtr surface = m_sprite->get_current_surface();
+  return (surface && surface->get_displacement_texture()) ? SurfacePtr() : surface;
+}
+
 void
 Block::draw(DrawingContext& context)
 {
+  // Resting on the grid near the screen, it's bordered by the tiles and blocks beside it
+  const SurfacePtr surface = get_resting_surface();
+  if (surface && context.transform().between_pixels && VideoSystem::current()->draws_between_pixels() && d_gameobject_manager &&
+      context.get_cliprect().grown(32.0f).contains(Rectf(get_pos(), Sizef(32.0f, 32.0f))))
+  {
+    const int cx = static_cast<int>(std::round(get_pos().x / 32.0f));
+    const int cy = static_cast<int>(std::round(get_pos().y / 32.0f));
+    std::array<const Surface*, 9> cells;
+    for (int k = 0; k < 9; ++k)
+    {
+      cells[static_cast<size_t>(k)] = (k == 4) ? surface.get() :
+                                      bordered::grid_surface_at(*d_gameobject_manager, cx + k % 3 - 1, cy + k / 3 - 1);
+    }
+    Vector origin;
+    Size texels;
+    const SurfacePtr page = bordered::copy_of(cells, origin, texels);
+    if (page)
+    {
+      // It draws its joints with tiles, and shares one with a block beside it as tiles do
+      const bordered::Open open = { !bordered::block_at(cx - 1, cy), !bordered::block_at(cx, cy - 1),
+                                    !bordered::block_at(cx - 1, cy - 1), !bordered::block_at(cx + 1, cy - 1) };
+      std::vector<Rectf> srcrects;
+      std::vector<Rectf> dstrects;
+      bordered::place(get_pos(), Sizef(32.0f, 32.0f), origin, texels.width, texels.height, open, srcrects, dstrects);
+      context.push_transform();
+      context.transform().part_texels = true;
+      context.color().draw_surface_batch(page, std::move(srcrects), std::move(dstrects), Color::WHITE, LAYER_OBJECTS + 1);
+      context.pop_transform();
+      return;
+    }
+  }
   m_sprite->draw(context.color(), get_pos(), LAYER_OBJECTS+1);
 }
 

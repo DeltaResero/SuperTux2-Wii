@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "video/sdl/sdl_screen_renderer.hpp"
+#include "video/sdl_surface_ptr.hpp"
 #include "video/video_system.hpp"
 
 namespace {
@@ -74,6 +75,24 @@ SDLTexture::reload(const SDL_Surface& image)
   m_texture = texture;
   m_texel_scale = Vector(static_cast<float>(image.w) / static_cast<float>(m_width),
                          static_cast<float>(image.h) / static_cast<float>(m_height));
+}
+
+void
+SDLTexture::update(const SDL_Surface& pixels, int x, int y)
+{
+  // In the texture's own layout, which SDL picked when making it
+  Uint32 format = 0;
+  SDL_QueryTexture(m_texture, &format, nullptr, nullptr, nullptr);
+  SDLSurfacePtr converted;
+  const SDL_Surface* source = &pixels;
+  if (format != pixels.format->format)
+  {
+    converted.reset(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&pixels), format, 0));
+    if (!converted.get()) return;
+    source = converted.get();
+  }
+  const SDL_Rect rect{ x, y, pixels.w, pixels.h };
+  SDL_UpdateTexture(m_texture, &rect, source->pixels, source->pitch);
 }
 
 SDLTexture::~SDLTexture()

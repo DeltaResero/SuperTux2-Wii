@@ -199,6 +199,24 @@ GLTexture::reload(const SDL_Surface& image)
   assert_gl();
 }
 
+void
+GLTexture::update(const SDL_Surface& pixels, int x, int y)
+{
+  assert_gl();
+  glBindTexture(GL_TEXTURE_2D, m_handle);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+#if defined(GL_UNPACK_ROW_LENGTH) || defined(USE_GLBINDING)
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, pixels.pitch / 4);
+#else
+  assert(pixels.pitch == pixels.w * 4);
+#endif
+  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, pixels.w, pixels.h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.pixels);
+#if defined(GL_UNPACK_ROW_LENGTH) || defined(USE_GLBINDING)
+  glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+  assert_gl();
+}
+
 GLTexture::~GLTexture()
 {
   glDeleteTextures(1, &m_handle);

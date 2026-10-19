@@ -28,11 +28,27 @@ public:
   float alpha;
   float scale;
 
+  /** Rounds each picture and the camera to whole pixels apart, so things standing still keep their place against the ground */
+  bool pixel_grid;
+
+  /** Pictures keep their fractions, so things glide at any speed instead of stepping a whole pixel now and then */
+  bool between_pixels;
+
+  /** Between pixels, a picture's edges fade out over a pixel so they glide like its insides; off for pictures that sit edge to edge */
+  bool fade_edges;
+
+  /** Source rectangles may start or end inside a texel and are drawn exactly so */
+  bool part_texels;
+
   DrawingTransform() :
     translation(0.0f, 0.0f),
     flip(NO_FLIP),
     alpha(1.0f),
-    scale(1.0f)
+    scale(1.0f),
+    pixel_grid(false),
+    between_pixels(false),
+    fade_edges(true),
+    part_texels(false)
   {}
 };
 

@@ -78,6 +78,9 @@ public:
   /** How far behind where it is to draw it, for a frame that far through the last step */
   virtual Vector get_draw_lag(float /*step_fraction*/) const { return Vector(0.0f, 0.0f); }
 
+  /** True for something in the level that didn't move in the last step, so it's drawn on the ground's pixel grid */
+  virtual bool is_still() const { return false; }
+
   virtual std::string get_class() const { return "game-object"; }
 
   /** If true only a single object of this type is allowed in a

@@ -23,6 +23,7 @@
 #include "control/input_manager.hpp"
 #include "gui/menu_manager.hpp"
 #include "object/ambient_light.hpp"
+#include "object/bordered.hpp"
 #include "object/decal.hpp"
 #include "object/display_effect.hpp"
 #include "object/music_object.hpp"
@@ -516,6 +517,12 @@ WorldMap::draw(DrawingContext& context)
 
   context.push_transform();
   context.set_translation(m_last_camera_offset + moved * step_fraction);
+  // Between pixels, as in a level
+  context.transform().between_pixels = true;
+  if (VideoSystem::current()->draws_between_pixels())
+  {
+    bordered::begin_frame(*this, this, context.get_cliprect());
+  }
 
   GameObjectManager::draw(context, step_fraction);
 

@@ -154,6 +154,14 @@ InfoBlock::draw(DrawingContext& context)
     x1 = x2 - width;
   }
 
+  // Moved as one piece on whole pixels, so its lines never shift against the box
+  const Vector pixels = VideoSystem::current()->get_viewport().get_scale() * context.transform().scale;
+  context.set_translation(-glm::round(Vector(x1, y1) * pixels) / pixels);
+  context.transform().pixel_grid = true;
+  x2 -= x1;
+  x1 = 0;
+  y1 = 0;
+
   // lines_height includes one ITEMS_SPACE too much, so the bottom border is reduced by 4px
   context.color().draw_filled_rect(Rectf(Vector(x1-border, y1-border),
                                          Sizef(width+2*border, height+2*border-4)),

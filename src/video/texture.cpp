@@ -19,12 +19,17 @@
 #include "video/texture_manager.hpp"
 
 Texture::Texture() :
-  m_cache_key()
+  m_cache_key(),
+  m_pixel_size(0, 0)
 {
 }
 
 Texture::~Texture()
 {
+  if (TextureManager::current())
+  {
+    TextureManager::current()->m_pixels.erase(this);
+  }
   if (TextureManager::current() && m_cache_key)
   {
     // The cache entry is now useless: its weak pointer to us has

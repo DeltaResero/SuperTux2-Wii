@@ -48,6 +48,7 @@ public:
 
   virtual void set_vsync(int mode) override;
   virtual int get_vsync() const override;
+  virtual bool draws_between_pixels() const override { return m_between_pixels; }
 
   virtual SDLSurfacePtr make_screenshot() override;
 
@@ -60,6 +61,7 @@ private:
   std::unique_ptr<SDLScreenRenderer> m_renderer;
   std::unique_ptr<SDLTextureRenderer> m_lightmap;
   std::unique_ptr<TextureManager> m_texture_manager;
+  bool m_between_pixels;
 
 private:
   SDLVideoSystem(const SDLVideoSystem&) = delete;

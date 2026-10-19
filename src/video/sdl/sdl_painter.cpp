@@ -21,6 +21,7 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <vector>
 
 #include "supertux/globals.hpp"
 #include "math/util.hpp"
@@ -159,6 +160,105 @@ void render_texture(SDL_Renderer* renderer,
   }
 }
 
+/** Draws the picture with its FADE_ sides fading out over 1 screen pixel, so a pixel on the edge shows as much as it covers */
+void RenderCopyFaded(SDL_Renderer* renderer, SDL_Texture* texture, const SDL_Rect& src, const SDL_FRect& dst,
+                     uint8_t fades, SDL_RendererFlip flip, SDL_Color color)
+{
+  int texture_width = 0;
+  int texture_height = 0;
+  SDL_QueryTexture(texture, nullptr, nullptr, &texture_width, &texture_height);
+  Vector scale;
+  SDL_RenderGetScale(renderer, &scale.x, &scale.y);
+  const Vector half(0.5f / scale.x, 0.5f / scale.y);
+
+  float u0 = static_cast<float>(src.x) / static_cast<float>(texture_width);
+  float u1 = static_cast<float>(src.x + src.w) / static_cast<float>(texture_width);
+  float v0 = static_cast<float>(src.y) / static_cast<float>(texture_height);
+  float v1 = static_cast<float>(src.y + src.h) / static_cast<float>(texture_height);
+  // A side cut from inside a bigger texture doesn't fade, or it would show what lies beside it
+  bool cut_left = src.x > 0, cut_right = src.x + src.w < texture_width;
+  bool cut_top = src.y > 0, cut_bottom = src.y + src.h < texture_height;
+  if (flip & SDL_FLIP_HORIZONTAL) { std::swap(u0, u1); std::swap(cut_left, cut_right); }
+  if (flip & SDL_FLIP_VERTICAL) { std::swap(v0, v1); std::swap(cut_top, cut_bottom); }
+
+  const bool wide = dst.w > 4.0f * half.x, tall = dst.h > 4.0f * half.y;
+  const auto xs = Painter::fade_lines(dst.x, dst.x + dst.w, half.x,
+                                      wide && (fades & FADE_LEFT) && !cut_left, wide && (fades & FADE_RIGHT) && !cut_right);
+  const auto ys = Painter::fade_lines(dst.y, dst.y + dst.h, half.y,
+                                      tall && (fades & FADE_TOP) && !cut_top, tall && (fades & FADE_BOTTOM) && !cut_bottom);
+
+  std::vector<SDL_Vertex> vertices;
+  for (const auto& [y, shown_y] : ys)
+  {
+    for (const auto& [x, shown_x] : xs)
+    {
+      SDL_Vertex vertex;
+      vertex.position = SDL_FPoint{ x, y };
+      vertex.color = color;
+      vertex.color.a = static_cast<Uint8>(std::lround(static_cast<float>(color.a) * shown_x * shown_y));
+      // Held inside the picture, as SDL may wrap a point past the texture's edge round to the far side
+      vertex.tex_coord = SDL_FPoint{ u0 + std::clamp((x - dst.x) / dst.w, 0.0f, 1.0f) * (u1 - u0),
+                                     v0 + std::clamp((y - dst.y) / dst.h, 0.0f, 1.0f) * (v1 - v0) };
+      vertices.push_back(vertex);
+    }
+  }
+
+  std::vector<int> indices;
+  const int columns = static_cast<int>(xs.size());
+  for (int row = 0; row + 1 < static_cast<int>(ys.size()); ++row)
+  {
+    for (int column = 0; column + 1 < columns; ++column)
+    {
+      const int corner = row * columns + column;
+      for (int index : { corner, corner + 1, corner + columns + 1, corner, corner + columns + 1, corner + columns })
+      {
+        indices.push_back(index);
+      }
+    }
+  }
+
+  SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
+                     indices.data(), static_cast<int>(indices.size()));
+}
+
+/** Draws every rectangle at once, from texel rectangles that may start or end inside a texel where SDL_RenderCopy can't */
+void RenderCopyParts(SDL_Renderer* renderer, SDL_Texture* texture, const std::vector<Rectf>& texels,
+                     const std::vector<SDL_FRect>& dsts, SDL_Color color)
+{
+  int texture_width = 0;
+  int texture_height = 0;
+  SDL_QueryTexture(texture, nullptr, nullptr, &texture_width, &texture_height);
+  const float width = static_cast<float>(texture_width);
+  const float height = static_cast<float>(texture_height);
+
+  // Written in place, as a push per corner costs more than the drawing in a build without optimising
+  std::vector<SDL_Vertex> vertices(texels.size() * 4);
+  std::vector<int> indices(texels.size() * 6);
+  for (size_t i = 0; i < texels.size(); ++i)
+  {
+    const float u0 = texels[i].get_left() / width;
+    const float u1 = texels[i].get_right() / width;
+    const float v0 = texels[i].get_top() / height;
+    const float v1 = texels[i].get_bottom() / height;
+    const SDL_FRect& dst = dsts[i];
+    SDL_Vertex* vertex = &vertices[i * 4];
+    vertex[0] = { SDL_FPoint{ dst.x, dst.y }, color, SDL_FPoint{ u0, v0 } };
+    vertex[1] = { SDL_FPoint{ dst.x + dst.w, dst.y }, color, SDL_FPoint{ u1, v0 } };
+    vertex[2] = { SDL_FPoint{ dst.x + dst.w, dst.y + dst.h }, color, SDL_FPoint{ u1, v1 } };
+    vertex[3] = { SDL_FPoint{ dst.x, dst.y + dst.h }, color, SDL_FPoint{ u0, v1 } };
+    const int corner = static_cast<int>(i * 4);
+    int* index = &indices[i * 6];
+    index[0] = corner;
+    index[1] = corner + 1;
+    index[2] = corner + 2;
+    index[3] = corner;
+    index[4] = corner + 2;
+    index[5] = corner + 3;
+  }
+  SDL_RenderGeometry(renderer, texture, vertices.data(), static_cast<int>(vertices.size()),
+                     indices.data(), static_cast<int>(indices.size()));
+}
+
 /* A version SDL_RenderCopyEx that supports texture animation as specified by Sampler */
 void RenderCopyEx(SDL_Renderer*          renderer,
                   SDL_Texture*           texture,
@@ -235,6 +335,31 @@ SDLPainter::draw_texture(const TextureRequest& request)
   assert(request.srcrects.size() == request.dstrects.size());
   assert(request.srcrects.size() == request.angles.size());
 
+  if (request.part_texels && request.flip == NO_FLIP && texture.get_sampler().get_animate() == Vector(0.0f, 0.0f) &&
+      std::all_of(request.angles.begin(), request.angles.end(), [](float angle) { return angle == 0.0f; }) &&
+      std::all_of(request.fades.begin(), request.fades.end(), [](uint8_t fades) { return fades == 0; }))
+  {
+    const Vector& texel_scale = texture.get_texel_scale();
+    std::vector<Rectf> texels(request.srcrects.size());
+    std::vector<SDL_FRect> dsts(request.srcrects.size());
+    for (size_t i = 0; i < request.srcrects.size(); ++i)
+    {
+      const Rectf& src = request.srcrects[i];
+      texels[i] = Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
+                        src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y);
+      dsts[i] = to_target(request.dstrects[i], request.between_pixels);
+    }
+    // The colour goes in with the corners, so the texture's own tint is left plain
+    SDL_SetTextureColorMod(texture.get_texture(), 255, 255, 255);
+    SDL_SetTextureAlphaMod(texture.get_texture(), 255);
+    SDL_SetTextureBlendMode(texture.get_texture(), blend2sdl(request.blend));
+    RenderCopyParts(m_sdl_renderer, texture.get_texture(), texels, dsts,
+                    SDL_Color{ static_cast<Uint8>(request.color.red * 255), static_cast<Uint8>(request.color.green * 255),
+                               static_cast<Uint8>(request.color.blue * 255),
+                               static_cast<Uint8>(request.color.alpha * request.alpha * 255) });
+    return;
+  }
+
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {
     // The texture may hold fewer pixels than the picture it stands for
@@ -242,7 +367,7 @@ SDLPainter::draw_texture(const TextureRequest& request)
     const Vector& texel_scale = texture.get_texel_scale();
     const SDL_Rect& src_rect = to_sdl_rect(Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
                                                  src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y));
-    const SDL_FRect dst_rect = to_target(request.dstrects[i]);
+    const SDL_FRect dst_rect = to_target(request.dstrects[i], request.between_pixels);
 
     Uint8 r = static_cast<Uint8>(request.color.red * 255);
     Uint8 g = static_cast<Uint8>(request.color.green * 255);
@@ -264,18 +389,30 @@ SDLPainter::draw_texture(const TextureRequest& request)
       flip = static_cast<SDL_RendererFlip>(flip | SDL_FLIP_VERTICAL);
     }
 
-    RenderCopyEx(m_sdl_renderer, texture.get_texture(),
-                 &src_rect, &dst_rect,
-                 static_cast<double>(request.angles[i]), nullptr, flip,
-                 texture.get_sampler(), texel_scale);
+    const uint8_t fades = (i < request.fades.size()) ? request.fades[i] : 0;
+    if (fades != 0 && request.between_pixels && request.angles[i] == 0.0f && !SDL_GetRenderTarget(m_sdl_renderer) &&
+        texture.get_sampler().get_animate() == Vector(0.0f, 0.0f))
+    {
+      // The colour goes in with the corners, so the texture's own tint is left plain
+      SDL_SetTextureColorMod(texture.get_texture(), 255, 255, 255);
+      SDL_SetTextureAlphaMod(texture.get_texture(), 255);
+      RenderCopyFaded(m_sdl_renderer, texture.get_texture(), src_rect, dst_rect, fades, flip, SDL_Color{ r, g, b, a });
+    }
+    else
+    {
+      RenderCopyEx(m_sdl_renderer, texture.get_texture(),
+                   &src_rect, &dst_rect,
+                   static_cast<double>(request.angles[i]), nullptr, flip,
+                   texture.get_sampler(), texel_scale);
+    }
   }
 }
 
 SDL_FRect
-SDLPainter::to_target(const Rectf& rect) const
+SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
 {
-  // A lightmap pixel covers several screen pixels, so whole ones there would move a light in steps
-  if (SDL_GetRenderTarget(m_sdl_renderer))
+  // Fractions kept for a gliding layer, and on the lightmap, where whole pixels would move a light in steps
+  if (SDL_GetRenderTarget(m_sdl_renderer) || between_pixels)
   {
     return SDL_FRect{ rect.get_left() * m_scale, rect.get_top() * m_scale,
                       rect.get_width() * m_scale, rect.get_height() * m_scale };
@@ -293,6 +430,43 @@ SDLPainter::to_target(const Rectf& rect) const
   const float bottom = std::round((origin_y + rect.get_bottom() * m_scale) * scale.y);
   return SDL_FRect{ left / scale.x - origin_x, top / scale.y - origin_y,
                     (right - left) / scale.x, (bottom - top) / scale.y };
+}
+
+void
+SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
+{
+  // Edges on whole screen pixels as to_target puts pictures', corners rounded row by row of whole pixels
+  const Viewport& viewport = m_video_system.get_viewport();
+  Vector scale;
+  SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
+  const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
+  const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
+  const int left = static_cast<int>(std::round((origin_x + rect.get_left() * m_scale) * scale.x));
+  const int top = static_cast<int>(std::round((origin_y + rect.get_top() * m_scale) * scale.y));
+  const int right = static_cast<int>(std::round((origin_x + rect.get_right() * m_scale) * scale.x));
+  const int bottom = static_cast<int>(std::round((origin_y + rect.get_bottom() * m_scale) * scale.y));
+  if (right <= left || bottom <= top) return;
+
+  const float radius_x = std::min(radius * m_scale * scale.x, static_cast<float>(right - left) / 2.0f);
+  const float radius_y = std::min(radius * m_scale * scale.y, static_cast<float>(bottom - top) / 2.0f);
+  const int rows = static_cast<int>(radius_y);
+  std::vector<SDL_FRect> rects;
+  const auto add = [&](int x0, int y0, int x1, int y1) {
+    rects.push_back(SDL_FRect{ static_cast<float>(x0) / scale.x - origin_x, static_cast<float>(y0) / scale.y - origin_y,
+                               static_cast<float>(x1 - x0) / scale.x, static_cast<float>(y1 - y0) / scale.y });
+  };
+  for (int i = 0; i < rows; ++i)
+  {
+    const float dy = (radius_y - (static_cast<float>(i) + 0.5f)) / radius_y;
+    const int inset = static_cast<int>(std::round(radius_x - std::sqrt(std::max(0.0f, 1.0f - dy * dy)) * radius_x));
+    add(left + inset, top + i, right - inset, top + i + 1);
+    add(left + inset, bottom - 1 - i, right - inset, bottom - i);
+  }
+  if (bottom - top > 2 * rows)
+  {
+    add(left, top + rows, right, bottom - rows);
+  }
+  SDL_RenderFillRectsF(m_sdl_renderer, rects.data(), static_cast<int>(rects.size()));
 }
 
 void
@@ -362,6 +536,14 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
   Uint8 g = static_cast<Uint8>(request.color.green * 255);
   Uint8 b = static_cast<Uint8>(request.color.blue * 255);
   Uint8 a = static_cast<Uint8>(request.color.alpha * 255);
+
+  if (request.whole_pixels)
+  {
+    SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
+    fill_whole_pixels(request.rect, request.radius);
+    return;
+  }
 
   int radius = std::min(std::min(rect.h / 2, rect.w / 2),
                         static_cast<int>(request.radius));

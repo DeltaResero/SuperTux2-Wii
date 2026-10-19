@@ -18,6 +18,9 @@
 #ifndef HEADER_SUPERTUX_VIDEO_PAINTER_HPP
 #define HEADER_SUPERTUX_VIDEO_PAINTER_HPP
 
+#include <utility>
+#include <vector>
+
 #include "math/rect.hpp"
 #include "math/vector.hpp"
 #include "video/color.hpp"
@@ -51,6 +54,31 @@ public:
 
   virtual void set_clip_rect(const Rect& rect) = 0;
   virtual void clear_clip_rect() = 0;
+
+  /** Lines across a picture from start to end, with how much of it shows on each; a fading side gets one half a pixel either side */
+  static std::vector<std::pair<float, float>> fade_lines(float start, float end, float half_pixel, bool fade_start, bool fade_end)
+  {
+    std::vector<std::pair<float, float>> lines;
+    if (fade_start)
+    {
+      lines.emplace_back(start - half_pixel, 0.0f);
+      lines.emplace_back(start + half_pixel, 1.0f);
+    }
+    else
+    {
+      lines.emplace_back(start, 1.0f);
+    }
+    if (fade_end)
+    {
+      lines.emplace_back(end - half_pixel, 1.0f);
+      lines.emplace_back(end + half_pixel, 0.0f);
+    }
+    else
+    {
+      lines.emplace_back(end, 1.0f);
+    }
+    return lines;
+  }
 
 private:
   Painter(const Painter&) = delete;
