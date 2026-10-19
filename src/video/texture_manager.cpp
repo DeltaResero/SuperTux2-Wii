@@ -323,8 +323,9 @@ TextureManager::prepare(const std::string& filename, const SDL_Surface& image) c
     {
       SDLSurface::fill_clear_pixels(*source);
     }
-    own = SDLSurface::create_rgba(static_cast<int>(std::lround(static_cast<float>(image.w) * m_resize.x)),
-                                  static_cast<int>(std::lround(static_cast<float>(image.h) * m_resize.y)));
+    // Rounded up, so the picture is never smaller than the whole pixels it's drawn into
+    own = SDLSurface::create_rgba(static_cast<int>(std::ceil(static_cast<float>(image.w) * m_resize.x - 0.001f)),
+                                  static_cast<int>(std::ceil(static_cast<float>(image.h) * m_resize.y - 0.001f)));
     if (SDL_SoftStretchLinear(source.get(), nullptr, own.get(), nullptr) != 0)
     {
       std::ostringstream msg;

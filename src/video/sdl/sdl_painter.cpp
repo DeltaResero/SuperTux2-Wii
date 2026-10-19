@@ -369,7 +369,13 @@ SDLPainter::draw_texture(const TextureRequest& request)
     const Vector& texel_scale = texture.get_texel_scale();
     const SDL_Rect& src_rect = to_sdl_rect(Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
                                                  src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y));
-    const SDL_FRect dst_rect = to_target(request.dstrects[i], request.between_pixels);
+    SDL_FRect dst_rect = to_target(request.dstrects[i], request.between_pixels);
+    // A pixel past its place rather than squeezed, as the software renderer squeezes a picture far slower than it copies one
+    if (m_whole_pixels && request.angles[i] == 0.0f)
+    {
+      if (static_cast<float>(src_rect.w) - dst_rect.w == 1.0f) dst_rect.w += 1.0f;
+      if (static_cast<float>(src_rect.h) - dst_rect.h == 1.0f) dst_rect.h += 1.0f;
+    }
 
     Uint8 r = static_cast<Uint8>(request.color.red * 255);
     Uint8 g = static_cast<Uint8>(request.color.green * 255);
