@@ -252,9 +252,23 @@ kind_of(const Surface* surface)
   return kind;
 }
 
-/** The copy's texels, (w + 2) by (h + 2), as one picture of the 3 x 3 tiles and the layers over them has them */
+/** Two texels that tell apart at a glance, so showing one in the other's place would show */
+bool
+apart(uint32_t a, uint32_t b)
+{
+  const Uint8* x = reinterpret_cast<const Uint8*>(&a);
+  const Uint8* y = reinterpret_cast<const Uint8*>(&b);
+  for (int c = 0; c < 4; ++c)
+  {
+    if (std::abs(static_cast<int>(x[c]) - static_cast<int>(y[c])) > 40) return true;
+  }
+  return false;
+}
+
+/** The copy's texels, (w + 2) by (h + 2), as one picture of the 3 x 3 tiles and the layers over them has them;
+    with changed, only whether the layers over them change any texel it takes */
 std::vector<uint32_t>
-compute(const Key& key, int w, int h)
+compute(const Key& key, int w, int h, bool* changed = nullptr)
 {
   // As far round the copy as the junction rule and the fill reach, so its ring comes out as the copies beside it have it
   const Rect grid(-4, -4, w + 4, h + 4);
@@ -361,7 +375,7 @@ compute(const Key& key, int w, int h)
         }
       }
     }
-    // Where this one is see-through under a covering layer's edge, it shows what lies just outside, so the edge blends into that
+    // Under a covering layer's edge, this one shows what lies just outside it, so the edge blends into that and not into what the layer hides
     for (int cy = -1; cy <= 1; ++cy)
     {
       for (int cx = -1; cx <= 1; ++cx)
@@ -373,14 +387,22 @@ compute(const Key& key, int w, int h)
           for (int i = std::max(texels.left, -3); i < std::min(texels.right, w + 3); ++i)
           {
             const size_t p = at(i, j);
-            if (!opaque[p] || reinterpret_cast<const Uint8*>(&lower[p])[3] >= 128) continue;
+            if (!opaque[p]) continue;
             for (const auto& step : { std::pair<int, int>{ 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } })
             {
               if (!inside(i + step.first, j + step.second)) continue;
               const size_t q = at(i + step.first, j + step.second);
               if (opaque[p] & ~solid[q])
               {
-                out[p] = lower[q];
+                if (apart(lower[p], lower[q]))
+                {
+                  if (changed)
+                  {
+                    *changed = true;
+                    return {};
+                  }
+                  out[p] = lower[q];
+                }
                 break;
               }
             }
@@ -390,6 +412,7 @@ compute(const Key& key, int w, int h)
     }
   }
 
+  if (changed) return {};
   fill_clear(out, gw, gh, { Rect(0, 0, gw, gh) });
 
   std::vector<uint32_t> copy(static_cast<size_t>((w + 2) * (h + 2)));
@@ -487,6 +510,16 @@ put(int index, const Key& key)
     *copy, static_cast<int>(origin.x), static_cast<int>(origin.y));
 }
 
+/** The first copy sets how big a tile's copy is */
+void
+size_copies(const Surface& center)
+{
+  if (s_texels.width != 0) return;
+  s_texels = TextureManager::current()->get_pixel_size(*center.get_texture());
+  s_per_row = PAGE / (s_texels.width + 2);
+  s_per_page = s_per_row * (PAGE / (s_texels.height + 2));
+}
+
 /** The slot holding key's copy, built if need be, or -1 when there's no room */
 int
 find_or_build(Key&& key)
@@ -494,12 +527,7 @@ find_or_build(Key&& key)
   const auto it = s_copies.find(key);
   if (it != s_copies.end()) return it->second;
 
-  if (s_texels.width == 0)
-  {
-    s_texels = TextureManager::current()->get_pixel_size(*key.cells[4]->get_texture());
-    s_per_row = PAGE / (s_texels.width + 2);
-    s_per_page = s_per_row * (PAGE / (s_texels.height + 2));
-  }
+  size_copies(*key.cells[4]);
   const int index = take_slot();
   if (index < 0) return -1;
   put(index, key);
@@ -847,18 +875,12 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
 
   std::array<const Tile*, 9> tiles{};
   bool animated = false;
-  bool solid = true;
   for (int k = 0; k < 9; ++k)
   {
-    if (!used(k % 3 - 1, k / 3 - 1))
-    {
-      solid = false;
-      continue;
-    }
+    if (!used(k % 3 - 1, k / 3 - 1)) continue;
     const Tile* tile = &map.get_tile(x + k % 3 - 1, y + k / 3 - 1);
     tiles[static_cast<size_t>(k)] = tile;
     animated = animated || tile->is_animated();
-    solid = solid && kind_of(fitting(tile->get_first_surface_ptr())) == OPAQUE;
   }
   Key key;
   for (size_t c = 0; c < 9; ++c)
@@ -867,8 +889,8 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
   }
   if (!key.cells[4] && !animated) return true;
 
-  // A layer over this one counts only where its edges reach the copy over a see-through part of this one
-  for (const auto& layer : solid ? Cover() : cover)
+  // A layer over this one counts only where its edges change a texel of the copy, so the copies stay shared elsewhere
+  for (const auto& layer : (key.cells[4] || animated) ? cover : Cover())
   {
     std::array<const Surface*, 9> pictures;
     bool clear = true;
@@ -880,7 +902,14 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
       clear = clear && kind == CLEAR;
       opaque = opaque && kind == OPAQUE;
     }
-    if (!clear && !opaque) key.over.insert(key.over.end(), pictures.begin(), pictures.end());
+    if (clear || opaque || !key.cells[4]) continue;
+    Key alone;
+    alone.cells = key.cells;
+    alone.over.assign(pictures.begin(), pictures.end());
+    size_copies(*key.cells[4]);
+    bool changes = false;
+    compute(alone, s_texels.width, s_texels.height, &changes);
+    if (changes) key.over.insert(key.over.end(), pictures.begin(), pictures.end());
   }
 
   if (animated)
