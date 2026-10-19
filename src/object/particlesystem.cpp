@@ -61,6 +61,15 @@ ParticleSystem::~ParticleSystem()
 }
 
 void
+ParticleSystem::begin_step()
+{
+  for (auto& particle : particles)
+  {
+    particle->last_pos = particle->pos;
+  }
+}
+
+void
 ParticleSystem::draw(DrawingContext& context)
 {
   if (!enabled)
@@ -74,17 +83,19 @@ ParticleSystem::draw(DrawingContext& context)
   context.set_translation(Vector(max_particle_size,max_particle_size));
 
   std::unordered_map<SurfacePtr, SurfaceBatch> batches;
+  const float step_fraction = get_step_fraction();
   for (const auto& particle : particles)
   {
+    const Vector drawn = get_drawn_pos(*particle, step_fraction);
     // remap x,y coordinates onto screencoordinates
     Vector pos(0.0f, 0.0f);
 
     // horizontal wrap when particle goes off screen to the left
     const int particle_width = particle->texture->get_width();
-    pos.x = fmodf(particle->pos.x - scrollx, virtual_width);
+    pos.x = fmodf(drawn.x - scrollx, virtual_width);
     if ((pos.x + static_cast<float>(particle_width)) < 0) pos.x += virtual_width;
 
-    pos.y = fmodf(particle->pos.y - scrolly, virtual_height);
+    pos.y = fmodf(drawn.y - scrolly, virtual_height);
     if (pos.y < 0) pos.y += virtual_height;
 
     if(!region.contains(pos + Sector::get().get_camera().get_translation()))

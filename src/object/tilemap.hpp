@@ -55,6 +55,7 @@ public:
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
+  virtual void begin_step() override { m_last_offset = m_offset; }
 
   virtual void on_flip(float height) override;
 
@@ -192,6 +193,9 @@ private:
   int m_height;
   int m_z_pos;
   Vector m_offset;
+
+  /** Where a moving tilemap was as the last step began */
+  Vector m_last_offset;
   Vector m_movement; /**< The movement that happened last frame */
 
   /** Objects that were touching the top of a solid tile at the last frame */

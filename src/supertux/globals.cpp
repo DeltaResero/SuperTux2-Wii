@@ -20,5 +20,6 @@ Config* g_config;
 
 float g_game_time = 0;
 float g_real_time = 0;
+float g_step_fraction = 1.0f;
 
 /* EOF */

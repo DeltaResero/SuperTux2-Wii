@@ -84,15 +84,17 @@ GLPainter::draw_texture(const TextureRequest& request)
 
   for (size_t i = 0; i < request.srcrects.size(); ++i)
   {
-    const float left = request.dstrects[i].get_left();
-    const float top = request.dstrects[i].get_top();
-    const float right  = request.dstrects[i].get_right();
-    const float bottom = request.dstrects[i].get_bottom();
+    const Rectf dstrect = to_target(request.dstrects[i]);
+    const float left = dstrect.get_left();
+    const float top = dstrect.get_top();
+    const float right  = dstrect.get_right();
+    const float bottom = dstrect.get_bottom();
 
-    float uv_left = request.srcrects[i].get_left() / static_cast<float>(texture.get_texture_width());
-    float uv_top = request.srcrects[i].get_top() / static_cast<float>(texture.get_texture_height());
-    float uv_right = request.srcrects[i].get_right() / static_cast<float>(texture.get_texture_width());
-    float uv_bottom = request.srcrects[i].get_bottom() / static_cast<float>(texture.get_texture_height());
+    const Vector& uv_scale = texture.get_uv_scale();
+    float uv_left = request.srcrects[i].get_left() * uv_scale.x;
+    float uv_top = request.srcrects[i].get_top() * uv_scale.y;
+    float uv_right = request.srcrects[i].get_right() * uv_scale.x;
+    float uv_bottom = request.srcrects[i].get_bottom() * uv_scale.y;
 
     if (request.flip & HORIZONTAL_FLIP)
       std::swap(uv_left, uv_right);
@@ -179,6 +181,26 @@ GLPainter::draw_texture(const TextureRequest& request)
   assert_gl();
 }
 
+Rectf
+GLPainter::to_target(const Rectf& rect) const
+{
+  // A lightmap pixel covers several screen pixels, so whole ones there would move a light in steps
+  if (m_renderer.get_texture())
+  {
+    return rect;
+  }
+
+  // The viewport starts on a whole pixel, so both edges go to the nearest whole screen pixel from its corner
+  const Rect viewport = m_renderer.get_rect();
+  const Sizef logical_size = m_renderer.get_logical_size();
+  const float scale_x = static_cast<float>(viewport.get_width()) / logical_size.width;
+  const float scale_y = static_cast<float>(viewport.get_height()) / logical_size.height;
+  return Rectf(std::round(rect.get_left() * scale_x) / scale_x,
+               std::round(rect.get_top() * scale_y) / scale_y,
+               std::round(rect.get_right() * scale_x) / scale_x,
+               std::round(rect.get_bottom() * scale_y) / scale_y);
+}
+
 void
 GLPainter::draw_gradient(const GradientRequest& request)
 {
@@ -250,11 +272,11 @@ GLPainter::draw_filled_rect(const FillRectRequest& request)
                                   std::min(request.rect.get_width() / 2.0f,
                                            request.rect.get_height() / 2.0f));
 
-    // inner rectangle
+    // inner rectangle, which a box no bigger than its corners could turn inside out by a float error
     const Rectf irect(request.rect.get_left() + radius,
                       request.rect.get_top() + radius,
-                      request.rect.get_right() - radius,
-                      request.rect.get_bottom() - radius);
+                      std::max(request.rect.get_left() + radius, request.rect.get_right() - radius),
+                      std::max(request.rect.get_top() + radius, request.rect.get_bottom() - radius));
 
     const int n = 8;
     size_t p = 0;
@@ -476,10 +498,10 @@ GLPainter::get_pixel(const GetPixelRequest& request) const
   assert_gl();
 
   const Rect& rect = m_renderer.get_rect();
-  const Size& logical_size = m_renderer.get_logical_size();
+  const Sizef logical_size = m_renderer.get_logical_size();
 
-  float x = request.pos.x * static_cast<float>(rect.get_width()) / static_cast<float>(logical_size.width);
-  float y = request.pos.y * static_cast<float>(rect.get_height()) / static_cast<float>(logical_size.height);
+  float x = request.pos.x * static_cast<float>(rect.get_width()) / logical_size.width;
+  float y = request.pos.y * static_cast<float>(rect.get_height()) / logical_size.height;
 
   x += static_cast<float>(rect.left);
   y += static_cast<float>(rect.top);
@@ -501,14 +523,14 @@ GLPainter::set_clip_rect(const Rect& clip_rect)
   assert_gl();
 
   const Rect& rect = m_renderer.get_rect();
-  const Size& logical_size = m_renderer.get_logical_size();
+  const Sizef logical_size = m_renderer.get_logical_size();
+  const float scale_x = static_cast<float>(rect.get_width()) / logical_size.width;
+  const float scale_y = static_cast<float>(rect.get_height()) / logical_size.height;
 
-  const int y = rect.get_height() * clip_rect.top / logical_size.height;
-
-  glScissor(rect.left + rect.get_width() * clip_rect.left / logical_size.width,
-            rect.top + y,
-            rect.get_width() * clip_rect.get_width() / logical_size.width,
-            rect.get_height() * clip_rect.get_height() / logical_size.height);
+  glScissor(rect.left + static_cast<int>(static_cast<float>(clip_rect.left) * scale_x),
+            rect.top + static_cast<int>(static_cast<float>(clip_rect.top) * scale_y),
+            static_cast<int>(static_cast<float>(clip_rect.get_width()) * scale_x),
+            static_cast<int>(static_cast<float>(clip_rect.get_height()) * scale_y));
   glEnable(GL_SCISSOR_TEST);
 
   assert_gl();

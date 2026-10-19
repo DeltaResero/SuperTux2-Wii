@@ -27,10 +27,17 @@ class Config;
 #define SCREEN_WIDTH (VideoSystem::current()->get_viewport().get_screen_width())
 #define SCREEN_HEIGHT (VideoSystem::current()->get_viewport().get_screen_height())
 
+// The screen in the units menus, the HUD and text are laid out in
+#define UI_WIDTH (VideoSystem::current()->get_viewport().get_ui_width())
+#define UI_HEIGHT (VideoSystem::current()->get_viewport().get_ui_height())
+
 extern Config* g_config;
 
 extern float g_game_time;
 extern float g_real_time;
+
+/** How far the frame being drawn is past the last game step, as a share of a step */
+extern float g_step_fraction;
 
 #endif
 

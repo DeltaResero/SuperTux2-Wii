@@ -29,11 +29,12 @@ Config::Config() :
   fullscreen_refresh_rate(0),
   window_size(1280, 800),
   window_resizable(true),
+  window_maximised(false),
   aspect_size(0, 0), // auto detect
   magnification(0.0f),
   use_fullscreen(false),
   video(VideoSystem::VIDEO_AUTO),
-  try_vsync(true),
+  vsync(-1),
   show_fps(false),
   show_player_pos(false),
   show_controller(false),
@@ -95,7 +96,17 @@ Config::load()
     std::string video_string;
     config_video_mapping->get("video", video_string);
     video = VideoSystem::get_video_system(video_string);
-    config_video_mapping->get("vsync", try_vsync);
+    // Older configs say #t or #f here, and reading that as a number would throw and lose the whole file
+    try
+    {
+      config_video_mapping->get("vsync", vsync);
+    }
+    catch (const std::exception&)
+    {
+      bool vsync_on = true;
+      config_video_mapping->get("vsync", vsync_on);
+      vsync = vsync_on ? -1 : 0;
+    }
 
     config_video_mapping->get("fullscreen_width",  fullscreen_size.width);
     config_video_mapping->get("fullscreen_height", fullscreen_size.height);
@@ -111,6 +122,7 @@ Config::load()
     config_video_mapping->get("window_height", window_size.height);
 
     config_video_mapping->get("window_resizable", window_resizable);
+    config_video_mapping->get("window_maximised", window_maximised);
 
     config_video_mapping->get("aspect_width",  aspect_size.width);
     config_video_mapping->get("aspect_height", aspect_size.height);
@@ -178,7 +190,7 @@ Config::save()
   } else {
     writer.write("video", VideoSystem::get_video_string(video));
   }
-  writer.write("vsync", try_vsync);
+  writer.write("vsync", vsync);
 
   writer.write("fullscreen_width",  fullscreen_size.width);
   writer.write("fullscreen_height", fullscreen_size.height);
@@ -188,6 +200,7 @@ Config::save()
   writer.write("window_height", window_size.height);
 
   writer.write("window_resizable", window_resizable);
+  writer.write("window_maximised", window_maximised);
 
   writer.write("aspect_width",  aspect_size.width);
   writer.write("aspect_height", aspect_size.height);

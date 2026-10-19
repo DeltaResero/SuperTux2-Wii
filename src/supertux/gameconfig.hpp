@@ -51,6 +51,9 @@ public:
   /** Window is resizable */
   bool window_resizable;
 
+  /** As large as the window manager makes it, with no size of its own kept */
+  bool window_maximised;
+
   /** the aspect ratio */
   Size aspect_size;
 
@@ -59,7 +62,8 @@ public:
 
   bool use_fullscreen;
   VideoSystem::Enum video;
-  bool try_vsync;
+  // 1 waits for every refresh, 0 never waits, -1 waits unless the frame is late
+  int vsync;
   bool show_fps;
   bool show_player_pos;
   bool show_controller;

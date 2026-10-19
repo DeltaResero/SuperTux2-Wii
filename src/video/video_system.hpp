@@ -60,7 +60,9 @@ public:
   virtual Renderer& get_renderer() const = 0;
   virtual Renderer& get_lightmap() const = 0;
 
-  virtual TexturePtr new_texture(const SDL_Surface& image, const Sampler& sampler = Sampler()) = 0;
+  /** @param image_size the size the picture is drawn at, when image holds fewer pixels than that */
+  virtual TexturePtr new_texture(const SDL_Surface& image, const Sampler& sampler = Sampler(),
+                                 const Size& image_size = Size()) = 0;
 
   virtual const Viewport& get_viewport() const = 0;
   virtual void apply_config() = 0;

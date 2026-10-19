@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_VIDEO_VIEWPORT_HPP
 
 #include "math/rect.hpp"
+#include "math/sizef.hpp"
 #include "math/vector.hpp"
 
 class Viewport final
@@ -28,7 +29,7 @@ public:
 
 public:
   Viewport();
-  Viewport(const Rect& rect, const Vector& scale);
+  Viewport(const Rect& rect, const Vector& scale, float ui_scale = 1.0f);
 
   /** The size of the viewport in window coordinates */
   Rect get_rect() const { return m_rect; }
@@ -36,28 +37,50 @@ public:
   /** The amount by which the content of the viewport is scaled */
   Vector get_scale() const { return m_scale; }
 
-  /** The width of the resulting logical screen */
+  /** The width of the resulting logical screen, in whole units that cover it */
   int get_screen_width() const;
 
-  /** The height of the resulting logical screen */
+  /** The height of the resulting logical screen, in whole units that cover it */
   int get_screen_height() const;
 
-  /** The size of the resulting logical screen */
+  /** The size of the resulting logical screen, in whole units that cover it */
   Size get_screen_size() const;
+
+  /** The size of the resulting logical screen, exactly */
+  Sizef get_exact_screen_size() const;
 
   /** Converts window coordinates into logical screen coordinates */
   Vector to_logical(int physical_x, int physical_y) const;
 
-private:
-  /** The minimum logical screen size that is allowed */
-  static const Size s_max_size;
+  /** How much larger menus, the HUD and text are drawn than the level */
+  float get_ui_scale() const { return m_ui_scale; }
 
-  /** The maximum logical screen size that is allowed */
-  static const Size s_min_size;
+  /** The screen in the units menus, the HUD and text are laid out in */
+  int get_ui_width() const;
+  int get_ui_height() const;
+
+  /** Converts window coordinates into the units menus, the HUD and text are laid out in */
+  Vector to_ui(int physical_x, int physical_y) const;
+
+public:
+  /** How tall a level is drawn at 100% zoom; the width follows the screen's shape */
+  static const float s_logical_height;
+
+  /** The zoom range a player can pick from */
+  static const float s_min_zoom;
+  static const float s_max_zoom;
+
+  /** The narrowest and widest shapes drawn; a screen outside them is stretched to fit */
+  static const float s_min_aspect;
+  static const float s_max_aspect;
+
+  /** How tall menus, the HUD and text are laid out; the width follows the level's shape */
+  static const float s_ui_height;
 
 private:
   Rect m_rect;
   Vector m_scale;
+  float m_ui_scale;
 };
 
 #endif

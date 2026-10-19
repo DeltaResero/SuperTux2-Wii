@@ -23,6 +23,8 @@
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 #include "video/drawing_context.hpp"
+#include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
 InfoBlock::InfoBlock(const ReaderMapping& mapping) :
   Block(mapping, "images/objects/bonus_block/infoblock.sprite"),
@@ -127,25 +129,28 @@ InfoBlock::draw(DrawingContext& context)
   if (m_shown_pct <= 0) return;
 
   context.push_transform();
-  //context.set_translation(Vector(0, 0));
   context.set_alpha(m_shown_pct);
 
-  //float x1 = SCREEN_WIDTH/2-200;
-  //float y1 = SCREEN_HEIGHT/2-200;
+  // The box keeps the UI's size, over wherever the block is on screen
+  const Vector block = (Vector((m_col.m_bbox.get_left() + m_col.m_bbox.get_right()) / 2, m_original_y) -
+                        context.get_translation()) * context.transform().scale /
+                       VideoSystem::current()->get_viewport().get_ui_scale();
+  context.use_ui_space();
+
   float border = 8;
   float width = 400; // this is the text width only
   float height = m_lines_height; // this is the text height only
-  float x1 = (m_col.m_bbox.get_left() + m_col.m_bbox.get_right())/2 - width/2;
-  float x2 = (m_col.m_bbox.get_left() + m_col.m_bbox.get_right())/2 + width/2;
-  float y1 = m_original_y - height;
+  float x1 = block.x - width/2;
+  float x2 = block.x + width/2;
+  float y1 = block.y - height;
 
   if (x1 < 0) {
     x1 = 0;
     x2 = width;
   }
 
-  if (x2 > Sector::get().get_width()) {
-    x2 = Sector::get().get_width();
+  if (x2 > static_cast<float>(context.get_width())) {
+    x2 = static_cast<float>(context.get_width());
     x1 = x2 - width;
   }
 

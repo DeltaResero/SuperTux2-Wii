@@ -39,6 +39,8 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual void update(float dt_sec) override;
   virtual bool is_singleton() const override { return true; }
+  virtual void begin_step() override { m_last_pos = get_pos(); }
+  virtual Vector get_draw_lag(float step_fraction) const override { return get_step_lag(m_last_pos, get_pos(), step_fraction); }
 
   void setup(); /**< called prior to first update */
 
@@ -82,6 +84,9 @@ private:
   bool m_moving;
 
   bool m_ghost_mode;
+
+  /** Where Tux was as the last step began */
+  Vector m_last_pos;
 
 private:
   Tux(const Tux&) = delete;

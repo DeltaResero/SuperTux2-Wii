@@ -18,6 +18,8 @@
 #ifndef HEADER_SUPERTUX_GUI_MENU_ITEM_HPP
 #define HEADER_SUPERTUX_GUI_MENU_ITEM_HPP
 
+#include <optional>
+
 #include "gui/menu.hpp"
 #include "video/color.hpp"
 
@@ -33,6 +35,7 @@ public:
   const std::string& get_help() const { return m_help; }
 
   const std::string& get_text() const { return m_text; }
+  void set_text(const std::string& text) { m_text = text; }
 
   /** Draws the menu item. */
   virtual void draw(DrawingContext&, const Vector& pos, int menu_width, bool active);
@@ -51,6 +54,22 @@ public:
 
   /** Processes the given event. */
   virtual void event(const SDL_Event& ev) { }
+
+  /** Returns the width of the widest value the item can show, or 0 when it shows none. */
+  virtual float get_value_width() const {
+    return 0.0f;
+  }
+
+  /** Gives the item the value column its menu shares between all its items. */
+  virtual void set_value_column(float width) { }
+
+  /** Tells the item how far along it the pointer is, or nothing when the pointer is elsewhere. */
+  virtual void set_pointer_x(const std::optional<float>& x) { }
+
+  /** Returns what a click x pixels from the item's left edge stands for. */
+  virtual MenuAction get_click_action(float x, int menu_width) const {
+    return MenuAction::HIT;
+  }
 
   virtual Color get_color() const;
 

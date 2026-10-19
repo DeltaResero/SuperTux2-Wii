@@ -85,8 +85,8 @@ Dialog::add_button(const std::string& text, const std::function<void ()>& callba
 int
 Dialog::get_button_at(const Vector& mouse_pos) const
 {
-  Rectf bg_rect(Vector(static_cast<float>(SCREEN_WIDTH) / 2.0f - m_text_size.width / 2.0f,
-                       static_cast<float>(SCREEN_HEIGHT) / 2.0f - m_text_size.height / 2.0f),
+  Rectf bg_rect(Vector(static_cast<float>(UI_WIDTH) / 2.0f - m_text_size.width / 2.0f,
+                       static_cast<float>(UI_HEIGHT) / 2.0f - m_text_size.height / 2.0f),
                 Sizef(m_text_size.width,
                       m_text_size.height + 44));
 
@@ -117,7 +117,7 @@ Dialog::event(const SDL_Event& ev)
     case SDL_MOUSEBUTTONDOWN:
     if (ev.button.button == SDL_BUTTON_LEFT)
     {
-      Vector mouse_pos = VideoSystem::current()->get_viewport().to_logical(ev.motion.x, ev.motion.y);
+      Vector mouse_pos = VideoSystem::current()->get_viewport().to_ui(ev.motion.x, ev.motion.y);
       int new_button = get_button_at(mouse_pos);
       if (new_button != -1)
       {
@@ -129,7 +129,7 @@ Dialog::event(const SDL_Event& ev)
 
     case SDL_MOUSEMOTION:
     {
-      Vector mouse_pos = VideoSystem::current()->get_viewport().to_logical(ev.motion.x, ev.motion.y);
+      Vector mouse_pos = VideoSystem::current()->get_viewport().to_ui(ev.motion.x, ev.motion.y);
       int new_button = get_button_at(mouse_pos);
       if (new_button != -1)
       {

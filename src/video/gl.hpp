@@ -23,20 +23,19 @@
 
 #if defined(USE_OPENGLES2)
 #  include <SDL_opengles2.h>
-#elif defined(USE_OPENGLES1)
-#  include <SDL_opengles.h>
 #else
 #  ifdef USE_GLBINDING
 #    include <glbinding/gl/gl.h>
 #    include <glbinding/gl/bitfield.h>
-#  else
+#  elif defined(HAVE_GLEW)
 #    include <GL/glew.h>
 #    define GL_NONE_BIT 0
+#  else
+#    define GL_GLEXT_PROTOTYPES
+#    include <GL/gl.h>
+#    include <GL/glext.h>
+#    define GL_NONE_BIT 0
 #  endif
-#endif
-
-#ifdef USE_OPENGLES1
-#  define glOrtho glOrthof
 #endif
 
 #ifdef USE_OPENGLES2

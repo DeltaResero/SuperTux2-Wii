@@ -21,16 +21,18 @@
 
 #include <optional>
 
+class Rectf;
 class Renderer;
 class SDLScreenRenderer;
 class SDLVideoSystem;
 struct DrawingRequest;
+struct SDL_FRect;
 struct SDL_Renderer;
 
 class SDLPainter final : public Painter
 {
 public:
-  SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Renderer* sdl_renderer);
+  SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Renderer* sdl_renderer, float scale);
 
   virtual void draw_texture(const TextureRequest& request) override;
   virtual void draw_gradient(const GradientRequest& request) override;
@@ -46,9 +48,16 @@ public:
   virtual void clear_clip_rect() override;
 
 private:
+  SDL_FRect to_target(const Rectf& rect) const;
+
+private:
   SDLVideoSystem& m_video_system;
   Renderer& m_renderer;
   SDL_Renderer* m_sdl_renderer;
+
+  // Applied to every coordinate before it reaches SDL
+  float m_scale;
+
   std::optional<SDL_Rect> m_cliprect;
 
 private:

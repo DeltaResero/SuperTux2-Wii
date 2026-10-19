@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_VIDEO_RENDERER_HPP
 
 #include "math/rect.hpp"
+#include "math/sizef.hpp"
 #include "math/vector.hpp"
 #include "video/color.hpp"
 #include "video/texture_ptr.hpp"
@@ -38,7 +39,8 @@ public:
   virtual Painter& get_painter() = 0;
 
   virtual Rect get_rect() const = 0;
-  virtual Size get_logical_size() const = 0;
+  /** The size of what's drawn in logical units, exact rather than rounded to whole ones */
+  virtual Sizef get_logical_size() const = 0;
 
   virtual TexturePtr get_texture() const = 0;
 };

@@ -24,6 +24,7 @@
 enum class Blend;
 class GLRenderer;
 class GLVideoSystem;
+class Rectf;
 
 class GLPainter final : public Painter
 {
@@ -42,6 +43,9 @@ public:
 
   virtual void set_clip_rect(const Rect& rect) override;
   virtual void clear_clip_rect() override;
+
+private:
+  Rectf to_target(const Rectf& rect) const;
 
 private:
   GLVideoSystem& m_video_system;

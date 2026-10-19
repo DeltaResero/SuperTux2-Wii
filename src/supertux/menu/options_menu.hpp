@@ -23,27 +23,41 @@
 class OptionsMenu final : public Menu
 {
 public:
-  OptionsMenu(bool complete);
+  /** The list of sections, or one section's settings */
+  enum class Section
+  {
+    SECTIONS,
+    VIDEO,
+    AUDIO,
+    CONTROLS,
+    EXTRAS,
+    ADVANCED
+  };
+
+public:
+  /** Leaves out what can't change in the middle of a game unless complete */
+  OptionsMenu(Section section, bool complete);
   ~OptionsMenu() override;
 
   void menu_action(MenuItem& item) override;
+  void on_window_resize() override;
+  void refresh() override;
 
 private:
   int next_magnification;
   int next_aspect_ratio;
-  int next_window_resolution;
-  int next_resolution;
   int next_vsync;
   int next_sound_volume;
   int next_music_volume;
 
   std::vector<std::string> magnifications;
   std::vector<std::string> aspect_ratios;
-  std::vector<std::string> window_resolutions;
-  std::vector<std::string> resolutions;
   std::vector<std::string> vsyncs;
   std::vector<std::string> sound_volumes;
   std::vector<std::string> music_volumes;
+
+  /** Names the size in use, which can change from outside this menu */
+  MenuItem* m_resolution_item;
 
 private:
   OptionsMenu(const OptionsMenu&) = delete;

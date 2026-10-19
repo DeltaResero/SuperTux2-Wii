@@ -22,6 +22,7 @@
 #include <string>
 #include <iosfwd>
 
+#include "math/vector.hpp"
 #include "util/currenton.hpp"
 #include "video/color.hpp"
 #include "video/surface_ptr.hpp"
@@ -34,10 +35,11 @@ class TTFSurfaceManager final : public Currenton<TTFSurfaceManager>
 public:
   TTFSurfaceManager();
 
-  TTFSurfacePtr create_surface(const TTFFont& font, const std::string& text);
+  /** @param pixel_scale how many screen pixels one unit of the text covers across and down */
+  TTFSurfacePtr create_surface(const TTFFont& font, const std::string& text, const Vector& pixel_scale);
 
-  // Returns -1 if there is no cached text surface
-  int get_cached_surface_width(const TTFFont& font, const std::string& text);
+  // Returns -1 if there is no cached text surface at the scale the UI is drawn at
+  float get_cached_surface_width(const TTFFont& font, const std::string& text);
 
 private:
   void cache_cleanup_step();
@@ -53,7 +55,7 @@ private:
   };
 
 private:
-  using Key = std::tuple<void*, std::string>;
+  using Key = std::tuple<void*, std::string, float, float>;
   std::map<Key, CacheEntry> m_cache;
 
   std::map<Key, CacheEntry>::iterator m_cache_iter;

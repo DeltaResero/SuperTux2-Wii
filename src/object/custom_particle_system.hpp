@@ -37,6 +37,7 @@ public:
   ~CustomParticleSystem() override;
 
   virtual void draw(DrawingContext& context) override;
+  virtual void begin_step() override;
 
   void reinit_textures();
   virtual void update(float dt_sec) override;

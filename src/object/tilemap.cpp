@@ -32,6 +32,8 @@
 #include "video/drawing_context.hpp"
 #include "video/layer.hpp"
 #include "video/surface.hpp"
+#include "video/video_system.hpp"
+#include "video/viewport.hpp"
 #include "worldmap/worldmap.hpp"
 
 TileMap::TileMap(const TileSet *new_tileset) :
@@ -48,6 +50,7 @@ TileMap::TileMap(const TileSet *new_tileset) :
   m_height(0),
   m_z_pos(0),
   m_offset(Vector(0,0)),
+  m_last_offset(0.0f, 0.0f),
   m_movement(0,0),
   m_objects_hit_bottom(),
   m_ground_movement_manager(nullptr),
@@ -78,6 +81,7 @@ TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
   m_height(-1),
   m_z_pos(0),
   m_offset(Vector(0,0)),
+  m_last_offset(0.0f, 0.0f),
   m_movement(Vector(0,0)),
   m_objects_hit_bottom(),
   m_ground_movement_manager(nullptr),
@@ -324,7 +328,18 @@ TileMap::draw(DrawingContext& context)
 
   const float trans_x = context.get_translation().x;
   const float trans_y = context.get_translation().y;
-  context.set_translation(Vector(trans_x * m_speed_x, trans_y * m_speed_y));
+  // A moving tilemap is drawn part way through the last step's move
+  Vector translation = Vector(trans_x * m_speed_x, trans_y * m_speed_y)
+                       + get_step_lag(m_last_offset, m_offset, get_step_fraction());
+
+  // Whole screen pixels, so every tile rounds the same way and the layer moves as one piece
+  const Viewport& viewport = VideoSystem::current()->get_viewport();
+  const Vector pixels = viewport.get_scale() * context.transform().scale;
+  if (pixels.x > 0.0f && pixels.y > 0.0f)
+  {
+    translation = glm::round(translation * pixels) / pixels;
+  }
+  context.set_translation(translation);
 
   Rectf draw_rect = context.get_cliprect();
   Rect t_draw_rect = get_tiles_overlapping(draw_rect);

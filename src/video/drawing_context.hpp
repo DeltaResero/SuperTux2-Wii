@@ -77,6 +77,9 @@ public:
 
   void scale(float scale) { transform().scale *= scale; }
 
+  /** Draws in screen space at the size menus, the HUD and text use, after push_transform() */
+  void use_ui_space();
+
   /** Apply that flip in the next draws (flips are listed on surface.h). */
   void set_flip(Flip flip);
   Flip get_flip() const;

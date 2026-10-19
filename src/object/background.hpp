@@ -38,6 +38,7 @@ public:
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
+  virtual void begin_step() override { m_last_scroll_offset = m_scroll_offset; }
 
   virtual std::string get_class() const override { return "background"; }
 
@@ -82,6 +83,9 @@ private:
   Vector m_parallax_speed;
   Vector m_scroll_speed;
   Vector m_scroll_offset;
+
+  /** Its scroll as the last step began */
+  Vector m_last_scroll_offset;
   SurfacePtr m_image_top; /**< image to draw above pos */
   SurfacePtr m_image; /**< image to draw, anchored at pos */
   SurfacePtr m_image_bottom; /**< image to draw below pos+screenheight */

@@ -710,6 +710,16 @@ CustomParticleSystem::update(float dt_sec)
 }
 
 void
+CustomParticleSystem::begin_step()
+{
+  ParticleSystem::begin_step();
+  for (auto& particle : custom_particles)
+  {
+    particle->last_pos = particle->pos;
+  }
+}
+
+void
 CustomParticleSystem::draw(DrawingContext& context)
 {
   // "enabled" being false only means new particles shouldn't spawn;
@@ -718,40 +728,42 @@ CustomParticleSystem::draw(DrawingContext& context)
   context.push_transform();
 
   std::unordered_map<SpriteProperties*, SurfaceBatch> batches;
+  const float step_fraction = get_step_fraction();
   for (const auto& particle : custom_particles) {
+    const Vector drawn = get_drawn_pos(*particle, step_fraction);
     auto it = batches.find(&(particle->props));
     if (it == batches.end()) {
       const auto& batch_it = batches.emplace(&(particle->props),
         SurfaceBatch(particle->props.texture, particle->props.color));
       batch_it.first->second.draw(Rectf(Vector(
-                                               particle->pos.x - particle->scale
+                                               drawn.x - particle->scale
                                                  * static_cast<float>(
                                                  particle->props.texture->get_width()
                                                ) * particle->props.scale.x / 2,
-                                               particle->pos.y - particle->scale
+                                               drawn.y - particle->scale
                                                  * static_cast<float>(
                                                  particle->props.texture->get_height()
                                                ) * particle->props.scale.y / 2
                                         ),
                                         Vector(
-                                               particle->pos.x + particle->scale
+                                               drawn.x + particle->scale
                                                  * static_cast<float>(
                                                  particle->props.texture->get_width()
                                                ) * particle->props.scale.x / 2,
-                                               particle->pos.y + particle->scale
+                                               drawn.y + particle->scale
                                                  * static_cast<float>(
                                                  particle->props.texture->get_height()
                                                ) * particle->props.scale.y / 2
                                         )
                                  ), particle->angle);
     } else {
-      it->second.draw(Rectf(particle->pos,
+      it->second.draw(Rectf(drawn,
                                         Vector(
-                                               particle->pos.x + particle->scale
+                                               drawn.x + particle->scale
                                                  * static_cast<float>(
                                                  particle->texture->get_width()
                                                ) * particle->props.scale.x,
-                                               particle->pos.y + particle->scale
+                                               drawn.y + particle->scale
                                                  * static_cast<float>(
                                                  particle->texture->get_height()
                                                ) * particle->props.scale.y
@@ -1042,6 +1054,7 @@ CustomParticleSystem::add_particle(float lifetime, float x, float y)
 
   particle->offscreen_mode = m_particle_offscreen_mode;
 
+  particle->last_pos = particle->pos;
   custom_particles.push_back(std::move(particle));
 }
 

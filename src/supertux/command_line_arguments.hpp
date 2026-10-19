@@ -58,7 +58,7 @@ public:
 
   std::optional<bool> use_fullscreen;
   std::optional<VideoSystem::Enum> video;
-  // std::optional<bool> try_vsync;
+  // std::optional<int> vsync;
   std::optional<bool> show_fps;
   std::optional<bool> show_player_pos;
   std::optional<bool> sound_enabled;

@@ -16,6 +16,14 @@
 
 #cmakedefine HAVE_OPENGL
 
+#cmakedefine HAVE_GLEW
+
+#cmakedefine ENABLE_NPOT_TEXTURES
+
+#define TEXTURE_ALIGNMENT ${TEXTURE_ALIGNMENT}
+
+#cmakedefine ENABLE_LIGHTMAP_FBO
+
 #cmakedefine ENABLE_OPENAL
 
 #cmakedefine ENABLE_SDL_MIXER

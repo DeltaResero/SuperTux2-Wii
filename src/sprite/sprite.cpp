@@ -20,6 +20,7 @@
 
 #include "supertux/globals.hpp"
 #include "util/log.hpp"
+#include "video/paint_style.hpp"
 #include "video/surface.hpp"
 
 Sprite::Sprite(SpriteData& newdata) :
@@ -156,6 +157,25 @@ Sprite::draw(Canvas& canvas, const Vector& pos, int layer,
                       m_color,
                       m_blend,
                       layer);
+
+  context.pop_transform();
+}
+
+void
+Sprite::draw_scaled(Canvas& canvas, const Rectf& dest, int layer,
+                    Flip flip)
+{
+  assert(m_action != nullptr);
+  update();
+
+  DrawingContext& context = canvas.get_context();
+  context.push_transform();
+
+  context.set_flip(context.get_flip() ^ flip);
+  context.set_alpha(context.get_alpha() * m_alpha);
+
+  canvas.draw_surface_scaled(m_action->surfaces[m_frameidx], dest, layer,
+                             PaintStyle().set_color(m_color));
 
   context.pop_transform();
 }

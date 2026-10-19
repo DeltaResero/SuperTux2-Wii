@@ -27,6 +27,7 @@
 #include "video/ttf_font.hpp"
 #include "video/ttf_surface.hpp"
 #include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
 TTFSurfaceManager::CacheEntry::CacheEntry(const TTFSurfacePtr& s) :
   ttf_surface(s),
@@ -41,9 +42,9 @@ TTFSurfaceManager::TTFSurfaceManager() :
 }
 
 TTFSurfacePtr
-TTFSurfaceManager::create_surface(const TTFFont& font, const std::string& text)
+TTFSurfaceManager::create_surface(const TTFFont& font, const std::string& text, const Vector& pixel_scale)
 {
-  auto key = Key(font.get_ttf_font(), text);
+  auto key = Key(font.get_ttf_font(), text, pixel_scale.x, pixel_scale.y);
   auto it = m_cache.find(key);
   if (it != m_cache.end())
   {
@@ -55,23 +56,25 @@ TTFSurfaceManager::create_surface(const TTFFont& font, const std::string& text)
   {
     cache_cleanup_step();
 
-    TTFSurfacePtr ttf_surface = TTFSurface::create(font, text);
+    TTFSurfacePtr ttf_surface = TTFSurface::create(font, text, pixel_scale);
     m_cache[key] = ttf_surface;
     return ttf_surface;
   }
 }
 
-int
+float
 TTFSurfaceManager::get_cached_surface_width(const TTFFont& font,
   const std::string& text)
 {
-  auto key = Key(font.get_ttf_font(), text);
+  const Viewport& viewport = VideoSystem::current()->get_viewport();
+  const Vector pixel_scale = viewport.get_scale() * viewport.get_ui_scale();
+  auto key = Key(font.get_ttf_font(), text, pixel_scale.x, pixel_scale.y);
   auto it = m_cache.find(key);
   if (it == m_cache.end())
-    return -1;
+    return -1.0f;
   auto& entry = m_cache[key];
   entry.last_access = g_game_time;
-  return entry.ttf_surface->get_width();
+  return entry.ttf_surface->get_size().width;
 }
 
 void

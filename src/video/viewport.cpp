@@ -17,6 +17,7 @@
 #include "viewport.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #include "config.h"
 
@@ -26,11 +27,15 @@
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 
-// Minimum and maximum size of the virtual screen, note that the
-// maximum must not exceed X/Y_OFFSCREEN_DISTANCE or enemies end up
-// spawning on screen instead of off-screen.
-const Size Viewport::s_max_size(1368, 800);
-const Size Viewport::s_min_size(640, 480);
+// How tall a 1920x1080 screen showed a level; the view must stay inside X/Y_OFFSCREEN_DISTANCE or enemies spawn on screen
+const float Viewport::s_logical_height = 768.0f;
+const float Viewport::s_min_zoom = 0.9f;
+const float Viewport::s_max_zoom = 1.1f;
+const float Viewport::s_min_aspect = 5.0f / 4.0f;
+const float Viewport::s_max_aspect = 16.0f / 9.0f;
+
+// PAL's height, so menu rows fall on whole lines of common screens and every row stretches the same
+const float Viewport::s_ui_height = 576.0f;
 
 namespace {
 
@@ -42,7 +47,7 @@ apply_pixel_aspect_ratio_pre(const Size& window_size, float pixel_aspect_ratio)
 }
 
 inline void
-apply_pixel_aspect_ratio_post(const Size& real_window_size, const Size& window_size, float scale,
+apply_pixel_aspect_ratio_post(const Size& real_window_size, const Size& window_size, const Vector& scale,
                               Rect& out_viewport, Vector& out_scale)
 {
   Vector transform(static_cast<float>(real_window_size.width) / static_cast<float>(window_size.width),
@@ -53,66 +58,11 @@ apply_pixel_aspect_ratio_post(const Size& real_window_size, const Size& window_s
   out_viewport.right = static_cast<int>(static_cast<float>(out_viewport.right) * transform.x);
   out_viewport.bottom = static_cast<int>(static_cast<float>(out_viewport.bottom) * transform.y);
 
-  out_scale.x = scale * transform.x;
-  out_scale.y = scale * transform.y;
+  out_scale.x = scale.x * transform.x;
+  out_scale.y = scale.y * transform.y;
 }
 
-inline float
-calculate_scale(const Size& min_size, const Size& max_size,
-                const Size& window_size,
-                float magnification)
-{
-  float scale = magnification;
-  if (scale == 0.0f) // magic value
-  {
-    scale = 1.0f;
-
-    // Find the minimum magnification that is needed to fill the screen
-    if (window_size.width > max_size.width ||
-        window_size.height > max_size.height)
-    {
-      scale = std::max(static_cast<float>(window_size.width) / static_cast<float>(max_size.width),
-                       static_cast<float>(window_size.height) / static_cast<float>(max_size.height));
-    }
-
-    // If the resulting area would violate min_size, scale it down
-    if (static_cast<float>(window_size.width) / scale < static_cast<float>(min_size.width) ||
-        static_cast<float>(window_size.height) / scale < static_cast<float>(min_size.height))
-    {
-      scale = std::min(static_cast<float>(window_size.width) / static_cast<float>(min_size.width),
-                       static_cast<float>(window_size.height) / static_cast<float>(min_size.height));
-    }
-  }
-
-#ifdef ENABLE_TOUCHSCREEN_SUPPORT
-  scale = std::max(scale, 1.f);
-#endif
-
-  return scale;
-}
-
-inline Rect
-calculate_viewport(const Size& max_size, const Size& window_size, float scale)
-{
-  int viewport_width = std::min(window_size.width,
-                                static_cast<int>(scale * static_cast<float>(max_size.width)));
-  int viewport_height = std::min(window_size.height,
-                                 static_cast<int>(scale * static_cast<float>(max_size.height)));
-
-  // Center the viewport in the window
-  Rect viewport;
-
-  viewport.left = std::max(0, (window_size.width - viewport_width) / 2);
-  viewport.top = std::max(0, (window_size.height - viewport_height) / 2);
-
-  viewport.right = viewport.left + viewport_width;
-  viewport.bottom = viewport.top + viewport_height;
-
-  return viewport;
-}
-
-void calculate_viewport(const Size& min_size, const Size& max_size,
-                        const Size& real_window_size,
+void calculate_viewport(const Size& real_window_size,
                         float pixel_aspect_ratio, float magnification,
                         Vector& out_scale,
                         Rect& out_viewport)
@@ -120,14 +70,24 @@ void calculate_viewport(const Size& min_size, const Size& max_size,
   // Transform the real window_size by the aspect ratio, then do
   // calculations on that virtual window_size
   Size window_size = apply_pixel_aspect_ratio_pre(real_window_size, pixel_aspect_ratio);
+  const float window_width = static_cast<float>(window_size.width);
+  const float window_height = static_cast<float>(window_size.height);
 
-  float scale = calculate_scale(min_size, max_size, window_size, magnification);
+  // The zoom sets how tall the level is drawn and the screen's shape sets how wide, never its size
+  const float zoom = (magnification == 0.0f) ? 1.0f : std::clamp(magnification, Viewport::s_min_zoom, Viewport::s_max_zoom);
+  // A shape outside that range is drawn at the nearest end and stretched to fill the window
+  const float aspect = std::clamp(window_width / window_height, Viewport::s_min_aspect, Viewport::s_max_aspect);
+  const float height = Viewport::s_logical_height / zoom;
+  const float width = height * aspect;
 
-  // Calculate the new viewport size
-  out_viewport = calculate_viewport(max_size, window_size, scale);
+  out_viewport.left = 0;
+  out_viewport.top = 0;
+  out_viewport.right = window_size.width;
+  out_viewport.bottom = window_size.height;
 
   // Transform the virtual window_size back into real window coordinates
-  apply_pixel_aspect_ratio_post(real_window_size, window_size, scale,
+  apply_pixel_aspect_ratio_post(real_window_size, window_size,
+                                Vector(window_width / width, window_height / height),
                                 out_viewport, out_scale);
 }
 
@@ -153,52 +113,65 @@ float calculate_pixel_aspect_ratio(const Size& source, const Size& target)
 Viewport
 Viewport::from_size(const Size& target_size, const Size& desktop_size)
 {
+  // A fullscreen mode is stretched over the whole display, so its pixels take the display's shape
   float pixel_aspect_ratio = 1.0f;
   if (g_config->aspect_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(desktop_size,
+    pixel_aspect_ratio = calculate_pixel_aspect_ratio(g_config->use_fullscreen ? target_size : desktop_size,
                                                       g_config->aspect_size);
   }
-  else if (g_config->use_fullscreen)
+  else if (g_config->use_fullscreen && desktop_size != Size(0, 0))
   {
-    pixel_aspect_ratio = calculate_pixel_aspect_ratio(desktop_size,
-                                                      target_size);
+    pixel_aspect_ratio = calculate_pixel_aspect_ratio(target_size,
+                                                      desktop_size);
   }
 
   // calculate the viewport
   Rect viewport;
   Vector scale(0.0f, 0.0f);
-  calculate_viewport(s_min_size, s_max_size,
-                     target_size,
+  calculate_viewport(target_size,
                      pixel_aspect_ratio,
                      g_config->magnification,
                      scale, viewport);
 
-  return Viewport(viewport, scale);
+  // Menus, the HUD and text fill the window's height the same way on every screen, whatever the zoom
+  const float ui_scale = static_cast<float>(target_size.height) / s_ui_height;
+
+  return Viewport(viewport, scale, ui_scale / scale.y);
 }
 
 Viewport::Viewport() :
   m_rect(),
-  m_scale(0.0f, 0.0f)
+  m_scale(0.0f, 0.0f),
+  m_ui_scale(1.0f)
 {
 }
 
-Viewport::Viewport(const Rect& rect, const Vector& scale) :
+Viewport::Viewport(const Rect& rect, const Vector& scale, float ui_scale) :
   m_rect(rect),
-  m_scale(scale)
+  m_scale(scale),
+  m_ui_scale(ui_scale)
 {
 }
 
 int
 Viewport::get_screen_width() const
 {
-  return static_cast<int>(static_cast<float>(m_rect.get_width()) / m_scale.x);
+  // The smallest whole size that covers the screen, so nothing sized to it stops short of an edge
+  return static_cast<int>(std::ceil(get_exact_screen_size().width - 0.01f));
 }
 
 int
 Viewport::get_screen_height() const
 {
-  return static_cast<int>(static_cast<float>(m_rect.get_height()) / m_scale.y);
+  return static_cast<int>(std::ceil(get_exact_screen_size().height - 0.01f));
+}
+
+Sizef
+Viewport::get_exact_screen_size() const
+{
+  return Sizef(static_cast<float>(m_rect.get_width()) / m_scale.x,
+               static_cast<float>(m_rect.get_height()) / m_scale.y);
 }
 
 Size
@@ -212,6 +185,25 @@ Viewport::to_logical(int physical_x, int physical_y) const
 {
   return Vector(static_cast<float>(physical_x - m_rect.left) / m_scale.x,
                 static_cast<float>(physical_y - m_rect.top) / m_scale.y);
+}
+
+int
+Viewport::get_ui_width() const
+{
+  // From the window, not the level's whole-unit size that's rounded up to cover it
+  return static_cast<int>(std::lround(static_cast<float>(m_rect.get_width()) / (m_scale.x * m_ui_scale)));
+}
+
+int
+Viewport::get_ui_height() const
+{
+  return static_cast<int>(std::lround(static_cast<float>(m_rect.get_height()) / (m_scale.y * m_ui_scale)));
+}
+
+Vector
+Viewport::to_ui(int physical_x, int physical_y) const
+{
+  return to_logical(physical_x, physical_y) / m_ui_scale;
 }
 
 /* EOF */

@@ -59,9 +59,6 @@ GLVideoSystem::GLVideoSystem(bool use_opengl33core) :
 #if defined(USE_OPENGLES2)
   m_context.reset(new GL33CoreContext(*this));
   m_use_opengl33core = true;
-#elif defined(USE_OPENGLES1)
-  m_context.reset(new GL20Context);
-  m_use_opengl33core = false;
 #else
   if (use_opengl33core)
   {
@@ -129,11 +126,6 @@ GLVideoSystem::create_gl_window()
 
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-#elif defined(USE_OPENGLES1)
-  log_info << "Requesting OpenGLES1 context" << std::endl;
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 #else
   if (m_use_opengl33core)
   {
@@ -159,26 +151,20 @@ void
 GLVideoSystem::create_gl_context()
 {
   m_glcontext = SDL_GL_CreateContext(m_sdl_window.get());
-
-  assert_gl();
-
-  if (g_config->try_vsync) {
-    // we want vsync for smooth scrolling
-    if (SDL_GL_SetSwapInterval(-1) != 0)
-    {
-      log_info << "no support for late swap tearing vsync: " << SDL_GetError() << std::endl;
-      if (SDL_GL_SetSwapInterval(1))
-      {
-        log_info << "no support for vsync: " << SDL_GetError() << std::endl;
-      }
-    }
+  if (!m_glcontext)
+  {
+    std::ostringstream msg;
+    msg << "Couldn't create OpenGL context: " << SDL_GetError();
+    throw std::runtime_error(msg.str());
   }
 
   assert_gl();
 
+  set_vsync(g_config->vsync);
+
+  assert_gl();
+
 #if defined(USE_OPENGLES2)
-  // nothing to do
-#elif defined(USE_OPENGLES1)
   // nothing to do
 #else
 #  ifdef USE_GLBINDING
@@ -210,7 +196,7 @@ GLVideoSystem::create_gl_context()
   static auto extensions = glbinding::ContextInfo::extensions();
   log_info << "Using glbinding" << std::endl;
   log_info << "ARB_texture_non_power_of_two: " << static_cast<int>(extensions.find(GLextension::GL_ARB_texture_non_power_of_two) != extensions.end()) << std::endl;
-#  else
+#  elif defined(HAVE_GLEW)
   GLenum err = glewInit();
 #    ifdef GLEW_ERROR_NO_GLX_DISPLAY
   // Glew can't open glx display when it's running on wayland session
@@ -240,6 +226,8 @@ GLVideoSystem::create_gl_context()
   log_info << "OpenGL: " << glGetString(GL_VERSION) << std::endl;
   log_info << "Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
   log_info << "GLEW_ARB_texture_non_power_of_two: " << static_cast<int>(GLEW_ARB_texture_non_power_of_two) << std::endl;
+#  else
+  log_info << "OpenGL: " << glGetString(GL_VERSION) << std::endl;
 #  endif
 #endif
 
@@ -251,11 +239,13 @@ GLVideoSystem::apply_config()
 {
   apply_video_mode();
 
+  // A maximised window is whatever size the window manager gave it
   Size target_size = g_config->use_fullscreen ?
     ((g_config->fullscreen_size == Size(0, 0)) ? m_desktop_size : g_config->fullscreen_size) :
-    g_config->window_size;
+    (g_config->window_maximised ? get_window_size() : g_config->window_size);
 
   m_viewport = Viewport::from_size(target_size, m_desktop_size);
+  m_texture_manager->set_viewport(m_viewport);
 
   m_lightmap = std::make_unique<GLTextureRenderer>(*this, m_viewport.get_screen_size(), 5);
   if (m_use_opengl33core)
@@ -283,9 +273,9 @@ GLVideoSystem::get_back_renderer() const
 }
 
 TexturePtr
-GLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler)
+GLVideoSystem::new_texture(const SDL_Surface& image, const Sampler& sampler, const Size& image_size)
 {
-  return TexturePtr(new GLTexture(image, sampler));
+  return TexturePtr(new GLTexture(image, sampler, image_size));
 }
 
 void
@@ -300,6 +290,12 @@ GLVideoSystem::set_vsync(int mode)
 {
   if (SDL_GL_SetSwapInterval(mode) < 0)
   {
+    // A driver without adaptive vsync can usually still wait for every refresh
+    if (mode == -1 && SDL_GL_SetSwapInterval(1) == 0)
+    {
+      log_info << "No support for adaptive vsync, waiting for every refresh" << std::endl;
+      return;
+    }
     log_warning << "Setting vsync mode failed: " << SDL_GetError() << std::endl;
   }
   else

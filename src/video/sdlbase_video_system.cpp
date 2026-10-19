@@ -71,7 +71,11 @@ SDLBaseVideoSystem::get_window_size() const
 void
 SDLBaseVideoSystem::on_resize(int w, int h)
 {
-  g_config->window_size = Size(w, h);
+  // Neither a fullscreen nor a maximised window is a size anybody chose for the window
+  if (!g_config->use_fullscreen && !g_config->window_maximised)
+  {
+    g_config->window_size = Size(w, h);
+  }
   apply_config();
 }
 
@@ -120,12 +124,29 @@ SDLBaseVideoSystem::apply_video_mode()
   {
     SDL_SetWindowFullscreen(m_sdl_window.get(), 0);
 
-    Size window_size;
-    SDL_GetWindowSize(m_sdl_window.get(), &window_size.width, &window_size.height);
-    if (g_config->window_size.width != window_size.width ||
-        g_config->window_size.height != window_size.height)
+    // Maximising a window that already is waits a second for a change that never comes
+    const bool maximised = (SDL_GetWindowFlags(m_sdl_window.get()) & SDL_WINDOW_MAXIMIZED) != 0;
+    if (g_config->window_maximised)
     {
-      SDL_SetWindowSize(m_sdl_window.get(), g_config->window_size.width, g_config->window_size.height);
+      if (!maximised)
+      {
+        SDL_MaximizeWindow(m_sdl_window.get());
+      }
+    }
+    else
+    {
+      if (maximised)
+      {
+        SDL_RestoreWindow(m_sdl_window.get());
+      }
+
+      Size window_size;
+      SDL_GetWindowSize(m_sdl_window.get(), &window_size.width, &window_size.height);
+      if (g_config->window_size.width != window_size.width ||
+          g_config->window_size.height != window_size.height)
+      {
+        SDL_SetWindowSize(m_sdl_window.get(), g_config->window_size.width, g_config->window_size.height);
+      }
     }
 
 #if SDL_VERSION_ATLEAST(2,0,5)

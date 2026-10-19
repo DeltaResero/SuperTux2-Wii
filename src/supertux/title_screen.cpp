@@ -41,8 +41,8 @@ TitleScreen::TitleScreen(Savegame& savegame) :
   m_titlesession(std::make_unique<GameSession>("levels/misc/menu.stl", savegame)),
   m_copyright_text("SuperTux " PACKAGE_VERSION "\n"
     "Copyright (c) 2003-2021 SuperTux Devel Team\n"
-    "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to\n"
-    "redistribute it under certain conditions; see the license file for details.\n"),
+    "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n"
+    "welcome to redistribute it under certain conditions; see the license file for details."),
   m_videosystem_name(VideoSystem::current()->get_name())
 {
   Player& player = m_titlesession->get_current_sector().get_player();
@@ -122,16 +122,23 @@ TitleScreen::draw(Compositor& compositor)
                                       Rectf(0, 0, static_cast<float>(context.get_width()), static_cast<float>(context.get_height())),
                                       LAYER_FOREGROUND1);
 
+  context.push_transform();
+  context.use_ui_space();
+
+  // Placed by its own height, so a change of font size can't push its last line off, and inset from the bottom as from the side
+  const float notice_top = static_cast<float>(context.get_height()) - 5.0f - Resources::small_font->get_text_height(m_copyright_text);
   context.color().draw_text(Resources::small_font,
                             m_copyright_text,
-                            Vector(5.0f, static_cast<float>(context.get_height()) - 50.0f),
+                            Vector(5.0f, notice_top),
                             ALIGN_LEFT, LAYER_FOREGROUND1);
 
+  // Beside the version, the one line of the notice short enough to leave it room
   context.color().draw_text(Resources::small_font,
                             m_videosystem_name,
-                            Vector(static_cast<float>(context.get_width()) - 5.0f,
-                                   static_cast<float>(context.get_height()) - 14.0f),
+                            Vector(static_cast<float>(context.get_width()) - 5.0f, notice_top),
                             ALIGN_RIGHT, LAYER_FOREGROUND1);
+
+  context.pop_transform();
 }
 
 void

@@ -17,6 +17,8 @@
 
 #include "video/sdl/sdl_screen_renderer.hpp"
 
+#include <cmath>
+
 #include "math/rect.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
@@ -27,7 +29,7 @@
 SDLScreenRenderer::SDLScreenRenderer(SDLVideoSystem& video_system, SDL_Renderer* renderer) :
   m_video_system(video_system),
   m_renderer(renderer),
-  m_painter(m_video_system, *this, m_renderer)
+  m_painter(m_video_system, *this, m_renderer, 1.0f)
 {
   SDL_RendererInfo info;
   if (SDL_GetRendererInfo(m_renderer, &info) != 0)
@@ -60,16 +62,20 @@ void
 SDLScreenRenderer::start_draw()
 {
   const Rect& viewport = m_video_system.get_viewport().get_rect();
-  const Vector& scale = m_video_system.get_viewport().get_scale();
+  const Sizef screen_size = get_logical_size();
 
-  SDL_Rect sdl_viewport = { viewport.left, viewport.top,
-                            viewport.get_width(), viewport.get_height() };
+  // The screen's exact size fills the viewport as it does in OpenGL, or the picture stops short of its edges
+  const Vector scale(static_cast<float>(viewport.get_width()) / screen_size.width,
+                     static_cast<float>(viewport.get_height()) / screen_size.height);
 
-  // SetViewport() works in scaled screen coordinates, so we have to
-  // reset it to 1.0, 1.0 to get meaningful results
-  SDL_RenderSetScale(m_renderer, 1.0f, 1.0f);
-  SDL_RenderSetViewport(m_renderer, &sdl_viewport);
+  // Scale first and the viewport in scaled units: real SDL2 converts it to pixels at once, but sdl2-compat keeps it scaled
   SDL_RenderSetScale(m_renderer, scale.x, scale.y);
+  const int left = static_cast<int>(std::floor(static_cast<float>(viewport.left) / scale.x));
+  const int top = static_cast<int>(std::floor(static_cast<float>(viewport.top) / scale.y));
+  const SDL_Rect sdl_viewport = { left, top,
+                                  static_cast<int>(std::ceil(static_cast<float>(viewport.right) / scale.x)) - left,
+                                  static_cast<int>(std::ceil(static_cast<float>(viewport.bottom) / scale.y)) - top };
+  SDL_RenderSetViewport(m_renderer, &sdl_viewport);
 
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
@@ -86,10 +92,10 @@ SDLScreenRenderer::get_rect() const
   return m_video_system.get_viewport().get_rect();
 }
 
-Size
+Sizef
 SDLScreenRenderer::get_logical_size() const
 {
-  return m_video_system.get_viewport().get_screen_size();
+  return m_video_system.get_viewport().get_exact_screen_size();
 }
 
 void

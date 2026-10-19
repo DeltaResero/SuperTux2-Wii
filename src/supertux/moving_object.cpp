@@ -21,13 +21,15 @@
 #include "util/writer.hpp"
 
 MovingObject::MovingObject() :
-  m_col(COLGROUP_MOVING, *this)
+  m_col(COLGROUP_MOVING, *this),
+  m_last_pos(0.0f, 0.0f)
 {
 }
 
 MovingObject::MovingObject(const ReaderMapping& reader) :
   GameObject(reader),
-  m_col(COLGROUP_MOVING, *this)
+  m_col(COLGROUP_MOVING, *this),
+  m_last_pos(0.0f, 0.0f)
 {
   float height, width;
 

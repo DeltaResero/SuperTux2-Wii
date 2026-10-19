@@ -201,6 +201,10 @@ private:
 
   bool m_in_level;
 
+  /** The camera as the last step began, and the game time of that step */
+  Vector m_last_camera_offset;
+  float m_last_step_time;
+
 private:
   WorldMap(const WorldMap&) = delete;
   WorldMap& operator=(const WorldMap&) = delete;

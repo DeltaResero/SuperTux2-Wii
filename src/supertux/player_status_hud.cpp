@@ -31,8 +31,8 @@ PlayerStatusHUD::PlayerStatusHUD(PlayerStatus& player_status) :
   displayed_coins(DISPLAYED_COINS_UNSET),
   displayed_coins_frame(0),
   coin_surface(Surface::from_file("images/engine/hud/coins-0.png")),
-  fire_surface(Surface::from_file("images/objects/bullets/fire-hud.png")),
-  ice_surface(Surface::from_file("images/objects/bullets/ice-hud.png"))
+  fire_surface(Surface::from_file("images/engine/hud/fire-hud.png")),
+  ice_surface(Surface::from_file("images/engine/hud/ice-hud.png"))
 {
 }
 
@@ -63,7 +63,7 @@ PlayerStatusHUD::draw(DrawingContext& context)
   std::string coins_text = ss.str();
 
   context.push_transform();
-  context.set_translation(Vector(0, 0));
+  context.use_ui_space();
   if (coin_surface)
   {
     context.color().draw_surface(coin_surface,

@@ -20,6 +20,9 @@
 
 #include <SDL_ttf.h>
 
+#include <map>
+#include <utility>
+
 #include "math/fwd.hpp"
 #include "video/color.hpp"
 #include "video/font.hpp"
@@ -45,10 +48,14 @@ public:
   virtual void draw_text(Canvas& canvas, const std::string& text,
                          const Vector& pos, FontAlignment alignment, int layer, const Color& color) override;
 
+  int get_font_size() const { return m_font_size; }
   int get_shadow_size() const { return m_shadow_size; }
   int get_border() const { return m_border; }
 
   TTF_Font* get_ttf_font() const { return m_font; }
+
+  /** The same font at another size in pixels, opened the first time it's asked for; a horizontal resolution other than 72 draws letters narrower or wider */
+  TTF_Font* get_ttf_font(int pixel_size, unsigned int horizontal_dpi = 72) const;
 
 private:
   TTF_Font* m_font;
@@ -57,6 +64,7 @@ private:
   float m_line_spacing;
   int m_shadow_size;
   int m_border;
+  mutable std::map<std::pair<int, unsigned int>, TTF_Font*> m_sized_fonts;
 
 private:
   TTFFont(const TTFFont&) = delete;

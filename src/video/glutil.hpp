@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GLUTIL_HPP
 #define HEADER_SUPERTUX_VIDEO_GLUTIL_HPP
 
+#include <cstdlib>
+#include <cstring>
 #include <sstream>
 #include <stdexcept>
 
@@ -78,21 +80,26 @@ inline bool gl_needs_power_of_two()
 {
 #if defined(USE_OPENGLES2)
   return true;
-#elif defined(USE_OPENGLES1)
-  return true;
+#elif defined(ENABLE_NPOT_TEXTURES)
+  return false;
 #else
 #  ifdef USE_GLBINDING
   static auto extensions = glbinding::ContextInfo::extensions();
   return extensions.find(GLextension::GL_ARB_texture_non_power_of_two) == extensions.end();
-#  else
+#  elif defined(HAVE_GLEW)
   return !GLEW_ARB_texture_non_power_of_two;
+#  else
+  // Any texture size is core from OpenGL 2.0 on; older drivers list it as an extension
+  static const bool needs = [] {
+    const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    if (version && std::atoi(version) >= 2)
+      return false;
+    const char* extensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+    return !extensions || !std::strstr(extensions, "GL_ARB_texture_non_power_of_two");
+  }();
+  return needs;
 #  endif
 #endif
-}
-
-inline bool is_power_of_2(int v)
-{
-  return (v & (v-1)) == 0;
 }
 
 inline int next_power_of_two(int val)
@@ -101,6 +108,11 @@ inline int next_power_of_two(int val)
   while (result < val)
     result *= 2;
   return result;
+}
+
+inline int align_up(int val, int alignment)
+{
+  return (val + alignment - 1) / alignment * alignment;
 }
 
 #endif

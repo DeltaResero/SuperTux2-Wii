@@ -45,7 +45,8 @@ Tux::Tux(WorldMap* worldmap) :
   m_tile_pos(0.0f, 0.0f),
   m_offset(0),
   m_moving(false),
-  m_ghost_mode(false)
+  m_ghost_mode(false),
+  m_last_pos(0.0f, 0.0f)
 {
 }
 

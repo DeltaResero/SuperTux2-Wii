@@ -169,6 +169,11 @@ private:
 
   float m_gravity;
 
+  /** The camera when the last step began, and the game time of that step */
+  Vector m_last_translation;
+  float m_last_scale;
+  float m_last_step_time;
+
 private:
   Sector(const Sector&) = delete;
   Sector& operator=(const Sector&) = delete;

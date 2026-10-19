@@ -28,6 +28,9 @@ static const float SHIFT_DELTA = 7.0f;
 // a small value... be careful as collision detection is very sensitive to it
 static const float EPSILON = .002f;
 
+// further than this in one step is a jump, like a teleport, shown at once rather than drawn part way along
+static const float MAX_STEP_MOVE = 64.0f;
+
 #endif
 
 /* EOF */

@@ -105,6 +105,8 @@ GLTextureRenderer::end_draw()
   {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
+#ifndef ENABLE_LIGHTMAP_FBO
+  // Every context draws through a framebuffer with it on, so the build doesn't need the copy call
   else
   {
     assert_gl();
@@ -116,6 +118,7 @@ GLTextureRenderer::end_draw()
                         m_texture->get_image_width(),
                         m_texture->get_image_height());
   }
+#endif
 
   assert_gl();
 
@@ -123,10 +126,10 @@ GLTextureRenderer::end_draw()
   m_rendering = false;
 }
 
-Size
+Sizef
 GLTextureRenderer::get_logical_size() const
 {
-  return m_size;
+  return Sizef(m_size);
 }
 
 Rect

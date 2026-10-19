@@ -19,6 +19,8 @@
 
 #include <optional>
 
+#include "math/size.hpp"
+#include "math/vector.hpp"
 #include "video/color.hpp"
 #include "video/gl.hpp"
 #include "video/sampler.hpp"
@@ -33,7 +35,7 @@ class GLTexture final : public Texture
 {
 public:
   GLTexture(int width, int height, std::optional<Color> fill_color = std::nullopt);
-  GLTexture(const SDL_Surface& image, const Sampler& sampler);
+  GLTexture(const SDL_Surface& image, const Sampler& sampler, const Size& image_size = Size());
   ~GLTexture() override;
 
   virtual int get_texture_width() const override { return m_texture_width; }
@@ -41,6 +43,11 @@ public:
 
   virtual int get_image_width() const override { return m_image_width; }
   virtual int get_image_height() const override { return m_image_height; }
+
+  virtual void reload(const SDL_Surface& image) override;
+
+  /** Turns a spot in the picture into texture coordinates, allowing for padding and for fewer pixels stored */
+  const Vector& get_uv_scale() const { return m_uv_scale; }
 
   const GLuint &get_handle() const { return m_handle; }
 
@@ -56,6 +63,7 @@ private:
   int m_texture_height;
   int m_image_width;
   int m_image_height;
+  Vector m_uv_scale;
 
 private:
   GLTexture(const GLTexture&) = delete;

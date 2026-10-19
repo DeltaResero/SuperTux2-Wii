@@ -128,7 +128,7 @@ void
 TextObject::draw(DrawingContext& context)
 {
   context.push_transform();
-  context.set_translation(Vector(0, 0));
+  context.use_ui_space();
   if (m_fading > 0) {
     context.set_alpha((m_fadetime - m_fading) / m_fadetime);
   } else if (m_fading < 0) {
@@ -140,7 +140,7 @@ TextObject::draw(DrawingContext& context)
 
   float width  = m_font->get_text_width(m_wrapped_text) + 20.0f;
   float height = m_font->get_text_height(m_wrapped_text) + 20.0f;
-  Vector spos = m_pos + get_anchor_pos(Rectf(0, 0, static_cast<float>(context.get_width()), static_cast<float>(context.get_height() + (m_anchor == ANCHOR_MIDDLE ? SCREEN_HEIGHT : 0)) - (m_anchor == ANCHOR_MIDDLE ? 340.0f : 0)),
+  Vector spos = m_pos + get_anchor_pos(Rectf(0, 0, static_cast<float>(context.get_width()), static_cast<float>(context.get_height() + (m_anchor == ANCHOR_MIDDLE ? UI_HEIGHT : 0)) - (m_anchor == ANCHOR_MIDDLE ? 340.0f : 0)),
                                        width, height, m_anchor);
 
   context.color().draw_filled_rect(Rectf(spos, Sizef(width, height)),
