@@ -545,7 +545,9 @@ SDLPainter::draw_gradient(const GradientRequest& request)
         a = static_cast<Uint8>(((1.0f - p) * top.alpha + p * bottom.alpha) * 255);
     }
 
-    SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend2sdl(request.blend));
+    // The software renderer fills far faster without blending, and an opaque strip needs none
+    const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND;
+    SDL_SetRenderDrawBlendMode(m_sdl_renderer, opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend));
     SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
     const SDL_FRect frect = to_sdl_frect(rect);
     if (shows(frect))
