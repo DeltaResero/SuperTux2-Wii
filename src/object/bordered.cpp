@@ -871,7 +871,6 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
   cell.index = y * map.get_width() + x;
   cell.slot = -1;
   cell.moving = -1;
-  cell.open = Open{ !used(-1, 0), !used(0, -1), !used(-1, -1), !used(1, -1) };
 
   std::array<const Tile*, 9> tiles{};
   bool animated = false;
@@ -887,6 +886,8 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
   {
     key.cells[c] = tiles[c] ? fitting(tiles[c]->get_current_surface_ptr()) : nullptr;
   }
+  // A side is drawn here unless the tile beside it comes from a copy too and so draws the joint
+  cell.open = Open{ !key.cells[3], !key.cells[1], !key.cells[0], !key.cells[2] };
   if (!key.cells[4] && !animated) return true;
 
   // A layer over this one counts only where its edges change a texel of the copy, so the copies stay shared elsewhere
