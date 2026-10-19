@@ -76,6 +76,13 @@ SDL_BlendMode blend2sdl(const Blend& blend)
   }
 }
 
+bool has_alpha(SDL_Texture* texture)
+{
+  Uint32 format = 0;
+  SDL_QueryTexture(texture, &format, nullptr, nullptr, nullptr);
+  return SDL_ISPIXELFORMAT_ALPHA(format);
+}
+
 /* Creates a new rectangle covering the area where srcrect and imgrect
    overlap, in addition create four more rectangles for the areas
    where srcrect is outside of imgrect, some of those rects will be
@@ -384,7 +391,9 @@ SDLPainter::draw_texture(const TextureRequest& request)
 
     SDL_SetTextureColorMod(texture.get_texture(), r, g, b);
     SDL_SetTextureAlphaMod(texture.get_texture(), a);
-    SDL_SetTextureBlendMode(texture.get_texture(), blend2sdl(request.blend));
+    // The software renderer copies far faster without blending, and a picture with no alpha needs none
+    const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND && !has_alpha(texture.get_texture());
+    SDL_SetTextureBlendMode(texture.get_texture(), opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend));
 
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     if ((request.flip & HORIZONTAL_FLIP) != 0)
