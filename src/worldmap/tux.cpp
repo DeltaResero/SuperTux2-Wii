@@ -271,17 +271,30 @@ Tux::try_continue_walking(float dt_sec)
   // check if we are at a Teleporter
   auto teleporter = m_worldmap->at_teleporter(m_tile_pos);
 
+  // A ghost walks on while a direction is held, and stops at the next tile once none is
+  const bool held = m_controller.hold(Control::UP) || m_controller.hold(Control::DOWN) ||
+                    m_controller.hold(Control::LEFT) || m_controller.hold(Control::RIGHT);
+
   // stop if we reached a level, a WORLDMAP_STOP tile, a teleporter or a special tile without a passive_message
   if ((m_worldmap->at_level()) ||
       (m_worldmap->tile_data_at(m_tile_pos) & Tile::WORLDMAP_STOP) ||
       (special_tile && !special_tile->is_passive_message() && special_tile->get_script().empty()) ||
       (teleporter) ||
-      m_ghost_mode)
+      (m_ghost_mode && !held))
   {
     if (special_tile && !special_tile->get_map_message().empty() && !special_tile->is_passive_message()) {
       m_worldmap->set_passive_message({}, 0.0f);
     }
     stop();
+    return;
+  }
+
+  // Off the paths too, the way it's held
+  if (m_ghost_mode)
+  {
+    m_direction = m_input_direction;
+    m_back_direction = reverse_dir(m_direction);
+    m_tile_pos = m_worldmap->get_next_tile(m_tile_pos, m_direction);
     return;
   }
 
