@@ -829,6 +829,19 @@ grid_surface_at(const GameObjectManager& objects, int x, int y)
   return block ? block->get_resting_surface().get() : nullptr;
 }
 
+bool
+tile_beside(const GameObjectManager& objects, const TileMap& map, int x, int y)
+{
+  take_layers(objects);
+  for (const TileMap* layer : s_layers)
+  {
+    if (layer == &map || layer->get_alpha() <= 0.0f) continue;
+    if (id_at(*layer, x + tiles_in(map.get_offset().x) - tiles_in(layer->get_offset().x),
+              y + tiles_in(map.get_offset().y) - tiles_in(layer->get_offset().y)) != 0) return true;
+  }
+  return false;
+}
+
 SurfacePtr
 copy_of(const std::array<const Surface*, 9>& cells, Vector& origin, Size& texels)
 {

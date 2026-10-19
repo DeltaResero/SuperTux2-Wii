@@ -374,9 +374,11 @@ TileMap::draw(DrawingContext& context)
 
   // Worldmap roads carry on across layers, so an empty side here isn't an edge
   const bool fades = !d_worldmap;
-  // A tile's side fades only where no tile meets it, as fading both sides of a joint would let a seam through
-  const auto empty = [this, fades](int x, int y) {
-    return fades && x >= 0 && y >= 0 && x < m_width && y < m_height && m_tiles[y * m_width + x] == 0;
+  // A side fades only where no tile meets it on any layer of the grid, as fading both sides of a joint lets a seam through
+  const bool on_grid = d_gameobject_manager && is_on_grid();
+  const auto empty = [this, fades, on_grid](int x, int y) {
+    return fades && x >= 0 && y >= 0 && x < m_width && y < m_height && m_tiles[y * m_width + x] == 0 &&
+           !(on_grid && bordered::tile_beside(*d_gameobject_manager, *this, x, y));
   };
   const auto add_tile = [&](int x, int y, const Vector& at) {
     const SurfacePtr surface = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();

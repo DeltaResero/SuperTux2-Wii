@@ -79,6 +79,9 @@ const Block* block_at(int x, int y);
 /** The tile of a solid layer at cell x, y as it shows now, else a resting block's picture */
 const Surface* grid_surface_at(const GameObjectManager& objects, int x, int y);
 
+/** Another layer on the grid that's drawn has a tile at map's cell x, y, so the picture carries on there */
+bool tile_beside(const GameObjectManager& objects, const TileMap& map, int x, int y);
+
 /** The texture holding the copy of a block's picture from the 3 x 3 pictures round it, with the copy's place and size, or null */
 SurfacePtr copy_of(const std::array<const Surface*, 9>& cells, Vector& origin, Size& texels);
 
