@@ -18,8 +18,11 @@
 
 #include "supertux/globals.hpp"
 #include "video/drawing_context.hpp"
+#include "video/video_system.hpp"
+#include "video/viewport.hpp"
 
-static const float BORDER_SIZE = 75;
+// In menu units, so the bars are the same on every screen and at every zoom
+static const float BORDER_SIZE = 90;
 
 DisplayEffect::DisplayEffect(const std::string& name) :
   GameObject(name),
@@ -91,7 +94,12 @@ void
 DisplayEffect::draw(DrawingContext& context)
 {
   context.push_transform();
-  context.set_translation(Vector(0, 0));
+  context.use_ui_space();
+  // Past every edge, since a rectangle snaps to whole units and could stop a row of pixels short
+  const float left = -1.0f;
+  const float top = -1.0f;
+  const float right = static_cast<float>(UI_WIDTH) + 1.0f;
+  const float bottom = static_cast<float>(UI_HEIGHT) + 1.0f;
 
   if (black || screen_fade != FadeType::NO_FADE) {
     float alpha;
@@ -113,21 +121,14 @@ DisplayEffect::draw(DrawingContext& context)
       // Same as in fadetoblack.cpp
       alpha = Color::remove_gamma(alpha);
     }
-    context.color().draw_filled_rect(Rectf(0, 0,
-                                           static_cast<float>(context.get_width()),
-                                           static_cast<float>(context.get_height())),
+    context.color().draw_filled_rect(Rectf(left, top, right, bottom),
                                      Color(0, 0, 0, alpha), LAYER_GUI - 10);
   }
 
   if (borders) {
-    context.color().draw_filled_rect(Rectf(0, 0,
-                                           static_cast<float>(context.get_width()),
-                                           static_cast<float>(border_size)),
+    context.color().draw_filled_rect(Rectf(left, top, right, border_size),
                                        Color(0, 0, 0, 1.0f), LAYER_GUI-10);
-    context.color().draw_filled_rect(Rectf(Vector(0,
-                                                  static_cast<float>(context.get_height()) - border_size),
-                                           Sizef(static_cast<float>(context.get_width()),
-                                                 static_cast<float>(border_size))),
+    context.color().draw_filled_rect(Rectf(left, static_cast<float>(UI_HEIGHT) - border_size, right, bottom),
                                        Color(0, 0, 0, 1.0f), LAYER_GUI-10);
   }
 
@@ -162,6 +163,12 @@ bool
 DisplayEffect::is_black() const
 {
   return black;
+}
+
+float
+DisplayEffect::get_border_size() const
+{
+  return borders ? BORDER_SIZE : 0.0f;
 }
 
 void

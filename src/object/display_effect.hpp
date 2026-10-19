@@ -32,6 +32,9 @@ public:
   virtual void draw(DrawingContext& context) override;
   virtual bool is_singleton() const override { return true; }
 
+  /** How tall each bar is once in, or 0 while there are none */
+  float get_border_size() const;
+
   /** @name Scriptable Methods
       @{ */
 
