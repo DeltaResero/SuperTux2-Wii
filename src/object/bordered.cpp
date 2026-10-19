@@ -138,6 +138,13 @@ cell_key(int x, int y)
   return (static_cast<int64_t>(x) << 32) ^ static_cast<int64_t>(static_cast<uint32_t>(y));
 }
 
+/** Whole tiles from the level's corner to a layer's, as a layer on the grid may start anywhere on it */
+int
+tiles_in(float offset)
+{
+  return static_cast<int>(std::lround(offset / 32.0f));
+}
+
 uint32_t
 id_at(const TileMap& map, int x, int y)
 {
@@ -811,8 +818,11 @@ grid_surface_at(const GameObjectManager& objects, int x, int y)
 {
   for (const TileMap* tilemap : objects.get_solid_tilemaps())
   {
-    if (tilemap->get_offset() != Vector(0.0f, 0.0f) || tilemap->get_path() || id_at(*tilemap, x, y) == 0) continue;
-    const Surface* surface = tilemap->get_tile(x, y).get_current_surface_ptr();
+    if (!tilemap->is_on_grid()) continue;
+    const int tx = x - tiles_in(tilemap->get_offset().x);
+    const int ty = y - tiles_in(tilemap->get_offset().y);
+    if (id_at(*tilemap, tx, ty) == 0) continue;
+    const Surface* surface = tilemap->get_tile(tx, ty).get_current_surface_ptr();
     if (surface) return surface;
   }
   const Block* block = block_at(x, y);
@@ -913,12 +923,15 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
   // A layer over this one counts only where its edges change a texel of the copy, so the copies stay shared elsewhere
   for (const auto& layer : (key.cells[4] || animated) ? cover : Cover())
   {
+    // The same spot in that layer's cells, counted from its own corner
+    const int lx = x + tiles_in(map.get_offset().x) - tiles_in(layer.first->get_offset().x);
+    const int ly = y + tiles_in(map.get_offset().y) - tiles_in(layer.first->get_offset().y);
     std::array<const Surface*, 9> pictures;
     bool clear = true;
     bool opaque = true;
     for (int k = 0; k < 9; ++k)
     {
-      pictures[static_cast<size_t>(k)] = fitting(layer.first->get_still_picture_at(x + k % 3 - 1, y + k / 3 - 1));
+      pictures[static_cast<size_t>(k)] = fitting(layer.first->get_still_picture_at(lx + k % 3 - 1, ly + k / 3 - 1));
       const uint8_t kind = kind_of(pictures[static_cast<size_t>(k)]);
       clear = clear && kind == CLEAR;
       opaque = opaque && kind == OPAQUE;

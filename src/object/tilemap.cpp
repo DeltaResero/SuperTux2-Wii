@@ -16,6 +16,7 @@
 
 #include "object/tilemap.hpp"
 
+#include <cmath>
 #include <tuple>
 
 #include "object/bordered.hpp"
@@ -599,7 +600,13 @@ TileMap::get_still_picture_at(int x, int y) const
 bool
 TileMap::is_on_grid() const
 {
-  return m_offset == Vector(0.0f, 0.0f) && !get_path() && m_flip == NO_FLIP && m_speed_x == 1.0f && m_speed_y == 1.0f;
+  // A path whose nodes all sit in one spot never moves the layer, so whole tiles off the level's corner is still on it
+  const Path* path = get_path();
+  const bool still = !path || std::all_of(path->get_nodes().begin(), path->get_nodes().end(), [path](const Path::Node& node) {
+    return node.position == path->get_nodes().front().position;
+  });
+  return still && std::fmod(m_offset.x, 32.0f) == 0.0f && std::fmod(m_offset.y, 32.0f) == 0.0f &&
+         m_flip == NO_FLIP && m_speed_x == 1.0f && m_speed_y == 1.0f;
 }
 
 bool
