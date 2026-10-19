@@ -432,10 +432,10 @@ SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
   SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
   const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
   const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const float left = std::round((origin_x + rect.get_left() * m_scale.x) * scale.x);
-  const float top = std::round((origin_y + rect.get_top() * m_scale.y) * scale.y);
-  const float right = std::round((origin_x + rect.get_right() * m_scale.x) * scale.x);
-  const float bottom = std::round((origin_y + rect.get_bottom() * m_scale.y) * scale.y);
+  const float left = edge((origin_x + rect.get_left() * m_scale.x) * scale.x);
+  const float top = edge((origin_y + rect.get_top() * m_scale.y) * scale.y);
+  const float right = edge((origin_x + rect.get_right() * m_scale.x) * scale.x);
+  const float bottom = edge((origin_y + rect.get_bottom() * m_scale.y) * scale.y);
   return SDL_FRect{ left / scale.x - origin_x, top / scale.y - origin_y,
                     (right - left) / scale.x, (bottom - top) / scale.y };
 }
@@ -446,14 +446,20 @@ SDLPainter::to_sdl_frect(const SDL_Rect& rect) const
   if (m_whole_pixels)
   {
     // Each edge to its nearest pixel, so a rectangle meets its neighbour with no gap between them
-    const float left = std::round(static_cast<float>(rect.x) * m_scale.x);
-    const float top = std::round(static_cast<float>(rect.y) * m_scale.y);
-    return SDL_FRect{ left, top, std::round(static_cast<float>(rect.x + rect.w) * m_scale.x) - left,
-                      std::round(static_cast<float>(rect.y + rect.h) * m_scale.y) - top };
+    const float left = edge(static_cast<float>(rect.x) * m_scale.x);
+    const float top = edge(static_cast<float>(rect.y) * m_scale.y);
+    return SDL_FRect{ left, top, edge(static_cast<float>(rect.x + rect.w) * m_scale.x) - left,
+                      edge(static_cast<float>(rect.y + rect.h) * m_scale.y) - top };
   }
 
   return SDL_FRect{ static_cast<float>(rect.x) * m_scale.x, static_cast<float>(rect.y) * m_scale.y,
                     static_cast<float>(rect.w) * m_scale.x, static_cast<float>(rect.h) * m_scale.y };
+}
+
+float
+SDLPainter::edge(float pixels) const
+{
+  return m_whole_pixels ? std::ceil(pixels - 0.5f) : std::round(pixels);
 }
 
 bool
@@ -471,10 +477,10 @@ SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
   SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
   const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
   const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const int left = static_cast<int>(std::round((origin_x + rect.get_left() * m_scale.x) * scale.x));
-  const int top = static_cast<int>(std::round((origin_y + rect.get_top() * m_scale.y) * scale.y));
-  const int right = static_cast<int>(std::round((origin_x + rect.get_right() * m_scale.x) * scale.x));
-  const int bottom = static_cast<int>(std::round((origin_y + rect.get_bottom() * m_scale.y) * scale.y));
+  const int left = static_cast<int>(edge((origin_x + rect.get_left() * m_scale.x) * scale.x));
+  const int top = static_cast<int>(edge((origin_y + rect.get_top() * m_scale.y) * scale.y));
+  const int right = static_cast<int>(edge((origin_x + rect.get_right() * m_scale.x) * scale.x));
+  const int bottom = static_cast<int>(edge((origin_y + rect.get_bottom() * m_scale.y) * scale.y));
   if (right <= left || bottom <= top) return;
 
   const float radius_x = std::min(radius * m_scale.x * scale.x, static_cast<float>(right - left) / 2.0f);

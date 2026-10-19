@@ -57,6 +57,8 @@ private:
   SDL_FRect to_sdl_frect(const SDL_Rect& rect) const;
   /** False for a rectangle that's empty on whole pixels, as real SDL2's software renderer still fills a row */
   bool shows(const SDL_FRect& rect) const;
+  /** To a whole pixel, halves rounded down in the software renderer, so a picture crossing the top or left edge keeps its size */
+  float edge(float pixels) const;
   /** Fills rect, rounded by radius, in whole screen pixels */
   void fill_whole_pixels(const Rectf& rect, float radius) const;
 
