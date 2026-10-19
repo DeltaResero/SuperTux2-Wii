@@ -72,6 +72,7 @@ SDLScreenRenderer::start_draw()
   if (!m_video_system.draws_between_pixels())
   {
     m_painter.set_pixel_scale(scale);
+    m_painter.start_frame();
     scale = Vector(1.0f, 1.0f);
   }
 

@@ -326,14 +326,137 @@ SDLPainter::SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Ren
   m_sdl_renderer(sdl_renderer),
   m_scale(scale, scale),
   m_whole_pixels(false),
-  m_cliprect()
+  m_cliprect(),
+  m_tinted(),
+  m_frame()
 {}
+
+SDLPainter::~SDLPainter()
+{
+  for (const auto& entry : m_tinted)
+  {
+    for (const Tinted& copy : entry.second)
+    {
+      SDL_DestroyTexture(copy.texture);
+    }
+  }
+}
 
 void
 SDLPainter::set_pixel_scale(const Vector& scale)
 {
   m_scale = scale;
   m_whole_pixels = true;
+}
+
+void
+SDLPainter::start_frame()
+{
+  ++m_frame;
+  for (auto entry = m_tinted.begin(); entry != m_tinted.end();)
+  {
+    std::vector<Tinted>& copies = entry->second;
+    for (auto copy = copies.begin(); copy != copies.end();)
+    {
+      if (m_frame - copy->drawn > 60)
+      {
+        SDL_DestroyTexture(copy->texture);
+        copy = copies.erase(copy);
+      }
+      else
+      {
+        ++copy;
+      }
+    }
+
+    if (copies.empty())
+    {
+      entry = m_tinted.erase(entry);
+    }
+    else
+    {
+      ++entry;
+    }
+  }
+}
+
+SDL_Texture*
+SDLPainter::tinted(const SDLTexture& texture, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+  const uint32_t color = (static_cast<uint32_t>(r) << 24) | (static_cast<uint32_t>(g) << 16) |
+                         (static_cast<uint32_t>(b) << 8) | static_cast<uint32_t>(a);
+  // A fading picture needs a new colour each frame, so it keeps only a few copies
+  const size_t most = 4;
+  Tinted* oldest = nullptr;
+  const auto entry = m_tinted.find(texture.get_serial());
+  if (entry != m_tinted.end())
+  {
+    for (Tinted& copy : entry->second)
+    {
+      if (copy.color == color)
+      {
+        copy.drawn = m_frame;
+        return copy.texture;
+      }
+      if (copy.drawn != m_frame && (!oldest || copy.drawn < oldest->drawn))
+      {
+        oldest = &copy;
+      }
+    }
+    if (entry->second.size() >= most && !oldest)
+    {
+      return nullptr;
+    }
+  }
+
+  SDL_Texture* source = texture.get_texture();
+  Uint32 format = 0;
+  int width = 0;
+  int height = 0;
+  SDL_QueryTexture(source, &format, nullptr, &width, &height);
+  // Only small pictures, so a copy never costs much memory
+  if (width * height > 256 * 256)
+  {
+    return nullptr;
+  }
+  if (a != 255 && !SDL_ISPIXELFORMAT_ALPHA(format))
+  {
+    format = SDL_PIXELFORMAT_ARGB8888;
+  }
+  SDL_Texture* copy = SDL_CreateTexture(m_sdl_renderer, format, SDL_TEXTUREACCESS_TARGET, width, height);
+  if (!copy)
+  {
+    return nullptr;
+  }
+  SDL_Texture* target = SDL_GetRenderTarget(m_sdl_renderer);
+  if (SDL_SetRenderTarget(m_sdl_renderer, copy) != 0)
+  {
+    SDL_DestroyTexture(copy);
+    return nullptr;
+  }
+  // Written over rather than blended, so the copy keeps each pixel's tinted colour and alpha
+  SDL_SetTextureColorMod(source, r, g, b);
+  SDL_SetTextureAlphaMod(source, a);
+  SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
+  SDL_RenderCopy(m_sdl_renderer, source, nullptr, nullptr);
+  SDL_SetRenderTarget(m_sdl_renderer, target);
+  SDL_ScaleMode scale_mode;
+  if (SDL_GetTextureScaleMode(source, &scale_mode) == 0)
+  {
+    SDL_SetTextureScaleMode(copy, scale_mode);
+  }
+
+  std::vector<Tinted>& copies = m_tinted[texture.get_serial()];
+  if (copies.size() < most)
+  {
+    copies.push_back({ color, copy, m_frame });
+  }
+  else
+  {
+    SDL_DestroyTexture(oldest->texture);
+    *oldest = { color, copy, m_frame };
+  }
+  return copy;
 }
 
 void
@@ -389,11 +512,22 @@ SDLPainter::draw_texture(const TextureRequest& request)
     Uint8 b = static_cast<Uint8>(request.color.blue * 255);
     Uint8 a = static_cast<Uint8>(request.color.alpha * request.alpha * 255);
 
-    SDL_SetTextureColorMod(texture.get_texture(), r, g, b);
-    SDL_SetTextureAlphaMod(texture.get_texture(), a);
+    SDL_Texture* sdl_texture = texture.get_texture();
+    // The software renderer tints a picture far slower than it copies one, so a tinted copy is kept and drawn instead
+    if (m_whole_pixels && (r & g & b & a) != 255 && request.blend == Blend::BLEND && request.angles[i] == 0.0f)
+    {
+      if (SDL_Texture* copy = tinted(texture, r, g, b, a))
+      {
+        sdl_texture = copy;
+        r = g = b = a = 255;
+      }
+    }
+
+    SDL_SetTextureColorMod(sdl_texture, r, g, b);
+    SDL_SetTextureAlphaMod(sdl_texture, a);
     // The software renderer copies far faster without blending, and a picture with no alpha needs none
-    const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND && !has_alpha(texture.get_texture());
-    SDL_SetTextureBlendMode(texture.get_texture(), opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend));
+    const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND && !has_alpha(sdl_texture);
+    SDL_SetTextureBlendMode(sdl_texture, opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend));
 
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     if ((request.flip & HORIZONTAL_FLIP) != 0)
@@ -411,13 +545,13 @@ SDLPainter::draw_texture(const TextureRequest& request)
         texture.get_sampler().get_animate() == Vector(0.0f, 0.0f))
     {
       // The colour goes in with the corners, so the texture's own tint is left plain
-      SDL_SetTextureColorMod(texture.get_texture(), 255, 255, 255);
-      SDL_SetTextureAlphaMod(texture.get_texture(), 255);
-      RenderCopyFaded(m_sdl_renderer, texture.get_texture(), src_rect, dst_rect, fades, flip, SDL_Color{ r, g, b, a });
+      SDL_SetTextureColorMod(sdl_texture, 255, 255, 255);
+      SDL_SetTextureAlphaMod(sdl_texture, 255);
+      RenderCopyFaded(m_sdl_renderer, sdl_texture, src_rect, dst_rect, fades, flip, SDL_Color{ r, g, b, a });
     }
     else
     {
-      RenderCopyEx(m_sdl_renderer, texture.get_texture(),
+      RenderCopyEx(m_sdl_renderer, sdl_texture,
                    &src_rect, &dst_rect,
                    static_cast<double>(request.angles[i]), nullptr, flip,
                    texture.get_sampler(), texel_scale);

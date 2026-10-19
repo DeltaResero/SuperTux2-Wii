@@ -20,24 +20,32 @@
 #include "video/painter.hpp"
 
 #include <optional>
+#include <unordered_map>
+#include <vector>
 
 #include "math/vector.hpp"
 
 class Rectf;
 class Renderer;
 class SDLScreenRenderer;
+class SDLTexture;
 class SDLVideoSystem;
 struct DrawingRequest;
 struct SDL_FRect;
 struct SDL_Renderer;
+struct SDL_Texture;
 
 class SDLPainter final : public Painter
 {
 public:
   SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Renderer* sdl_renderer, float scale);
+  ~SDLPainter() override;
 
   /** Scales every coordinate to whole pixels here, with SDL left at a scale of 1 */
   void set_pixel_scale(const Vector& scale);
+
+  /** Lets go of tinted copies that haven't been drawn for a while */
+  void start_frame();
 
   virtual void draw_texture(const TextureRequest& request) override;
   virtual void draw_gradient(const GradientRequest& request) override;
@@ -61,6 +69,16 @@ private:
   float edge(float pixels) const;
   /** Fills rect, rounded by radius, in whole screen pixels */
   void fill_whole_pixels(const Rectf& rect, float radius) const;
+  /** A copy of texture with the colour already applied, made the first time it's needed, or null when it can't have one */
+  SDL_Texture* tinted(const SDLTexture& texture, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+
+private:
+  struct Tinted
+  {
+    uint32_t color;
+    SDL_Texture* texture;
+    uint32_t drawn;
+  };
 
 private:
   SDLVideoSystem& m_video_system;
@@ -72,6 +90,10 @@ private:
   bool m_whole_pixels;
 
   std::optional<SDL_Rect> m_cliprect;
+
+  // By the serial of the texture they were made from
+  std::unordered_map<uint32_t, std::vector<Tinted>> m_tinted;
+  uint32_t m_frame;
 
 private:
   SDLPainter(const SDLPainter&) = delete;
