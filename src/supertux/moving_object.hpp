@@ -108,6 +108,9 @@ protected:
     m_col.m_group = group;
   }
 
+  /** Takes where it was as the last step began along by a move that isn't motion, so it isn't drawn sliding there */
+  void move_last_pos(const Vector& by) { m_last_pos += by; }
+
 protected:
   CollisionObject m_col;
 

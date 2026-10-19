@@ -295,6 +295,8 @@ Player::adjust_height(float new_height, float bottom_offset)
 
   // adjust bbox accordingly
   // note that we use members of moving_object for this, so we can run this during CD, too
+  // (growing or ducking isn't motion, so a frame part way through the step doesn't show him sliding up or down)
+  move_last_pos(bbox2.p1() - get_pos());
   set_pos(bbox2.p1());
   m_col.set_size(bbox2.get_width(), bbox2.get_height());
   return true;
