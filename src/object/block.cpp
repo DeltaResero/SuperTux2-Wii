@@ -38,6 +38,7 @@
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 #include "video/drawing_context.hpp"
+#include "video/surface.hpp"
 #include "video/video_system.hpp"
 
 static const float BOUNCY_BRICK_MAX_OFFSET = 8;
@@ -163,7 +164,9 @@ Block::get_resting_surface() const
   {
     return {};
   }
-  return m_sprite->get_current_surface();
+  // A picture that bends what's behind it, like an emptied block's reflection, can't come from a copy
+  SurfacePtr surface = m_sprite->get_current_surface();
+  return (surface && surface->get_displacement_texture()) ? SurfacePtr() : surface;
 }
 
 void
