@@ -92,7 +92,7 @@ bool shrinks_with_view(const std::string& filename)
 TextureManager::TextureManager() :
   m_image_textures(),
   m_surfaces(),
-  m_shrink(1.0f, 1.0f),
+  m_resize(1.0f, 1.0f),
   m_pixels(),
   m_pixels_clock(0),
   m_generation(0)
@@ -257,15 +257,16 @@ TextureManager::get(const std::string& _filename,
 }
 
 void
-TextureManager::set_viewport(const Viewport& viewport)
+TextureManager::set_viewport(const Viewport& viewport, bool enlarge)
 {
   // Shrinking once here keeps every row of a picture, where drawing it smaller drops rows unevenly
-  const Vector shrink(std::min(1.0f, viewport.get_scale().x), std::min(1.0f, viewport.get_scale().y));
-  if (shrink == m_shrink)
+  const Vector& scale = viewport.get_scale();
+  const Vector resize = enlarge ? scale : Vector(std::min(1.0f, scale.x), std::min(1.0f, scale.y));
+  if (resize == m_resize)
   {
     return;
   }
-  m_shrink = shrink;
+  m_resize = resize;
   ++m_generation;
   m_pixels.clear();
 
@@ -301,11 +302,36 @@ SDLSurfacePtr
 TextureManager::prepare(const std::string& filename, const SDL_Surface& image) const
 {
   SDLSurfacePtr own;
-  if ((m_shrink.x < 1.0f || m_shrink.y < 1.0f) && shrinks_with_view(filename))
+  const Vector shrink(std::min(1.0f, m_resize.x), std::min(1.0f, m_resize.y));
+  if ((shrink.x < 1.0f || shrink.y < 1.0f) && shrinks_with_view(filename))
   {
     own = SDLSurface::shrink(image,
-                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * m_shrink.x))),
-                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * m_shrink.y))));
+                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * shrink.x))),
+                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * shrink.y))));
+  }
+  else if ((m_resize.x > 1.0f || m_resize.y > 1.0f) && shrinks_with_view(filename))
+  {
+    // Stretched as drawing would stretch it, in RGBA even when opaque as the software renderer blends that fastest
+    SDLSurfacePtr source(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+    if (!source)
+    {
+      std::ostringstream msg;
+      msg << "failed to convert SDL_Surface: " << SDL_GetError();
+      throw std::runtime_error(msg.str());
+    }
+    if (SDL_ISPIXELFORMAT_ALPHA(image.format->format))
+    {
+      SDLSurface::fill_clear_pixels(*source);
+    }
+    own = SDLSurface::create_rgba(static_cast<int>(std::lround(static_cast<float>(image.w) * m_resize.x)),
+                                  static_cast<int>(std::lround(static_cast<float>(image.h) * m_resize.y)));
+    if (SDL_SoftStretchLinear(source.get(), nullptr, own.get(), nullptr) != 0)
+    {
+      std::ostringstream msg;
+      msg << "failed to enlarge SDL_Surface: " << SDL_GetError();
+      throw std::runtime_error(msg.str());
+    }
+    return own;
   }
   else if (SDL_ISPIXELFORMAT_ALPHA(image.format->format))
   {

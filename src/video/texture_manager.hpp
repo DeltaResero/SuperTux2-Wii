@@ -57,8 +57,8 @@ public:
 
   void debug_print(std::ostream& out) const;
 
-  /** The level's pictures are kept at the size this view draws them, and loaded ones are redone when that changes */
-  void set_viewport(const Viewport& viewport);
+  /** The level's pictures are kept at the size this view draws them, never larger unless enlarge is set, and loaded ones are redone when that changes */
+  void set_viewport(const Viewport& viewport, bool enlarge = false);
 
   /** The pixels a tile-sized texture holds, in RGBA32, made again from its file when need be, or null for any other; they last the frame */
   const SDL_Surface* get_pixels(const Texture& texture);
@@ -93,7 +93,7 @@ private:
   /** The part rect of filename's picture; keep holds what it points into when that isn't the cached picture */
   SDLSurfacePtr cut(const std::string& filename, const Rect& rect, SDLSurfacePtr& keep);
 
-  /** The pixels a picture's texture is made from: shrunk to the view, or an RGBA copy where it has alpha, or null as it is */
+  /** The pixels a picture's texture is made from: resized to the view, or an RGBA copy where it has alpha, or null as it is */
   SDLSurfacePtr prepare(const std::string& filename, const SDL_Surface& image) const;
 
   TexturePtr create_dummy_texture();
@@ -101,7 +101,7 @@ private:
 private:
   std::map<Texture::Key, std::weak_ptr<Texture> > m_image_textures;
   std::map<std::string, SDLSurfacePtr> m_surfaces;
-  Vector m_shrink;
+  Vector m_resize;
   struct Pixels
   {
     SDLSurfacePtr surface;

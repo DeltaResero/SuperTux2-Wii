@@ -104,7 +104,8 @@ SDLVideoSystem::apply_config()
       (g_config->window_maximised ? get_window_size() : g_config->window_size);
 
     m_viewport = Viewport::from_size(target_size, m_desktop_size);
-    m_texture_manager->set_viewport(m_viewport);
+    // The software renderer copies a picture at its own size far faster than it stretches one
+    m_texture_manager->set_viewport(m_viewport, !m_between_pixels);
   }
 
   m_lightmap = std::make_unique<SDLTextureRenderer>(*this, m_sdl_renderer.get(), m_viewport.get_screen_size(), 5);
