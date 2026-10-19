@@ -102,10 +102,10 @@ int s_holders = 0;
 double s_urgent = 0.0;
 double s_prepare = 0.0;
 double s_prefetch = 0.0;
-// The first frame of a scene builds all it shows, as part of loading
+// A scene's first second builds its copies faster, its layers drawn tile by tile till theirs are ready
 const void* s_scene = nullptr;
 int s_scene_frame = -1;
-bool s_scene_start = false;
+Uint32 s_scene_ticks = 0;
 // What a picture is to what's under it, by its alpha
 enum Kind : uint8_t { CLEAR, OPAQUE, MIXED };
 std::unordered_map<const Surface*, uint8_t> s_kinds;
@@ -723,10 +723,10 @@ begin_frame(const void* scene)
   s_now = SDL_GetTicks();
   // Enough tile pixels for the copies a frame makes, the rest let go of
   TextureManager::current()->trim_pixels(256);
-  s_scene_start = scene != s_scene || s_frame != s_scene_frame + 1;
+  if (scene != s_scene || s_frame != s_scene_frame + 1) s_scene_ticks = s_now;
   s_scene = scene;
   s_scene_frame = s_frame;
-  s_urgent = 3.0;
+  s_urgent = (s_now - s_scene_ticks < 1000) ? 8.0 : 3.0;
   s_prepare = 4.0;
   s_prefetch = 1.0;
   if (s_generation != TextureManager::current()->get_generation())
@@ -1007,7 +1007,7 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
       if (!current(map, x, y, cell))
       {
         // All of them ready or the whole layer goes tile by tile, as copies beside single tiles would show their joints
-        if (!s_scene_start && s_urgent <= 0.0) return false;
+        if (s_urgent <= 0.0) return false;
         bool room = true;
         timed(s_urgent, [&] { room = resolve(map, x, y, cover, cell); });
         if (!room) return false;
@@ -1018,7 +1018,7 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
         Moving& moving = m_moving[static_cast<size_t>(cell.moving)];
         if (moving.checked != s_frame && !find_shown(moving))
         {
-          if (!s_scene_start && s_urgent <= 0.0) return false;
+          if (s_urgent <= 0.0) return false;
           bool room = true;
           timed(s_urgent, [&] { room = add_shown(moving); });
           if (!room) return false;
