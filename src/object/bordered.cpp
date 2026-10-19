@@ -113,6 +113,7 @@ std::unordered_map<const Surface*, uint8_t> s_kinds;
 std::vector<const TileMap*> s_layers;
 int s_layers_frame = -1;
 bool s_layers_fading = false;
+bool s_grid_ready = false;
 std::unordered_map<int64_t, const Block*> s_blocks;
 
 template<typename Work>
@@ -610,8 +611,7 @@ take_layers(const GameObjectManager& objects)
   s_layers_fading = false;
   for (const TileMap& layer : objects.get_objects_by_type<TileMap>())
   {
-    if (layer.get_offset() == Vector(0.0f, 0.0f) && !layer.get_path() && layer.get_flip() == NO_FLIP &&
-        layer.get_speed() == Vector(1.0f, 1.0f))
+    if (layer.is_on_grid())
     {
       s_layers.push_back(&layer);
       s_layers_fading = s_layers_fading || layer.is_fading();
@@ -717,7 +717,7 @@ release()
 }
 
 void
-begin_frame(const void* scene)
+begin_frame(GameObjectManager& objects, const void* scene, const Rectf& view)
 {
   ++s_frame;
   s_now = SDL_GetTicks();
@@ -746,6 +746,23 @@ begin_frame(const void* scene)
   }
   // A little each frame, so pages follow the copies in use
   compact(0.25);
+
+  // All the layers on the grid are drawn from copies or none are, as one beside tiles would show what its soft edges hide
+  take_layers(objects);
+  s_grid_ready = !s_layers_fading;
+  for (TileMap& layer : objects.get_objects_by_type<TileMap>())
+  {
+    if (layer.is_on_grid())
+    {
+      s_grid_ready = layer.prepare_copies(view, s_layers_fading) && s_grid_ready;
+    }
+  }
+}
+
+bool
+grid_ready()
+{
+  return s_grid_ready;
 }
 
 std::vector<const TileMap*>
@@ -826,7 +843,10 @@ Layer::Layer() :
   m_size(0, 0),
   m_revision(-1),
   m_generation(-1),
-  m_cover()
+  m_cover(),
+  m_draws(),
+  m_loose(),
+  m_ready_frame(-1)
 {
 }
 
@@ -1045,6 +1065,26 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
     }
   }
   prefetch(map, cells, cover);
+  return true;
+}
+
+bool
+Layer::ready(const TileMap& map, const Rect& cells, const std::vector<const TileMap*>& above)
+{
+  m_draws.clear();
+  m_loose.clear();
+  const bool complete = draw(map, cells, above, m_draws, m_loose);
+  m_ready_frame = complete ? s_frame : -1;
+  return complete;
+}
+
+bool
+Layer::take(std::vector<Draw>& draws, std::vector<int>& loose)
+{
+  if (m_ready_frame != s_frame) return false;
+  m_ready_frame = -1;
+  draws = std::move(m_draws);
+  loose = std::move(m_loose);
   return true;
 }
 

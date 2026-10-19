@@ -521,7 +521,7 @@ WorldMap::draw(DrawingContext& context)
   context.transform().between_pixels = true;
   if (VideoSystem::current()->draws_between_pixels())
   {
-    bordered::begin_frame(this);
+    bordered::begin_frame(*this, this, context.get_cliprect());
   }
 
   GameObjectManager::draw(context, step_fraction);

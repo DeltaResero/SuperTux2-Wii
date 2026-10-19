@@ -416,7 +416,7 @@ Sector::draw(DrawingContext& context)
   context.transform().between_pixels = true;
   if (VideoSystem::current()->draws_between_pixels())
   {
-    bordered::begin_frame(this);
+    bordered::begin_frame(*this, this, context.get_cliprect());
     bordered::gather_blocks(*this, context.get_cliprect().grown(96.0f));
   }
 

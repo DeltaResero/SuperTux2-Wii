@@ -60,8 +60,11 @@ void place(const Vector& pos, const Sizef& size, const Vector& origin, int texel
 void hold();
 void release();
 
-/** Once a frame before the layers draw; the first frame of a scene builds all it shows */
-void begin_frame(const void* scene);
+/** Once a frame before anything draws, with the part of the level in view; the layers on the grid get their copies ready */
+void begin_frame(GameObjectManager& objects, const void* scene, const Rectf& view);
+
+/** Every layer on the grid has its copies this frame, so they're drawn from them; else all are drawn tile by tile */
+bool grid_ready();
 
 /** The tile layers drawn over map on the same grid */
 std::vector<const TileMap*> layers_above(const GameObjectManager& objects, const TileMap& map);
@@ -99,6 +102,12 @@ public:
   /** False when the layer is to be drawn tile by tile this frame; tiles no copy can hold go in loose */
   bool draw(const TileMap& map, const Rect& cells, const std::vector<const TileMap*>& above,
             std::vector<Draw>& draws, std::vector<int>& loose);
+
+  /** draw() for a layer on the grid, made before any layer draws and kept for take() */
+  bool ready(const TileMap& map, const Rect& cells, const std::vector<const TileMap*>& above);
+
+  /** What ready() made this frame, else false */
+  bool take(std::vector<Draw>& draws, std::vector<int>& loose);
 
   /** Builds copies ahead, as time allows, for what will cover the layer once the fades are over */
   void prepare(const TileMap& map, const Rect& cells, const std::vector<const TileMap*>& above);
@@ -156,6 +165,10 @@ private:
   int m_revision;
   int m_generation;
   Cover m_cover;
+  // What ready() made, and in which frame
+  std::vector<Draw> m_draws;
+  std::vector<int> m_loose;
+  int m_ready_frame;
 
 private:
   Layer(const Layer&) = delete;

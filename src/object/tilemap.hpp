@@ -148,6 +148,10 @@ public:
   int get_revision() const { return m_revision; }
   bool is_fading() const { return m_current_alpha != m_alpha; }
   float get_target_alpha() const { return m_alpha; }
+  /** On the level's own grid, as no offset, path, flip or parallax moves it off */
+  bool is_on_grid() const;
+  /** Readies this frame's copies of the tiles in view, or during a fade those for after it; false till all are */
+  bool prepare_copies(const Rectf& view, bool fading);
   const Tile& get_tile_at(const Vector& pos) const;
   uint32_t get_tile_id(int x, int y) const;
   uint32_t get_tile_id_at(const Vector& pos) const;

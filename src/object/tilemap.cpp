@@ -391,37 +391,37 @@ TileMap::draw(DrawingContext& context)
   };
 
   bool in_copies = false;
-  if (between && (draw_bordered || m_alpha > 0.0f))
+  std::vector<bordered::Layer::Draw> draws;
+  std::vector<int> loose;
+  if (between && d_gameobject_manager && is_on_grid())
+  {
+    // Made before any layer drew, and drawn only if every layer on the grid has its copies
+    in_copies = bordered::grid_ready() && m_bordered && m_bordered->take(draws, loose);
+  }
+  else if (between && (draw_bordered || m_alpha > 0.0f))
   {
     if (!m_bordered) m_bordered = std::make_unique<bordered::Layer>();
-    std::vector<const TileMap*> above;
-    if (d_gameobject_manager && m_offset == Vector(0.0f, 0.0f) && !get_path() && m_speed_x == 1.0f && m_speed_y == 1.0f)
-    {
-      above = bordered::layers_above(*d_gameobject_manager, *this);
-    }
     if (!draw_bordered)
     {
-      m_bordered->prepare(*this, t_draw_rect, above);
+      m_bordered->prepare(*this, t_draw_rect, {});
     }
     else
     {
-      std::vector<bordered::Layer::Draw> draws;
-      std::vector<int> loose;
-      in_copies = m_bordered->draw(*this, t_draw_rect, above, draws, loose);
-      if (in_copies)
-      {
-        for (auto& draw : draws)
-        {
-          auto& batch = batches[draw.page];
-          std::get<2>(batch).resize(draw.srcrects.size(), 0);
-          std::get<0>(batch) = std::move(draw.srcrects);
-          std::get<1>(batch) = std::move(draw.dstrects);
-        }
-        for (const int index : loose)
-        {
-          add_tile(index % m_width, index / m_width, get_tile_position(index % m_width, index / m_width));
-        }
-      }
+      in_copies = m_bordered->draw(*this, t_draw_rect, {}, draws, loose);
+    }
+  }
+  if (in_copies)
+  {
+    for (auto& draw : draws)
+    {
+      auto& batch = batches[draw.page];
+      std::get<2>(batch).resize(draw.srcrects.size(), 0);
+      std::get<0>(batch) = std::move(draw.srcrects);
+      std::get<1>(batch) = std::move(draw.dstrects);
+    }
+    for (const int index : loose)
+    {
+      add_tile(index % m_width, index / m_width, get_tile_position(index % m_width, index / m_width));
     }
   }
 
@@ -594,6 +594,29 @@ TileMap::get_still_picture_at(int x, int y) const
   if (x < 0 || y < 0 || x >= m_width || y >= m_height) return nullptr;
   const uint32_t id = m_tiles[y * m_width + x];
   return id == 0 ? nullptr : m_tileset->get(id).get_first_surface_ptr();
+}
+
+bool
+TileMap::is_on_grid() const
+{
+  return m_offset == Vector(0.0f, 0.0f) && !get_path() && m_flip == NO_FLIP && m_speed_x == 1.0f && m_speed_y == 1.0f;
+}
+
+bool
+TileMap::prepare_copies(const Rectf& view, bool fading)
+{
+  if (!d_gameobject_manager) return false;
+  if (!m_bordered) m_bordered = std::make_unique<bordered::Layer>();
+  // A tile just off screen still reaches half a texel in
+  const Rect cells = get_tiles_overlapping(view.grown(32.0f));
+  const std::vector<const TileMap*> above = bordered::layers_above(*d_gameobject_manager, *this);
+  if (fading)
+  {
+    if (m_alpha > 0.0f) m_bordered->prepare(*this, cells, above);
+    return false;
+  }
+  // A layer that isn't drawn doesn't hold the others back
+  return m_current_alpha == 0.0f || m_bordered->ready(*this, cells, above);
 }
 
 uint32_t
