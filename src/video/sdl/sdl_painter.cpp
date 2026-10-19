@@ -51,12 +51,6 @@ SDL_Rect to_sdl_rect(const Rectf& rect)
   return sdl_rect;
 }
 
-SDL_FRect to_sdl_frect(const SDL_Rect& rect, float scale)
-{
-  return SDL_FRect{ static_cast<float>(rect.x) * scale, static_cast<float>(rect.y) * scale,
-                    static_cast<float>(rect.w) * scale, static_cast<float>(rect.h) * scale };
-}
-
 SDL_BlendMode blend2sdl(const Blend& blend)
 {
   if (blend == Blend::NONE)
@@ -323,9 +317,17 @@ SDLPainter::SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Ren
   m_video_system(video_system),
   m_renderer(renderer),
   m_sdl_renderer(sdl_renderer),
-  m_scale(scale),
+  m_scale(scale, scale),
+  m_whole_pixels(false),
   m_cliprect()
 {}
+
+void
+SDLPainter::set_pixel_scale(const Vector& scale)
+{
+  m_scale = scale;
+  m_whole_pixels = true;
+}
 
 void
 SDLPainter::draw_texture(const TextureRequest& request)
@@ -414,8 +416,8 @@ SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
   // Fractions kept for a gliding layer, and on the lightmap, where whole pixels would move a light in steps
   if (SDL_GetRenderTarget(m_sdl_renderer) || between_pixels)
   {
-    return SDL_FRect{ rect.get_left() * m_scale, rect.get_top() * m_scale,
-                      rect.get_width() * m_scale, rect.get_height() * m_scale };
+    return SDL_FRect{ rect.get_left() * m_scale.x, rect.get_top() * m_scale.y,
+                      rect.get_width() * m_scale.x, rect.get_height() * m_scale.y };
   }
 
   // Both edges go to the nearest whole screen pixel, as an edge meant for the last one can come out a hair short
@@ -424,12 +426,34 @@ SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
   SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
   const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
   const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const float left = std::round((origin_x + rect.get_left() * m_scale) * scale.x);
-  const float top = std::round((origin_y + rect.get_top() * m_scale) * scale.y);
-  const float right = std::round((origin_x + rect.get_right() * m_scale) * scale.x);
-  const float bottom = std::round((origin_y + rect.get_bottom() * m_scale) * scale.y);
+  const float left = std::round((origin_x + rect.get_left() * m_scale.x) * scale.x);
+  const float top = std::round((origin_y + rect.get_top() * m_scale.y) * scale.y);
+  const float right = std::round((origin_x + rect.get_right() * m_scale.x) * scale.x);
+  const float bottom = std::round((origin_y + rect.get_bottom() * m_scale.y) * scale.y);
   return SDL_FRect{ left / scale.x - origin_x, top / scale.y - origin_y,
                     (right - left) / scale.x, (bottom - top) / scale.y };
+}
+
+SDL_FRect
+SDLPainter::to_sdl_frect(const SDL_Rect& rect) const
+{
+  if (m_whole_pixels)
+  {
+    // Each edge to its nearest pixel, so a rectangle meets its neighbour with no gap between them
+    const float left = std::round(static_cast<float>(rect.x) * m_scale.x);
+    const float top = std::round(static_cast<float>(rect.y) * m_scale.y);
+    return SDL_FRect{ left, top, std::round(static_cast<float>(rect.x + rect.w) * m_scale.x) - left,
+                      std::round(static_cast<float>(rect.y + rect.h) * m_scale.y) - top };
+  }
+
+  return SDL_FRect{ static_cast<float>(rect.x) * m_scale.x, static_cast<float>(rect.y) * m_scale.y,
+                    static_cast<float>(rect.w) * m_scale.x, static_cast<float>(rect.h) * m_scale.y };
+}
+
+bool
+SDLPainter::shows(const SDL_FRect& rect) const
+{
+  return !m_whole_pixels || (rect.w > 0.0f && rect.h > 0.0f);
 }
 
 void
@@ -441,19 +465,20 @@ SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
   SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
   const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
   const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const int left = static_cast<int>(std::round((origin_x + rect.get_left() * m_scale) * scale.x));
-  const int top = static_cast<int>(std::round((origin_y + rect.get_top() * m_scale) * scale.y));
-  const int right = static_cast<int>(std::round((origin_x + rect.get_right() * m_scale) * scale.x));
-  const int bottom = static_cast<int>(std::round((origin_y + rect.get_bottom() * m_scale) * scale.y));
+  const int left = static_cast<int>(std::round((origin_x + rect.get_left() * m_scale.x) * scale.x));
+  const int top = static_cast<int>(std::round((origin_y + rect.get_top() * m_scale.y) * scale.y));
+  const int right = static_cast<int>(std::round((origin_x + rect.get_right() * m_scale.x) * scale.x));
+  const int bottom = static_cast<int>(std::round((origin_y + rect.get_bottom() * m_scale.y) * scale.y));
   if (right <= left || bottom <= top) return;
 
-  const float radius_x = std::min(radius * m_scale * scale.x, static_cast<float>(right - left) / 2.0f);
-  const float radius_y = std::min(radius * m_scale * scale.y, static_cast<float>(bottom - top) / 2.0f);
+  const float radius_x = std::min(radius * m_scale.x * scale.x, static_cast<float>(right - left) / 2.0f);
+  const float radius_y = std::min(radius * m_scale.y * scale.y, static_cast<float>(bottom - top) / 2.0f);
   const int rows = static_cast<int>(radius_y);
   std::vector<SDL_FRect> rects;
   const auto add = [&](int x0, int y0, int x1, int y1) {
-    rects.push_back(SDL_FRect{ static_cast<float>(x0) / scale.x - origin_x, static_cast<float>(y0) / scale.y - origin_y,
-                               static_cast<float>(x1 - x0) / scale.x, static_cast<float>(y1 - y0) / scale.y });
+    const SDL_FRect row{ static_cast<float>(x0) / scale.x - origin_x, static_cast<float>(y0) / scale.y - origin_y,
+                         static_cast<float>(x1 - x0) / scale.x, static_cast<float>(y1 - y0) / scale.y };
+    if (shows(row)) rects.push_back(row);
   };
   for (int i = 0; i < rows; ++i)
   {
@@ -522,8 +547,11 @@ SDLPainter::draw_gradient(const GradientRequest& request)
 
     SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend2sdl(request.blend));
     SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-    const SDL_FRect frect = to_sdl_frect(rect, m_scale);
-    SDL_RenderFillRectF(m_sdl_renderer, &frect);
+    const SDL_FRect frect = to_sdl_frect(rect);
+    if (shows(frect))
+    {
+      SDL_RenderFillRectF(m_sdl_renderer, &frect);
+    }
   }
 }
 
@@ -555,6 +583,10 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
     // rounded top and bottom parts
     std::vector<SDL_FRect> rects;
     rects.reserve(2*slices + 1);
+    const auto add = [&](const SDL_Rect& slice) {
+      const SDL_FRect frect = to_sdl_frect(slice);
+      if (shows(frect)) rects.push_back(frect);
+    };
     for (int i = 0; i < slices; ++i)
     {
       float p = (static_cast<float>(i) + 0.5f) / static_cast<float>(slices);
@@ -565,7 +597,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
       tmp.y = rect.y + (radius - i);
       tmp.w = rect.w - 2*(xoff);
       tmp.h = 1;
-      rects.push_back(to_sdl_frect(tmp, m_scale));
+      add(tmp);
 
       SDL_Rect tmp2;
       tmp2.x = rect.x + xoff;
@@ -575,7 +607,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
 
       if (tmp2.y != tmp.y)
       {
-        rects.push_back(to_sdl_frect(tmp2, m_scale));
+        add(tmp2);
       }
     }
 
@@ -587,12 +619,12 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
       tmp.y = rect.y + radius + 1;
       tmp.w = rect.w;
       tmp.h = rect.h - 2*radius - 1;
-      rects.push_back(to_sdl_frect(tmp, m_scale));
+      add(tmp);
     }
 
     SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-    SDL_RenderFillRectsF(m_sdl_renderer, &*rects.begin(), static_cast<int>(rects.size()));
+    SDL_RenderFillRectsF(m_sdl_renderer, rects.data(), static_cast<int>(rects.size()));
   }
   else
   {
@@ -600,8 +632,11 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
     {
       SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-      const SDL_FRect frect = to_sdl_frect(rect, m_scale);
-      SDL_RenderFillRectF(m_sdl_renderer, &frect);
+      const SDL_FRect frect = to_sdl_frect(rect);
+      if (shows(frect))
+      {
+        SDL_RenderFillRectF(m_sdl_renderer, &frect);
+      }
     }
   }
 }
@@ -659,11 +694,15 @@ SDLPainter::draw_inverse_ellipse(const InverseEllipseRequest& request)
 
   SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
   SDL_FRect frects[2*max_slices+2];
+  int count = 0;
   for (int i = 0; i < 2*slices+2; ++i)
-    frects[i] = to_sdl_frect(rects[i], m_scale);
+  {
+    frects[count] = to_sdl_frect(rects[i]);
+    if (shows(frects[count])) ++count;
+  }
 
   SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-  SDL_RenderFillRectsF(m_sdl_renderer, frects, 2*slices+2);
+  SDL_RenderFillRectsF(m_sdl_renderer, frects, count);
 }
 
 void
@@ -682,8 +721,8 @@ SDLPainter::draw_line(const LineRequest& request)
   SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
   SDL_RenderDrawLineF(m_sdl_renderer,
-                      static_cast<float>(x1) * m_scale, static_cast<float>(y1) * m_scale,
-                      static_cast<float>(x2) * m_scale, static_cast<float>(y2) * m_scale);
+                      static_cast<float>(x1) * m_scale.x, static_cast<float>(y1) * m_scale.y,
+                      static_cast<float>(x2) * m_scale.x, static_cast<float>(y2) * m_scale.y);
 }
 
 namespace {
@@ -706,7 +745,7 @@ make_edge(int x1, int y1, int x2, int y2)
 }
 
 void
-draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2, float scale)
+draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2, const Vector& scale)
 {
   // calculate difference between the y coordinates
   // of the first edge and return if 0
@@ -729,10 +768,10 @@ draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2, 
 
   for (int y = static_cast<int>(e2.first.y); y < static_cast<int>(e2.second.y); y++) {
     SDL_RenderDrawLineF(renderer,
-                        static_cast<float>(static_cast<int>(e1.first.x + e1xdiff * factor1)) * scale,
-                        static_cast<float>(y) * scale,
-                        static_cast<float>(static_cast<int>(e2.first.x + e2xdiff * factor2)) * scale,
-                        static_cast<float>(y) * scale);
+                        static_cast<float>(static_cast<int>(e1.first.x + e1xdiff * factor1)) * scale.x,
+                        static_cast<float>(y) * scale.y,
+                        static_cast<float>(static_cast<int>(e2.first.x + e2xdiff * factor2)) * scale.x,
+                        static_cast<float>(y) * scale.y);
     factor1 += factorStep1;
     factor2 += factorStep2;
   }
@@ -803,10 +842,10 @@ void
 SDLPainter::set_clip_rect(const Rect& rect)
 {
   // Kept in the target's own pixels, rounded outwards
-  const int left = static_cast<int>(floorf(static_cast<float>(rect.left) * m_scale));
-  const int top = static_cast<int>(floorf(static_cast<float>(rect.top) * m_scale));
-  const int right = static_cast<int>(ceilf(static_cast<float>(rect.right) * m_scale));
-  const int bottom = static_cast<int>(ceilf(static_cast<float>(rect.bottom) * m_scale));
+  const int left = static_cast<int>(floorf(static_cast<float>(rect.left) * m_scale.x));
+  const int top = static_cast<int>(floorf(static_cast<float>(rect.top) * m_scale.y));
+  const int right = static_cast<int>(ceilf(static_cast<float>(rect.right) * m_scale.x));
+  const int bottom = static_cast<int>(ceilf(static_cast<float>(rect.bottom) * m_scale.y));
   m_cliprect = SDL_Rect{ left, top, right - left, bottom - top };
 
   int ret = SDL_RenderSetClipRect(m_sdl_renderer, &*m_cliprect);

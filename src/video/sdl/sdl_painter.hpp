@@ -21,6 +21,8 @@
 
 #include <optional>
 
+#include "math/vector.hpp"
+
 class Rectf;
 class Renderer;
 class SDLScreenRenderer;
@@ -33,6 +35,9 @@ class SDLPainter final : public Painter
 {
 public:
   SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Renderer* sdl_renderer, float scale);
+
+  /** Scales every coordinate to whole pixels here, with SDL left at a scale of 1 */
+  void set_pixel_scale(const Vector& scale);
 
   virtual void draw_texture(const TextureRequest& request) override;
   virtual void draw_gradient(const GradientRequest& request) override;
@@ -49,6 +54,9 @@ public:
 
 private:
   SDL_FRect to_target(const Rectf& rect, bool between_pixels) const;
+  SDL_FRect to_sdl_frect(const SDL_Rect& rect) const;
+  /** False for a rectangle that's empty on whole pixels, as real SDL2's software renderer still fills a row */
+  bool shows(const SDL_FRect& rect) const;
   /** Fills rect, rounded by radius, in whole screen pixels */
   void fill_whole_pixels(const Rectf& rect, float radius) const;
 
@@ -58,7 +66,8 @@ private:
   SDL_Renderer* m_sdl_renderer;
 
   // Applied to every coordinate before it reaches SDL
-  float m_scale;
+  Vector m_scale;
+  bool m_whole_pixels;
 
   std::optional<SDL_Rect> m_cliprect;
 
