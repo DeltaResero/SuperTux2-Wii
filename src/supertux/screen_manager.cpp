@@ -238,10 +238,11 @@ ScreenManager::draw_player_pos(DrawingContext& context)
       m_player_pos_text = pos_text;
     }
 
+    // Below the FPS readout's two lines, so the two never overlap
     context.color().draw_text(
       Resources::small_font, pos_text,
       Vector(static_cast<float>(context.get_width()) - Resources::small_font->get_text_width("99999x99999") - BORDER_X,
-             BORDER_Y + 60), ALIGN_LEFT, LAYER_HUD);
+             BORDER_Y + 80), ALIGN_LEFT, LAYER_HUD);
   }
 }
 
