@@ -42,10 +42,38 @@
 #include "video/drawing_context.hpp"
 #include "video/ttf_surface_manager.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <chrono>
 #include <iostream>
+#include <utility>
 
+namespace {
+
+// The debug readouts' right edge, clear of the border a television may crop
+float readout_right(const DrawingContext& context)
+{
+  return static_cast<float>(context.get_width()) * 0.93f;
+}
+
+// Frames a second to a tenth, or the most there's room for with a plus once it's past that
+std::string fps_text(float fps)
+{
+  if (fps >= 99999.95f) return "99999.9+";
+  char text[16];
+  snprintf(text, sizeof(text), "%3.1f", static_cast<double>(fps));
+  return text;
+}
+
+// A position in whole units, or the most there's room for with a plus once it's past that
+std::string position_text(float position)
+{
+  if (position >= 100000.0f) return "99999+";
+  if (position <= -100000.0f) return "-99999+";
+  return std::to_string(static_cast<int>(position));
+}
+
+} // namespace
 
 struct ScreenManager::FPS_Stats
 {
@@ -127,7 +155,8 @@ ScreenManager::ScreenManager(VideoSystem& video_system, InputManager& input_mana
   ms_per_step(static_cast<Uint32>(1000.0f / LOGICAL_FPS)),
   seconds_per_step(static_cast<float>(ms_per_step) / 1000.0f),
   m_fps_statistics(std::make_unique<FPS_Stats>()),
-  m_player_pos_text(),
+  m_player_x_text(),
+  m_player_y_text(),
   m_speed(1.0),
   m_actions(),
   m_screen_fade(),
@@ -196,31 +225,22 @@ ScreenManager::get_speed() const
 void
 ScreenManager::draw_fps(DrawingContext& context, FPS_Stats& fps_statistics)
 {
-  // The fonts are not monospace, so the numbers need to be drawn separately
-  Vector pos(static_cast<float>(context.get_width()) - BORDER_X, BORDER_Y + 50);
-  context.color().draw_text(Resources::small_font, "FPS  min / avg / max",
-    pos, ALIGN_RIGHT, LAYER_HUD);
-  static const float w2 = Resources::small_font->get_text_width("999.9 /");
-  static const float w3 = Resources::small_font->get_text_width("999.9");
-  char str1[60];
-  char str2[60];
-  char str3[60];
-  int str_length = sizeof(str1);
-  snprintf(str1, str_length, "%3.1f /",
-    static_cast<double>(fps_statistics.get_fps_min()));
-  snprintf(str2, str_length, "%3.1f /",
-    static_cast<double>(fps_statistics.get_fps()));
-  snprintf(str3, str_length, "%3.1f",
-    static_cast<double>(fps_statistics.get_fps_max()));
-  pos.y += 15;
-  context.color().draw_text(Resources::small_font, str3,
-    pos, ALIGN_RIGHT, LAYER_HUD);
-  pos.x -= w3;
-  context.color().draw_text(Resources::small_font, str2,
-    pos, ALIGN_RIGHT, LAYER_HUD);
-  pos.x -= w2;
-  context.color().draw_text(Resources::small_font, str1,
-    pos, ALIGN_RIGHT, LAYER_HUD);
+  // One reading a line, the numbers right-aligned in room for five 4s (the font's widest digit) or the capped text
+  static const float number_width = std::max(Resources::small_font->get_text_width(" 44444.4"),
+                                             Resources::small_font->get_text_width(" 99999.9+"));
+  const float right = readout_right(context);
+  const std::pair<const char*, float> readings[] = {
+    { "FPS", fps_statistics.get_fps() },
+    { "min", fps_statistics.get_fps_min() },
+    { "max", fps_statistics.get_fps_max() }
+  };
+  float y = BORDER_Y + 50;
+  for (const auto& [label, fps] : readings)
+  {
+    context.color().draw_text(Resources::small_font, label, Vector(right - number_width, y), ALIGN_RIGHT, LAYER_HUD);
+    context.color().draw_text(Resources::small_font, fps_text(fps), Vector(right, y), ALIGN_RIGHT, LAYER_HUD);
+    y += 15;
+  }
 }
 
 void
@@ -230,19 +250,30 @@ ScreenManager::draw_player_pos(DrawingContext& context)
   {
     Sector& sector = session->get_current_sector();
     auto pos = sector.get_player().get_pos();
-    auto pos_text = "X:" + std::to_string(int(pos.x)) + " Y:" + std::to_string(int(pos.y));
+    const std::string x_text = position_text(pos.x);
+    const std::string y_text = position_text(pos.y);
     // Each new position is new text, and the text cache can't clear old ones as fast as Tux makes them
-    if (pos_text != m_player_pos_text)
+    if (x_text != m_player_x_text)
     {
-      TTFSurfaceManager::current()->forget(m_player_pos_text);
-      m_player_pos_text = pos_text;
+      TTFSurfaceManager::current()->forget(m_player_x_text);
+      m_player_x_text = x_text;
+    }
+    if (y_text != m_player_y_text)
+    {
+      TTFSurfaceManager::current()->forget(m_player_y_text);
+      m_player_y_text = y_text;
     }
 
-    // Below the FPS readout's two lines, so the two never overlap
-    context.color().draw_text(
-      Resources::small_font, pos_text,
-      Vector(static_cast<float>(context.get_width()) - Resources::small_font->get_text_width("99999x99999") - BORDER_X,
-             BORDER_Y + 80), ALIGN_LEFT, LAYER_HUD);
+    // Below the FPS lines, the labels fixed and the numbers right-aligned in room for a minus and five 4s or the capped text
+    static const float slot = std::max(Resources::small_font->get_text_width(" -44444"),
+                                       Resources::small_font->get_text_width(" -99999+"));
+    static const float y_label = Resources::small_font->get_text_width(" Y:");
+    const float right = readout_right(context);
+    const float y = BORDER_Y + 95;
+    context.color().draw_text(Resources::small_font, y_text, Vector(right, y), ALIGN_RIGHT, LAYER_HUD);
+    context.color().draw_text(Resources::small_font, "Y:", Vector(right - slot, y), ALIGN_RIGHT, LAYER_HUD);
+    context.color().draw_text(Resources::small_font, x_text, Vector(right - slot - y_label, y), ALIGN_RIGHT, LAYER_HUD);
+    context.color().draw_text(Resources::small_font, "X:", Vector(right - slot - y_label - slot, y), ALIGN_RIGHT, LAYER_HUD);
   }
 }
 
