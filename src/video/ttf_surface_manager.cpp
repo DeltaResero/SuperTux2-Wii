@@ -78,6 +78,24 @@ TTFSurfaceManager::get_cached_surface_width(const TTFFont& font,
 }
 
 void
+TTFSurfaceManager::forget(const std::string& text)
+{
+  for (auto it = m_cache.begin(); it != m_cache.end();)
+  {
+    if (std::get<1>(it->first) != text)
+    {
+      ++it;
+      continue;
+    }
+    if (it == m_cache_iter)
+    {
+      ++m_cache_iter;
+    }
+    it = m_cache.erase(it);
+  }
+}
+
+void
 TTFSurfaceManager::cache_cleanup_step()
 {
   if (m_cache.empty())

@@ -40,6 +40,7 @@
 #include "util/log.hpp"
 #include "video/compositor.hpp"
 #include "video/drawing_context.hpp"
+#include "video/ttf_surface_manager.hpp"
 
 #include <cstdio>
 #include <chrono>
@@ -126,6 +127,7 @@ ScreenManager::ScreenManager(VideoSystem& video_system, InputManager& input_mana
   ms_per_step(static_cast<Uint32>(1000.0f / LOGICAL_FPS)),
   seconds_per_step(static_cast<float>(ms_per_step) / 1000.0f),
   m_fps_statistics(std::make_unique<FPS_Stats>()),
+  m_player_pos_text(),
   m_speed(1.0),
   m_actions(),
   m_screen_fade(),
@@ -229,6 +231,12 @@ ScreenManager::draw_player_pos(DrawingContext& context)
     Sector& sector = session->get_current_sector();
     auto pos = sector.get_player().get_pos();
     auto pos_text = "X:" + std::to_string(int(pos.x)) + " Y:" + std::to_string(int(pos.y));
+    // Each new position is new text, and the text cache can't clear old ones as fast as Tux makes them
+    if (pos_text != m_player_pos_text)
+    {
+      TTFSurfaceManager::current()->forget(m_player_pos_text);
+      m_player_pos_text = pos_text;
+    }
 
     context.color().draw_text(
       Resources::small_font, pos_text,
