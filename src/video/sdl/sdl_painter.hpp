@@ -69,6 +69,20 @@ private:
   float edge(float pixels) const;
   /** Fills rect, rounded by radius, in whole screen pixels */
   void fill_whole_pixels(const Rectf& rect, float radius) const;
+  /** Fills rect in one colour, unless it comes out empty on whole pixels */
+  void fill_rect(const SDL_Rect& rect, SDL_BlendMode blend, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const;
+
+  /** A rectangle's edges on whole screen pixels, with the scale and origin that turn them back into SDL's units */
+  struct ScreenEdges
+  {
+    float left;
+    float top;
+    float right;
+    float bottom;
+    Vector scale;
+    Vector origin;
+  };
+  ScreenEdges screen_edges(const Rectf& rect) const;
   /** A copy of texture with the colour already applied, made the first time it's needed, or null when it can't have one */
   SDL_Texture* tinted(const SDLTexture& texture, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 

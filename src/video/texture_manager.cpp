@@ -87,6 +87,17 @@ bool shrinks_with_view(const std::string& filename)
   return start == std::string::npos || filename.compare(start, engine.size(), engine) != 0;
 }
 
+// An RGBA copy of image, its clear pixels given their neighbours' colour if it has any, or null if SDL can't convert it
+SDLSurfacePtr rgba_copy(const SDL_Surface& image)
+{
+  SDLSurfacePtr copy(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+  if (copy && SDL_ISPIXELFORMAT_ALPHA(image.format->format))
+  {
+    SDLSurface::fill_clear_pixels(*copy);
+  }
+  return copy;
+}
+
 } // namespace
 
 TextureManager::TextureManager() :
@@ -301,31 +312,32 @@ TextureManager::set_viewport(const Viewport& viewport, bool enlarge)
 SDLSurfacePtr
 TextureManager::prepare(const std::string& filename, const SDL_Surface& image) const
 {
-  SDLSurfacePtr own;
   const Vector shrink(std::min(1.0f, m_resize.x), std::min(1.0f, m_resize.y));
   if ((shrink.x < 1.0f || shrink.y < 1.0f) && shrinks_with_view(filename))
   {
-    own = SDLSurface::shrink(image,
-                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * shrink.x))),
-                             std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * shrink.y))));
+    SDLSurfacePtr own = SDLSurface::shrink(image,
+                                           std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * shrink.x))),
+                                           std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * shrink.y))));
+    if (own)
+    {
+      SDLSurface::fill_clear_pixels(*own);
+    }
+    return own;
   }
-  else if ((m_resize.x > 1.0f || m_resize.y > 1.0f) && shrinks_with_view(filename))
+
+  if ((m_resize.x > 1.0f || m_resize.y > 1.0f) && shrinks_with_view(filename))
   {
     // Stretched as drawing would stretch it, in RGBA even when opaque as the software renderer blends that fastest
-    SDLSurfacePtr source(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+    SDLSurfacePtr source = rgba_copy(image);
     if (!source)
     {
       std::ostringstream msg;
       msg << "failed to convert SDL_Surface: " << SDL_GetError();
       throw std::runtime_error(msg.str());
     }
-    if (SDL_ISPIXELFORMAT_ALPHA(image.format->format))
-    {
-      SDLSurface::fill_clear_pixels(*source);
-    }
     // Rounded up, so the picture is never smaller than the whole pixels it's drawn into
-    own = SDLSurface::create_rgba(static_cast<int>(std::ceil(static_cast<float>(image.w) * m_resize.x - 0.001f)),
-                                  static_cast<int>(std::ceil(static_cast<float>(image.h) * m_resize.y - 0.001f)));
+    SDLSurfacePtr own = SDLSurface::create_rgba(static_cast<int>(std::ceil(static_cast<float>(image.w) * m_resize.x - 0.001f)),
+                                                static_cast<int>(std::ceil(static_cast<float>(image.h) * m_resize.y - 0.001f)));
     if (SDL_SoftStretchLinear(source.get(), nullptr, own.get(), nullptr) != 0)
     {
       std::ostringstream msg;
@@ -334,15 +346,12 @@ TextureManager::prepare(const std::string& filename, const SDL_Surface& image) c
     }
     return own;
   }
-  else if (SDL_ISPIXELFORMAT_ALPHA(image.format->format))
+
+  if (SDL_ISPIXELFORMAT_ALPHA(image.format->format))
   {
-    own.reset(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+    return rgba_copy(image);
   }
-  if (own)
-  {
-    SDLSurface::fill_clear_pixels(*own);
-  }
-  return own;
+  return {};
 }
 
 TexturePtr

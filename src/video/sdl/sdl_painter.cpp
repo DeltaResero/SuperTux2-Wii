@@ -570,17 +570,24 @@ SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
   }
 
   // Both edges go to the nearest whole screen pixel, as an edge meant for the last one can come out a hair short
+  const ScreenEdges edges = screen_edges(rect);
+  return SDL_FRect{ edges.left / edges.scale.x - edges.origin.x, edges.top / edges.scale.y - edges.origin.y,
+                    (edges.right - edges.left) / edges.scale.x, (edges.bottom - edges.top) / edges.scale.y };
+}
+
+SDLPainter::ScreenEdges
+SDLPainter::screen_edges(const Rectf& rect) const
+{
   const Viewport& viewport = m_video_system.get_viewport();
   Vector scale;
   SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
-  const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
-  const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const float left = edge((origin_x + rect.get_left() * m_scale.x) * scale.x);
-  const float top = edge((origin_y + rect.get_top() * m_scale.y) * scale.y);
-  const float right = edge((origin_x + rect.get_right() * m_scale.x) * scale.x);
-  const float bottom = edge((origin_y + rect.get_bottom() * m_scale.y) * scale.y);
-  return SDL_FRect{ left / scale.x - origin_x, top / scale.y - origin_y,
-                    (right - left) / scale.x, (bottom - top) / scale.y };
+  const Vector origin(std::floor(static_cast<float>(viewport.get_rect().left) / scale.x),
+                      std::floor(static_cast<float>(viewport.get_rect().top) / scale.y));
+  return ScreenEdges{ edge((origin.x + rect.get_left() * m_scale.x) * scale.x),
+                      edge((origin.y + rect.get_top() * m_scale.y) * scale.y),
+                      edge((origin.x + rect.get_right() * m_scale.x) * scale.x),
+                      edge((origin.y + rect.get_bottom() * m_scale.y) * scale.y),
+                      scale, origin };
 }
 
 SDL_FRect
@@ -615,15 +622,13 @@ void
 SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
 {
   // Edges on whole screen pixels as to_target puts pictures', corners rounded row by row of whole pixels
-  const Viewport& viewport = m_video_system.get_viewport();
-  Vector scale;
-  SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
-  const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
-  const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const int left = static_cast<int>(edge((origin_x + rect.get_left() * m_scale.x) * scale.x));
-  const int top = static_cast<int>(edge((origin_y + rect.get_top() * m_scale.y) * scale.y));
-  const int right = static_cast<int>(edge((origin_x + rect.get_right() * m_scale.x) * scale.x));
-  const int bottom = static_cast<int>(edge((origin_y + rect.get_bottom() * m_scale.y) * scale.y));
+  const ScreenEdges edges = screen_edges(rect);
+  const Vector& scale = edges.scale;
+  const Vector& origin = edges.origin;
+  const int left = static_cast<int>(edges.left);
+  const int top = static_cast<int>(edges.top);
+  const int right = static_cast<int>(edges.right);
+  const int bottom = static_cast<int>(edges.bottom);
   if (right <= left || bottom <= top) return;
 
   const float radius_x = std::min(radius * m_scale.x * scale.x, static_cast<float>(right - left) / 2.0f);
@@ -631,7 +636,7 @@ SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
   const int rows = static_cast<int>(radius_y);
   std::vector<SDL_FRect> rects;
   const auto add = [&](int x0, int y0, int x1, int y1) {
-    const SDL_FRect row{ static_cast<float>(x0) / scale.x - origin_x, static_cast<float>(y0) / scale.y - origin_y,
+    const SDL_FRect row{ static_cast<float>(x0) / scale.x - origin.x, static_cast<float>(y0) / scale.y - origin.y,
                          static_cast<float>(x1 - x0) / scale.x, static_cast<float>(y1 - y0) / scale.y };
     if (shows(row)) rects.push_back(row);
   };
@@ -647,6 +652,18 @@ SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
     add(left, top + rows, right, bottom - rows);
   }
   SDL_RenderFillRectsF(m_sdl_renderer, rects.data(), static_cast<int>(rects.size()));
+}
+
+void
+SDLPainter::fill_rect(const SDL_Rect& rect, SDL_BlendMode blend, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
+{
+  const SDL_FRect frect = to_sdl_frect(rect);
+  if (shows(frect))
+  {
+    SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend);
+    SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
+    SDL_RenderFillRectF(m_sdl_renderer, &frect);
+  }
 }
 
 void
@@ -702,13 +719,7 @@ SDLPainter::draw_gradient(const GradientRequest& request)
 
     // The software renderer fills far faster without blending, and an opaque strip needs none
     const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND;
-    SDL_SetRenderDrawBlendMode(m_sdl_renderer, opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend));
-    SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-    const SDL_FRect frect = to_sdl_frect(rect);
-    if (shows(frect))
-    {
-      SDL_RenderFillRectF(m_sdl_renderer, &frect);
-    }
+    fill_rect(rect, opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend), r, g, b, a);
   }
 }
 
@@ -787,13 +798,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
   {
     if ((rect.w != 0) && (rect.h != 0))
     {
-      SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-      const SDL_FRect frect = to_sdl_frect(rect);
-      if (shows(frect))
-      {
-        SDL_RenderFillRectF(m_sdl_renderer, &frect);
-      }
+      fill_rect(rect, SDL_BLENDMODE_BLEND, r, g, b, a);
     }
   }
 }
