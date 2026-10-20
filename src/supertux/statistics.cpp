@@ -330,6 +330,16 @@ move_to_whole_pixels(DrawingContext& context, const Vector& pos)
   context.transform().pixel_grid = true;
 }
 
+/** The box behind a panel's text, for after move_to_whole_pixels, with its top and bottom on whole pixels so stacked panels meet */
+Rectf
+panel_box(const DrawingContext& context, const Vector& pos, float width, float height)
+{
+  const float pixels = VideoSystem::current()->get_viewport().get_scale().y * context.transform().scale;
+  const float origin = glm::round(pos.y * pixels);
+  return Rectf(-5.f, (glm::round((pos.y - 5.f) * pixels) - origin) / pixels,
+               width + 26.f, (glm::round((pos.y + height + 5.f) * pixels) - origin) / pixels);
+}
+
 } // namespace
 
 float
@@ -366,12 +376,11 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
     context.push_transform();
     Vector pos(static_cast<float>(context.get_width()) - x_offset,
                static_cast<float>(context.get_height()) - height * 6.f - 20.f);
+    const Rectf box = panel_box(context, pos, width, height);
     move_to_whole_pixels(context, pos);
     pos = Vector(0.f, 0.f);
 
-    context.color().draw_filled_rect(Rectf(pos.x, pos.y, pos.x + width + 21.f,
-                                           pos.y + height).grown(5.f),
-                                     Color(0.f, 0.f, 0.f, 0.5f),
+    context.color().draw_filled_rect(box, Color(0.f, 0.f, 0.f, 0.5f),
                                      10.f, LAYER_HUD - 1);
     context.color().draw_text(Resources::normal_font, text, pos,
                               FontAlignment::ALIGN_LEFT, LAYER_HUD,
@@ -399,12 +408,11 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
     context.push_transform();
     Vector pos(static_cast<float>(context.get_width()) - x_offset,
                static_cast<float>(context.get_height()) - height * 5.f - 10.f);
+    const Rectf box = panel_box(context, pos, width, height);
     move_to_whole_pixels(context, pos);
     pos = Vector(0.f, 0.f);
 
-    context.color().draw_filled_rect(Rectf(pos.x, pos.y, pos.x + width + 21.f,
-                                           pos.y + height).grown(5.f),
-                                     Color(0.f, 0.f, 0.f, 0.5f),
+    context.color().draw_filled_rect(box, Color(0.f, 0.f, 0.f, 0.5f),
                                      10.f, LAYER_HUD - 1);
     context.color().draw_text(Resources::normal_font, text, pos,
                               FontAlignment::ALIGN_LEFT, LAYER_HUD,
@@ -432,12 +440,11 @@ Statistics::draw_ingame_stats(DrawingContext& context, bool on_pause_menu)
     context.push_transform();
     Vector pos(static_cast<float>(context.get_width()) - x_offset,
                static_cast<float>(context.get_height()) - height * 4.f);
+    const Rectf box = panel_box(context, pos, width, height);
     move_to_whole_pixels(context, pos);
     pos = Vector(0.f, 0.f);
 
-    context.color().draw_filled_rect(Rectf(pos.x, pos.y, pos.x + width + 21.f,
-                                           pos.y + height).grown(5.f),
-                                     Color(0.f, 0.f, 0.f, 0.5f),
+    context.color().draw_filled_rect(box, Color(0.f, 0.f, 0.f, 0.5f),
                                      10.f, LAYER_HUD - 1);
     context.color().draw_text(Resources::normal_font, text, pos,
                               FontAlignment::ALIGN_LEFT, LAYER_HUD,
