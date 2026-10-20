@@ -41,6 +41,9 @@ public:
   // Returns -1 if there is no cached text surface at the scale the UI is drawn at
   float get_cached_surface_width(const TTFFont& font, const std::string& text);
 
+  /** Lets go of text that won't be shown again, in every font and size, rather than keeping it until it's gone unused */
+  void forget(const std::string& text);
+
 private:
   void cache_cleanup_step();
 

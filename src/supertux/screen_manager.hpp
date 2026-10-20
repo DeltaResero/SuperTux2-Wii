@@ -19,6 +19,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_SCREEN_MANAGER_HPP
 
 #include <memory>
+#include <string>
 #include <SDL2/SDL.h>
 
 #include "config.h"
@@ -86,6 +87,8 @@ private:
   const Uint32 ms_per_step;
   const float seconds_per_step;
   std::unique_ptr<FPS_Stats> m_fps_statistics;
+  std::string m_player_x_text;
+  std::string m_player_y_text;
 
   float m_speed;
   struct Action
