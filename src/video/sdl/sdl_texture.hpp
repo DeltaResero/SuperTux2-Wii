@@ -49,12 +49,16 @@ public:
   /** How many stored pixels stand for one of the picture's, below 1 when fewer were kept */
   const Vector& get_texel_scale() const { return m_texel_scale; }
 
+  /** New each time the pixels change, so a copy made from them can't be mistaken for one of later pixels */
+  uint32_t get_serial() const { return m_serial; }
+
 private:
   SDL_Texture* m_texture;
   int m_width;
   int m_height;
   Sampler m_sampler;
   Vector m_texel_scale;
+  uint32_t m_serial;
 
 private:
   SDLTexture(const SDLTexture&) = delete;

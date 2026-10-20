@@ -51,12 +51,6 @@ SDL_Rect to_sdl_rect(const Rectf& rect)
   return sdl_rect;
 }
 
-SDL_FRect to_sdl_frect(const SDL_Rect& rect, float scale)
-{
-  return SDL_FRect{ static_cast<float>(rect.x) * scale, static_cast<float>(rect.y) * scale,
-                    static_cast<float>(rect.w) * scale, static_cast<float>(rect.h) * scale };
-}
-
 SDL_BlendMode blend2sdl(const Blend& blend)
 {
   if (blend == Blend::NONE)
@@ -80,6 +74,13 @@ SDL_BlendMode blend2sdl(const Blend& blend)
     log_warning << "unknown blend mode combinations: blend=" << static_cast<int>(blend) << std::endl;
     return SDL_BLENDMODE_BLEND;
   }
+}
+
+bool has_alpha(SDL_Texture* texture)
+{
+  Uint32 format = 0;
+  SDL_QueryTexture(texture, &format, nullptr, nullptr, nullptr);
+  return SDL_ISPIXELFORMAT_ALPHA(format);
 }
 
 /* Creates a new rectangle covering the area where srcrect and imgrect
@@ -323,9 +324,140 @@ SDLPainter::SDLPainter(SDLVideoSystem& video_system, Renderer& renderer, SDL_Ren
   m_video_system(video_system),
   m_renderer(renderer),
   m_sdl_renderer(sdl_renderer),
-  m_scale(scale),
-  m_cliprect()
+  m_scale(scale, scale),
+  m_whole_pixels(false),
+  m_cliprect(),
+  m_tinted(),
+  m_frame()
 {}
+
+SDLPainter::~SDLPainter()
+{
+  for (const auto& entry : m_tinted)
+  {
+    for (const Tinted& copy : entry.second)
+    {
+      SDL_DestroyTexture(copy.texture);
+    }
+  }
+}
+
+void
+SDLPainter::set_pixel_scale(const Vector& scale)
+{
+  m_scale = scale;
+  m_whole_pixels = true;
+}
+
+void
+SDLPainter::start_frame()
+{
+  ++m_frame;
+  for (auto entry = m_tinted.begin(); entry != m_tinted.end();)
+  {
+    std::vector<Tinted>& copies = entry->second;
+    for (auto copy = copies.begin(); copy != copies.end();)
+    {
+      if (m_frame - copy->drawn > 60)
+      {
+        SDL_DestroyTexture(copy->texture);
+        copy = copies.erase(copy);
+      }
+      else
+      {
+        ++copy;
+      }
+    }
+
+    if (copies.empty())
+    {
+      entry = m_tinted.erase(entry);
+    }
+    else
+    {
+      ++entry;
+    }
+  }
+}
+
+SDL_Texture*
+SDLPainter::tinted(const SDLTexture& texture, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+  const uint32_t color = (static_cast<uint32_t>(r) << 24) | (static_cast<uint32_t>(g) << 16) |
+                         (static_cast<uint32_t>(b) << 8) | static_cast<uint32_t>(a);
+  // A fading picture needs a new colour each frame, so it keeps only a few copies
+  const size_t most = 4;
+  Tinted* oldest = nullptr;
+  const auto entry = m_tinted.find(texture.get_serial());
+  if (entry != m_tinted.end())
+  {
+    for (Tinted& copy : entry->second)
+    {
+      if (copy.color == color)
+      {
+        copy.drawn = m_frame;
+        return copy.texture;
+      }
+      if (copy.drawn != m_frame && (!oldest || copy.drawn < oldest->drawn))
+      {
+        oldest = &copy;
+      }
+    }
+    if (entry->second.size() >= most && !oldest)
+    {
+      return nullptr;
+    }
+  }
+
+  SDL_Texture* source = texture.get_texture();
+  Uint32 format = 0;
+  int width = 0;
+  int height = 0;
+  SDL_QueryTexture(source, &format, nullptr, &width, &height);
+  // Only small pictures, so a copy never costs much memory
+  if (width * height > 256 * 256)
+  {
+    return nullptr;
+  }
+  if (a != 255 && !SDL_ISPIXELFORMAT_ALPHA(format))
+  {
+    format = SDL_PIXELFORMAT_ARGB8888;
+  }
+  SDL_Texture* copy = SDL_CreateTexture(m_sdl_renderer, format, SDL_TEXTUREACCESS_TARGET, width, height);
+  if (!copy)
+  {
+    return nullptr;
+  }
+  SDL_Texture* target = SDL_GetRenderTarget(m_sdl_renderer);
+  if (SDL_SetRenderTarget(m_sdl_renderer, copy) != 0)
+  {
+    SDL_DestroyTexture(copy);
+    return nullptr;
+  }
+  // Written over rather than blended, so the copy keeps each pixel's tinted colour and alpha
+  SDL_SetTextureColorMod(source, r, g, b);
+  SDL_SetTextureAlphaMod(source, a);
+  SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
+  SDL_RenderCopy(m_sdl_renderer, source, nullptr, nullptr);
+  SDL_SetRenderTarget(m_sdl_renderer, target);
+  SDL_ScaleMode scale_mode;
+  if (SDL_GetTextureScaleMode(source, &scale_mode) == 0)
+  {
+    SDL_SetTextureScaleMode(copy, scale_mode);
+  }
+
+  std::vector<Tinted>& copies = m_tinted[texture.get_serial()];
+  if (copies.size() < most)
+  {
+    copies.push_back({ color, copy, m_frame });
+  }
+  else
+  {
+    SDL_DestroyTexture(oldest->texture);
+    *oldest = { color, copy, m_frame };
+  }
+  return copy;
+}
 
 void
 SDLPainter::draw_texture(const TextureRequest& request)
@@ -365,18 +497,37 @@ SDLPainter::draw_texture(const TextureRequest& request)
     // The texture may hold fewer pixels than the picture it stands for
     const Rectf& src = request.srcrects[i];
     const Vector& texel_scale = texture.get_texel_scale();
-    const SDL_Rect& src_rect = to_sdl_rect(Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
-                                                 src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y));
+    SDL_Rect src_rect = to_sdl_rect(Rectf(src.get_left() * texel_scale.x, src.get_top() * texel_scale.y,
+                                          src.get_right() * texel_scale.x, src.get_bottom() * texel_scale.y));
     const SDL_FRect dst_rect = to_target(request.dstrects[i], request.between_pixels);
+    // Its last pixel left out rather than squeezed, as the software renderer squeezes a picture far slower than it copies one
+    if (m_whole_pixels && request.angles[i] == 0.0f)
+    {
+      if (static_cast<float>(src_rect.w) - dst_rect.w == 1.0f) src_rect.w -= 1;
+      if (static_cast<float>(src_rect.h) - dst_rect.h == 1.0f) src_rect.h -= 1;
+    }
 
     Uint8 r = static_cast<Uint8>(request.color.red * 255);
     Uint8 g = static_cast<Uint8>(request.color.green * 255);
     Uint8 b = static_cast<Uint8>(request.color.blue * 255);
     Uint8 a = static_cast<Uint8>(request.color.alpha * request.alpha * 255);
 
-    SDL_SetTextureColorMod(texture.get_texture(), r, g, b);
-    SDL_SetTextureAlphaMod(texture.get_texture(), a);
-    SDL_SetTextureBlendMode(texture.get_texture(), blend2sdl(request.blend));
+    SDL_Texture* sdl_texture = texture.get_texture();
+    // The software renderer tints a picture far slower than it copies one, so a tinted copy is kept and drawn instead
+    if (m_whole_pixels && (r & g & b & a) != 255 && request.blend == Blend::BLEND && request.angles[i] == 0.0f)
+    {
+      if (SDL_Texture* copy = tinted(texture, r, g, b, a))
+      {
+        sdl_texture = copy;
+        r = g = b = a = 255;
+      }
+    }
+
+    SDL_SetTextureColorMod(sdl_texture, r, g, b);
+    SDL_SetTextureAlphaMod(sdl_texture, a);
+    // The software renderer copies far faster without blending, and a picture with no alpha needs none
+    const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND && !has_alpha(sdl_texture);
+    SDL_SetTextureBlendMode(sdl_texture, opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend));
 
     SDL_RendererFlip flip = SDL_FLIP_NONE;
     if ((request.flip & HORIZONTAL_FLIP) != 0)
@@ -394,13 +545,13 @@ SDLPainter::draw_texture(const TextureRequest& request)
         texture.get_sampler().get_animate() == Vector(0.0f, 0.0f))
     {
       // The colour goes in with the corners, so the texture's own tint is left plain
-      SDL_SetTextureColorMod(texture.get_texture(), 255, 255, 255);
-      SDL_SetTextureAlphaMod(texture.get_texture(), 255);
-      RenderCopyFaded(m_sdl_renderer, texture.get_texture(), src_rect, dst_rect, fades, flip, SDL_Color{ r, g, b, a });
+      SDL_SetTextureColorMod(sdl_texture, 255, 255, 255);
+      SDL_SetTextureAlphaMod(sdl_texture, 255);
+      RenderCopyFaded(m_sdl_renderer, sdl_texture, src_rect, dst_rect, fades, flip, SDL_Color{ r, g, b, a });
     }
     else
     {
-      RenderCopyEx(m_sdl_renderer, texture.get_texture(),
+      RenderCopyEx(m_sdl_renderer, sdl_texture,
                    &src_rect, &dst_rect,
                    static_cast<double>(request.angles[i]), nullptr, flip,
                    texture.get_sampler(), texel_scale);
@@ -414,46 +565,80 @@ SDLPainter::to_target(const Rectf& rect, bool between_pixels) const
   // Fractions kept for a gliding layer, and on the lightmap, where whole pixels would move a light in steps
   if (SDL_GetRenderTarget(m_sdl_renderer) || between_pixels)
   {
-    return SDL_FRect{ rect.get_left() * m_scale, rect.get_top() * m_scale,
-                      rect.get_width() * m_scale, rect.get_height() * m_scale };
+    return SDL_FRect{ rect.get_left() * m_scale.x, rect.get_top() * m_scale.y,
+                      rect.get_width() * m_scale.x, rect.get_height() * m_scale.y };
   }
 
   // Both edges go to the nearest whole screen pixel, as an edge meant for the last one can come out a hair short
+  const ScreenEdges edges = screen_edges(rect);
+  return SDL_FRect{ edges.left / edges.scale.x - edges.origin.x, edges.top / edges.scale.y - edges.origin.y,
+                    (edges.right - edges.left) / edges.scale.x, (edges.bottom - edges.top) / edges.scale.y };
+}
+
+SDLPainter::ScreenEdges
+SDLPainter::screen_edges(const Rectf& rect) const
+{
   const Viewport& viewport = m_video_system.get_viewport();
   Vector scale;
   SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
-  const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
-  const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const float left = std::round((origin_x + rect.get_left() * m_scale) * scale.x);
-  const float top = std::round((origin_y + rect.get_top() * m_scale) * scale.y);
-  const float right = std::round((origin_x + rect.get_right() * m_scale) * scale.x);
-  const float bottom = std::round((origin_y + rect.get_bottom() * m_scale) * scale.y);
-  return SDL_FRect{ left / scale.x - origin_x, top / scale.y - origin_y,
-                    (right - left) / scale.x, (bottom - top) / scale.y };
+  const Vector origin(std::floor(static_cast<float>(viewport.get_rect().left) / scale.x),
+                      std::floor(static_cast<float>(viewport.get_rect().top) / scale.y));
+  return ScreenEdges{ edge((origin.x + rect.get_left() * m_scale.x) * scale.x),
+                      edge((origin.y + rect.get_top() * m_scale.y) * scale.y),
+                      edge((origin.x + rect.get_right() * m_scale.x) * scale.x),
+                      edge((origin.y + rect.get_bottom() * m_scale.y) * scale.y),
+                      scale, origin };
+}
+
+SDL_FRect
+SDLPainter::to_sdl_frect(const SDL_Rect& rect) const
+{
+  if (m_whole_pixels)
+  {
+    // Each edge to its nearest pixel, so a rectangle meets its neighbour with no gap between them
+    const float left = edge(static_cast<float>(rect.x) * m_scale.x);
+    const float top = edge(static_cast<float>(rect.y) * m_scale.y);
+    return SDL_FRect{ left, top, edge(static_cast<float>(rect.x + rect.w) * m_scale.x) - left,
+                      edge(static_cast<float>(rect.y + rect.h) * m_scale.y) - top };
+  }
+
+  return SDL_FRect{ static_cast<float>(rect.x) * m_scale.x, static_cast<float>(rect.y) * m_scale.y,
+                    static_cast<float>(rect.w) * m_scale.x, static_cast<float>(rect.h) * m_scale.y };
+}
+
+float
+SDLPainter::edge(float pixels) const
+{
+  return m_whole_pixels ? std::ceil(pixels - 0.5f) : std::round(pixels);
+}
+
+bool
+SDLPainter::shows(const SDL_FRect& rect) const
+{
+  return !m_whole_pixels || (rect.w > 0.0f && rect.h > 0.0f);
 }
 
 void
 SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
 {
   // Edges on whole screen pixels as to_target puts pictures', corners rounded row by row of whole pixels
-  const Viewport& viewport = m_video_system.get_viewport();
-  Vector scale;
-  SDL_RenderGetScale(m_sdl_renderer, &scale.x, &scale.y);
-  const float origin_x = std::floor(static_cast<float>(viewport.get_rect().left) / scale.x);
-  const float origin_y = std::floor(static_cast<float>(viewport.get_rect().top) / scale.y);
-  const int left = static_cast<int>(std::round((origin_x + rect.get_left() * m_scale) * scale.x));
-  const int top = static_cast<int>(std::round((origin_y + rect.get_top() * m_scale) * scale.y));
-  const int right = static_cast<int>(std::round((origin_x + rect.get_right() * m_scale) * scale.x));
-  const int bottom = static_cast<int>(std::round((origin_y + rect.get_bottom() * m_scale) * scale.y));
+  const ScreenEdges edges = screen_edges(rect);
+  const Vector& scale = edges.scale;
+  const Vector& origin = edges.origin;
+  const int left = static_cast<int>(edges.left);
+  const int top = static_cast<int>(edges.top);
+  const int right = static_cast<int>(edges.right);
+  const int bottom = static_cast<int>(edges.bottom);
   if (right <= left || bottom <= top) return;
 
-  const float radius_x = std::min(radius * m_scale * scale.x, static_cast<float>(right - left) / 2.0f);
-  const float radius_y = std::min(radius * m_scale * scale.y, static_cast<float>(bottom - top) / 2.0f);
+  const float radius_x = std::min(radius * m_scale.x * scale.x, static_cast<float>(right - left) / 2.0f);
+  const float radius_y = std::min(radius * m_scale.y * scale.y, static_cast<float>(bottom - top) / 2.0f);
   const int rows = static_cast<int>(radius_y);
   std::vector<SDL_FRect> rects;
   const auto add = [&](int x0, int y0, int x1, int y1) {
-    rects.push_back(SDL_FRect{ static_cast<float>(x0) / scale.x - origin_x, static_cast<float>(y0) / scale.y - origin_y,
-                               static_cast<float>(x1 - x0) / scale.x, static_cast<float>(y1 - y0) / scale.y });
+    const SDL_FRect row{ static_cast<float>(x0) / scale.x - origin.x, static_cast<float>(y0) / scale.y - origin.y,
+                         static_cast<float>(x1 - x0) / scale.x, static_cast<float>(y1 - y0) / scale.y };
+    if (shows(row)) rects.push_back(row);
   };
   for (int i = 0; i < rows; ++i)
   {
@@ -467,6 +652,18 @@ SDLPainter::fill_whole_pixels(const Rectf& rect, float radius) const
     add(left, top + rows, right, bottom - rows);
   }
   SDL_RenderFillRectsF(m_sdl_renderer, rects.data(), static_cast<int>(rects.size()));
+}
+
+void
+SDLPainter::fill_rect(const SDL_Rect& rect, SDL_BlendMode blend, Uint8 r, Uint8 g, Uint8 b, Uint8 a) const
+{
+  const SDL_FRect frect = to_sdl_frect(rect);
+  if (shows(frect))
+  {
+    SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend);
+    SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
+    SDL_RenderFillRectF(m_sdl_renderer, &frect);
+  }
 }
 
 void
@@ -520,10 +717,9 @@ SDLPainter::draw_gradient(const GradientRequest& request)
         a = static_cast<Uint8>(((1.0f - p) * top.alpha + p * bottom.alpha) * 255);
     }
 
-    SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend2sdl(request.blend));
-    SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-    const SDL_FRect frect = to_sdl_frect(rect, m_scale);
-    SDL_RenderFillRectF(m_sdl_renderer, &frect);
+    // The software renderer fills far faster without blending, and an opaque strip needs none
+    const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND;
+    fill_rect(rect, opaque ? SDL_BLENDMODE_NONE : blend2sdl(request.blend), r, g, b, a);
   }
 }
 
@@ -555,6 +751,10 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
     // rounded top and bottom parts
     std::vector<SDL_FRect> rects;
     rects.reserve(2*slices + 1);
+    const auto add = [&](const SDL_Rect& slice) {
+      const SDL_FRect frect = to_sdl_frect(slice);
+      if (shows(frect)) rects.push_back(frect);
+    };
     for (int i = 0; i < slices; ++i)
     {
       float p = (static_cast<float>(i) + 0.5f) / static_cast<float>(slices);
@@ -565,7 +765,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
       tmp.y = rect.y + (radius - i);
       tmp.w = rect.w - 2*(xoff);
       tmp.h = 1;
-      rects.push_back(to_sdl_frect(tmp, m_scale));
+      add(tmp);
 
       SDL_Rect tmp2;
       tmp2.x = rect.x + xoff;
@@ -575,7 +775,7 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
 
       if (tmp2.y != tmp.y)
       {
-        rects.push_back(to_sdl_frect(tmp2, m_scale));
+        add(tmp2);
       }
     }
 
@@ -587,21 +787,18 @@ SDLPainter::draw_filled_rect(const FillRectRequest& request)
       tmp.y = rect.y + radius + 1;
       tmp.w = rect.w;
       tmp.h = rect.h - 2*radius - 1;
-      rects.push_back(to_sdl_frect(tmp, m_scale));
+      add(tmp);
     }
 
     SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-    SDL_RenderFillRectsF(m_sdl_renderer, &*rects.begin(), static_cast<int>(rects.size()));
+    SDL_RenderFillRectsF(m_sdl_renderer, rects.data(), static_cast<int>(rects.size()));
   }
   else
   {
     if ((rect.w != 0) && (rect.h != 0))
     {
-      SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
-      SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-      const SDL_FRect frect = to_sdl_frect(rect, m_scale);
-      SDL_RenderFillRectF(m_sdl_renderer, &frect);
+      fill_rect(rect, SDL_BLENDMODE_BLEND, r, g, b, a);
     }
   }
 }
@@ -659,11 +856,15 @@ SDLPainter::draw_inverse_ellipse(const InverseEllipseRequest& request)
 
   SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
   SDL_FRect frects[2*max_slices+2];
+  int count = 0;
   for (int i = 0; i < 2*slices+2; ++i)
-    frects[i] = to_sdl_frect(rects[i], m_scale);
+  {
+    frects[count] = to_sdl_frect(rects[i]);
+    if (shows(frects[count])) ++count;
+  }
 
   SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
-  SDL_RenderFillRectsF(m_sdl_renderer, frects, 2*slices+2);
+  SDL_RenderFillRectsF(m_sdl_renderer, frects, count);
 }
 
 void
@@ -682,8 +883,8 @@ SDLPainter::draw_line(const LineRequest& request)
   SDL_SetRenderDrawBlendMode(m_sdl_renderer, SDL_BLENDMODE_BLEND);
   SDL_SetRenderDrawColor(m_sdl_renderer, r, g, b, a);
   SDL_RenderDrawLineF(m_sdl_renderer,
-                      static_cast<float>(x1) * m_scale, static_cast<float>(y1) * m_scale,
-                      static_cast<float>(x2) * m_scale, static_cast<float>(y2) * m_scale);
+                      static_cast<float>(x1) * m_scale.x, static_cast<float>(y1) * m_scale.y,
+                      static_cast<float>(x2) * m_scale.x, static_cast<float>(y2) * m_scale.y);
 }
 
 namespace {
@@ -706,7 +907,7 @@ make_edge(int x1, int y1, int x2, int y2)
 }
 
 void
-draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2, float scale)
+draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2, const Vector& scale)
 {
   // calculate difference between the y coordinates
   // of the first edge and return if 0
@@ -729,10 +930,10 @@ draw_span_between_edges(SDL_Renderer* renderer, const Edge& e1, const Edge& e2, 
 
   for (int y = static_cast<int>(e2.first.y); y < static_cast<int>(e2.second.y); y++) {
     SDL_RenderDrawLineF(renderer,
-                        static_cast<float>(static_cast<int>(e1.first.x + e1xdiff * factor1)) * scale,
-                        static_cast<float>(y) * scale,
-                        static_cast<float>(static_cast<int>(e2.first.x + e2xdiff * factor2)) * scale,
-                        static_cast<float>(y) * scale);
+                        static_cast<float>(static_cast<int>(e1.first.x + e1xdiff * factor1)) * scale.x,
+                        static_cast<float>(y) * scale.y,
+                        static_cast<float>(static_cast<int>(e2.first.x + e2xdiff * factor2)) * scale.x,
+                        static_cast<float>(y) * scale.y);
     factor1 += factorStep1;
     factor2 += factorStep2;
   }
@@ -803,10 +1004,10 @@ void
 SDLPainter::set_clip_rect(const Rect& rect)
 {
   // Kept in the target's own pixels, rounded outwards
-  const int left = static_cast<int>(floorf(static_cast<float>(rect.left) * m_scale));
-  const int top = static_cast<int>(floorf(static_cast<float>(rect.top) * m_scale));
-  const int right = static_cast<int>(ceilf(static_cast<float>(rect.right) * m_scale));
-  const int bottom = static_cast<int>(ceilf(static_cast<float>(rect.bottom) * m_scale));
+  const int left = static_cast<int>(floorf(static_cast<float>(rect.left) * m_scale.x));
+  const int top = static_cast<int>(floorf(static_cast<float>(rect.top) * m_scale.y));
+  const int right = static_cast<int>(ceilf(static_cast<float>(rect.right) * m_scale.x));
+  const int bottom = static_cast<int>(ceilf(static_cast<float>(rect.bottom) * m_scale.y));
   m_cliprect = SDL_Rect{ left, top, right - left, bottom - top };
 
   int ret = SDL_RenderSetClipRect(m_sdl_renderer, &*m_cliprect);

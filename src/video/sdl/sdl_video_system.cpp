@@ -36,7 +36,8 @@ SDLVideoSystem::SDLVideoSystem() :
   m_renderer(),
   m_lightmap(),
   m_texture_manager(),
-  m_between_pixels()
+  m_between_pixels(),
+  m_vsync()
 {
   create_window();
 
@@ -72,11 +73,13 @@ SDLVideoSystem::create_window()
 
   create_sdl_window(0);
 
-  const Uint32 renderer_flags = g_config->vsync != 0 ? SDL_RENDERER_PRESENTVSYNC : 0;
+  m_vsync = g_config->vsync != 0 ? 1 : 0;
+  const Uint32 renderer_flags = m_vsync != 0 ? SDL_RENDERER_PRESENTVSYNC : 0;
   m_sdl_renderer.reset(SDL_CreateRenderer(m_sdl_window.get(), -1, renderer_flags));
   if (!m_sdl_renderer && renderer_flags != 0)
   {
     log_info << "no support for vsync: " << SDL_GetError() << std::endl;
+    m_vsync = 0;
     m_sdl_renderer.reset(SDL_CreateRenderer(m_sdl_window.get(), -1, 0));
   }
 
@@ -104,7 +107,8 @@ SDLVideoSystem::apply_config()
       (g_config->window_maximised ? get_window_size() : g_config->window_size);
 
     m_viewport = Viewport::from_size(target_size, m_desktop_size);
-    m_texture_manager->set_viewport(m_viewport);
+    // The software renderer copies a picture at its own size far faster than it stretches one
+    m_texture_manager->set_viewport(m_viewport, !m_between_pixels);
   }
 
   m_lightmap = std::make_unique<SDLTextureRenderer>(*this, m_sdl_renderer.get(), m_viewport.get_screen_size(), 5);
@@ -138,6 +142,7 @@ SDLVideoSystem::set_vsync(int mode)
   }
   else
   {
+    m_vsync = mode != 0 ? 1 : 0;
     log_info << "Setting vsync mode to " << mode << std::endl;
   }
 }
@@ -145,6 +150,12 @@ SDLVideoSystem::set_vsync(int mode)
 int
 SDLVideoSystem::get_vsync() const
 {
+  // The software renderer keeps to what it was last asked, but never says so
+  if (!m_between_pixels)
+  {
+    return m_vsync;
+  }
+
   SDL_RendererInfo info;
   if (SDL_GetRendererInfo(m_sdl_renderer.get(), &info) != 0)
   {

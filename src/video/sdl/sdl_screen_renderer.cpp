@@ -65,8 +65,16 @@ SDLScreenRenderer::start_draw()
   const Sizef screen_size = get_logical_size();
 
   // The screen's exact size fills the viewport as it does in OpenGL, or the picture stops short of its edges
-  const Vector scale(static_cast<float>(viewport.get_width()) / screen_size.width,
-                     static_cast<float>(viewport.get_height()) / screen_size.height);
+  Vector scale(static_cast<float>(viewport.get_width()) / screen_size.width,
+               static_cast<float>(viewport.get_height()) / screen_size.height);
+
+  // The software renderer cuts the fraction off every coordinate, so the painter scales to whole pixels for it
+  if (!m_video_system.draws_between_pixels())
+  {
+    m_painter.set_pixel_scale(scale);
+    m_painter.start_frame();
+    scale = Vector(1.0f, 1.0f);
+  }
 
   // Scale first and the viewport in scaled units: real SDL2 converts it to pixels at once, but sdl2-compat keeps it scaled
   SDL_RenderSetScale(m_renderer, scale.x, scale.y);

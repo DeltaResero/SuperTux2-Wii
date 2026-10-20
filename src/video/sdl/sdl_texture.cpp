@@ -25,6 +25,8 @@
 
 namespace {
 
+uint32_t s_last_serial = 0;
+
 // The scale quality hint's "best" isn't linear, so each texture asks for what the OpenGL renderer would use
 void
 set_scale_mode(SDL_Texture* texture, const Sampler& sampler)
@@ -39,7 +41,8 @@ SDLTexture::SDLTexture(SDL_Texture* texture, int width, int height, const Sample
   m_width(width),
   m_height(height),
   m_sampler(sampler),
-  m_texel_scale(1.0f, 1.0f)
+  m_texel_scale(1.0f, 1.0f),
+  m_serial(++s_last_serial)
 {
   set_scale_mode(m_texture, m_sampler);
 }
@@ -49,7 +52,8 @@ SDLTexture::SDLTexture(const SDL_Surface& image, const Sampler& sampler, const S
   m_width(image_size.width > 0 ? image_size.width : image.w),
   m_height(image_size.height > 0 ? image_size.height : image.h),
   m_sampler(sampler),
-  m_texel_scale(1.0f, 1.0f)
+  m_texel_scale(1.0f, 1.0f),
+  m_serial()
 {
   reload(image);
 }
@@ -75,6 +79,7 @@ SDLTexture::reload(const SDL_Surface& image)
   m_texture = texture;
   m_texel_scale = Vector(static_cast<float>(image.w) / static_cast<float>(m_width),
                          static_cast<float>(image.h) / static_cast<float>(m_height));
+  m_serial = ++s_last_serial;
 }
 
 void
@@ -93,6 +98,7 @@ SDLTexture::update(const SDL_Surface& pixels, int x, int y)
   }
   const SDL_Rect rect{ x, y, pixels.w, pixels.h };
   SDL_UpdateTexture(m_texture, &rect, source->pixels, source->pitch);
+  m_serial = ++s_last_serial;
 }
 
 SDLTexture::~SDLTexture()

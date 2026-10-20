@@ -62,6 +62,7 @@ private:
   std::unique_ptr<SDLTextureRenderer> m_lightmap;
   std::unique_ptr<TextureManager> m_texture_manager;
   bool m_between_pixels;
+  int m_vsync;
 
 private:
   SDLVideoSystem(const SDLVideoSystem&) = delete;
