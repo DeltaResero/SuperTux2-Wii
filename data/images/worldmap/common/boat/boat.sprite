@@ -376,4 +376,12 @@
     (name "earth-walking-down")
 	(fps 3)
     (clone-action "earth-walking-left"))
+
+  ;; Names older maps use for the empty docked boat
+  (action
+    (name "boat")
+    (clone-action "empty-right"))
+  (action
+    (name "empty")
+    (clone-action "empty-right"))
 )
