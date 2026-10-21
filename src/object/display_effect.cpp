@@ -165,6 +165,12 @@ DisplayEffect::is_black() const
   return black;
 }
 
+bool
+DisplayEffect::is_going_black() const
+{
+  return black || screen_fade == FadeType::FADE_OUT;
+}
+
 float
 DisplayEffect::get_border_size() const
 {
