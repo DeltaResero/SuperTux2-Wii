@@ -263,6 +263,14 @@ GameSession::draw_pause(DrawingContext& context)
     LAYER_FOREGROUND1);
 }
 
+std::optional<Vector>
+GameSession::get_player_pos() const
+{
+  if (!m_currentsector)
+    return std::nullopt;
+  return m_currentsector->get_player().get_pos();
+}
+
 void
 GameSession::setup()
 {

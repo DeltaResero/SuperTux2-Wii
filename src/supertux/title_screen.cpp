@@ -102,6 +102,12 @@ TitleScreen::setup()
   ScreenManager::current()->set_screen_fade(std::make_unique<FadeToBlack>(FadeToBlack::FADEIN, 0.25f));
 }
 
+std::optional<Vector>
+TitleScreen::get_player_pos() const
+{
+  return m_titlesession->get_player_pos();
+}
+
 void
 TitleScreen::leave()
 {

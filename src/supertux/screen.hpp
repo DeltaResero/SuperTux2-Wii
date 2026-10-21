@@ -17,6 +17,10 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_SCREEN_HPP
 #define HEADER_SUPERTUX_SUPERTUX_SCREEN_HPP
 
+#include <optional>
+
+#include "math/vector.hpp"
+
 class Compositor;
 class Controller;
 
@@ -53,6 +57,10 @@ public:
    * updates and logic here
    */
   virtual void update(float dt_sec, const Controller& controller) = 0;
+
+  /** Where the player is, for the position readout, or nothing on a screen without one */
+  virtual std::optional<Vector> get_player_pos() const
+  { return std::nullopt; }
 };
 
 #endif
