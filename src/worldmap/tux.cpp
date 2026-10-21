@@ -58,6 +58,8 @@ Tux::draw(DrawingContext& context)
   std::string action = get_action_prefix_for_bonus(m_worldmap->get_savegame().get_player_status().bonus);
   if (!action.empty())
   {
+    // A sprite drawn only facing left or right, like the boat, keeps its facing going up or down and at rest
+    const std::string facing = (m_sprite->get_action().find("-left") != std::string::npos) ? "-left" : "-right";
     if (m_moving && (get_axis().x != 0 || get_axis().y != 0))
     {
       std::string direct = "-up";
@@ -69,15 +71,23 @@ Tux::draw(DrawingContext& context)
       {
         m_sprite->set_action(action + "-walking" + direct);
       }
+      else if (get_axis().y != 0 && m_sprite->has_action(action + "-walking" + facing))
+      {
+        m_sprite->set_action(action + "-walking" + facing);
+      }
       else if (m_sprite->has_action(action + "-walking"))
       {
         m_sprite->set_action(action + "-walking");
       }
       // else, keep the same animation that was already playing
     }
-    else
+    else if (m_sprite->has_action(action + "-stop"))
     {
       m_sprite->set_action(action + "-stop");
+    }
+    else
+    {
+      m_sprite->set_action(action + "-stop" + facing);
     }
   }
   else
