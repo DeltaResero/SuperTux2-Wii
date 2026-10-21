@@ -35,6 +35,9 @@ public:
   /** How tall each bar is once in, or 0 while there are none */
   float get_border_size() const;
 
+  /** From the start of a fade to black until the screen fades back in */
+  bool is_going_black() const;
+
   /** @name Scriptable Methods
       @{ */
 

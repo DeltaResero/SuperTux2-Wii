@@ -20,6 +20,7 @@
 #include <sstream>
 
 #include "control/input_manager.hpp"
+#include "object/display_effect.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/savegame.hpp"
@@ -46,6 +47,8 @@ Tux::Tux(WorldMap* worldmap) :
   m_offset(0),
   m_moving(false),
   m_ghost_mode(false),
+  m_fade_tile(),
+  m_fade_direction(Direction::NONE),
   m_last_pos(0.0f, 0.0f)
 {
 }
@@ -58,6 +61,8 @@ Tux::draw(DrawingContext& context)
   std::string action = get_action_prefix_for_bonus(m_worldmap->get_savegame().get_player_status().bonus);
   if (!action.empty())
   {
+    // A sprite drawn only facing left or right, like the boat, keeps its facing going up or down and at rest
+    const std::string facing = (m_sprite->get_action().find("-left") != std::string::npos) ? "-left" : "-right";
     if (m_moving && (get_axis().x != 0 || get_axis().y != 0))
     {
       std::string direct = "-up";
@@ -69,15 +74,23 @@ Tux::draw(DrawingContext& context)
       {
         m_sprite->set_action(action + "-walking" + direct);
       }
+      else if (get_axis().y != 0 && m_sprite->has_action(action + "-walking" + facing))
+      {
+        m_sprite->set_action(action + "-walking" + facing);
+      }
       else if (m_sprite->has_action(action + "-walking"))
       {
         m_sprite->set_action(action + "-walking");
       }
       // else, keep the same animation that was already playing
     }
-    else
+    else if (m_sprite->has_action(action + "-stop"))
     {
       m_sprite->set_action(action + "-stop");
+    }
+    else
+    {
+      m_sprite->set_action(action + "-stop" + facing);
     }
   }
   else
@@ -264,8 +277,25 @@ Tux::try_continue_walking(float dt_sec)
         (m_direction == Direction::WEST && special_tile->get_apply_action_east()) ||
         (m_direction == Direction::EAST && special_tile->get_apply_action_west()))
     {
+      const auto& effect = m_worldmap->get_singleton_by_type<DisplayEffect>();
+      const bool was_going_black = effect.is_going_black();
       process_special_tile(special_tile);
+      if (!was_going_black && effect.is_going_black())
+      {
+        // Tux carries on the way he was going, even with a turn already pressed
+        m_fade_tile = m_tile_pos;
+        m_fade_direction = m_direction;
+        m_input_direction = m_direction;
+      }
     }
+  }
+
+  // Crossing back over the tile that faded the screen out fades it back in, so it can't stay black
+  if (m_fade_tile && *m_fade_tile == m_tile_pos && m_direction == reverse_dir(m_fade_direction))
+  {
+    if (fading_from_tile())
+      m_worldmap->get_singleton_by_type<DisplayEffect>().fade_in(1.0f);
+    m_fade_tile.reset();
   }
 
   // check if we are at a Teleporter
@@ -353,6 +383,10 @@ Tux::try_continue_walking(float dt_sec)
 void
 Tux::update_input_direction()
 {
+  // No turning back while a tile's fade to black runs, but a stopped Tux can still go either way
+  if (m_moving && fading_from_tile())
+    return;
+
   if (m_controller.hold(Control::UP))
     m_input_direction = Direction::NORTH;
   else if (m_controller.hold(Control::DOWN))
@@ -368,6 +402,9 @@ Tux::update(float dt_sec)
 {
   if (m_worldmap->get_camera().is_panning()) return;
 
+  if (m_fade_tile && !fading_from_tile())
+    m_fade_tile.reset();
+
   update_input_direction();
   if (m_moving)
     try_continue_walking(dt_sec);
@@ -381,6 +418,12 @@ Tux::setup()
   // check if we already touch a SpriteChange object
   auto sprite_change = m_worldmap->at_sprite_change(m_tile_pos);
   change_sprite(sprite_change);
+}
+
+bool
+Tux::fading_from_tile() const
+{
+  return m_fade_tile && m_worldmap->get_singleton_by_type<DisplayEffect>().is_going_black();
 }
 
 void

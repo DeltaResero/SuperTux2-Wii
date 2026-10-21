@@ -18,6 +18,8 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_TUX_HPP
 #define HEADER_SUPERTUX_WORLDMAP_TUX_HPP
 
+#include <optional>
+
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/game_object.hpp"
 #include "supertux/player_status.hpp"
@@ -67,6 +69,7 @@ private:
   void try_continue_walking(float dt_sec); /**< try to continue walking in current direction */
 
   void change_sprite(SpriteChange* sc); /**< Uses the given sprite change */
+  bool fading_from_tile() const; /**< A tile started a fade to black that hasn't faded back in */
 
 public:
   Direction m_back_direction;
@@ -85,6 +88,10 @@ private:
   bool m_moving;
 
   bool m_ghost_mode;
+
+  /** The tile whose script began fading the screen to black, and the way Tux was going */
+  std::optional<Vector> m_fade_tile;
+  Direction m_fade_direction;
 
   /** Where Tux was as the last step began */
   Vector m_last_pos;
