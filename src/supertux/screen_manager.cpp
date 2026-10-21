@@ -23,7 +23,6 @@
 #include "gui/dialog.hpp"
 #include "gui/menu_manager.hpp"
 #include "gui/mousecursor.hpp"
-#include "object/player.hpp"
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "supertux/console.hpp"
 #include "supertux/constants.hpp"
@@ -36,7 +35,6 @@
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/screen_fade.hpp"
-#include "supertux/sector.hpp"
 #include "util/log.hpp"
 #include "video/compositor.hpp"
 #include "video/drawing_context.hpp"
@@ -246,12 +244,10 @@ ScreenManager::draw_fps(DrawingContext& context, FPS_Stats& fps_statistics)
 void
 ScreenManager::draw_player_pos(DrawingContext& context)
 {
-  if (auto session = GameSession::current())
+  if (const auto pos = m_screen_stack.back()->get_player_pos())
   {
-    Sector& sector = session->get_current_sector();
-    auto pos = sector.get_player().get_pos();
-    const std::string x_text = position_text(pos.x);
-    const std::string y_text = position_text(pos.y);
+    const std::string x_text = position_text(pos->x);
+    const std::string y_text = position_text(pos->y);
     // Each new position is new text, and the text cache can't clear old ones as fast as Tux makes them
     if (x_text != m_player_x_text)
     {

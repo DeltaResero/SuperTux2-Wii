@@ -87,11 +87,17 @@ bool shrinks_with_view(const std::string& filename)
   return start == std::string::npos || filename.compare(start, engine.size(), engine) != 0;
 }
 
+// Through an alpha channel or a colour key
+bool has_clear_pixels(const SDL_Surface& image)
+{
+  return SDL_ISPIXELFORMAT_ALPHA(image.format->format) || SDL_HasColorKey(const_cast<SDL_Surface*>(&image));
+}
+
 // An RGBA copy of image, its clear pixels given their neighbours' colour if it has any, or null if SDL can't convert it
 SDLSurfacePtr rgba_copy(const SDL_Surface& image)
 {
   SDLSurfacePtr copy(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
-  if (copy && SDL_ISPIXELFORMAT_ALPHA(image.format->format))
+  if (copy && has_clear_pixels(image))
   {
     SDLSurface::fill_clear_pixels(*copy);
   }
@@ -347,7 +353,7 @@ TextureManager::prepare(const std::string& filename, const SDL_Surface& image) c
     return own;
   }
 
-  if (SDL_ISPIXELFORMAT_ALPHA(image.format->format))
+  if (has_clear_pixels(image))
   {
     return rgba_copy(image);
   }

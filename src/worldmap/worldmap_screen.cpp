@@ -43,6 +43,12 @@ WorldMapScreen::leave()
   m_worldmap->leave();
 }
 
+std::optional<Vector>
+WorldMapScreen::get_player_pos() const
+{
+  return m_worldmap->get_tux_pos();
+}
+
 void
 WorldMapScreen::draw(Compositor& compositor)
 {

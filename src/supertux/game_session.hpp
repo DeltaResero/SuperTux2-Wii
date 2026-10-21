@@ -51,6 +51,7 @@ public:
   virtual void update(float dt_sec, const Controller& controller) override;
   virtual void setup() override;
   virtual void leave() override;
+  virtual std::optional<Vector> get_player_pos() const override;
 
   /** ends the current level */
   void finish(bool win = true);

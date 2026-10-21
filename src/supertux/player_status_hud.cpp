@@ -68,7 +68,8 @@ PlayerStatusHUD::draw(DrawingContext& context)
   {
     context.color().draw_surface(coin_surface,
                                 Vector(static_cast<float>(context.get_width()) - BORDER_X - static_cast<float>(coin_surface->get_width()) - Resources::fixed_font->get_text_width(coins_text),
-                                        BORDER_Y + 1.0f + (Resources::fixed_font->get_text_height(coins_text) + 5) * static_cast<float>(player_id)),
+                                        BORDER_Y + (Resources::fixed_font->get_text_height(coins_text) - static_cast<float>(coin_surface->get_height())) / 2.0f
+                                          + (Resources::fixed_font->get_text_height(coins_text) + 5) * static_cast<float>(player_id)),
                                 LAYER_HUD);
   }
 
@@ -92,7 +93,7 @@ PlayerStatusHUD::draw(DrawingContext& context)
                                               - static_cast<float>(fire_surface->get_width())
                                               - Resources::fixed_font->get_text_width(ammo_text),
                                           BORDER_Y
-                                              + 1.0f
+                                              + (Resources::fixed_font->get_text_height(ammo_text) - static_cast<float>(fire_surface->get_height())) / 2.0f
                                               + (Resources::fixed_font->get_text_height(coins_text) + 5)
                                               + (Resources::fixed_font->get_text_height(ammo_text) + 5)
                                               * static_cast<float>(player_id)),
@@ -124,7 +125,7 @@ PlayerStatusHUD::draw(DrawingContext& context)
                                               - static_cast<float>(ice_surface->get_width())
                                               - Resources::fixed_font->get_text_width(ammo_text),
                                           BORDER_Y
-                                              + 1.0f
+                                              + (Resources::fixed_font->get_text_height(ammo_text) - static_cast<float>(ice_surface->get_height())) / 2.0f
                                               + (Resources::fixed_font->get_text_height(coins_text) + 5)
                                               + (Resources::fixed_font->get_text_height(ammo_text) + 5)
                                               * static_cast<float>(player_id)),
