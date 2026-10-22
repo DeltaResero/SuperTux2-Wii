@@ -35,19 +35,4 @@ SDL_RWops* get_SDLRWops(const std::string& filename)
   return ops;
 }
 
-SDL_RWops* get_writable_SDLRWops(const std::string& filename)
-{
-  if (filename.empty())
-    throw std::runtime_error("Couldn't open file: empty filename");
-
-  const std::string path = FileSystem::write_path(filename);
-  if (path.empty())
-    throw std::runtime_error("Couldn't open '" + filename + "' for writing: no write directory set");
-
-  SDL_RWops* ops = SDL_RWFromFile(path.c_str(), "wb");
-  if (!ops)
-    throw std::runtime_error("Couldn't open '" + path + "' for writing: " + SDL_GetError());
-  return ops;
-}
-
 /* EOF */

@@ -50,8 +50,6 @@ public:
   virtual int get_vsync() const override;
   virtual bool draws_between_pixels() const override { return m_between_pixels; }
 
-  virtual SDLSurfacePtr make_screenshot() override;
-
 private:
   void create_window();
 

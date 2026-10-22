@@ -445,11 +445,6 @@ ScreenManager::process_events()
           m_video_system.apply_config();
           m_menu_manager->on_window_resize();
         }
-        else if (event.key.keysym.sym == SDLK_PRINTSCREEN ||
-                 event.key.keysym.sym == SDLK_F12)
-        {
-          m_video_system.do_take_screenshot();
-        }
         else if (event.key.keysym.sym == SDLK_F2 &&
                  event.key.keysym.mod & KMOD_CTRL)
         {

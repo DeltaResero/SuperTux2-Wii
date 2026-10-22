@@ -50,7 +50,6 @@ public:
   virtual void set_gamma(float gamma) override;
   virtual void set_title(const std::string& title) override;
   virtual void set_icon(const SDL_Surface& icon) override;
-  virtual SDLSurfacePtr make_screenshot() override;
 
 private:
   Size m_window_size;

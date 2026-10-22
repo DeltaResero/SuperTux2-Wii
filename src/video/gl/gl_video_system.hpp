@@ -56,8 +56,6 @@ public:
   virtual void set_vsync(int mode) override;
   virtual int get_vsync() const override;
 
-  virtual SDLSurfacePtr make_screenshot() override;
-
   GLContext& get_context() const { return *m_context; }
 
 private:
