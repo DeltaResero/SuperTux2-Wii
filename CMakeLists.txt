@@ -668,23 +668,20 @@ if(HAVE_OPENGL)
 endif(HAVE_OPENGL)
 
 if(BUILD_TESTS)
-  find_package(Threads REQUIRED)
-  find_package(GTest REQUIRED)
-
-  # build SuperTux tests
-  file(GLOB TEST_SUPERTUX_SOURCES tests/*.cpp)
-  add_executable(test_supertux2 ${TEST_SUPERTUX_SOURCES})
-  target_compile_options(test_supertux2 PRIVATE ${WARNINGS_CXX_FLAGS})
-  target_link_libraries(test_supertux2
-    GTest::GTest GTest::Main
-    supertux2_lib
-    ${CMAKE_THREAD_LIBS_INIT})
-
   # add 'make test' target, use 'make test ARGS="-V"' or 'ctest -V' for verbose
   enable_testing()
-  add_test(NAME test_supertux2
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND test_supertux2)
+
+  # each test file is its own program, so a failure names the file that failed
+  file(GLOB TEST_SUPERTUX_SOURCES tests/*_test.cpp)
+  foreach(TEST_SOURCE ${TEST_SUPERTUX_SOURCES})
+    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+    add_executable(${TEST_NAME} ${TEST_SOURCE})
+    target_compile_options(${TEST_NAME} PRIVATE ${WARNINGS_CXX_FLAGS})
+    target_link_libraries(${TEST_NAME} supertux2_lib)
+    add_test(NAME ${TEST_NAME}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMAND ${TEST_NAME})
+  endforeach()
 endif()
 
 ## Install stuff

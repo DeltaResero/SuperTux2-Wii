@@ -14,71 +14,88 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include "math/rectf.hpp"
 
-TEST(RectfTest, contains_point)
+namespace {
+
+void contains_point_test()
 {
-  ASSERT_TRUE(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Vector(150.0f, 150.0f)));
-  ASSERT_FALSE(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Vector(250.0f, 150.0f)));
+  ST_ASSERT(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Vector(150.0f, 150.0f)));
+  ST_ASSERT(!Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Vector(250.0f, 150.0f)));
 }
 
 /* FIXME: Current implementation is actually overlaps(), not contains()
-TEST(RectfTest, contains_rect)
+void contains_rect_test()
 {
-  ASSERT_TRUE(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Rectf(150.0f, 150.0f, 190.0f, 190.0f)));
-  ASSERT_TRUE(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Rectf(100.0f, 100.0f, 200.0f, 200.0f)));
-  ASSERT_FALSE(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Rectf(150.0f, 150.0f, 250.0f, 250.0f)));
+  ST_ASSERT(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Rectf(150.0f, 150.0f, 190.0f, 190.0f)));
+  ST_ASSERT(Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Rectf(100.0f, 100.0f, 200.0f, 200.0f)));
+  ST_ASSERT(!Rectf(100.0f, 100.0f, 200.0f, 200.0f).contains(Rectf(150.0f, 150.0f, 250.0f, 250.0f)));
 }
 */
 
-TEST(RectfTest, moved)
+void moved_test()
 {
-  ASSERT_EQ(Rectf(0.0f, 0.0f, 100.0f, 300.0f).moved(Vector(16.0f, 32.0f)), Rectf(16.0f, 32.0f, 116.0f, 332.0f));
-  ASSERT_EQ(Rectf(0.0f, 0.0f, 100.0f, 300.0f).moved(Vector(-16.0f, -32.0f)), Rectf(-16.0f, -32.0f, 84.0f, 268.0f));
+  ST_ASSERT_EQ(Rectf(0.0f, 0.0f, 100.0f, 300.0f).moved(Vector(16.0f, 32.0f)), Rectf(16.0f, 32.0f, 116.0f, 332.0f));
+  ST_ASSERT_EQ(Rectf(0.0f, 0.0f, 100.0f, 300.0f).moved(Vector(-16.0f, -32.0f)), Rectf(-16.0f, -32.0f, 84.0f, 268.0f));
 }
 
-TEST(RectfTest, set_leftrighttopbottom)
+void set_leftrighttopbottom_test()
 {
   Rectf rect(0.0f, 50.0f, 100.0f, 150.0f);
 
   rect.set_left(10.0f);
-  ASSERT_EQ(Rectf(10.0f, 50.0f, 100.0f, 150.0f), rect);
+  ST_ASSERT_EQ(Rectf(10.0f, 50.0f, 100.0f, 150.0f), rect);
 
   rect.set_right(200.0f);
-  ASSERT_EQ(Rectf(10.0f, 50.0f, 200.0f, 150.0f), rect);
+  ST_ASSERT_EQ(Rectf(10.0f, 50.0f, 200.0f, 150.0f), rect);
 
   rect.set_top(100.0f);
-  ASSERT_EQ(Rectf(10.0f, 100.0f, 200.0f, 150.0f), rect);
+  ST_ASSERT_EQ(Rectf(10.0f, 100.0f, 200.0f, 150.0f), rect);
 
   rect.set_bottom(200.0f);
-  ASSERT_EQ(Rectf(10.0f, 100.0f, 200.0f, 200.0f), rect);
+  ST_ASSERT_EQ(Rectf(10.0f, 100.0f, 200.0f, 200.0f), rect);
 }
 
-TEST(RectfTest, size)
+void size_test()
 {
-  ASSERT_EQ(Rectf(50.0f, 50.0f, 100.0f, 300.0f).get_width(), 50.0f);
-  ASSERT_EQ(Rectf(50.0f, 50.0f, 100.0f, 300.0f).get_height(), 250.0f);
+  ST_ASSERT_EQ(Rectf(50.0f, 50.0f, 100.0f, 300.0f).get_width(), 50.0f);
+  ST_ASSERT_EQ(Rectf(50.0f, 50.0f, 100.0f, 300.0f).get_height(), 250.0f);
 }
 
-TEST(RectfTest, from_center)
+void from_center_test()
 {
-  ASSERT_EQ(Rectf::from_center({16.0f, 16.0f}, {32.0f, 32.0f}), Rectf(0.0f, 0.0f, 32.0f, 32.0f));
+  ST_ASSERT_EQ(Rectf::from_center({16.0f, 16.0f}, {32.0f, 32.0f}), Rectf(0.0f, 0.0f, 32.0f, 32.0f));
 }
 
-TEST(RectfTest, set_p1)
+void set_p1_test()
 {
   Rectf rect(Vector(16.0f, 16.0f), Vector(32.0f, 32.0f));
   rect.set_p1({1.0f, 5.0f});
-  ASSERT_EQ(Rectf(Vector(1.0f, 5.0f), Vector(32.0f, 32.0f)), rect);
+  ST_ASSERT_EQ(Rectf(Vector(1.0f, 5.0f), Vector(32.0f, 32.0f)), rect);
 }
 
-TEST(RectfTest, set_p2)
+void set_p2_test()
 {
   Rectf rect(Vector(16.0f, 16.0f), Vector(32.0f, 32.0f));
   rect.set_p2({48.0f, 100.0f});
-  ASSERT_EQ(Rectf(Vector(16.0f, 16.0f), Vector(48.0f, 100.0f)), rect);
+  ST_ASSERT_EQ(Rectf(Vector(16.0f, 16.0f), Vector(48.0f, 100.0f)), rect);
+}
+
+} // namespace
+
+int main()
+{
+  contains_point_test();
+  moved_test();
+  set_leftrighttopbottom_test();
+  size_test();
+  from_center_test();
+  set_p1_test();
+  set_p2_test();
+
+  return 0;
 }
 
 /* EOF */

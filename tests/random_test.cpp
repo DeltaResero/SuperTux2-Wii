@@ -14,59 +14,61 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include "math/random.hpp"
 
-TEST(RandomTest, rand1i)
+namespace {
+
+void rand1i_test()
 {
   Random random;
   random.seed(0);
   for(int i = 0; i < 1000; ++i)
   {
     int v = random.rand(10);
-    ASSERT_LE(0, v);
-    ASSERT_LT(v, 10);
+    ST_ASSERT(0 <= v);
+    ST_ASSERT(v < 10);
   }
 }
 
-TEST(RandomTest, rand2i)
+void rand2i_test()
 {
   Random random;
   random.seed(0);
   for(int i = 0; i < 1000; ++i)
   {
     int v = random.rand(10, 20);
-    ASSERT_LE(10, v);
-    ASSERT_LT(v, 20);
+    ST_ASSERT(10 <= v);
+    ST_ASSERT(v < 20);
   }
 }
 
-TEST(RandomTest, rand1f)
+void rand1f_test()
 {
   Random random;
   random.seed(0);
   for(int i = 0; i < 1000; ++i)
   {
     float v = random.randf(10);
-    ASSERT_LE(0.0f, v);
-    ASSERT_LT(v, 10.0f);
+    ST_ASSERT(0.0f <= v);
+    ST_ASSERT(v < 10.0f);
   }
 }
 
-TEST(RandomTest, rand2f)
+void rand2f_test()
 {
   Random random;
   random.seed(0);
   for(int i = 0; i < 1000; ++i)
   {
     float v = random.randf(10.0f, 20.0f);
-    ASSERT_LE(10.0f, v);
-    ASSERT_LT(v, 20.0f);
+    ST_ASSERT(10.0f <= v);
+    ST_ASSERT(v < 20.0f);
   }
 }
 
-TEST(RandomTest, rand_determinism)
+void rand_determinism_test()
 {
   Random random;
 
@@ -86,10 +88,10 @@ TEST(RandomTest, rand_determinism)
     run2.push_back(random.rand());
   }
 
-  ASSERT_EQ(run1, run2);
+  ST_ASSERT_EQ(run1, run2);
 }
 
-TEST(RandomTest, randf_determinism)
+void randf_determinism_test()
 {
   Random random;
 
@@ -109,7 +111,21 @@ TEST(RandomTest, randf_determinism)
     run2.push_back(random.randf(1.0f));
   }
 
-  ASSERT_EQ(run1, run2);
+  ST_ASSERT_EQ(run1, run2);
+}
+
+} // namespace
+
+int main()
+{
+  rand1i_test();
+  rand2i_test();
+  rand1f_test();
+  rand2f_test();
+  rand_determinism_test();
+  randf_determinism_test();
+
+  return 0;
 }
 
 /* EOF */

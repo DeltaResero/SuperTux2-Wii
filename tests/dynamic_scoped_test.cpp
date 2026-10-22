@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include "util/dynamic_scoped_ref.hpp"
 
@@ -22,10 +22,10 @@ DynamicScopedRef<const int> d_value;
 
 void check_function(int expected)
 {
-  ASSERT_EQ(*d_value.get(), expected);
+  ST_ASSERT_EQ(*d_value.get(), expected);
 }
 
-TEST(DynamicScopedTest, test)
+int main()
 {
   int v1 = 1;
   int v2 = 2;
@@ -34,30 +34,32 @@ TEST(DynamicScopedTest, test)
   {
     auto guard1 = d_value.bind(v1);
 
-    ASSERT_TRUE(d_value);
-    ASSERT_EQ(*d_value, 1);
+    ST_ASSERT(d_value);
+    ST_ASSERT_EQ(*d_value, 1);
     check_function(1);
     {
       auto guard2 = d_value.bind(v2);
 
-      ASSERT_TRUE(d_value);
-      ASSERT_EQ(*d_value, 2);
+      ST_ASSERT(d_value);
+      ST_ASSERT_EQ(*d_value, 2);
       check_function(2);
       {
         auto guard3 = d_value.bind(v3);
-        ASSERT_EQ(*d_value, 3);
+        ST_ASSERT_EQ(*d_value, 3);
         check_function(3);
       }
-      ASSERT_TRUE(d_value);
+      ST_ASSERT(d_value);
       check_function(2);
-      ASSERT_EQ(*d_value, 2);
+      ST_ASSERT_EQ(*d_value, 2);
     }
-    ASSERT_TRUE(d_value);
-    ASSERT_EQ(*d_value, 1);
+    ST_ASSERT(d_value);
+    ST_ASSERT_EQ(*d_value, 1);
     check_function(1);
   }
 
-  ASSERT_FALSE(d_value);
+  ST_ASSERT(!d_value);
+
+  return 0;
 }
 
 /* EOF */
