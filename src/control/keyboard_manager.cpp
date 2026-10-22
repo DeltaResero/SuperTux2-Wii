@@ -28,6 +28,7 @@ KeyboardManager::KeyboardManager(InputManager* parent,
   m_parent(parent),
   m_keyboard_config(keyboard_config),
   m_wait_for_key(),
+  m_wait_for_alt_action_key(false),
   m_lock_text_input(false)
 {
 }
@@ -163,7 +164,7 @@ void
 KeyboardManager::process_menu_key_event(const SDL_KeyboardEvent& event)
 {
   // wait for key mode?
-  if (m_wait_for_key)
+  if (m_wait_for_key || m_wait_for_alt_action_key)
   {
     if (event.type == SDL_KEYUP)
       return;
@@ -171,11 +172,15 @@ KeyboardManager::process_menu_key_event(const SDL_KeyboardEvent& event)
     if (event.keysym.sym != SDLK_ESCAPE &&
         event.keysym.sym != SDLK_PAUSE)
     {
-      m_keyboard_config.bind_key(event.keysym.sym, *m_wait_for_key);
+      if (m_wait_for_alt_action_key)
+        m_keyboard_config.bind_alt_action_key(event.keysym.sym);
+      else
+        m_keyboard_config.bind_key(event.keysym.sym, *m_wait_for_key);
     }
     m_parent->reset();
     MenuManager::instance().refresh();
     m_wait_for_key = std::nullopt;
+    m_wait_for_alt_action_key = false;
     return;
   }
 
@@ -239,6 +244,12 @@ void
 KeyboardManager::bind_next_event_to(Control id)
 {
   m_wait_for_key = id;
+}
+
+void
+KeyboardManager::bind_next_event_to_alt_action()
+{
+  m_wait_for_alt_action_key = true;
 }
 
 /* EOF */

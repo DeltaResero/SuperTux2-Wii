@@ -36,6 +36,7 @@ public:
 
   SDL_Keycode reversemap_key(Control c) const;
   void bind_key(SDL_Keycode key, Control c);
+  void bind_alt_action_key(SDL_Keycode key);
 
   void read(const ReaderMapping& keymap_mapping);
   void write(Writer& writer);
@@ -43,6 +44,7 @@ public:
 private:
   std::map<SDL_Keycode, Control> m_keymap;
   std::set<Control> m_configurable_controls;
+  SDL_Keycode m_alt_action_key;
   bool m_jump_with_up_kbd;
 
 private:

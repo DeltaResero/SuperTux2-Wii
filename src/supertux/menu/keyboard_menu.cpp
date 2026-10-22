@@ -23,6 +23,10 @@
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 
+enum {
+  MNID_ALT_ACTION = static_cast<int>(Control::CONTROLCOUNT) + 1
+};
+
 KeyboardMenu::KeyboardMenu(InputManager& input_manager) :
   m_input_manager(input_manager)
 {
@@ -33,7 +37,8 @@ KeyboardMenu::KeyboardMenu(InputManager& input_manager) :
   add_controlfield(static_cast<int>(Control::LEFT),       "Left");
   add_controlfield(static_cast<int>(Control::RIGHT),      "Right");
   add_controlfield(static_cast<int>(Control::JUMP),       "Jump");
-  add_controlfield(static_cast<int>(Control::ACTION),     "Action");
+  add_controlfield(static_cast<int>(Control::ACTION),     "Action Key 1");
+  add_controlfield(MNID_ALT_ACTION,                       "Action Key 2");
   add_controlfield(static_cast<int>(Control::PEEK_LEFT),  "Peek Left");
   add_controlfield(static_cast<int>(Control::PEEK_RIGHT), "Peek Right");
   add_controlfield(static_cast<int>(Control::PEEK_UP),    "Peek Up");
@@ -100,6 +105,13 @@ KeyboardMenu::menu_action(MenuItem& item)
     }
     itemcf->change_input("Press Key");
     m_input_manager.keyboard_manager->bind_next_event_to(static_cast<Control>(item.get_id()));
+  } else if (item.get_id() == MNID_ALT_ACTION) {
+    ItemControlField* itemcf = dynamic_cast<ItemControlField*>(&item);
+    if (!itemcf) {
+      return;
+    }
+    itemcf->change_input("Press Key");
+    m_input_manager.keyboard_manager->bind_next_event_to_alt_action();
   }
 }
 
@@ -121,6 +133,8 @@ KeyboardMenu::refresh()
   if (micf) micf->change_input(get_key_name(kbd_cfg.reversemap_key(Control::JUMP)));
   micf = dynamic_cast<ItemControlField*>(&get_item_by_id(static_cast<int>(Control::ACTION)));
   if (micf) micf->change_input(get_key_name(kbd_cfg.reversemap_key(Control::ACTION)));
+  micf = dynamic_cast<ItemControlField*>(&get_item_by_id(MNID_ALT_ACTION));
+  if (micf) micf->change_input(get_key_name(kbd_cfg.m_alt_action_key));
   micf = dynamic_cast<ItemControlField*>(&get_item_by_id(static_cast<int>(Control::PEEK_LEFT)));
   if (micf) micf->change_input(get_key_name(kbd_cfg.reversemap_key(Control::PEEK_LEFT)));
   micf = dynamic_cast<ItemControlField*>(&get_item_by_id(static_cast<int>(Control::PEEK_RIGHT)));

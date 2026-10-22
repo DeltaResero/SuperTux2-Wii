@@ -42,11 +42,13 @@ public:
   void process_menu_key_event(const SDL_KeyboardEvent& event);
 
   void bind_next_event_to(Control id);
+  void bind_next_event_to_alt_action();
 
 private:
   InputManager* m_parent;
   KeyboardConfig& m_keyboard_config;
   std::optional<Control> m_wait_for_key;
+  bool m_wait_for_alt_action_key;
   bool m_lock_text_input;
 
 private:
