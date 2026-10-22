@@ -45,8 +45,6 @@ private:
 
 private:
   std::string m_message;
-  //AmbientSound* m_ringing;
-  //bool m_stopped;
   float m_shown_pct; /**< Value in the range of 0..1, depending on how much of the infobox is currently shown */
   float m_dest_pct; /**< With each call to update(), shown_pct will slowly transition to this value */
   std::vector<std::unique_ptr<InfoBoxLine> > m_lines; /**< lines of text (or images) to display */
