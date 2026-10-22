@@ -77,7 +77,9 @@ JoystickMenu::recreate_menu()
       add_controlfield(static_cast<int>(Control::PEEK_UP),     "Peek Up");
       add_controlfield(static_cast<int>(Control::PEEK_DOWN),   "Peek Down");
       if (g_config->developer_mode) {
+#ifdef ENABLE_CONSOLE
         add_controlfield(static_cast<int>(Control::CONSOLE), "Console");
+#endif
         add_controlfield(static_cast<int>(Control::CHEAT_MENU), "Cheat Menu");
         add_controlfield(static_cast<int>(Control::DEBUG_MENU), "Debug Menu");
       }
@@ -232,7 +234,9 @@ JoystickMenu::refresh()
     refresh_menu_item(Control::PEEK_DOWN);
 
     if (g_config->developer_mode) {
+#ifdef ENABLE_CONSOLE
       refresh_menu_item(Control::CONSOLE);
+#endif
       refresh_menu_item(Control::CHEAT_MENU);
       refresh_menu_item(Control::DEBUG_MENU);
     }

@@ -32,7 +32,9 @@
 
 std::unique_ptr<MouseCursor> Resources::mouse_cursor;
 
+#ifdef ENABLE_CONSOLE
 FontPtr Resources::console_font;
+#endif
 FontPtr Resources::fixed_font;
 FontPtr Resources::normal_font;
 FontPtr Resources::small_font;
@@ -54,7 +56,9 @@ Resources::load()
 
   if (g_debug.get_use_bitmap_fonts())
   {
+#ifdef ENABLE_CONSOLE
     console_font = std::make_shared<BitmapFont>(BitmapFont::FIXED, "fonts/andale12.stf", 1);
+#endif
     fixed_font = std::make_shared<BitmapFont>(BitmapFont::FIXED, "fonts/white.stf");
     normal_font = std::make_shared<BitmapFont>(BitmapFont::VARIABLE, "fonts/white.stf");
     small_font = std::make_shared<BitmapFont>(BitmapFont::VARIABLE, "fonts/white-small.stf", 1);
@@ -62,7 +66,9 @@ Resources::load()
   }
   else
   {
+#ifdef ENABLE_CONSOLE
     console_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 12, 1.25f, 0, 1);
+#endif
 
     fixed_font = std::make_shared<TTFFont>("fonts/SuperTux-Medium.ttf", 18, 1.25f, 2, 1);
     normal_font = fixed_font;
@@ -92,7 +98,9 @@ Resources::unload()
   arrow_right.reset();
 
   // Free global images:
+#ifdef ENABLE_CONSOLE
   console_font.reset();
+#endif
   fixed_font.reset();
   normal_font.reset();
   small_font.reset();

@@ -115,6 +115,7 @@ if(WIN32)
 endif(WIN32)
 
 option(ENABLE_TOUCHSCREEN_SUPPORT "Enable on-screen controls and event detection for touchscreen devices" OFF)
+option(ENABLE_CONSOLE "Build the developer console, opened with a key in developer mode" OFF)
 
 ## Add lots of dependencies to compiler switches
 

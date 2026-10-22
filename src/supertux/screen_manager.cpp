@@ -296,7 +296,9 @@ ScreenManager::draw(Compositor& compositor, FPS_Stats& fps_statistics)
 
   context.push_transform();
   context.use_ui_space();
+#ifdef ENABLE_CONSOLE
   Console::current()->draw(context);
+#endif
 
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
   m_mobile_controller.draw(context);
@@ -342,7 +344,9 @@ ScreenManager::update_gamelogic(float dt_sec)
     m_screen_fade->update(dt_sec);
   }
 
+#ifdef ENABLE_CONSOLE
   Console::current()->update(dt_sec);
+#endif
 }
 
 void

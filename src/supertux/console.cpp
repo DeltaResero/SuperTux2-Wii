@@ -27,17 +27,17 @@
 #include "supertux/resources.hpp"
 #include "util/log.hpp"
 #include "video/drawing_context.hpp"
-#include "video/surface.hpp"
 
-/// speed (pixels/s) the console closes
-static const float FADE_SPEED = 1;
-
-ConsoleBuffer::ConsoleBuffer() :
+ConsoleBuffer::ConsoleBuffer()
+#ifdef ENABLE_CONSOLE
+  :
   m_lines(),
   m_console(nullptr)
+#endif
 {
 }
 
+#ifdef ENABLE_CONSOLE
 void
 ConsoleBuffer::set_console(Console* console)
 {
@@ -46,6 +46,7 @@ ConsoleBuffer::set_console(Console* console)
 
   m_console = console;
 }
+#endif
 
 void
 ConsoleBuffer::addLines(const std::string& s)
@@ -66,6 +67,7 @@ ConsoleBuffer::addLine(const std::string& s_)
   // output line to stderr
   std::cerr << s << std::endl;
 
+#ifdef ENABLE_CONSOLE
   // wrap long lines
   std::string overflow;
   int line_count = 0;
@@ -85,6 +87,7 @@ ConsoleBuffer::addLine(const std::string& s_)
   {
     m_console->on_buffer_change(line_count);
   }
+#endif
 }
 
 void
@@ -105,17 +108,22 @@ ConsoleBuffer::flush(ConsoleStreamBuffer& buffer)
   }
 }
 
+#ifdef ENABLE_CONSOLE
+
+/// speed (pixels/s) the console closes
+static const float FADE_SPEED = 1;
+
+// near black, and opaque enough to keep the text readable over any scene
+static const Color s_PANEL(19.0f / 255.0f, 20.0f / 255.0f, 28.0f / 255.0f, 0.75f);
+
 Console::Console(ConsoleBuffer& buffer) :
   m_buffer(buffer),
   m_inputBuffer(),
   m_inputBufferPosition(0),
   m_history(),
   m_history_position(m_history.end()),
-  m_background(Surface::from_file("images/engine/console.png")),
-  m_background2(Surface::from_file("images/engine/console2.png")),
   m_vm(nullptr),
   m_vm_object(),
-  m_backgroundOffset(0),
   m_height(0),
   m_alpha(1.0),
   m_offset(0),
@@ -515,9 +523,6 @@ Console::update(float dt_sec)
       m_height = 0;
     }
   }
-
-  m_backgroundOffset += static_cast<int>(600.0f * dt_sec);
-  if (m_backgroundOffset > static_cast<int>(m_background->get_width())) m_backgroundOffset -= static_cast<int>(m_background->get_width());
 }
 
 void
@@ -527,29 +532,11 @@ Console::draw(DrawingContext& context) const
     return;
 
   const int layer = LAYER_GUI + 1;
-  const int context_center_x = context.get_width() / 2;
-  const int background_center_x = m_background->get_width() / 2;
 
   context.push_transform();
   context.set_alpha(m_alpha);
-  context.color().draw_surface(m_background2,
-                               Vector(static_cast<float>(context_center_x - background_center_x - m_background->get_width() + m_backgroundOffset),
-                                      m_height - static_cast<float>(m_background->get_height())),
-                               layer);
-  context.color().draw_surface(m_background2,
-                               Vector(static_cast<float>(context_center_x - background_center_x + m_backgroundOffset),
-                                      m_height - static_cast<float>(m_background->get_height())),
-                               layer);
-  for (int x = (context_center_x - background_center_x
-                - (static_cast<int>(ceilf(static_cast<float>(context.get_width()) /
-                                          static_cast<float>(m_background->get_width())) - 1) * m_background->get_width()));
-       x < context.get_width();
-       x += m_background->get_width())
-  {
-    context.color().draw_surface(m_background, Vector(static_cast<float>(x),
-                                                      m_height - static_cast<float>(m_background->get_height())),
-                                 layer);
-  }
+  context.color().draw_filled_rect(Rectf(0.0f, 0.0f, static_cast<float>(context.get_width()), m_height),
+                                   s_PANEL, layer);
 
   int lineNo = 0;
 
@@ -587,6 +574,8 @@ Console::draw(DrawingContext& context) const
   }
   context.pop_transform();
 }
+
+#endif
 
 ConsoleStreamBuffer ConsoleBuffer::s_outputBuffer;
 std::ostream ConsoleBuffer::output(&ConsoleBuffer::s_outputBuffer);
