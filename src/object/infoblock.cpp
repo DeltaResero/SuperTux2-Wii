@@ -144,14 +144,19 @@ InfoBlock::draw(DrawingContext& context)
   float x2 = block.x + width/2;
   float y1 = block.y - height;
 
-  if (x1 < 0) {
-    x1 = 0;
-    x2 = width;
+  // The whole board stays on the screen, border included
+  if (x1 - border < 0) {
+    x1 = border;
+    x2 = x1 + width;
   }
 
-  if (x2 > static_cast<float>(context.get_width())) {
-    x2 = static_cast<float>(context.get_width());
+  if (x2 + border > static_cast<float>(context.get_width())) {
+    x2 = static_cast<float>(context.get_width()) - border;
     x1 = x2 - width;
+  }
+
+  if (y1 - border < 0) {
+    y1 = border;
   }
 
   // Moved as one piece on whole pixels, so its lines never shift against the box
