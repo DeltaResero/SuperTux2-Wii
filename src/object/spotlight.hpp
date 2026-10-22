@@ -17,6 +17,10 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SPOTLIGHT_HPP
 #define HEADER_SUPERTUX_OBJECT_SPOTLIGHT_HPP
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "scripting/spotlight.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "squirrel/exposed_object.hpp"

@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PARTICLE_ZONE_HPP
 #define HEADER_SUPERTUX_OBJECT_PARTICLE_ZONE_HPP
 
+#include <string>
+#include <utility>
+
 #include "squirrel/exposed_object.hpp"
 // TODO: #include "scripting/wind.hpp"
 #include "supertux/moving_object.hpp"

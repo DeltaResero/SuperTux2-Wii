@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_CRYSTALLO_HPP
 #define HEADER_SUPERTUX_BADGUY_CRYSTALLO_HPP
 
+#include <string>
+
 #include "badguy/walking_badguy.hpp"
 
 /** Basic badguy, patrols around a fixed position. */

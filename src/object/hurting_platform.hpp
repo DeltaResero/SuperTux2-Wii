@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_HURTING_PLATFORM_HPP
 #define HEADER_SUPERTUX_OBJECT_HURTING_PLATFORM_HPP
 
+#include <memory>
+#include <string>
+
 #include "audio/sound_source.hpp"
 #include "object/platform.hpp"
 #include "supertux/timer.hpp"

@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_FISH_HPP
 #define HEADER_SUPERTUX_BADGUY_FISH_HPP
 
+#include <cstdint>
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 class Fish final : public BadGuy

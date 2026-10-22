@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BONUS_BLOCK_HPP
 #define HEADER_SUPERTUX_OBJECT_BONUS_BLOCK_HPP
 
+#include <memory>
+#include <string>
+
 #include "object/block.hpp"
 #include "supertux/direction.hpp"
 #include "supertux/player_status.hpp"

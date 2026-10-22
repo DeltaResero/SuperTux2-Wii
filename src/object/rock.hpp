@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_ROCK_HPP
 #define HEADER_SUPERTUX_OBJECT_ROCK_HPP
 
+#include <string>
+
 #include "object/moving_sprite.hpp"
 #include "object/portable.hpp"
 #include "squirrel/exposed_object.hpp"

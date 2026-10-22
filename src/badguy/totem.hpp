@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_TOTEM_HPP
 #define HEADER_SUPERTUX_BADGUY_TOTEM_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 /** "Totem" Badguy - A variable-height stack of wooden blocks  */

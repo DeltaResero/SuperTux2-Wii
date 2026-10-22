@@ -18,6 +18,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_MUSIC_OBJECT_HPP
 #define HEADER_SUPERTUX_OBJECT_MUSIC_OBJECT_HPP
 
+#include <string>
+
 #include "supertux/game_object.hpp"
 
 enum MusicType {

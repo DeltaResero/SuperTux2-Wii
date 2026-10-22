@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_CUSTOM_PARTICLE_SYSTEM_FILE_HPP
 #define HEADER_SUPERTUX_OBJECT_CUSTOM_PARTICLE_SYSTEM_FILE_HPP
 
+#include <string>
+
 #include "math/easing.hpp"
 #include "math/vector.hpp"
 #include "object/custom_particle_system.hpp"

@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_OBJECT_BORDERED_HPP
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <utility>

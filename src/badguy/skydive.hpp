@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SKYDIVE_HPP
 #define HEADER_SUPERTUX_BADGUY_SKYDIVE_HPP
 
+#include <cstdint>
+#include <string>
+
 #include "badguy/badguy.hpp"
 #include "object/portable.hpp"
 

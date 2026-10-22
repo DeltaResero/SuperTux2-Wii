@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SCRIPTED_OBJECT_HPP
 #define HEADER_SUPERTUX_OBJECT_SCRIPTED_OBJECT_HPP
 
+#include <string>
+
 #include "object/moving_sprite.hpp"
 #include "scripting/scripted_object.hpp"
 #include "squirrel/exposed_object.hpp"

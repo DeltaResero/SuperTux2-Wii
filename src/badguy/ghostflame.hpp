@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_GHOSTFLAME_HPP
 #define HEADER_SUPERTUX_BADGUY_GHOSTFLAME_HPP
 
+#include <string>
+
 #include "badguy/flame.hpp"
 
 class Ghostflame final : public Flame

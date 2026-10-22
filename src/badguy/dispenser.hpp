@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_DISPENSER_HPP
 #define HEADER_SUPERTUX_BADGUY_DISPENSER_HPP
 
+#include <string>
+#include <vector>
+
 #include "badguy/badguy.hpp"
 #include "scripting/dispenser.hpp"
 #include "squirrel/exposed_object.hpp"

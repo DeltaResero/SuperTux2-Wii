@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_TOAD_HPP
 #define HEADER_SUPERTUX_BADGUY_TOAD_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 /** Badguy "Toad" - A jumping toad */

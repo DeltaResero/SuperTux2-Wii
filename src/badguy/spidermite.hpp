@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SPIDERMITE_HPP
 #define HEADER_SUPERTUX_BADGUY_SPIDERMITE_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 class SpiderMite final : public BadGuy

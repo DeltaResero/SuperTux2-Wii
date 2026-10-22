@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_WALKINGLEAF_HPP
 #define HEADER_SUPERTUX_BADGUY_WALKINGLEAF_HPP
 
+#include <string>
+
 #include "badguy/walking_badguy.hpp"
 
 /** Easy to kill badguy that does not jump down from it's ledge. */

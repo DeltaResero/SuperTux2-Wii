@@ -19,8 +19,10 @@
 #define HEADER_SUPERTUX_OBJECT_TEXTSCROLLER_HPP
 
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "supertux/info_box_line.hpp"

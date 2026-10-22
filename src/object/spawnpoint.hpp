@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_SPAWNPOINT_HPP
 #define HEADER_SUPERTUX_OBJECT_SPAWNPOINT_HPP
 
+#include <string>
+
 #include "supertux/moving_object.hpp"
 
 #include "video/surface_ptr.hpp"

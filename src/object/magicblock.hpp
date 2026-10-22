@@ -20,6 +20,7 @@
 #include "object/moving_sprite.hpp"
 
 #include <memory>
+#include <string>
 
 /**
  * Magic Blocks are tile-like game objects that are sensitive to
