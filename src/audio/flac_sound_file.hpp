@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_AUDIO_FLAC_SOUND_FILE_HPP
 #define HEADER_SUPERTUX_AUDIO_FLAC_SOUND_FILE_HPP
 
+#include <cstddef>
 #include <cstdint>
 #include <istream>
 #include <memory>

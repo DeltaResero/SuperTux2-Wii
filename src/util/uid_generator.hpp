@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_UTIL_UID_GENERATOR_HPP
 #define HEADER_SUPERTUX_UTIL_UID_GENERATOR_HPP
 
+#include <cstdint>
+
 #include "util/uid.hpp"
 
 class UIDGenerator

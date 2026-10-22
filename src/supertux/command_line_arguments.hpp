@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_COMMAND_LINE_ARGUMENTS_HPP
 
 #include <optional>
+#include <string>
 #include <vector>
 
 #include "audio/audio_device.hpp"

@@ -18,6 +18,9 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_WORLDMAP_HPP
 #define HEADER_SUPERTUX_WORLDMAP_WORLDMAP_HPP
 
+#include <cstddef>
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "math/vector.hpp"

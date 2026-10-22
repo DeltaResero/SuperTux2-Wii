@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_AUDIO_OGG_SOUND_FILE_HPP
 #define HEADER_SUPERTUX_AUDIO_OGG_SOUND_FILE_HPP
 
+#include <cstddef>
 #include <istream>
 #include <memory>
 #include <vorbis/vorbisfile.h>

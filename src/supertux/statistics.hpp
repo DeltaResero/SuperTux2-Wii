@@ -19,6 +19,8 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_STATISTICS_HPP
 #define HEADER_SUPERTUX_SUPERTUX_STATISTICS_HPP
 
+#include <string>
+
 #include "video/color.hpp"
 #include "video/surface_ptr.hpp"
 

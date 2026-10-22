@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_VIDEO_GL_GL20_CONTEXT_HPP
 #define HEADER_SUPERTUX_VIDEO_GL_GL20_CONTEXT_HPP
 
+#include <cstddef>
+#include <string>
+
 #include "video/gl/gl_context.hpp"
 
 #ifndef USE_OPENGLES2

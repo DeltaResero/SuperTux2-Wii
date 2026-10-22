@@ -19,6 +19,7 @@
 #define HEADER_SUPERTUX_VIDEO_BITMAP_FONT_HPP
 
 #include <string>
+#include <vector>
 
 #include "math/rectf.hpp"
 #include "math/vector.hpp"

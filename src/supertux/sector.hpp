@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_SECTOR_HPP
 #define HEADER_SUPERTUX_SUPERTUX_SECTOR_HPP
 
+#include <cassert>
+#include <memory>
+#include <string>
 #include <vector>
 #include <cstdint>
 

@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_VIDEO_SYSTEM_HPP
 #define HEADER_SUPERTUX_VIDEO_VIDEO_SYSTEM_HPP
 
+#include <memory>
 #include <string>
 #include <SDL.h>
 

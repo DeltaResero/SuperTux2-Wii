@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SDL_MIXER_DEVICE_HPP
 #define HEADER_SUPERTUX_AUDIO_SDL_MIXER_DEVICE_HPP
 
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>

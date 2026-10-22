@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_GUI_ITEM_LABEL_HPP
 #define HEADER_SUPERTUX_GUI_ITEM_LABEL_HPP
 
+#include <string>
+
 #include "gui/menu_item.hpp"
 
 class ItemLabel final : public MenuItem

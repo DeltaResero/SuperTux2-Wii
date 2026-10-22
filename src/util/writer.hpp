@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_UTIL_WRITER_HPP
 #define HEADER_SUPERTUX_UTIL_WRITER_HPP
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <vector>

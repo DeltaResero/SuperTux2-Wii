@@ -22,6 +22,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <string>
 
 #include "math/fwd.hpp"
 #include "supertux/direction.hpp"

@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_SURFACE_BATCH_HPP
 #define HEADER_SUPERTUX_VIDEO_SURFACE_BATCH_HPP
 
+#include <utility>
 #include <vector>
 
 #include "math/fwd.hpp"

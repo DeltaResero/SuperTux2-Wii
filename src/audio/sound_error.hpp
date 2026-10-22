@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_AUDIO_SOUND_ERROR_HPP
 #define HEADER_SUPERTUX_AUDIO_SOUND_ERROR_HPP
 
+#include <exception>
 #include <stdexcept>
 #include <string>
 

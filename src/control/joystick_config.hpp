@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_CONTROL_JOYSTICK_CONFIG_HPP
 
 #include <map>
+#include <utility>
 #include <SDL.h>
 
 #include "control/controller.hpp"

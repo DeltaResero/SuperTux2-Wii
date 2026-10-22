@@ -18,6 +18,8 @@
 #ifndef HEADER_SUPERTUX_WORLDMAP_LEVEL_TILE_HPP
 #define HEADER_SUPERTUX_WORLDMAP_LEVEL_TILE_HPP
 
+#include <string>
+
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/game_object.hpp"

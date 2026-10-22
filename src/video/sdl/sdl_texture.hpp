@@ -20,6 +20,7 @@
 #include "video/texture.hpp"
 
 #include <SDL.h>
+#include <cstdint>
 
 #include "math/size.hpp"
 #include "math/vector.hpp"

@@ -19,6 +19,7 @@
 
 #include <optional>
 #include <string>
+#include <utility>
 
 #include "math/vector.hpp"
 #include "supertux/screen.hpp"

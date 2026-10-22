@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_COLOR_HPP
 #define HEADER_SUPERTUX_VIDEO_COLOR_HPP
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <cmath>

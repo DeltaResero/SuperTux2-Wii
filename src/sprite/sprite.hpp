@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_SPRITE_SPRITE_HPP
 #define HEADER_SUPERTUX_SPRITE_SPRITE_HPP
 
+#include <string>
+#include <vector>
+
 #include "sprite/sprite_data.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "video/canvas.hpp"

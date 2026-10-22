@@ -19,6 +19,7 @@
 #define HEADER_SUPERTUX_AUDIO_OPENAL_DEVICE_HPP
 
 #include <map>
+#include <memory>
 #include <string>
 
 #include <al.h>

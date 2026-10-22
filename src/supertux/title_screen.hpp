@@ -21,6 +21,7 @@
 #include "supertux/screen.hpp"
 #include "video/surface_ptr.hpp"
 
+#include <memory>
 #include <string>
 
 class CodeController;

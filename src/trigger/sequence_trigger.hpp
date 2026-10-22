@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_TRIGGER_SEQUENCE_TRIGGER_HPP
 #define HEADER_SUPERTUX_TRIGGER_SEQUENCE_TRIGGER_HPP
 
+#include <string>
+
 #include "supertux/sequence.hpp"
 #include "trigger/trigger_base.hpp"
 

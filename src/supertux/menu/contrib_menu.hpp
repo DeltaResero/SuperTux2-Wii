@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_MENU_CONTRIB_MENU_HPP
 #define HEADER_SUPERTUX_SUPERTUX_MENU_CONTRIB_MENU_HPP
 
+#include <memory>
+#include <vector>
+
 #include "gui/menu.hpp"
 #include "supertux/world.hpp"
 

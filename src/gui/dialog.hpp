@@ -19,7 +19,9 @@
 
 #include <SDL.h>
 #include <functional>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "gui/menu_manager.hpp"

@@ -20,6 +20,8 @@
 
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 #include <SDL2/SDL.h>
 
 #include "config.h"

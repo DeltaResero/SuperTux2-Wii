@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_GUI_ITEM_INACTIVE_HPP
 #define HEADER_SUPERTUX_GUI_ITEM_INACTIVE_HPP
 
+#include <string>
+
 #include "gui/menu_item.hpp"
 
 class Color;

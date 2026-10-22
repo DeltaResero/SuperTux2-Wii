@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_UTIL_READER_DOCUMENT_HPP
 
 #include <istream>
+#include <string>
 #include <sexp/value.hpp>
 
 #include "util/reader_object.hpp"

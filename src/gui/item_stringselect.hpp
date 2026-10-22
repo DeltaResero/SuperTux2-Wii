@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_GUI_ITEM_STRINGSELECT_HPP
 
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 

@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_MAIN_HPP
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "audio/sound_manager.hpp"

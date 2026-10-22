@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_CUSTOM_PARTICLES_HPP
 #define HEADER_SUPERTUX_SCRIPTING_CUSTOM_PARTICLES_HPP
 
+#include <string>
+
 #ifndef SCRIPTING_API
 #include "scripting/game_object.hpp"
 
