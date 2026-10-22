@@ -146,8 +146,6 @@ else()
     INTERFACE_INCLUDE_DIRECTORIES ${GLM_INCLUDE_DIR})
 endif()
 
-find_package(PNG REQUIRED)
-
 if(WIN32)
   if(VCPKG_BUILD)
     find_package(SDL2 CONFIG REQUIRED)
@@ -406,7 +404,6 @@ include_directories(${CMAKE_BINARY_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/obstack/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/sexp-cpp/include/)
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/SDL_SavePNG/)
 
 if(WIN32)
   add_definitions(-DNOMINMAX)
@@ -434,11 +431,6 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/sexp-cpp/CMakeLists.txt)
 endif()
 file(GLOB SEXP_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/sexp-cpp/src/*.cpp)
 add_library(sexp STATIC ${SEXP_SOURCES_CXX})
-
-file(GLOB SAVEPNG_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/SDL_SavePNG/savepng.c)
-add_library(savepng STATIC ${SAVEPNG_SOURCES_CXX})
-target_include_directories(savepng SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS})
-target_link_libraries(savepng PUBLIC ${PNG_LIBRARIES})
 
 if(HAVE_OPENGL)
   file(GLOB SUPERTUX_OPENGL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/video/gl/*.cpp)
@@ -651,7 +643,6 @@ target_link_libraries(supertux2_lib PUBLIC ${SDL2TTF_TARGET})
 target_link_libraries(supertux2_lib PUBLIC squirrel_lib)
 target_link_libraries(supertux2_lib PUBLIC sqstdlib_lib)
 target_link_libraries(supertux2_lib PUBLIC sexp)
-target_link_libraries(supertux2_lib PUBLIC savepng)
 if(ENABLE_OPENAL)
   if(VCPKG_BUILD)
     target_link_libraries(supertux2_lib PUBLIC OpenAL::OpenAL)
@@ -677,23 +668,20 @@ if(HAVE_OPENGL)
 endif(HAVE_OPENGL)
 
 if(BUILD_TESTS)
-  find_package(Threads REQUIRED)
-  find_package(GTest REQUIRED)
-
-  # build SuperTux tests
-  file(GLOB TEST_SUPERTUX_SOURCES tests/*.cpp)
-  add_executable(test_supertux2 ${TEST_SUPERTUX_SOURCES})
-  target_compile_options(test_supertux2 PRIVATE ${WARNINGS_CXX_FLAGS})
-  target_link_libraries(test_supertux2
-    GTest::GTest GTest::Main
-    supertux2_lib
-    ${CMAKE_THREAD_LIBS_INIT})
-
   # add 'make test' target, use 'make test ARGS="-V"' or 'ctest -V' for verbose
   enable_testing()
-  add_test(NAME test_supertux2
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMAND test_supertux2)
+
+  # each test file is its own program, so a failure names the file that failed
+  file(GLOB TEST_SUPERTUX_SOURCES tests/*_test.cpp)
+  foreach(TEST_SOURCE ${TEST_SUPERTUX_SOURCES})
+    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+    add_executable(${TEST_NAME} ${TEST_SOURCE})
+    target_compile_options(${TEST_NAME} PRIVATE ${WARNINGS_CXX_FLAGS})
+    target_link_libraries(${TEST_NAME} supertux2_lib)
+    add_test(NAME ${TEST_NAME}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMAND ${TEST_NAME})
+  endforeach()
 endif()
 
 ## Install stuff

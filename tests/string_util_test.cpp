@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -23,7 +23,7 @@
 
 #include "util/string_util.hpp"
 
-TEST(StringUtilTest, numeric_sort_test)
+int main()
 {
   std::vector<std::string> unsorted_lst =
     {
@@ -73,7 +73,9 @@ TEST(StringUtilTest, numeric_sort_test)
 
   std::sort(unsorted_lst.begin(), unsorted_lst.end(), StringUtil::numeric_less);
 
-  ASSERT_EQ(actual_lst, unsorted_lst);
+  ST_ASSERT_EQ(actual_lst, unsorted_lst);
+
+  return 0;
 }
 
 /* EOF */

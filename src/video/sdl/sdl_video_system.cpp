@@ -27,7 +27,6 @@
 #include "video/sdl/sdl_screen_renderer.hpp"
 #include "video/sdl/sdl_texture.hpp"
 #include "video/sdl/sdl_texture_renderer.hpp"
-#include "video/sdl_surface.hpp"
 #include "video/texture_manager.hpp"
 
 SDLVideoSystem::SDLVideoSystem() :
@@ -168,39 +167,6 @@ void
 SDLVideoSystem::flip()
 {
   m_renderer->flip();
-}
-
-SDLSurfacePtr
-SDLVideoSystem::make_screenshot()
-{
-  int width;
-  int height;
-  if (SDL_GetRendererOutputSize(m_renderer->get_sdl_renderer(), &width, &height) != 0)
-  {
-    log_warning << "SDL_GetRenderOutputSize failed: " << SDL_GetError() << std::endl;
-    return {};
-  }
-  else
-  {
-    SDLSurfacePtr surface = SDLSurface::create_rgba(width, height);
-
-    SDL_LockSurface(surface.get());
-    int ret = SDL_RenderReadPixels(m_renderer->get_sdl_renderer(), nullptr,
-                                   SDL_PIXELFORMAT_ABGR8888,
-                                   surface->pixels,
-                                   surface->pitch);
-    SDL_UnlockSurface(surface.get());
-
-    if (ret != 0)
-    {
-      log_warning << "SDL_RenderReadPixels failed: " << SDL_GetError() << std::endl;
-      return {};
-    }
-    else
-    {
-      return surface;
-    }
-  }
 }
 
 /* EOF */

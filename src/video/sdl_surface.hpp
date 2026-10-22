@@ -26,9 +26,7 @@ class SDLSurface final
 {
 public:
   static SDLSurfacePtr create_rgba(int width, int height);
-  static SDLSurfacePtr create_rgb(int width, int height);
   static SDLSurfacePtr from_file(const std::string& filename);
-  static int save_png(const SDL_Surface& surface, const std::string& filename);
 
   /** An even average of every pixel the smaller picture covers, weighted by alpha so edges don't darken */
   static SDLSurfacePtr shrink(const SDL_Surface& surface, int width, int height);

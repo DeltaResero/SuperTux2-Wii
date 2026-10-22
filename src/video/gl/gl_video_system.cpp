@@ -32,7 +32,6 @@
 #include "video/gl/gl_texture_renderer.hpp"
 #include "video/gl/gl_vertex_arrays.hpp"
 #include "video/glutil.hpp"
-#include "video/sdl_surface.hpp"
 #include "video/texture_manager.hpp"
 
 #ifdef USE_GLBINDING
@@ -308,40 +307,6 @@ int
 GLVideoSystem::get_vsync() const
 {
   return SDL_GL_GetSwapInterval();
-}
-
-SDLSurfacePtr
-GLVideoSystem::make_screenshot()
-{
-  assert_gl();
-
-  GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
-
-  const int& viewport_x = viewport[0];
-  const int& viewport_y = viewport[1];
-  const int& viewport_width = viewport[2];
-  const int& viewport_height = viewport[3];
-
-  SDLSurfacePtr surface = SDLSurface::create_rgb(viewport_width, viewport_height);
-
-  std::vector<char> pixels(3 * viewport_width * viewport_height);
-
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
-  glReadPixels(viewport_x, viewport_y, viewport_width, viewport_height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
-
-  SDL_LockSurface(surface.get());
-  for (int i = 0; i < viewport_height; i++)
-  {
-    char* src = &pixels[3 * viewport_width * (viewport_height - i - 1)];
-    char* dst = (static_cast<char*>(surface->pixels)) + i * surface->pitch;
-    memcpy(dst, src, 3 * viewport_width);
-  }
-  SDL_UnlockSurface(surface.get());
-
-  assert_gl();
-
-  return surface;
 }
 
 /* EOF */

@@ -17,18 +17,11 @@
 #include "video/video_system.hpp"
 
 #include <cassert>
-#include <optional>
 #include <config.h>
-#include <filesystem>
-#include <iomanip>
-#include <sstream>
 
-#include "util/file_system.hpp"
 #include "util/log.hpp"
 #include "video/null/null_video_system.hpp"
 #include "video/sdl/sdl_video_system.hpp"
-#include "video/sdl_surface.hpp"
-#include "video/sdl_surface_ptr.hpp"
 
 #ifdef HAVE_OPENGL
 #  include "video/gl/gl_video_system.hpp"
@@ -144,53 +137,6 @@ VideoSystem::get_video_string(VideoSystem::Enum video)
       log_fatal << "invalid video system in config" << std::endl;
       assert(false);
       return "auto";
-  }
-}
-
-void
-VideoSystem::do_take_screenshot()
-{
-  SDLSurfacePtr surface = make_screenshot();
-  if (!surface) {
-    log_warning << "Creating the screenshot has failed" << std::endl;
-    return;
-  }
-
-  const std::string screenshots_dir = "/screenshots";
-  if (FileSystem::find(screenshots_dir).empty()) {
-    const std::string path = FileSystem::write_path(screenshots_dir);
-    std::error_code ec;
-    std::filesystem::create_directories(path, ec);
-    if (path.empty() || ec) {
-      log_warning << "Creating '" << screenshots_dir << "' failed" << std::endl;
-      return;
-    }
-  }
-
-  auto find_filename = [&]() -> std::optional<std::string>
-    {
-      for (int num = 0; num < 1000000; ++num)
-      {
-        std::ostringstream oss;
-        oss << "screenshot" << std::setw(6) << std::setfill('0') << num << ".png";
-        const std::string screenshot_filename = FileSystem::join(screenshots_dir, oss.str());
-        if (FileSystem::find(screenshot_filename).empty()) {
-          return screenshot_filename;
-        }
-      }
-      return std::nullopt;
-    };
-
-  auto filename = find_filename();
-  if (!filename)
-  {
-    log_info << "Failed to find filename to save screenshot" << std::endl;
-  }
-  else
-  {
-    if (SDLSurface::save_png(*surface, *filename)) {
-      log_info << "Wrote screenshot to \"" << *filename << "\"" << std::endl;
-    }
   }
 }
 

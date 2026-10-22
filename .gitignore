@@ -13,6 +13,7 @@ build*/
 supertux2
 supertux2.exe
 test_supertux2
+/*_test
 
 # Left behind by configuring in the source directory
 CMakeCache.txt

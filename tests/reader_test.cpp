@@ -14,12 +14,14 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 
-TEST(ReaderTest, get)
+namespace {
+
+void get_test()
 {
   std::istringstream in(
     "(supertux-test\n"
@@ -38,65 +40,65 @@ TEST(ReaderTest, get)
 
   auto doc = ReaderDocument::from_stream(in);
   auto root = doc.get_root();
-  ASSERT_EQ("supertux-test", root.get_name());
+  ST_ASSERT_EQ("supertux-test", root.get_name());
   auto mapping = root.get_mapping();
 
   {
     bool mybool;
     mapping.get("mybool", mybool);
-    ASSERT_EQ(true, mybool);
+    ST_ASSERT_EQ(true, mybool);
   }
 
   {
     int myint;
     mapping.get("myint", myint);
-    ASSERT_EQ(123456789, myint);
+    ST_ASSERT_EQ(123456789, myint);
   }
 
   {
     float myfloat;
     mapping.get("myfloat", myfloat);
-    ASSERT_EQ(1.125, myfloat);
+    ST_ASSERT_EQ(1.125, myfloat);
   }
 
   {
     std::string mystring;
     mapping.get("mystring", mystring);
-    ASSERT_EQ("Hello World", mystring);
+    ST_ASSERT_EQ("Hello World", mystring);
   }
 
   {
     std::string mystringtrans;
     mapping.get("mystringtrans", mystringtrans);
-    ASSERT_EQ("Hello World", mystringtrans);
+    ST_ASSERT_EQ("Hello World", mystringtrans);
   }
 
   {
     std::vector<bool> expected{ true, false, true, false };
     std::vector<bool> result;
     mapping.get("myboolarray", result);
-    ASSERT_EQ(expected, result);
+    ST_ASSERT_EQ(expected, result);
   }
 
   {
     std::vector<int> expected{ 5, 4, 3, 2, 1, 0 };
     std::vector<int> result;
     mapping.get("myintarray", result);
-    ASSERT_EQ(expected, result);
+    ST_ASSERT_EQ(expected, result);
   }
 
   {
     std::vector<float> expected({6.5f, 5.25f, 4.125f, 3.0625f, 2.0f, 1.0f, 0.5f, 0.25f, 0.125f});
     std::vector<float> result;
     mapping.get("myfloatarray", result);
-    ASSERT_EQ(expected, result);
+    ST_ASSERT_EQ(expected, result);
   }
 
   {
     std::vector<std::string> expected{"One", "Two", "Three"};
     std::vector<std::string> result;
     mapping.get("mystringarray", result);
-    ASSERT_EQ(expected, result);
+    ST_ASSERT_EQ(expected, result);
   }
 
   {
@@ -105,11 +107,11 @@ TEST(ReaderTest, get)
 
     int a;
     child_mapping->get("a", a);
-    ASSERT_EQ(1, a);
+    ST_ASSERT_EQ(1, a);
 
     int b;
     child_mapping->get("b", b);
-    ASSERT_EQ(2, b);
+    ST_ASSERT_EQ(2, b);
   }
 
   {
@@ -117,29 +119,29 @@ TEST(ReaderTest, get)
 
     int value = 0;
     mapping.get_custom("mycustom", value, from_string);
-    ASSERT_EQ(1234, value);
+    ST_ASSERT_EQ(1234, value);
 
     int value2 = 0;
     mapping.get_custom("does-not-exist", value2, from_string);
-    ASSERT_EQ(0, value2);
+    ST_ASSERT_EQ(0, value2);
 
     int value3 = 0;
     mapping.get_custom("does-not-exist", value3, from_string, 4321);
-    ASSERT_EQ(4321, value3);
+    ST_ASSERT_EQ(4321, value3);
   }
 
   {
     bool mybool;
     int myint;
     float myfloat;
-    ASSERT_THROW({mapping.get("mybool", myfloat);}, std::runtime_error);
-    ASSERT_THROW({mapping.get("myint", mybool);}, std::runtime_error);
-    ASSERT_THROW({mapping.get("myfloat", myint);}, std::runtime_error);
-    ASSERT_THROW({mapping.get("mymapping", myint);}, std::runtime_error);
+    ST_ASSERT_THROW({mapping.get("mybool", myfloat);}, std::runtime_error);
+    ST_ASSERT_THROW({mapping.get("myint", mybool);}, std::runtime_error);
+    ST_ASSERT_THROW({mapping.get("myfloat", myint);}, std::runtime_error);
+    ST_ASSERT_THROW({mapping.get("mymapping", myint);}, std::runtime_error);
   }
 }
 
-TEST(ReaderTest, syntax_error)
+void syntax_error_test()
 {
   std::istringstream in(
     "(supertux-test\n"
@@ -153,20 +155,30 @@ TEST(ReaderTest, syntax_error)
 
   auto doc = ReaderDocument::from_stream(in);
   auto root = doc.get_root();
-  ASSERT_EQ("supertux-test", root.get_name());
+  ST_ASSERT_EQ("supertux-test", root.get_name());
   auto mapping = root.get_mapping();
 
   bool mybool;
   int myint;
   float myfloat;
   std::optional<ReaderMapping> mymapping;
-  ASSERT_THROW({mapping.get("mybool", mybool);}, std::runtime_error);
-  ASSERT_THROW({mapping.get("myint", myint);}, std::runtime_error);
-  ASSERT_THROW({mapping.get("myfloat", myfloat);}, std::runtime_error);
+  ST_ASSERT_THROW({mapping.get("mybool", mybool);}, std::runtime_error);
+  ST_ASSERT_THROW({mapping.get("myint", myint);}, std::runtime_error);
+  ST_ASSERT_THROW({mapping.get("myfloat", myfloat);}, std::runtime_error);
 
   mapping.get("mymapping", mymapping);
-  ASSERT_THROW({mymapping->get("a", myint);}, std::runtime_error);
-  ASSERT_THROW({mymapping->get("b", myint);}, std::runtime_error);
+  ST_ASSERT_THROW({mymapping->get("a", myint);}, std::runtime_error);
+  ST_ASSERT_THROW({mymapping->get("b", myint);}, std::runtime_error);
+}
+
+} // namespace
+
+int main()
+{
+  get_test();
+  syntax_error_test();
+
+  return 0;
 }
 
 /* EOF */

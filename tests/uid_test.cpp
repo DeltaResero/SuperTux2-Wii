@@ -14,24 +14,26 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include <unordered_set>
 
 #include "util/uid_generator.hpp"
 
-TEST(UIDTest, null)
+namespace {
+
+void null_test()
 {
   UIDGenerator generator;
   UID null_uid;
   UID uid = generator.next();
 
-  ASSERT_FALSE(null_uid);
-  ASSERT_TRUE(uid);
-  ASSERT_TRUE(uid != null_uid);
+  ST_ASSERT(!null_uid);
+  ST_ASSERT(uid);
+  ST_ASSERT(uid != null_uid);
 }
 
-TEST(UIDTest, magic)
+void magic_test()
 {
   UIDGenerator generator1;
   UIDGenerator generator2;
@@ -39,19 +41,19 @@ TEST(UIDTest, magic)
   UID uid1 = generator1.next();
   UID uid2 = generator2.next();
 
-  ASSERT_TRUE(uid1 != uid2);
+  ST_ASSERT(uid1 != uid2);
 }
 
-TEST(UIDTest, copy)
+void copy_test()
 {
   UIDGenerator generator;
   UID uid = generator.next();
   UID other = uid;
 
-  ASSERT_EQ(uid, other);
+  ST_ASSERT_EQ(uid, other);
 }
 
-TEST(UIDTest, unique)
+void unique_test()
 {
   if ((false)) {
     UIDGenerator generator;
@@ -60,10 +62,22 @@ TEST(UIDTest, unique)
     for(int i = 0; i < 0xffffff; ++i)
     {
       UID uid = generator.next();
-      ASSERT_TRUE(uids.find(uid) == uids.end());
+      ST_ASSERT(uids.find(uid) == uids.end());
       uids.insert(uid);
     }
   }
+}
+
+} // namespace
+
+int main()
+{
+  null_test();
+  magic_test();
+  copy_test();
+  unique_test();
+
+  return 0;
 }
 
 /* EOF */

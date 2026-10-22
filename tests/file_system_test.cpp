@@ -14,18 +14,20 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include "util/file_system.hpp"
 
-TEST(FileSystemTest, join)
+int main()
 {
-  ASSERT_EQ(FileSystem::join("foo/bar", ""), "foo/bar/");
-  ASSERT_EQ(FileSystem::join("", "foo/bar"), "foo/bar");
-  ASSERT_EQ(FileSystem::join("foo/bar", "baz/boing"), "foo/bar/baz/boing");
-  ASSERT_EQ(FileSystem::join("foo/bar", "/baz/boing"), "foo/bar/baz/boing");
-  ASSERT_EQ(FileSystem::join("foo/bar/", "/baz/boing"), "foo/bar/baz/boing");
-  ASSERT_EQ(FileSystem::join("/foo/bar", "baz/boing"), "/foo/bar/baz/boing");
+  ST_ASSERT_EQ(FileSystem::join("foo/bar", ""), "foo/bar/");
+  ST_ASSERT_EQ(FileSystem::join("", "foo/bar"), "foo/bar");
+  ST_ASSERT_EQ(FileSystem::join("foo/bar", "baz/boing"), "foo/bar/baz/boing");
+  ST_ASSERT_EQ(FileSystem::join("foo/bar", "/baz/boing"), "foo/bar/baz/boing");
+  ST_ASSERT_EQ(FileSystem::join("foo/bar/", "/baz/boing"), "foo/bar/baz/boing");
+  ST_ASSERT_EQ(FileSystem::join("/foo/bar", "baz/boing"), "/foo/bar/baz/boing");
+
+  return 0;
 }
 
 /* EOF */

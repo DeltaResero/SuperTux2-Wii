@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include <array>
 #include <fstream>
@@ -24,17 +24,17 @@
 #include "io/ifile_stream.hpp"
 #include "util/file_system.hpp"
 
-TEST(IFileStreamTest, test)
+int main()
 {
   FileSystem::add_search_path("../tests/data");
 
   IFileStream in("test.dat");
 
-  size_t total_bytes = 0;
+  std::streamsize total_bytes = 0;
   std::array<char, 1024> buffer;
   while (in.read(buffer.data(), buffer.size())) {
     total_bytes += in.gcount();
-    ASSERT_EQ(total_bytes, in.tellg());
+    ST_ASSERT_EQ(total_bytes, in.tellg());
   };
   total_bytes += in.gcount();
 
@@ -42,11 +42,13 @@ TEST(IFileStreamTest, test)
   // eofbit is set
   in.clear();
 
-  ASSERT_EQ(total_bytes, in.tellg());
+  ST_ASSERT_EQ(total_bytes, in.tellg());
 
   std::ifstream fin("../tests/data/test.dat");
   fin.seekg(0, std::ios::end);
-  ASSERT_EQ(fin.tellg(), in.tellg());
+  ST_ASSERT_EQ(fin.tellg(), in.tellg());
+
+  return 0;
 }
 
 /* EOF */

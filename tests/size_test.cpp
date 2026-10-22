@@ -14,27 +14,29 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <gtest/gtest.h>
+#include "st_assert.hpp"
 
 #include "math/size.hpp"
 
-TEST(SizeTest, size_test)
+int main()
 {
   Size size(800, 600);
 
-  ASSERT_EQ(Size(800, 600), size);
-  ASSERT_EQ(Size(1600, 1200), size * 2);
-  ASSERT_EQ(Size(400, 300), size / 2);
-  ASSERT_EQ(Size(1000, 900), size + Size(200, 300));
+  ST_ASSERT_EQ(Size(800, 600), size);
+  ST_ASSERT_EQ(Size(1600, 1200), size * 2);
+  ST_ASSERT_EQ(Size(400, 300), size / 2);
+  ST_ASSERT_EQ(Size(1000, 900), size + Size(200, 300));
 
   size *= 2;
-  ASSERT_EQ(Size(1600, 1200), size);
+  ST_ASSERT_EQ(Size(1600, 1200), size);
 
   size /= 2;
-  ASSERT_EQ(Size(800, 600), size);
+  ST_ASSERT_EQ(Size(800, 600), size);
 
   size += size;
-  ASSERT_EQ(Size(1600, 1200), size);
+  ST_ASSERT_EQ(Size(1600, 1200), size);
+
+  return 0;
 }
 
 /* EOF */
