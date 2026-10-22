@@ -28,26 +28,26 @@ KeyboardConfig::KeyboardConfig() :
   m_jump_with_up_kbd(false)
 {
   // initialize default keyboard map
-  m_keymap[SDLK_LEFT]     = Control::LEFT;
-  m_keymap[SDLK_RIGHT]    = Control::RIGHT;
-  m_keymap[SDLK_UP]       = Control::UP;
-  m_keymap[SDLK_DOWN]     = Control::DOWN;
-  m_keymap[SDLK_SPACE]    = Control::JUMP;
-  m_keymap[SDLK_LCTRL]    = Control::ACTION;
-  m_keymap[SDLK_LALT]     = Control::ACTION;
-  m_keymap[SDLK_ESCAPE]   = Control::ESCAPE;
-  m_keymap[SDLK_p]        = Control::START;
-  m_keymap[SDLK_PAUSE]    = Control::START;
-  m_keymap[SDLK_RETURN]   = Control::MENU_SELECT;
-  m_keymap[SDLK_KP_ENTER] = Control::MENU_SELECT;
-  m_keymap[SDLK_CARET]    = Control::CONSOLE;
-  m_keymap[SDLK_DELETE]   = Control::PEEK_LEFT;
-  m_keymap[SDLK_PAGEDOWN] = Control::PEEK_RIGHT;
-  m_keymap[SDLK_HOME]     = Control::PEEK_UP;
-  m_keymap[SDLK_END]      = Control::PEEK_DOWN;
-  m_keymap[SDLK_F1]       = Control::CHEAT_MENU;
-  m_keymap[SDLK_F2]       = Control::DEBUG_MENU;
-  m_keymap[SDLK_BACKSPACE]= Control::REMOVE;
+  m_keymap[SDLK_LEFT]      = Control::LEFT;
+  m_keymap[SDLK_RIGHT]     = Control::RIGHT;
+  m_keymap[SDLK_UP]        = Control::UP;
+  m_keymap[SDLK_DOWN]      = Control::DOWN;
+  m_keymap[SDLK_SPACE]     = Control::JUMP;
+  m_keymap[SDLK_LCTRL]     = Control::ACTION;
+  m_keymap[SDLK_LALT]      = Control::ACTION;
+  m_keymap[SDLK_ESCAPE]    = Control::ESCAPE;
+  m_keymap[SDLK_p]         = Control::START;
+  m_keymap[SDLK_PAUSE]     = Control::START;
+  m_keymap[SDLK_RETURN]    = Control::MENU_SELECT;
+  m_keymap[SDLK_KP_ENTER]  = Control::MENU_SELECT;
+  m_keymap[SDLK_BACKQUOTE] = Control::CONSOLE;
+  m_keymap[SDLK_DELETE]    = Control::PEEK_LEFT;
+  m_keymap[SDLK_PAGEDOWN]  = Control::PEEK_RIGHT;
+  m_keymap[SDLK_HOME]      = Control::PEEK_UP;
+  m_keymap[SDLK_END]       = Control::PEEK_DOWN;
+  m_keymap[SDLK_F1]        = Control::CHEAT_MENU;
+  m_keymap[SDLK_F2]        = Control::DEBUG_MENU;
+  m_keymap[SDLK_BACKSPACE] = Control::REMOVE;
 
   m_configurable_controls = {
     Control::UP,
