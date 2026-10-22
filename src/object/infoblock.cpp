@@ -37,10 +37,6 @@ InfoBlock::InfoBlock(const ReaderMapping& mapping) :
   if (!mapping.get("message", m_message)) {
     log_warning << "No message in InfoBlock" << std::endl;
   }
-  //stopped = false;
-  //ringing = new AmbientSound(get_pos(), 0.5, 300, 1, "sounds/phone.flac");
-  //Sector::get().add_object(ringing);
-
   // Split text string lines into a vector
   m_lines = InfoBoxLine::split(m_message, 400);
   for (const auto& line : m_lines) m_lines_height += line->get_height();
@@ -54,11 +50,6 @@ void
 InfoBlock::hit(Player& player)
 {
   start_bounce(&player);
-
-  //if (!stopped) {
-  //  ringing->remove_me();
-  //  stopped = true;
-  //}
 
   if (m_dest_pct != 1) {
 
@@ -175,9 +166,6 @@ InfoBlock::draw(DrawingContext& context)
   float y = y1;
   for (size_t i = 0; i < m_lines.size(); ++i) {
     if (y >= y1 + height) {
-      //log_warning << "Too many lines of text in InfoBlock" << std::endl;
-      //dest_pct = 0;
-      //shown_pct = 0;
       break;
     }
 
