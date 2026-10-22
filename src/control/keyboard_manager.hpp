@@ -18,6 +18,8 @@
 #ifndef HEADER_SUPERTUX_CONTROL_KEYBOARD_MANAGER_HPP
 #define HEADER_SUPERTUX_CONTROL_KEYBOARD_MANAGER_HPP
 
+#include <config.h>
+
 #include <optional>
 
 #include "control/controller.hpp"
@@ -34,7 +36,9 @@ public:
 
   void process_key_event(const SDL_KeyboardEvent& event);
   void process_text_input_event(const SDL_TextInputEvent& event);
+#ifdef ENABLE_CONSOLE
   void process_console_key_event(const SDL_KeyboardEvent& event);
+#endif
   void process_menu_key_event(const SDL_KeyboardEvent& event);
 
   void bind_next_event_to(Control id);

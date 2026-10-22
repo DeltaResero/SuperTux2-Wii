@@ -34,6 +34,8 @@
 
 #cmakedefine ENABLE_TOUCHSCREEN_SUPPORT
 
+#cmakedefine ENABLE_CONSOLE
+
 #cmakedefine REMOVE_QUIT_BUTTON
 
 #endif /*CONFIG_H*/

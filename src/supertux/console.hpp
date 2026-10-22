@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_CONSOLE_HPP
 #define HEADER_SUPERTUX_SUPERTUX_CONSOLE_HPP
 
+#include <config.h>
+
 #include <list>
 #include <squirrel.h>
 #include <sstream>
@@ -36,9 +38,11 @@ public:
   static std::ostream output; /**< stream of characters to output to the console. Do not forget to send std::endl or to flush the stream. */
   static ConsoleStreamBuffer s_outputBuffer; /**< stream buffer used by output stream */
 
+#ifdef ENABLE_CONSOLE
 public:
   std::list<std::string> m_lines; /**< backbuffer of lines sent to the console. New lines get added to front. */
   Console* m_console;
+#endif
 
 public:
   ConsoleBuffer();
@@ -48,12 +52,16 @@ public:
 
   void flush(ConsoleStreamBuffer& buffer); /**< act upon changes in a ConsoleStreamBuffer */
 
+#ifdef ENABLE_CONSOLE
   void set_console(Console* console);
+#endif
 
 private:
   ConsoleBuffer(const ConsoleBuffer&) = delete;
   ConsoleBuffer& operator=(const ConsoleBuffer&) = delete;
 };
+
+#ifdef ENABLE_CONSOLE
 
 class Console final : public Currenton<Console>
 {
@@ -120,6 +128,8 @@ private:
   Console(const Console&) = delete;
   Console & operator=(const Console&) = delete;
 };
+
+#endif
 
 class ConsoleStreamBuffer final : public std::stringbuf
 {

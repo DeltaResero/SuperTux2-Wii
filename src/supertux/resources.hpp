@@ -18,6 +18,8 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_RESOURCES_HPP
 #define HEADER_SUPERTUX_SUPERTUX_RESOURCES_HPP
 
+#include <config.h>
+
 #include <memory>
 
 #include "video/font_ptr.hpp"
@@ -30,8 +32,10 @@ class Resources final
 public:
   static std::unique_ptr<MouseCursor> mouse_cursor;
 
+#ifdef ENABLE_CONSOLE
   /** Font used in the console */
   static FontPtr console_font;
+#endif
 
   /** A version of the regular font with fixed spacing for displaying
       coin counts and other numbers in the HUD */

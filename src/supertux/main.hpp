@@ -97,7 +97,9 @@ private:
   std::unique_ptr<TileManager> m_tile_manager;
   std::unique_ptr<SpriteManager> m_sprite_manager;
   std::unique_ptr<Resources> m_resources;
+#ifdef ENABLE_CONSOLE
   std::unique_ptr<Console> m_console;
+#endif
   std::unique_ptr<GameManager> m_game_manager;
   std::unique_ptr<ScreenManager> m_screen_manager;
   std::unique_ptr<Savegame> m_savegame;

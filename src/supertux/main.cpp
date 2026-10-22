@@ -111,7 +111,9 @@ Main::Main() :
   m_tile_manager(),
   m_sprite_manager(),
   m_resources(),
+#ifdef ENABLE_CONSOLE
   m_console(),
+#endif
   m_game_manager(),
   m_screen_manager(),
   m_savegame()
@@ -354,7 +356,9 @@ Main::launch_game(const CommandLineArguments& args)
   m_sprite_manager = std::make_unique<SpriteManager>();
   m_resources = std::make_unique<Resources>();
 
+#ifdef ENABLE_CONSOLE
   m_console = std::make_unique<Console>(*m_console_buffer);
+#endif
 
   s_timelog.log(nullptr);
 

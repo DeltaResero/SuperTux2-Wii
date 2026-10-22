@@ -39,7 +39,9 @@ KeyboardMenu::KeyboardMenu(InputManager& input_manager) :
   add_controlfield(static_cast<int>(Control::PEEK_UP),    "Peek Up");
   add_controlfield(static_cast<int>(Control::PEEK_DOWN),  "Peek Down");
   if (g_config->developer_mode) {
+#ifdef ENABLE_CONSOLE
     add_controlfield(static_cast<int>(Control::CONSOLE), "Console");
+#endif
     add_controlfield(static_cast<int>(Control::CHEAT_MENU), "Cheat Menu");
     add_controlfield(static_cast<int>(Control::DEBUG_MENU), "Debug Menu");
   }
@@ -136,10 +138,12 @@ KeyboardMenu::refresh()
     if (micf) micf->change_input(get_key_name(kbd_cfg.reversemap_key(Control::DEBUG_MENU)));
   }
 
+#ifdef ENABLE_CONSOLE
   if (g_config->developer_mode) {
     micf = dynamic_cast<ItemControlField*>(&get_item_by_id(static_cast<int>(Control::CONSOLE)));
     if (micf) micf->change_input(get_key_name(kbd_cfg.reversemap_key(Control::CONSOLE)));
   }
+#endif
 }
 
 /* EOF */
