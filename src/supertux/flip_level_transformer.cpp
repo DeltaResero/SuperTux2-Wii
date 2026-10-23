@@ -16,6 +16,9 @@
 
 #include "supertux/flip_level_transformer.hpp"
 
+#include <memory>
+#include <vector>
+
 #include "badguy/badguy.hpp"
 #include "object/block.hpp"
 #include "object/camera.hpp"

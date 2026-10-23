@@ -19,6 +19,8 @@
 #include <cassert>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <utility>
 
 #include "audio/sound_manager.hpp"
 #include "gui/item_action.hpp"

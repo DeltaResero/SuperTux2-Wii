@@ -16,6 +16,9 @@
 
 #include "object/flower.hpp"
 
+#include <cassert>
+#include <string>
+
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"

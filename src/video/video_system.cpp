@@ -17,6 +17,8 @@
 #include "video/video_system.hpp"
 
 #include <cassert>
+#include <exception>
+#include <stdexcept>
 #include <config.h>
 
 #include "util/log.hpp"

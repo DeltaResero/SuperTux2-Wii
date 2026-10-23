@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <sstream>
 #include <stdexcept>
 #include <vector>

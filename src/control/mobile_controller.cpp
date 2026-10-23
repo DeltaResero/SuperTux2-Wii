@@ -16,6 +16,8 @@
 
 #include "control/mobile_controller.hpp"
 
+#include <stdexcept>
+
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
 
 #include <string>

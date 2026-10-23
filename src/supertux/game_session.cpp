@@ -16,7 +16,13 @@
 
 #include "supertux/game_session.hpp"
 
+#include <cassert>
 #include <cfloat>
+#include <exception>
+#include <optional>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"

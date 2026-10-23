@@ -18,6 +18,8 @@
 #include "supertux/object_factory.hpp"
 
 #include <sstream>
+#include <stdexcept>
+#include <utility>
 
 #include "supertux/game_object.hpp"
 

@@ -16,6 +16,8 @@
 
 #include "gui/item_toggle.hpp"
 
+#include <utility>
+
 #include "supertux/colorscheme.hpp"
 #include "supertux/resources.hpp"
 #include "video/drawing_context.hpp"

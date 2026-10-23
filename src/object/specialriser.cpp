@@ -16,6 +16,8 @@
 
 #include "object/specialriser.hpp"
 
+#include <utility>
+
 #include "supertux/sector.hpp"
 #include "video/drawing_context.hpp"
 

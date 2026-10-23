@@ -17,6 +17,7 @@
 
 #include "worldmap/tux.hpp"
 
+#include <exception>
 #include <sstream>
 
 #include "control/input_manager.hpp"

@@ -16,6 +16,9 @@
 
 #include "scripting/functions.hpp"
 
+#include <memory>
+#include <stdexcept>
+
 #include "audio/sound_manager.hpp"
 #include "math/random.hpp"
 #include "object/camera.hpp"

@@ -16,6 +16,8 @@
 
 #include "badguy/crystallo.hpp"
 
+#include <cmath>
+
 #include "util/reader_mapping.hpp"
 
 Crystallo::Crystallo(const ReaderMapping& reader) :

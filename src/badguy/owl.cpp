@@ -17,6 +17,9 @@
 
 #include "badguy/owl.hpp"
 
+#include <memory>
+#include <utility>
+
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"
 #include "object/portable.hpp"

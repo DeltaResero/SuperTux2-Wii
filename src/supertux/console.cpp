@@ -16,6 +16,9 @@
 
 #include "supertux/console.hpp"
 
+#include <cassert>
+#include <cstddef>
+#include <exception>
 #include <iostream>
 
 #include "math/sizef.hpp"

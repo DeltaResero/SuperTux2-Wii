@@ -17,7 +17,10 @@
 #include "supertux/command_line_arguments.hpp"
 
 #include <format>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
+#include <stdexcept>
 #include <config.h>
 
 #include "io/ifile_stream.hpp"

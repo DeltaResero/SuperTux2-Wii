@@ -17,6 +17,8 @@
 #include "audio/sound_manager.hpp"
 
 #include <config.h>
+#include <exception>
+#include <utility>
 
 #include <SDL.h>
 #include <algorithm>

@@ -16,6 +16,11 @@
 
 #include "object/particlesystem_interactive.hpp"
 
+#include <memory>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include "collision/collision.hpp"
 #include "math/aatriangle.hpp"
 #include "object/tilemap.hpp"

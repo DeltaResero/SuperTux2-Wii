@@ -18,6 +18,7 @@
 
 #include <sexp/io.hpp>
 #include <sexp/value.hpp>
+#include <vector>
 
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"

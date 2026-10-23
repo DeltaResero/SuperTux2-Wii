@@ -16,8 +16,12 @@
 
 #include "object/tilemap.hpp"
 
+#include <cassert>
 #include <cmath>
+#include <stdexcept>
 #include <tuple>
+#include <unordered_map>
+#include <utility>
 
 #include "object/bordered.hpp"
 #include "supertux/d_scope.hpp"

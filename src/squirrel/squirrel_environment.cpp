@@ -17,6 +17,8 @@
 #include "squirrel/squirrel_environment.hpp"
 
 #include <algorithm>
+#include <exception>
+#include <sstream>
 
 #include "squirrel/script_interface.hpp"
 #include "squirrel/squirrel_error.hpp"

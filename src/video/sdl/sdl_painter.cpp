@@ -21,6 +21,10 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <cstddef>
+#include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "supertux/globals.hpp"

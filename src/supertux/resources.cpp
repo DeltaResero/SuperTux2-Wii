@@ -18,6 +18,7 @@
 #include "supertux/resources.hpp"
 
 #include <memory>
+#include <string>
 
 #include "gui/mousecursor.hpp"
 #include "sprite/sprite.hpp"

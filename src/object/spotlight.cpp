@@ -16,6 +16,8 @@
 
 #include "object/spotlight.hpp"
 
+#include <stdexcept>
+
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "util/reader_mapping.hpp"

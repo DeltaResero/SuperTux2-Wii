@@ -17,6 +17,7 @@
 #include "object/growup.hpp"
 
 #include <cmath>
+#include <string>
 
 #include "audio/sound_manager.hpp"
 #include "math/util.hpp"

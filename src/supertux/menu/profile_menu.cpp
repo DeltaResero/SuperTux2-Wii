@@ -19,6 +19,9 @@
 #include <filesystem>
 #include <format>
 #include <sstream>
+#include <string>
+#include <system_error>
+#include <vector>
 
 #include "gui/dialog.hpp"
 #include "gui/menu_manager.hpp"

@@ -18,6 +18,9 @@
 
 #include <cassert>
 #include <cmath>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "math/random.hpp"
 #include "supertux/sector.hpp"

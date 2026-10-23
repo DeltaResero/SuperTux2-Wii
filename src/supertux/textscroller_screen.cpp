@@ -17,7 +17,9 @@
 
 #include "supertux/textscroller_screen.hpp"
 
+#include <exception>
 #include <sstream>
+#include <stdexcept>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"

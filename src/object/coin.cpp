@@ -16,6 +16,10 @@
 
 #include "object/coin.hpp"
 
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "object/bouncy_coin.hpp"

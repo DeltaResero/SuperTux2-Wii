@@ -16,6 +16,8 @@
 
 #include "object/candle.hpp"
 
+#include <vector>
+
 #include "math/random.hpp"
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite.hpp"

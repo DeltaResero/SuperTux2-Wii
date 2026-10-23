@@ -16,6 +16,8 @@
 
 #include "object/oneup.hpp"
 
+#include <string>
+
 #include "object/player.hpp"
 #include "supertux/sector.hpp"
 

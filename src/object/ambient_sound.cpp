@@ -17,7 +17,10 @@
 #include "object/ambient_sound.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <exception>
 #include <limits>
+#include <stdexcept>
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"

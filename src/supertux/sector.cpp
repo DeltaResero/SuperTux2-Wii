@@ -18,6 +18,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <exception>
+#include <limits>
+#include <typeindex>
+#include <typeinfo>
+#include <utility>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"

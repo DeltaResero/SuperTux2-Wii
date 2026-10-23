@@ -19,8 +19,11 @@
 #include "supertux/statistics.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <exception>
 #include <iomanip>
 #include <limits>
+#include <sstream>
 
 #include "audio/sound_manager.hpp"
 #include "math/util.hpp"

@@ -17,6 +17,7 @@
 #include "trigger/switch.hpp"
 
 #include <sstream>
+#include <stdexcept>
 
 #include "audio/sound_manager.hpp"
 #include "sprite/sprite.hpp"

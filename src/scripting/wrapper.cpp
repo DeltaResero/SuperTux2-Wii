@@ -7,8 +7,11 @@
 #include "scripting/wrapper.hpp"
 
 #include <cassert>
+#include <cstddef>
+#include <exception>
 #include <limits>
 #include <sstream>
+#include <string>
 
 #include "squirrel/squirrel_error.hpp"
 #include "scripting/wrapper.interface.hpp"

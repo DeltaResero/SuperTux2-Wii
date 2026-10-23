@@ -16,6 +16,8 @@
 
 #include "supertux/menu/game_menu.hpp"
 
+#include <string>
+
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"

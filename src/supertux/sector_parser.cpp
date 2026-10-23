@@ -16,7 +16,12 @@
 
 #include "supertux/sector_parser.hpp"
 
+#include <cstdint>
+#include <exception>
 #include <iostream>
+#include <optional>
+#include <utility>
+#include <vector>
 #include <sexp/value.hpp>
 
 #include "badguy/jumpy.hpp"

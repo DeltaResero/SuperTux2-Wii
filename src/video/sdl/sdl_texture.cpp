@@ -18,6 +18,7 @@
 
 #include <SDL.h>
 #include <sstream>
+#include <stdexcept>
 
 #include "video/sdl/sdl_screen_renderer.hpp"
 #include "video/sdl_surface_ptr.hpp"

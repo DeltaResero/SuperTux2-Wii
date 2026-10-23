@@ -17,7 +17,14 @@
 
 #include "supertux/tile_set_parser.hpp"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <iterator>
+#include <memory>
 #include <sstream>
+#include <stdexcept>
+#include <utility>
 #include <sexp/value.hpp>
 #include <sexp/io.hpp>
 

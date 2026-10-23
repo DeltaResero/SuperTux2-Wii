@@ -16,6 +16,10 @@
 
 #include "object/explosion.hpp"
 
+#include <cmath>
+#include <string>
+#include <vector>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "badguy/walking_badguy.hpp"

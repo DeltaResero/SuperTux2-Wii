@@ -16,6 +16,11 @@
 
 #include "object/background.hpp"
 
+#include <cmath>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 
 #include "supertux/d_scope.hpp"
 #include "supertux/gameconfig.hpp"

@@ -17,6 +17,7 @@
 #include "audio/wav_sound_file.hpp"
 
 #include <config.h>
+#include <string>
 
 #include <cstring>
 #include <cstdint>

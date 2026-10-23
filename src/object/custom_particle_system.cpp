@@ -18,6 +18,8 @@
 
 #include <cassert>
 #include <cmath>
+#include <unordered_map>
+#include <utility>
 
 #include "collision/collision.hpp"
 #include "gui/menu_manager.hpp"

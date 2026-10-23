@@ -16,6 +16,8 @@
 
 #include "object/display_effect.hpp"
 
+#include <cassert>
+
 #include "supertux/globals.hpp"
 #include "video/drawing_context.hpp"
 #include "video/video_system.hpp"

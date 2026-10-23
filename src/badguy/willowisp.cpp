@@ -16,6 +16,10 @@
 
 #include "badguy/willowisp.hpp"
 
+#include <cassert>
+#include <cmath>
+#include <vector>
+
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "badguy/dispenser.hpp"

@@ -16,6 +16,7 @@
 
 #include "badguy/mriceblock.hpp"
 
+#include <cassert>
 #include <cmath>
 
 #include "audio/sound_manager.hpp"

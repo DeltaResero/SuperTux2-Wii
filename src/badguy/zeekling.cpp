@@ -17,6 +17,7 @@
 
 #include "badguy/zeekling.hpp"
 
+#include <cassert>
 #include <cmath>
 
 #include "math/random.hpp"

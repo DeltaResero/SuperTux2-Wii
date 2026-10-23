@@ -16,6 +16,8 @@
 
 #include "supertux/levelset_screen.hpp"
 
+#include <memory>
+
 #include "supertux/game_session.hpp"
 #include "supertux/level.hpp"
 #include "supertux/levelset.hpp"

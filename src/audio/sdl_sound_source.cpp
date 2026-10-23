@@ -19,6 +19,9 @@
 #include <SDL_mixer.h>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <exception>
+#include <utility>
 
 #include "audio/sdl_mixer_device.hpp"
 #include "audio/sdl_samples.hpp"

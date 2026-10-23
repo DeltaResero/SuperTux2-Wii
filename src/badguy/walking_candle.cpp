@@ -16,6 +16,8 @@
 
 #include "badguy/walking_candle.hpp"
 
+#include <vector>
+
 #include "object/lantern.hpp"
 #include "sprite/sprite.hpp"
 #include "util/reader_mapping.hpp"

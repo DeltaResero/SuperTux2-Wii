@@ -17,6 +17,7 @@
 
 #include "supertux/player_status.hpp"
 
+#include <algorithm>
 #include <sstream>
 
 #include "audio/sound_manager.hpp"

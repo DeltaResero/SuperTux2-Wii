@@ -16,7 +16,10 @@
 
 #include "supertux/player_status_hud.hpp"
 
+#include <algorithm>
+#include <cstdlib>
 #include <sstream>
+#include <string>
 
 #include "supertux/game_object.hpp"
 #include "supertux/player_status.hpp"

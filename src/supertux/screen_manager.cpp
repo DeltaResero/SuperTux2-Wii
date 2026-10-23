@@ -41,9 +41,12 @@
 #include "video/ttf_surface_manager.hpp"
 
 #include <algorithm>
+#include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <chrono>
 #include <iostream>
+#include <optional>
 #include <utility>
 
 namespace {

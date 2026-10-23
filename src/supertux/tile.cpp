@@ -18,6 +18,8 @@
 
 #include "supertux/tile.hpp"
 
+#include <cassert>
+
 #include "math/aatriangle.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/globals.hpp"

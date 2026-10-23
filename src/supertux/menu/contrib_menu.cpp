@@ -16,8 +16,11 @@
 
 #include "supertux/menu/contrib_menu.hpp"
 
+#include <exception>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <utility>
 
 #include "gui/item_action.hpp"
 #include "gui/menu_item.hpp"

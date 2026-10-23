@@ -17,6 +17,14 @@
 
 #include "object/player.hpp"
 
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
+#include <optional>
+#include <sstream>
+#include <stdexcept>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "control/codecontroller.hpp"

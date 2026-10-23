@@ -17,6 +17,8 @@
 #include "video/gl/gl_texture.hpp"
 
 #include <cassert>
+#include <cstdint>
+#include <vector>
 
 #include "video/glutil.hpp"
 #include "video/sampler.hpp"

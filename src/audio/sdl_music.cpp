@@ -18,6 +18,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <utility>
 
 #include "audio/sound_file.hpp"
 #include "supertux/globals.hpp"

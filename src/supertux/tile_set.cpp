@@ -16,6 +16,9 @@
 
 #include "supertux/tile_set.hpp"
 
+#include <cassert>
+#include <utility>
+
 #include "supertux/resources.hpp"
 #include "supertux/tile.hpp"
 #include "supertux/tile_set_parser.hpp"

@@ -17,6 +17,9 @@
 #include "video/canvas.hpp"
 
 #include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <utility>
 
 #include "supertux/globals.hpp"
 #include "util/log.hpp"

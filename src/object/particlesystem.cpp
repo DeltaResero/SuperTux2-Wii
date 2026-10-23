@@ -17,6 +17,8 @@
 #include "object/particlesystem.hpp"
 
 #include <cmath>
+#include <unordered_map>
+#include <utility>
 
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"

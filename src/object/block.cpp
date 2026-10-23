@@ -19,6 +19,9 @@
 
 #include <array>
 #include <cmath>
+#include <cstddef>
+#include <utility>
+#include <vector>
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"

@@ -16,6 +16,11 @@
 
 #include "badguy/dispenser.hpp"
 
+#include <exception>
+#include <memory>
+#include <stdexcept>
+#include <utility>
+
 #include "audio/sound_manager.hpp"
 #include "math/random.hpp"
 #include "object/bullet.hpp"

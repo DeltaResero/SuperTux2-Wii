@@ -16,6 +16,8 @@
 
 #include "badguy/captainsnowball.hpp"
 
+#include <cassert>
+
 #include "sprite/sprite.hpp"
 #include "supertux/sector.hpp"
 

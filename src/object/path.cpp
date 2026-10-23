@@ -18,6 +18,9 @@
 
 #include "object/path.hpp"
 
+#include <cmath>
+#include <stdexcept>
+
 #include "math/easing.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"

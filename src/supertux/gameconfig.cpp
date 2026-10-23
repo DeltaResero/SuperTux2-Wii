@@ -16,6 +16,9 @@
 
 #include "supertux/gameconfig.hpp"
 
+#include <exception>
+#include <stdexcept>
+
 #include "config.h"
 
 #include "util/reader_document.hpp"

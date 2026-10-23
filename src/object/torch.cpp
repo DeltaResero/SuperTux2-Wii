@@ -17,6 +17,8 @@
 
 #include "object/torch.hpp"
 
+#include <vector>
+
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"

@@ -18,8 +18,13 @@
 #include "supertux/savegame.hpp"
 
 #include <algorithm>
+#include <exception>
 #include <filesystem>
 #include <memory>
+#include <optional>
+#include <sstream>
+#include <stdexcept>
+#include <system_error>
 
 #include "squirrel/serialize.hpp"
 #include "squirrel/squirrel_util.hpp"

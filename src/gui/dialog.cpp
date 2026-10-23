@@ -17,6 +17,7 @@
 #include "gui/dialog.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 #include "control/controller.hpp"
 #include "gui/mousecursor.hpp"

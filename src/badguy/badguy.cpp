@@ -16,6 +16,10 @@
 
 #include "badguy/badguy.hpp"
 
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/dispenser.hpp"
 #include "math/random.hpp"

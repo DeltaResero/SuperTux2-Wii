@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <vector>
 
 #include "math/bezier.hpp"
 #include "math/random.hpp"

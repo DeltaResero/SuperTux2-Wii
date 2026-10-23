@@ -17,6 +17,8 @@
 #include "video/surface.hpp"
 
 #include <sstream>
+#include <stdexcept>
+#include <vector>
 
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"

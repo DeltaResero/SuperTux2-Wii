@@ -16,6 +16,8 @@
 
 #include "gui/item_hl.hpp"
 
+#include <string>
+
 #include "video/drawing_context.hpp"
 
 ItemHorizontalLine::ItemHorizontalLine() :

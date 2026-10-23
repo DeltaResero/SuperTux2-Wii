@@ -18,6 +18,9 @@
 
 #include <cassert>
 #include <cmath>
+#include <memory>
+#include <utility>
+#include <vector>
 #include <numbers>
 
 #include "math/easing.hpp"

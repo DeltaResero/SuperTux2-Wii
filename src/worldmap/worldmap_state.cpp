@@ -17,6 +17,10 @@
 
 #include "worldmap/worldmap_state.hpp"
 
+#include <exception>
+#include <stdexcept>
+#include <string>
+
 #include "math/vector.hpp"
 #include "object/tilemap.hpp"
 #include "squirrel/squirrel_util.hpp"

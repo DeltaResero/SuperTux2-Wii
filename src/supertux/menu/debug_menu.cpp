@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "gui/item_stringselect.hpp"
 #include "supertux/debug.hpp"

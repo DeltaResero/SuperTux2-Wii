@@ -16,6 +16,8 @@
 
 #include "badguy/root.hpp"
 
+#include <string>
+
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 

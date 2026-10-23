@@ -20,6 +20,7 @@
 #include <numeric>
 #include <sstream>
 #include <iostream>
+#include <utility>
 
 #include "supertux/globals.hpp"
 #include "video/sdl_surface_ptr.hpp"

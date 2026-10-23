@@ -22,8 +22,11 @@
 #include "util/reader_mapping.hpp"
 #include "util/string_util.hpp"
 
+#include <exception>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
+#include <utility>
 
 SpriteManager::SpriteManager() :
   sprites()

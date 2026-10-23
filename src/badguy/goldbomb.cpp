@@ -17,6 +17,8 @@
 
 #include "badguy/goldbomb.hpp"
 
+#include <cmath>
+
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "object/coin_explode.hpp"

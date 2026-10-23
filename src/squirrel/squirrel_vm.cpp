@@ -17,6 +17,8 @@
 
 #include "squirrel/squirrel_vm.hpp"
 
+#include <exception>
+#include <sstream>
 #include <stdexcept>
 
 #include "squirrel/squirrel_error.hpp"

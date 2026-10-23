@@ -17,6 +17,8 @@
 #include "gui/mousecursor.hpp"
 
 #include <SDL.h>
+#include <string>
+#include <utility>
 
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"

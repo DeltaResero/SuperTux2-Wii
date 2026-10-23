@@ -17,6 +17,8 @@
 #include "supertux/level.hpp"
 #include "supertux/level_transformer.hpp"
 
+#include <cstddef>
+
 LevelTransformer::~LevelTransformer()
 {
 }

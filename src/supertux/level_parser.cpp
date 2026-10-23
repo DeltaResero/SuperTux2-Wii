@@ -16,7 +16,10 @@
 
 #include "supertux/level_parser.hpp"
 
+#include <exception>
 #include <sstream>
+#include <stdexcept>
+#include <utility>
 
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"

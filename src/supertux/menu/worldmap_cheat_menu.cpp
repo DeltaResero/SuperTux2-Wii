@@ -16,6 +16,9 @@
 
 #include "supertux/menu/worldmap_cheat_menu.hpp"
 
+#include <cassert>
+#include <string>
+
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/menu/menu_storage.hpp"

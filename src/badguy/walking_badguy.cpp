@@ -16,6 +16,7 @@
 
 #include "badguy/walking_badguy.hpp"
 
+#include <cassert>
 #include <cmath>
 
 #include "sprite/sprite.hpp"

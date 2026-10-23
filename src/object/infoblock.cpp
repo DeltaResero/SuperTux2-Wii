@@ -17,6 +17,8 @@
 #include "object/infoblock.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <cstddef>
 
 #include "object/player.hpp"
 #include "supertux/info_box_line.hpp"

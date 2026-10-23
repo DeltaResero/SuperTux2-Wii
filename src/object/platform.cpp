@@ -16,6 +16,8 @@
 
 #include "object/platform.hpp"
 
+#include <vector>
+
 #include "object/player.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/flip_level_transformer.hpp"

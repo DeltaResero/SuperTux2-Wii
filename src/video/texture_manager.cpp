@@ -20,9 +20,14 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <exception>
 #include <functional>
+#include <iterator>
 #include <sstream>
+#include <stdexcept>
 #include <string_view>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "math/rect.hpp"

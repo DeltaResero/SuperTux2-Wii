@@ -17,6 +17,10 @@
 #include "control/joystick_manager.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <map>
+#include <utility>
 
 #include "control/input_manager.hpp"
 #include "control/joystick_config.hpp"

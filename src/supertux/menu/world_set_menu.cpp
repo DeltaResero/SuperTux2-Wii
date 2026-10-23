@@ -16,6 +16,9 @@
 
 #include "supertux/menu/world_set_menu.hpp"
 
+#include <memory>
+#include <string>
+
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/game_manager.hpp"

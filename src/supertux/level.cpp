@@ -22,7 +22,10 @@
 #include "supertux/sector.hpp"
 #include "trigger/secretarea_trigger.hpp"
 
+#include <algorithm>
 #include <numeric>
+#include <stdexcept>
+#include <utility>
 
 Level* Level::s_current = nullptr;
 

@@ -16,6 +16,9 @@
 
 #include "supertux/error_handler.hpp"
 
+#include <cstdio>
+#include <cstdlib>
+
 // execinfo.h as a built-in libc feature is exclusive to glibc as of 2020.
 // On FreeBSD and musl systems, an external libexecinfo is available, but
 // it has to be explicitly linked into the final executable.
