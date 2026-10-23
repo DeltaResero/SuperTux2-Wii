@@ -402,7 +402,6 @@ endif()
 
 include_directories(${CMAKE_BINARY_DIR}/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/)
-include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/obstack/)
 include_directories(SYSTEM ${CMAKE_CURRENT_SOURCE_DIR}/external/sexp-cpp/include/)
 
 if(WIN32)
@@ -411,8 +410,6 @@ if(WIN32)
 endif(WIN32)
 
 ## Build list of sources for supertux binary
-
-file(GLOB SUPERTUX_SOURCES_C RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} external/obstack/*.c)
 
 file(GLOB SUPERTUX_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*/*.cpp src/supertux/menu/*.cpp src/video/sdl/*.cpp src/video/null/*.cpp)
 if(NOT ENABLE_OPENAL)
@@ -438,7 +435,6 @@ if(HAVE_OPENGL)
 endif(HAVE_OPENGL)
 
 ## Sort source lists to have deterministic linking order
-list(SORT SUPERTUX_SOURCES_C)
 list(SORT SUPERTUX_SOURCES_CXX)
 list(SORT SUPERTUX_RESOURCES)
 
@@ -602,8 +598,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 ## Add target for supertux binary
 
-add_library(supertux2_c OBJECT ${SUPERTUX_SOURCES_C})
-add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} $<TARGET_OBJECTS:supertux2_c>)
+add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} ${SUPERTUX_SOURCES_C})
 
 target_link_libraries(supertux2_lib PUBLIC glm::glm)
 target_compile_definitions(supertux2_lib PUBLIC -DGLM_ENABLE_EXPERIMENTAL)

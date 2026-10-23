@@ -19,24 +19,23 @@
 #include <algorithm>
 
 #include "supertux/globals.hpp"
-#include "util/obstackpp.hpp"
 #include "video/drawing_request.hpp"
 #include "video/renderer.hpp"
 #include "video/surface.hpp"
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
-DrawingContext::DrawingContext(VideoSystem& video_system_, obstack& obst, bool overlay) :
+DrawingContext::DrawingContext(VideoSystem& video_system_, Arena& arena, bool overlay) :
   m_video_system(video_system_),
-  m_obst(obst),
+  m_arena(arena),
   m_overlay(overlay),
   m_viewport(0, 0,
              m_video_system.get_viewport().get_screen_width(),
              m_video_system.get_viewport().get_screen_height()),
   m_ambient_color(Color::WHITE),
   m_transform_stack(1),
-  m_colormap_canvas(*this, m_obst),
-  m_lightmap_canvas(*this, m_obst)
+  m_colormap_canvas(*this, m_arena),
+  m_lightmap_canvas(*this, m_arena)
 {
 }
 

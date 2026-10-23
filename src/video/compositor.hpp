@@ -20,7 +20,7 @@
 #include <vector>
 #include <memory>
 
-#include "util/obstackpp.hpp"
+#include "util/arena.hpp"
 
 class DrawingContext;
 class Rect;
@@ -43,8 +43,8 @@ public:
 private:
   VideoSystem& m_video_system;
 
-  /* obstack holding the memory of the drawing requests */
-  obstack m_obst;
+  /* Holds the memory of the drawing requests */
+  Arena m_arena;
 
   std::vector<std::unique_ptr<DrawingContext> > m_drawing_contexts;
 

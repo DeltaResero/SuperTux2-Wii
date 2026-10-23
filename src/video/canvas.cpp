@@ -23,7 +23,7 @@
 
 #include "supertux/globals.hpp"
 #include "util/log.hpp"
-#include "util/obstackpp.hpp"
+#include "util/arena.hpp"
 #include "video/drawing_request.hpp"
 #include "video/painter.hpp"
 #include "video/renderer.hpp"
@@ -31,9 +31,9 @@
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
-Canvas::Canvas(DrawingContext& context, obstack& obst) :
+Canvas::Canvas(DrawingContext& context, Arena& arena) :
   m_context(context),
-  m_obst(obst),
+  m_arena(arena),
   m_requests()
 {
   m_requests.reserve(500);
@@ -123,7 +123,7 @@ Canvas::draw_surface(const SurfacePtr& surface,
      position.y + static_cast<float>(surface->get_height()) < cliprect.get_top())
     return;
 
-  auto request = new(m_obst) TextureRequest();
+  auto request = new(m_arena) TextureRequest();
 
   request->type = TEXTURE;
   request->layer = layer;
@@ -164,7 +164,7 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
 {
   if (!surface) return;
 
-  auto request = new(m_obst) TextureRequest();
+  auto request = new(m_arena) TextureRequest();
 
   request->type = TEXTURE;
   request->layer = layer;
@@ -211,7 +211,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
 {
   if (!surface) return;
 
-  auto request = new(m_obst) TextureRequest();
+  auto request = new(m_arena) TextureRequest();
 
   request->type = TEXTURE;
   request->layer = layer;
@@ -258,7 +258,7 @@ Canvas::draw_gradient(const Color& top, const Color& bottom, int layer,
                       const GradientDirection& direction, const Rectf& region,
                       const Blend& blend)
 {
-  auto request = new(m_obst) GradientRequest();
+  auto request = new(m_arena) GradientRequest();
 
   request->type = GRADIENT;
   request->layer = layer;
@@ -286,7 +286,7 @@ Canvas::draw_filled_rect(const Rectf& rect, const Color& color,
 void
 Canvas::draw_filled_rect(const Rectf& rect, const Color& color, float radius, int layer)
 {
-  auto request = new(m_obst) FillRectRequest;
+  auto request = new(m_arena) FillRectRequest;
 
   request->type   = FILLRECT;
   request->layer  = layer;
@@ -307,7 +307,7 @@ Canvas::draw_filled_rect(const Rectf& rect, const Color& color, float radius, in
 void
 Canvas::draw_inverse_ellipse(const Vector& pos, const Vector& size, const Color& color, int layer)
 {
-  auto request = new(m_obst) InverseEllipseRequest;
+  auto request = new(m_arena) InverseEllipseRequest;
 
   request->type   = INVERSEELLIPSE;
   request->layer  = layer;
@@ -326,7 +326,7 @@ Canvas::draw_inverse_ellipse(const Vector& pos, const Vector& size, const Color&
 void
 Canvas::draw_line(const Vector& pos1, const Vector& pos2, const Color& color, int layer)
 {
-  auto request = new(m_obst) LineRequest;
+  auto request = new(m_arena) LineRequest;
 
   request->type   = LINE;
   request->layer  = layer;
@@ -345,7 +345,7 @@ Canvas::draw_line(const Vector& pos1, const Vector& pos2, const Color& color, in
 void
 Canvas::draw_triangle(const Vector& pos1, const Vector& pos2, const Vector& pos3, const Color& color, int layer)
 {
-  auto request = new(m_obst) TriangleRequest;
+  auto request = new(m_arena) TriangleRequest;
 
   request->type   = TRIANGLE;
   request->layer  = layer;
@@ -379,7 +379,7 @@ Canvas::get_pixel(const Vector& position, const std::shared_ptr<Color>& color_ou
     return;
   }
 
-  auto request = new(m_obst) GetPixelRequest();
+  auto request = new(m_arena) GetPixelRequest();
 
   request->layer = LAYER_GETPIXEL;
   request->pos = pos;

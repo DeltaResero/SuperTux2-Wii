@@ -22,7 +22,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <obstack.h>
 
 #include "math/rectf.hpp"
 #include "math/vector.hpp"
@@ -36,6 +35,7 @@
 #include "video/layer.hpp"
 #include "video/paint_style.hpp"
 
+class Arena;
 class DrawingContext;
 class Renderer;
 class VideoSystem;
@@ -47,7 +47,7 @@ public:
   enum Filter { BELOW_LIGHTMAP, ABOVE_LIGHTMAP, ALL };
 
 public:
-  Canvas(DrawingContext& context, obstack& obst);
+  Canvas(DrawingContext& context, Arena& arena);
   ~Canvas();
 
   void draw_surface(const SurfacePtr& surface, const Vector& position, int layer);
@@ -122,7 +122,7 @@ private:
 
 private:
   DrawingContext& m_context;
-  obstack& m_obst;
+  Arena& m_arena;
   std::vector<DrawingRequest*> m_requests;
 
 private:
