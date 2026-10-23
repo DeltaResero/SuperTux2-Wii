@@ -16,6 +16,14 @@
 
 #include "worldmap/worldmap_parser.hpp"
 
+#include <exception>
+#include <memory>
+#include <optional>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
 
 #include "object/ambient_light.hpp"
 #include "object/background.hpp"

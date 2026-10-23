@@ -16,6 +16,8 @@
 
 #include "object/magicblock.hpp"
 
+#include <vector>
+
 #include "object/camera.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/constants.hpp"

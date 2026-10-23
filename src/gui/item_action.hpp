@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_GUI_ITEM_ACTION_HPP
 #define HEADER_SUPERTUX_GUI_ITEM_ACTION_HPP
 
+#include <functional>
+#include <string>
+
 #include "gui/menu_item.hpp"
 
 class ItemAction final : public MenuItem

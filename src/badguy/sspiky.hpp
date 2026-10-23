@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SSPIKY_HPP
 #define HEADER_SUPERTUX_BADGUY_SSPIKY_HPP
 
+#include <string>
+
 #include "badguy/walking_badguy.hpp"
 
 class SSpiky final : public WalkingBadguy

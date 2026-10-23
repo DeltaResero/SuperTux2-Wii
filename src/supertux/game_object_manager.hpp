@@ -18,11 +18,14 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_MANAGER_HPP
 #define HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_MANAGER_HPP
 
+#include <cassert>
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <typeindex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "supertux/game_object.hpp"

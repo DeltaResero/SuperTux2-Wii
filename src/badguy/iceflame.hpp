@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_ICEFLAME_HPP
 #define HEADER_SUPERTUX_BADGUY_ICEFLAME_HPP
 
+#include <string>
+
 #include "badguy/flame.hpp"
 
 class Iceflame final : public Flame

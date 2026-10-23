@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PARTICLESYSTEM_HPP
 #define HEADER_SUPERTUX_OBJECT_PARTICLESYSTEM_HPP
 
+#include <memory>
+#include <string>
 #include <vector>
 
 #include "math/vector.hpp"

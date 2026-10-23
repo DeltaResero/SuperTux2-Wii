@@ -20,6 +20,7 @@
 #include <memory>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "math/fwd.hpp"
 #include "video/color.hpp"

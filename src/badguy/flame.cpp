@@ -16,6 +16,8 @@
 
 #include "badguy/flame.hpp"
 
+#include <cmath>
+
 #include "audio/sound_manager.hpp"
 #include "math/util.hpp"
 #include "object/sprite_particle.hpp"

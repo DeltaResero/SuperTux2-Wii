@@ -17,6 +17,8 @@
 #include "object/camera.hpp"
 
 #include <cmath>
+#include <exception>
+#include <stdexcept>
 
 #include "math/util.hpp"
 #include "object/player.hpp"

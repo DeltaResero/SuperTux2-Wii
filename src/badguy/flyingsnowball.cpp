@@ -16,6 +16,8 @@
 
 #include "badguy/flyingsnowball.hpp"
 
+#include <cmath>
+
 #include "math/random.hpp"
 #include "math/util.hpp"
 #include "object/sprite_particle.hpp"

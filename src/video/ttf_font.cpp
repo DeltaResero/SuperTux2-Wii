@@ -17,9 +17,11 @@
 
 #include "video/ttf_font.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <numeric>
 #include <sstream>
+#include <stdexcept>
 
 #include "util/line_iterator.hpp"
 #include "io/sdl_file.hpp"

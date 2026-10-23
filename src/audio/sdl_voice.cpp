@@ -17,8 +17,10 @@
 #include "audio/sdl_voice.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstring>
+#include <utility>
 
 #include "audio/sdl_samples.hpp"
 #include "audio/sdl_stream.hpp"

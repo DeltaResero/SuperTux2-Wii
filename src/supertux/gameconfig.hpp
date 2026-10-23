@@ -28,6 +28,7 @@
 
 #include <optional>
 #include <ctime>
+#include <string>
 
 class Config final
 {

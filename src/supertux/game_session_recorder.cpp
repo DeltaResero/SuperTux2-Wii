@@ -16,8 +16,12 @@
 
 #include "supertux/game_session_recorder.hpp"
 
+#include <cassert>
+#include <cstdio>
 #include <fstream>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
 
 #include "control/input_manager.hpp"
 #include "math/random.hpp"

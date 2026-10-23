@@ -39,6 +39,9 @@
 #ifndef HEADER_SUPERTUX_OBJECT_AMBIENT_SOUND_HPP
 #define HEADER_SUPERTUX_OBJECT_AMBIENT_SOUND_HPP
 
+#include <memory>
+#include <string>
+
 #include "math/vector.hpp"
 #include "supertux/moving_object.hpp"
 #include "scripting/ambient_sound.hpp"

@@ -16,6 +16,9 @@
 
 #include "worldmap/worldmap_screen.hpp"
 
+#include <optional>
+#include <utility>
+
 #include "control/controller.hpp"
 #include "video/compositor.hpp"
 #include "worldmap/worldmap.hpp"

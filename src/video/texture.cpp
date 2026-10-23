@@ -16,6 +16,8 @@
 
 #include "video/texture.hpp"
 
+#include <unordered_map>
+
 #include "video/texture_manager.hpp"
 
 Texture::Texture() :

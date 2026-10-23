@@ -16,6 +16,10 @@
 
 #include "object/custom_particle_system_file.hpp"
 
+#include <exception>
+#include <memory>
+#include <stdexcept>
+
 #include "gui/menu_manager.hpp"
 #include "util/reader.hpp"
 #include "util/reader_document.hpp"

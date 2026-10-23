@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BOUNCING_SNOWBALL_HPP
 #define HEADER_SUPERTUX_BADGUY_BOUNCING_SNOWBALL_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 
 class BouncingSnowball final : public BadGuy

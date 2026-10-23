@@ -16,6 +16,8 @@
 
 #include "gui/item_action.hpp"
 
+#include <utility>
+
 ItemAction::ItemAction(const std::string& text, int id, std::function<void()> callback) :
   MenuItem(text, id),
   m_callback(std::move(callback))

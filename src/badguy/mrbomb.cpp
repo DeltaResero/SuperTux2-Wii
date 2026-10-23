@@ -16,6 +16,8 @@
 
 #include "badguy/mrbomb.hpp"
 
+#include <cassert>
+
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "badguy/bomb.hpp"

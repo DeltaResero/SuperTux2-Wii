@@ -19,6 +19,8 @@
 
 #include <cstdint>
 #include <optional>
+#include <string>
+#include <vector>
 
 #include "util/reader_iterator.hpp"
 

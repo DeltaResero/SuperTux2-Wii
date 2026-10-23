@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_GUI_ITEM_TOGGLE_HPP
 
 #include <functional>
+#include <string>
 
 #include "gui/menu_item.hpp"
 

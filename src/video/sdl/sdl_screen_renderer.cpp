@@ -18,6 +18,7 @@
 #include "video/sdl/sdl_screen_renderer.hpp"
 
 #include <cmath>
+#include <cstddef>
 
 #include "math/rect.hpp"
 #include "supertux/gameconfig.hpp"

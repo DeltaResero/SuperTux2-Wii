@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_OBJECT_PATH_WALKER_HPP
 #define HEADER_SUPERTUX_OBJECT_PATH_WALKER_HPP
 
+#include <cstddef>
 #include <cstring>
 #include <memory>
 

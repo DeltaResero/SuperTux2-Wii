@@ -30,6 +30,8 @@
 #include "video/compositor.hpp"
 
 #include <format>
+#include <memory>
+#include <sstream>
 
 LevelIntro::LevelIntro(const Level& level, const Statistics* best_level_statistics, const PlayerStatus& player_status) :
   m_level(level),

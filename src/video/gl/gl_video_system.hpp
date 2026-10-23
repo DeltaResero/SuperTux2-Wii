@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_VIDEO_GL_GL_VIDEO_SYSTEM_HPP
 
 #include <memory>
+#include <string>
 #include <SDL.h>
 
 #include "math/size.hpp"

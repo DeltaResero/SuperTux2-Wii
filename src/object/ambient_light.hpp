@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_AMBIENT_LIGHT_HPP
 #define HEADER_SUPERTUX_OBJECT_AMBIENT_LIGHT_HPP
 
+#include <string>
+
 #include "supertux/game_object.hpp"
 
 #include "video/color.hpp"

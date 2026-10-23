@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_VIDEO_TEXTURE_MANAGER_HPP
 
 #include <config.h>
+#include <cstddef>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <ostream>

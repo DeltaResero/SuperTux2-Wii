@@ -16,6 +16,8 @@
 
 #include "supertux/controller_hud.hpp"
 
+#include <utility>
+
 #include "control/input_manager.hpp"
 #include "math/vector.hpp"
 #include "video/drawing_context.hpp"

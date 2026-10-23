@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SCRYSTALLO_HPP
 #define HEADER_SUPERTUX_BADGUY_SCRYSTALLO_HPP
 
+#include <string>
+
 #include "badguy/walking_badguy.hpp"
 
 class SCrystallo final : public WalkingBadguy

@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_RAIN_PARTICLE_SYSTEM_HPP
 #define HEADER_SUPERTUX_OBJECT_RAIN_PARTICLE_SYSTEM_HPP
 
+#include <string>
+
 #include "math/easing.hpp"
 #include "object/particlesystem_interactive.hpp"
 #include "scripting/rain.hpp"

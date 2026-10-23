@@ -17,6 +17,8 @@
 
 #include "object/sprite_particle.hpp"
 
+#include <utility>
+
 #include "object/camera.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"

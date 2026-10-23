@@ -19,6 +19,9 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_FACTORY_HPP
 #define HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_FACTORY_HPP
 
+#include <memory>
+#include <string>
+
 #include "supertux/object_factory.hpp"
 
 class GameObjectFactory final : public ObjectFactory

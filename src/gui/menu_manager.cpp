@@ -16,6 +16,9 @@
 
 #include "gui/menu_manager.hpp"
 
+#include <cassert>
+#include <utility>
+
 #include "control/input_manager.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu.hpp"

@@ -16,7 +16,9 @@
 
 #include "object/path_gameobject.hpp"
 
+#include <cmath>
 #include <optional>
+#include <vector>
 
 #include "gui/menu_manager.hpp"
 #include "object/path.hpp"

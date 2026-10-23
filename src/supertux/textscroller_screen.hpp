@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_TEXTSCROLLER_SCREEN_HPP
 
 #include <memory>
+#include <string>
 
 #include "supertux/screen.hpp"
 #include "video/color.hpp"

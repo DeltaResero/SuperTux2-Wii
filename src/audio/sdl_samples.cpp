@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <utility>
 
 #include "audio/sound_file.hpp"
 

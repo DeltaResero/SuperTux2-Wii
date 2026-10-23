@@ -16,6 +16,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_RUBLIGHT_HPP
 #define HEADER_SUPERTUX_OBJECT_RUBLIGHT_HPP
 
+#include <string>
+
 #include "object/moving_sprite.hpp"
 #include "sprite/sprite_ptr.hpp"
 #include "video/color.hpp"

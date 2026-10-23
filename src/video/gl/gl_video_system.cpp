@@ -17,6 +17,8 @@
 #include "video/gl/gl_video_system.hpp"
 
 #include <memory>
+#include <sstream>
+#include <stdexcept>
 
 #include "math/rect.hpp"
 #include "supertux/gameconfig.hpp"

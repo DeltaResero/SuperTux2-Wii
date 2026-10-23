@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_WILLOWISP_HPP
 #define HEADER_SUPERTUX_BADGUY_WILLOWISP_HPP
 
+#include <memory>
+#include <string>
+
 #include "badguy/badguy.hpp"
 #include "object/path_object.hpp"
 #include "squirrel/exposed_object.hpp"

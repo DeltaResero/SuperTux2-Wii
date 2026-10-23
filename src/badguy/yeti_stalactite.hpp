@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_YETI_STALACTITE_HPP
 #define HEADER_SUPERTUX_BADGUY_YETI_STALACTITE_HPP
 
+#include <string>
+
 #include "badguy/stalactite.hpp"
 
 class YetiStalactite final : public Stalactite

@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_GAME_SESSION_HPP
 
 #include <memory>
+#include <string>
 #include <vector>
 #include <squirrel.h>
 

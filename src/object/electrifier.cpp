@@ -16,6 +16,8 @@
 
 #include "object/electrifier.hpp"
 
+#include <utility>
+
 #include "supertux/sector.hpp"
 
 Electrifier::Electrifier(TileChangeMap replacements, float seconds) :

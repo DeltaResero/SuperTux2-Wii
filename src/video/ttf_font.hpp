@@ -19,6 +19,7 @@
 #define HEADER_SUPERTUX_VIDEO_TTF_FONT_HPP
 
 #include <SDL_ttf.h>
+#include <string>
 
 #include <map>
 #include <utility>

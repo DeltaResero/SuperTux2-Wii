@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_VIDEO_NULL_NULL_RENDERER_HPP
 #define HEADER_SUPERTUX_VIDEO_NULL_NULL_RENDERER_HPP
 
+#include <memory>
+
 #include "video/renderer.hpp"
 
 class NullPainter;

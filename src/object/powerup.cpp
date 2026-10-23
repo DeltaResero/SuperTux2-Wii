@@ -16,6 +16,8 @@
 
 #include "object/powerup.hpp"
 
+#include <cstddef>
+
 #include "audio/sound_manager.hpp"
 #include "math/random.hpp"
 #include "object/player.hpp"

@@ -16,6 +16,8 @@
 
 #include "trigger/trigger_base.hpp"
 
+#include <algorithm>
+
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 

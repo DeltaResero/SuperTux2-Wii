@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_DECAL_HPP
 #define HEADER_SUPERTUX_OBJECT_DECAL_HPP
 
+#include <string>
+
 #include "math/sizef.hpp"
 #include "object/moving_sprite.hpp"
 #include "scripting/decal.hpp"

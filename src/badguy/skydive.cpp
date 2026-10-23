@@ -16,6 +16,8 @@
 
 #include "badguy/skydive.hpp"
 
+#include <cmath>
+
 #include "audio/sound_manager.hpp"
 #include "object/explosion.hpp"
 #include "object/player.hpp"

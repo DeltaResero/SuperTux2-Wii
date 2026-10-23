@@ -17,7 +17,9 @@
 
 #include "worldmap/worldmap.hpp"
 
+#include <cassert>
 #include <cmath>
+#include <exception>
 
 #include "audio/sound_manager.hpp"
 #include "control/input_manager.hpp"

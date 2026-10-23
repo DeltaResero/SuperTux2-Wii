@@ -16,6 +16,9 @@
 
 #include "supertux/menu/refresh_rate_menu.hpp"
 
+#include <cstddef>
+#include <string>
+
 #include "gui/menu_item.hpp"
 #include "gui/menu_manager.hpp"
 #include "supertux/gameconfig.hpp"

@@ -16,6 +16,8 @@
 
 #include "object/bullet.hpp"
 
+#include <string>
+
 #include "math/random.hpp"
 #include "object/camera.hpp"
 #include "sprite/sprite.hpp"

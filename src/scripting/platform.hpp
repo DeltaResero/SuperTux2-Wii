@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_PLATFORM_HPP
 #define HEADER_SUPERTUX_SCRIPTING_PLATFORM_HPP
 
+#include <string>
+
 #ifndef SCRIPTING_API
 #include "scripting/game_object.hpp"
 

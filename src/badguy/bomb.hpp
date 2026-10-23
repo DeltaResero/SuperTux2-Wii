@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BOMB_HPP
 #define HEADER_SUPERTUX_BADGUY_BOMB_HPP
 
+#include <memory>
+#include <string>
+
 #include "badguy/badguy.hpp"
 #include "object/portable.hpp"
 

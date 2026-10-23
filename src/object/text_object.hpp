@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_TEXT_OBJECT_HPP
 #define HEADER_SUPERTUX_OBJECT_TEXT_OBJECT_HPP
 
+#include <string>
+
 #include "math/anchor_point.hpp"
 #include "scripting/text.hpp"
 #include "squirrel/exposed_object.hpp"

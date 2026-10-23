@@ -18,6 +18,9 @@
 #include "supertux/menu/options_menu.hpp"
 
 #include <algorithm>
+#include <cassert>
+#include <cstdio>
+#include <sstream>
 
 #include "audio/sound_manager.hpp"
 #include "gui/dialog.hpp"

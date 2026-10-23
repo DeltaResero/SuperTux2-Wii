@@ -18,8 +18,11 @@
 #define HEADER_SUPERTUX_OBJECT_TILEMAP_HPP
 
 #include <algorithm>
+#include <cstdint>
 #include <memory>
+#include <string>
 #include <unordered_set>
+#include <vector>
 
 #include "math/rect.hpp"
 #include "math/rectf.hpp"

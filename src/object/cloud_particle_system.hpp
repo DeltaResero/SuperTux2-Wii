@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_CLOUD_PARTICLE_SYSTEM_HPP
 #define HEADER_SUPERTUX_OBJECT_CLOUD_PARTICLE_SYSTEM_HPP
 
+#include <string>
+
 #include "object/particlesystem.hpp"
 #include "scripting/clouds.hpp"
 #include "video/surface_ptr.hpp"

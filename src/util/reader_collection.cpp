@@ -17,6 +17,7 @@
 #include "util/reader_collection.hpp"
 
 #include <sexp/value.hpp>
+#include <cstddef>
 
 #include "util/reader_error.hpp"
 

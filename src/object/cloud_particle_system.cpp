@@ -16,6 +16,11 @@
 
 #include "object/cloud_particle_system.hpp"
 
+#include <memory>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include "math/random.hpp"
 #include "object/camera.hpp"
 #include "supertux/sector.hpp"

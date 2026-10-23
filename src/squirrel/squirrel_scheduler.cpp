@@ -17,6 +17,8 @@
 #include "squirrel/squirrel_scheduler.hpp"
 
 #include <algorithm>
+#include <sstream>
+#include <string>
 
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "squirrel/squirrel_util.hpp"

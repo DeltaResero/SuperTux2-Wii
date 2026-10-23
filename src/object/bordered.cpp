@@ -18,7 +18,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
+#include <functional>
+#include <memory>
 #include <unordered_map>
 
 #include <SDL.h>

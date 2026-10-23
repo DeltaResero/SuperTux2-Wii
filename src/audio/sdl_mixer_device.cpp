@@ -18,8 +18,10 @@
 
 #include <SDL.h>
 #include <algorithm>
+#include <exception>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 #include "audio/sdl_music.hpp"
 #include "audio/sdl_samples.hpp"

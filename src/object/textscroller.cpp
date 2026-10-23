@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <cmath>
 #include <optional>
+#include <stdexcept>
 #include <sexp/value.hpp>
 
 #include "control/input_manager.hpp"

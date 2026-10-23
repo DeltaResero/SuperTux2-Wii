@@ -17,6 +17,7 @@
 #include "video/sdl/sdl_texture_renderer.hpp"
 
 #include <sstream>
+#include <stdexcept>
 
 #include "supertux/globals.hpp"
 #include "util/log.hpp"

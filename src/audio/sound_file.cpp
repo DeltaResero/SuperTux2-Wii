@@ -19,6 +19,8 @@
 #include "audio/sound_file.hpp"
 
 #include <config.h>
+#include <exception>
+#include <utility>
 
 #include <cstring>
 #include <fstream>

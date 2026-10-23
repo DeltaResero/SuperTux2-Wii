@@ -19,7 +19,9 @@
 
 #include "video/gl/gl_context.hpp"
 
+#include <cstddef>
 #include <memory>
+#include <string>
 
 class GLProgram;
 class GLTexture;

@@ -19,6 +19,8 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_TILE_HPP
 #define HEADER_SUPERTUX_SUPERTUX_TILE_HPP
 
+#include <cstddef>
+#include <string>
 #include <vector>
 #include <cstdint>
 

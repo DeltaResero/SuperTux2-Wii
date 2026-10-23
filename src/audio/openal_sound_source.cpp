@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <exception>
 
 #include "audio/openal_device.hpp"
 #include "audio/sound_manager.hpp"

@@ -19,6 +19,7 @@
 
 #include "video/painter.hpp"
 
+#include <cstdint>
 #include <optional>
 #include <unordered_map>
 #include <vector>

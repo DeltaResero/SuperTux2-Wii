@@ -16,6 +16,10 @@
 
 #include "supertux/world.hpp"
 
+#include <exception>
+#include <sstream>
+#include <stdexcept>
+
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "util/file_system.hpp"

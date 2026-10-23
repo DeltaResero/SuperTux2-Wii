@@ -16,6 +16,8 @@
 
 #include "string_util.hpp"
 
+#include <algorithm>
+#include <cctype>
 #include <string>
 #include <cstring>
 

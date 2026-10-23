@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_IGEL_HPP
 #define HEADER_SUPERTUX_BADGUY_IGEL_HPP
 
+#include <string>
+
 #include "badguy/walking_badguy.hpp"
 
 /** Badguy "Igel" - a hedgehog that can absorb bullets */

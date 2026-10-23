@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_GAME_SESSION_RECORDER_HPP
 #define HEADER_SUPERTUX_SUPERTUX_GAME_SESSION_RECORDER_HPP
 
+#include <iosfwd>
 #include <memory>
 #include <string>
 

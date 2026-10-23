@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_SUPERTUX_CONSOLE_HPP
 
 #include <config.h>
+#include <string>
 
 #include <list>
 #include <squirrel.h>

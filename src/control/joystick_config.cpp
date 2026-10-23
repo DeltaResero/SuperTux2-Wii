@@ -17,6 +17,8 @@
 #include "control/joystick_config.hpp"
 
 #include <iostream>
+#include <optional>
+#include <string>
 
 #include "util/log.hpp"
 #include "util/reader_mapping.hpp"

@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 #define HEADER_SUPERTUX_BADGUY_BADGUY_HPP
 
+#include <cstdint>
+#include <string>
+
 #include "object/moving_sprite.hpp"
 #include "scripting/badguy.hpp"
 #include "squirrel/exposed_object.hpp"

@@ -19,6 +19,7 @@
 #include <cassert>
 #include <sexp/value.hpp>
 #include <stdexcept>
+#include <vector>
 
 #include "util/reader_error.hpp"
 #include "util/reader_mapping.hpp"

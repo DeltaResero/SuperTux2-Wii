@@ -19,6 +19,7 @@
 
 #include "object/unstable_tile.hpp"
 
+#include <algorithm>
 #include <memory>
 
 #include "object/explosion.hpp"

@@ -17,6 +17,8 @@
 #include "sprite/sprite.hpp"
 
 #include <cassert>
+#include <memory>
+#include <utility>
 
 #include "supertux/globals.hpp"
 #include "util/log.hpp"

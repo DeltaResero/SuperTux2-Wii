@@ -17,11 +17,13 @@
 #include "util/file_system.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <filesystem>
 #include <sstream>
 #include <stdexcept>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <system_error>
 #include <vector>
 
 #include "gui/dialog.hpp"

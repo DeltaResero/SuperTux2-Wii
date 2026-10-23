@@ -18,6 +18,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "math/random.hpp"
 #include "supertux/globals.hpp"

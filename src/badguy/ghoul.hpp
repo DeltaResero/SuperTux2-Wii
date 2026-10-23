@@ -16,6 +16,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_GHOUL_HPP
 #define HEADER_SUPERTUX_BADGUY_GHOUL_HPP
 
+#include <string>
+
 #include "badguy/badguy.hpp"
 #include "object/path_object.hpp"
 

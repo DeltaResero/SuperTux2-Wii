@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_OBJECT_PNEUMATIC_PLATFORM_HPP
 
 #include <set>
+#include <string>
+#include <vector>
 
 #include "object/moving_sprite.hpp"
 

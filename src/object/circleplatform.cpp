@@ -16,6 +16,8 @@
 
 #include "object/circleplatform.hpp"
 
+#include <cmath>
+
 #include "math/util.hpp"
 #include "supertux/flip_level_transformer.hpp"
 #include "util/reader_mapping.hpp"

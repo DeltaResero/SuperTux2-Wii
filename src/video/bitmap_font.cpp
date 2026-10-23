@@ -18,8 +18,11 @@
 #include "video/bitmap_font.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
+#include <exception>
 #include <sstream>
+#include <stdexcept>
 
 #include "io/sdl_file.hpp"
 #include "util/log.hpp"

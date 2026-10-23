@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_FALLBLOCK_HPP
 #define HEADER_SUPERTUX_OBJECT_FALLBLOCK_HPP
 
+#include <string>
+
 #include "object/moving_sprite.hpp"
 #include "supertux/physic.hpp"
 #include "supertux/timer.hpp"

@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_MATH_RECTF_HPP
 
 #include <cassert>
+#include <cmath>
 #include <iosfwd>
 
 #include "math/anchor_point.hpp"

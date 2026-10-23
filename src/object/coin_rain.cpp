@@ -16,6 +16,8 @@
 
 #include "object/coin_rain.hpp"
 
+#include <string>
+
 #include "math/random.hpp"
 #include "object/coin.hpp"
 #include "sprite/sprite.hpp"

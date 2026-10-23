@@ -16,6 +16,8 @@
 
 #include "object/endsequence_walkleft.hpp"
 
+#include <memory>
+
 #include "object/player.hpp"
 #include "supertux/screen_manager.hpp"
 #include "supertux/sector.hpp"

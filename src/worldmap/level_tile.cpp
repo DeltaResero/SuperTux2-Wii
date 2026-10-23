@@ -17,6 +17,8 @@
 
 #include "worldmap/level_tile.hpp"
 
+#include <vector>
+
 
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"

@@ -18,7 +18,10 @@
 #ifndef HEADER_SUPERTUX_SQUIRREL_SQUIRREL_ENVIRONMENT_HPP
 #define HEADER_SUPERTUX_SQUIRREL_SQUIRREL_ENVIRONMENT_HPP
 
+#include <iosfwd>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <squirrel.h>

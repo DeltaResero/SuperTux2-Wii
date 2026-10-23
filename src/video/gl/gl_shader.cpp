@@ -16,8 +16,11 @@
 
 #include "video/gl/gl_shader.hpp"
 
+#include <cstddef>
+#include <exception>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 #include "io/ifile_stream.hpp"
 #include "video/glutil.hpp"

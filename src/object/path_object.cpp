@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <optional>
+#include <string>
 
 #include "object/path_gameobject.hpp"
 #include "supertux/d_scope.hpp"

@@ -19,6 +19,7 @@
 
 #include <cassert>
 #include <memory>
+#include <string>
 
 #include "video/gl.hpp"
 #include "video/gl/gl_shader.hpp"

@@ -16,6 +16,9 @@
 
 #include "squirrel/squirrel_thread_queue.hpp"
 
+#include <string>
+#include <utility>
+
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "squirrel/squirrel_util.hpp"
 #include "util/log.hpp"

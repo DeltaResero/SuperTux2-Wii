@@ -17,7 +17,10 @@
 #ifndef HEADER_SUPERTUX_OBJECT_TEXT_ARRAY_OBJECT_HPP
 #define HEADER_SUPERTUX_OBJECT_TEXT_ARRAY_OBJECT_HPP
 
+#include <cstddef>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "squirrel/exposed_object.hpp"
 #include "scripting/text_array.hpp"

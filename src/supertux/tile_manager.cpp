@@ -17,6 +17,8 @@
 
 #include "supertux/tile_manager.hpp"
 
+#include <utility>
+
 #include "supertux/tile.hpp"
 #include "supertux/tile_set.hpp"
 

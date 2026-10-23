@@ -16,7 +16,11 @@
 
 #include "squirrel/serialize.hpp"
 
+#include <cassert>
+#include <cstddef>
 #include <iostream>
+#include <string>
+#include <vector>
 #include <sexp/value.hpp>
 #include <sexp/util.hpp>
 

@@ -18,6 +18,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <optional>
+#include <stdexcept>
+#include <utility>
 
 #include "control/input_manager.hpp"
 #include "gui/item_action.hpp"

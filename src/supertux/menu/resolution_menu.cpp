@@ -17,6 +17,8 @@
 #include "supertux/menu/resolution_menu.hpp"
 
 #include <SDL.h>
+#include <cstddef>
+#include <memory>
 
 #include <algorithm>
 #include <sstream>

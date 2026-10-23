@@ -17,6 +17,7 @@
 
 #include "video/gl/gl_texture_renderer.hpp"
 
+#include <cassert>
 #include <memory>
 
 #include "supertux/globals.hpp"

@@ -17,7 +17,13 @@
 #include "video/gl/gl_painter.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <tuple>
+#include <utility>
 
 #include "math/util.hpp"
 #include "supertux/globals.hpp"

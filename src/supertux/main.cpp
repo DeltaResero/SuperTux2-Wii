@@ -18,9 +18,16 @@
 
 #include <config.h>
 #include <version.h>
+#include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>

@@ -17,6 +17,8 @@
 #include "video/gl/gl_program.hpp"
 
 #include <sstream>
+#include <stdexcept>
+#include <vector>
 
 #include "util/log.hpp"
 #include "video/glutil.hpp"

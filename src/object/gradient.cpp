@@ -16,6 +16,8 @@
 
 #include "object/gradient.hpp"
 
+#include <vector>
+
 #include "object/camera.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/level.hpp"

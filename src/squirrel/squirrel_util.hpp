@@ -18,9 +18,11 @@
 #define HEADER_SUPERTUX_SQUIRREL_SQUIRREL_UTIL_HPP
 
 #include <cassert>
+#include <cstddef>
 #include <limits>
 #include <memory>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "squirrel/squirrel_virtual_machine.hpp"

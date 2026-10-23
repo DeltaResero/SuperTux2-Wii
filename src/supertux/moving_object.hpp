@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_SUPERTUX_MOVING_OBJECT_HPP
 #define HEADER_SUPERTUX_SUPERTUX_MOVING_OBJECT_HPP
 
+#include <cstdint>
+#include <string>
+
 #include "collision/collision_hit.hpp"
 #include "collision/collision_object.hpp"
 #include "collision/collision_listener.hpp"

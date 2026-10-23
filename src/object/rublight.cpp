@@ -15,6 +15,10 @@
 
 #include "object/rublight.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <vector>
+
 #include "object/explosion.hpp"
 #include "badguy/walking_badguy.hpp"
 #include "object/player.hpp"

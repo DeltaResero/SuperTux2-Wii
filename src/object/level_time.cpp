@@ -17,6 +17,8 @@
 #include "object/level_time.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <sstream>
 
 #include "object/player.hpp"
 #include "supertux/resources.hpp"

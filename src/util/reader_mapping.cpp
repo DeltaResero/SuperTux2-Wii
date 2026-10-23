@@ -17,6 +17,7 @@
 #include "util/reader_mapping.hpp"
 
 #include <sexp/io.hpp>
+#include <cstddef>
 #include <sstream>
 #include <stdexcept>
 

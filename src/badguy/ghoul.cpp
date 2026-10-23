@@ -15,6 +15,9 @@
 
 #include "badguy/ghoul.hpp"
 
+#include <cassert>
+#include <cmath>
+
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/game_session.hpp"

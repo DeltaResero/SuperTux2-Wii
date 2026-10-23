@@ -19,6 +19,7 @@
 #define HEADER_SUPERTUX_WORLDMAP_TUX_HPP
 
 #include <optional>
+#include <string>
 
 #include "sprite/sprite_ptr.hpp"
 #include "supertux/game_object.hpp"

@@ -16,6 +16,11 @@
 
 #include "object/bonus_block.hpp"
 
+#include <optional>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
 #include "object/bouncy_coin.hpp"

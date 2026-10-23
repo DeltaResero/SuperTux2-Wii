@@ -16,6 +16,8 @@
 
 #include "badguy/bomb.hpp"
 
+#include <cmath>
+
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "object/explosion.hpp"

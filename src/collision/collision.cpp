@@ -17,6 +17,9 @@
 #include "collision/collision.hpp"
 
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <utility>
 
 #include "math/aatriangle.hpp"
 #include "math/rectf.hpp"

@@ -16,6 +16,8 @@
 
 #include "scripting/game_object.hpp"
 
+#include <stdexcept>
+
 #include "supertux/sector.hpp"
 #include "worldmap/worldmap.hpp"
 

@@ -17,6 +17,8 @@
 #include "audio/ogg_sound_file.hpp"
 
 #include <config.h>
+#include <cstdio>
+#include <utility>
 
 #include <cassert>
 #include <bit>

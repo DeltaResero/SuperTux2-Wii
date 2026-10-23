@@ -17,9 +17,11 @@
 
 #include "audio/openal_device.hpp"
 
+#include <exception>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 #include "audio/openal_sound_source.hpp"
 #include "audio/sound_file.hpp"

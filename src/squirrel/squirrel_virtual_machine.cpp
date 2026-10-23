@@ -23,6 +23,8 @@
 #include <cstring>
 #include <cstdarg>
 #include <cstdio>
+#include <exception>
+#include <string>
 #include <vector>
 
 #include "io/ifile_stream.hpp"

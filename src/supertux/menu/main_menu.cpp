@@ -16,6 +16,9 @@
 
 #include "supertux/menu/main_menu.hpp"
 
+#include <memory>
+#include <string>
+
 #include "audio/sound_manager.hpp"
 #include "gui/dialog.hpp"
 #include "gui/menu_item.hpp"

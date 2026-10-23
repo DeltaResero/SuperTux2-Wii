@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_UTIL_UID_HPP
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <iosfwd>

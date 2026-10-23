@@ -17,6 +17,9 @@
 #ifndef HEADER_SUPERTUX_VIDEO_NULL_NULL_VIDEO_SYSTEM_HPP
 #define HEADER_SUPERTUX_VIDEO_NULL_NULL_VIDEO_SYSTEM_HPP
 
+#include <memory>
+#include <string>
+
 #include "video/viewport.hpp"
 #include "video/video_system.hpp"
 

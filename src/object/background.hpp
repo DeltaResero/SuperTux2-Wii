@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_OBJECT_BACKGROUND_HPP
 #define HEADER_SUPERTUX_OBJECT_BACKGROUND_HPP
 
+#include <string>
+
 #include "math/vector.hpp"
 #include "scripting/background.hpp"
 #include "squirrel/exposed_object.hpp"

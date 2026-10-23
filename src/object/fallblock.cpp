@@ -16,6 +16,8 @@
 
 #include "object/fallblock.hpp"
 
+#include <algorithm>
+
 #include "audio/sound_manager.hpp"
 #include "object/bumper.hpp"
 #include "object/player.hpp"

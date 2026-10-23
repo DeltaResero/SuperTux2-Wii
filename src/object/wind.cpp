@@ -16,6 +16,8 @@
 
 #include "object/wind.hpp"
 
+#include <cmath>
+
 #include "badguy/badguy.hpp"
 #include "control/controller.hpp"
 #include "math/random.hpp"

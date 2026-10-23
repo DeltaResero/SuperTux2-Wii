@@ -17,6 +17,11 @@
 
 #include "collision/collision_system.hpp"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+#include <utility>
+
 #include "collision/collision.hpp"
 #include "collision/collision_movement_manager.hpp"
 #include "math/aatriangle.hpp"

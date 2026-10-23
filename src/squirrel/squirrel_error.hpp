@@ -18,6 +18,7 @@
 #define HEADER_SUPERTUX_SQUIRREL_SQUIRREL_ERROR_HPP
 
 #include <squirrel.h>
+#include <exception>
 #include <stdexcept>
 #include <string>
 

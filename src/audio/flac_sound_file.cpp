@@ -18,6 +18,8 @@
 
 #include <algorithm>
 #include <cstring>
+#include <string>
+#include <utility>
 
 #include "audio/sound_error.hpp"
 #include "util/log.hpp"

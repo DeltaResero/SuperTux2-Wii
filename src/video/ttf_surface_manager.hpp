@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_TTF_SURFACE_MANAGER_HPP
 #define HEADER_SUPERTUX_VIDEO_TTF_SURFACE_MANAGER_HPP
 
+#include <memory>
 #include <tuple>
 #include <map>
 #include <string>

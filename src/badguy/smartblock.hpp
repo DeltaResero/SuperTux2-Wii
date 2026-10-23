@@ -17,6 +17,8 @@
 #ifndef HEADER_SUPERTUX_BADGUY_SMARTBLOCK_HPP
 #define HEADER_SUPERTUX_BADGUY_SMARTBLOCK_HPP
 
+#include <string>
+
 #include "badguy/mriceblock.hpp"
 
 class SmartBlock final : public MrIceBlock
