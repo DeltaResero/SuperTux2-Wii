@@ -27,22 +27,20 @@
 
 Compositor::Compositor(VideoSystem& video_system) :
   m_video_system(video_system),
-  m_obst(),
+  m_arena(),
   m_drawing_contexts()
 {
-  obstack_init(&m_obst);
 }
 
 Compositor::~Compositor()
 {
   m_drawing_contexts.clear();
-  obstack_free(&m_obst, nullptr);
 }
 
 DrawingContext&
 Compositor::make_context(bool overlay)
 {
-  m_drawing_contexts.push_back(std::make_unique<DrawingContext>(m_video_system, m_obst, overlay));
+  m_drawing_contexts.push_back(std::make_unique<DrawingContext>(m_video_system, m_arena, overlay));
   return *m_drawing_contexts.back();
 }
 
@@ -151,8 +149,7 @@ Compositor::render()
   }
   m_video_system.flip();
 
-  obstack_free(&m_obst, nullptr);
-  obstack_init(&m_obst);
+  m_arena.reset();
 }
 
 /* EOF */

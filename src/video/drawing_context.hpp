@@ -20,7 +20,6 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include <obstack.h>
 #include <optional>
 
 #include "math/rect.hpp"
@@ -33,9 +32,9 @@
 #include "video/font.hpp"
 #include "video/font_ptr.hpp"
 
+class Arena;
 class VideoSystem;
 struct DrawingRequest;
-struct obstack;
 
 /** This class provides functions for drawing things on screen. It
     also maintains a stack of transforms that are applied to
@@ -43,7 +42,7 @@ struct obstack;
 class DrawingContext final
 {
 public:
-  DrawingContext(VideoSystem& video_system, obstack& obst, bool overlay);
+  DrawingContext(VideoSystem& video_system, Arena& arena, bool overlay);
   ~DrawingContext();
 
   /** Returns the visible area in world coordinates */
@@ -112,9 +111,8 @@ public:
 private:
   VideoSystem& m_video_system;
 
-  /** obstack holds the memory of all the drawing requests, it is
-      shared with the Canvas */
-  obstack& m_obst;
+  /** Holds the memory of all the drawing requests, shared with the Canvas */
+  Arena& m_arena;
 
   /** A context marked as overlay will not have it's light section
       rendered. */
