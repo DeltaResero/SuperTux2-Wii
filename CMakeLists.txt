@@ -371,10 +371,6 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   target_compile_definitions(squirrel PUBLIC _SQ64)
 endif()
 
-# Both are C++11 code and stay on it; the project's own standard isn't theirs
-set_target_properties(squirrel sqstdlib simplesquirrel PROPERTIES
-  CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
-
 if(WIN32)
   #For debug run purposes
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/mk/msvc/run_supertux.bat.in" "${PROJECT_BINARY_DIR}/run_supertux.bat")
