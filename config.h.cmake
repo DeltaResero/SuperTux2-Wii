@@ -3,8 +3,6 @@
 
 #define PACKAGE_NAME "supertux2"
 
-#cmakedefine ENABLE_SQDBG
-
 #cmakedefine ENABLE_BINRELOC
 #define INSTALL_SUBDIR_BIN "${INSTALL_SUBDIR_BIN}"
 #define INSTALL_SUBDIR_SHARE "${INSTALL_SUBDIR_SHARE}"

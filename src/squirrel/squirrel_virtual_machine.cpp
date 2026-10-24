@@ -37,13 +37,6 @@
 #include "supertux/globals.hpp"
 #include "util/log.hpp"
 
-#ifdef ENABLE_SQDBG
-#  include "../../external/squirrel/sqdbg/sqrdbg.h"
-namespace {
-HSQREMOTEDBG debugger = nullptr;
-} // namespace
-#endif
-
 namespace {
 
 #ifdef __clang__
@@ -82,7 +75,7 @@ void printfunc(HSQUIRRELVM, const char* fmt, ...)
 
 } // namespace
 
-SquirrelVirtualMachine::SquirrelVirtualMachine(bool enable_debugger) :
+SquirrelVirtualMachine::SquirrelVirtualMachine() :
   m_vm(),
   m_screenswitch_queue(),
   m_scheduler()
@@ -91,21 +84,6 @@ SquirrelVirtualMachine::SquirrelVirtualMachine(bool enable_debugger) :
 
   m_screenswitch_queue = std::make_unique<SquirrelThreadQueue>(m_vm);
   m_scheduler = std::make_unique<SquirrelScheduler>(m_vm);
-
-  if (enable_debugger) {
-#ifdef ENABLE_SQDBG
-    sq_enabledebuginfo(m_vm.get_vm(), SQTrue);
-    debugger = sq_rdbg_init(m_vm.get_vm(), 1234, SQFalse);
-    if (debugger == nullptr)
-      throw SquirrelError(m_vm.get_vm(), "Couldn't initialize squirrel debugger");
-
-    sq_enabledebuginfo(m_vm.get_vm(), SQTrue);
-    log_info << "Waiting for debug client..." << std::endl;
-    if (SQ_FAILED(sq_rdbg_waitforconnections(debugger)))
-      throw SquirrelError(m_vm.get_vm(), "Waiting for debug clients failed");
-    log_info << "debug client connected." << std::endl;
-#endif
-  }
 
   sq_pushroottable(m_vm.get_vm());
   if (SQ_FAILED(sqstd_register_bloblib(m_vm.get_vm())))
@@ -141,28 +119,12 @@ SquirrelVirtualMachine::SquirrelVirtualMachine(bool enable_debugger) :
 
 SquirrelVirtualMachine::~SquirrelVirtualMachine()
 {
-#ifdef ENABLE_SQDBG
-  if (debugger != nullptr) {
-    sq_rdbg_shutdown(debugger);
-    debugger = nullptr;
-  }
-#endif
 }
 
 void
 SquirrelVirtualMachine::update(float dt_sec)
 {
-  update_debugger();
   m_scheduler->update(g_game_time);
-}
-
-void
-SquirrelVirtualMachine::update_debugger()
-{
-#ifdef ENABLE_SQDBG
-  if (debugger != nullptr)
-    sq_rdbg_update(debugger);
-#endif
 }
 
 void

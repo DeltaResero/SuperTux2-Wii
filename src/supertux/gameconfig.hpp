@@ -78,7 +78,6 @@ public:
   /** initial random seed.  0 ==> set from time() */
   int random_seed;
 
-  bool enable_script_debugger;
   std::string start_demo;
   std::string record_demo;
 

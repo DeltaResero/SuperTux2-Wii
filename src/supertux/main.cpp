@@ -356,7 +356,7 @@ Main::launch_game(const CommandLineArguments& args)
   m_sound_manager->set_music_volume(g_config->music_volume);
 
   s_timelog.log("scripting");
-  m_squirrel_virtual_machine = std::make_unique<SquirrelVirtualMachine>(g_config->enable_script_debugger);
+  m_squirrel_virtual_machine = std::make_unique<SquirrelVirtualMachine>();
 
   s_timelog.log("resources");
   m_tile_manager = std::make_unique<TileManager>();
