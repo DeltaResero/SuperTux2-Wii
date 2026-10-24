@@ -17,27 +17,24 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_TILEMAP_HPP
 #define HEADER_SUPERTUX_SCRIPTING_TILEMAP_HPP
 
-#ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class TileMap;
-#endif
 
 namespace scripting {
 
 class TileMap final
-#ifndef SCRIPTING_API
-  : public GameObject<::TileMap>
-#endif
+  : public ssq::ExposableClass,
+    public GameObject<::TileMap>
 {
 public:
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 private:
   TileMap(const TileMap&) = delete;
   TileMap& operator=(const TileMap&) = delete;
-#endif
 
 public:
   /** Move tilemap until at given node, then stop */

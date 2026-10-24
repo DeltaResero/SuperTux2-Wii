@@ -17,28 +17,22 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_DISPENSER_HPP
 #define HEADER_SUPERTUX_SCRIPTING_DISPENSER_HPP
 
-#ifndef SCRIPTING_API
 #include "scripting/badguy.hpp"
 #include "scripting/game_object.hpp"
 
 class Dispenser;
-#endif
 
 namespace scripting {
 
 class Dispenser final : public scripting::BadGuy
-#ifndef SCRIPTING_API
   , virtual public GameObject<::Dispenser>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using BadGuy::BadGuy;
 
 private:
   Dispenser(const Dispenser&) = delete;
   Dispenser& operator=(const Dispenser&) = delete;
-#endif
 
 public:
   /**

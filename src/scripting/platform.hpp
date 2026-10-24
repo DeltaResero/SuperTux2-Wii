@@ -19,26 +19,23 @@
 
 #include <string>
 
-#ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Platform;
-#endif
 
 namespace scripting {
 
 class Platform final
-#ifndef SCRIPTING_API
-  : public GameObject<::Platform>
-#endif
+  : public ssq::ExposableClass,
+    public GameObject<::Platform>
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 private:
   Platform(const Platform&) = delete;
   Platform& operator=(const Platform&) = delete;
-#endif
 
 public:
   /** Move platform until at given node, then stop */

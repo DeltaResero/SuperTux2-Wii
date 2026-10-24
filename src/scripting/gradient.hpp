@@ -17,29 +17,26 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_GRADIENT_HPP
 #define HEADER_SUPERTUX_SCRIPTING_GRADIENT_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
+
+#include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Gradient;
-#endif
 
 namespace scripting {
 
 class Gradient final
-#ifndef SCRIPTING_API
-  : public GameObject<::Gradient>
-#endif
+  : public ssq::ExposableClass,
+    public GameObject<::Gradient>
 {
-#ifndef SCRIPTING_API
 private:
   using GameObject::GameObject;
 
 private:
   Gradient(const Gradient&) = delete;
   Gradient& operator=(const Gradient&) = delete;
-#endif
 
 public:
   void set_direction(const std::string& direction);

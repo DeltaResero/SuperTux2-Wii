@@ -17,29 +17,26 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_PLAYER_HPP
 #define HEADER_SUPERTUX_SCRIPTING_PLAYER_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
+
+#include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Player;
-#endif
 
 namespace scripting {
 
 class Player final
-#ifndef SCRIPTING_API
-  : public GameObject<::Player>
-#endif
+  : public ssq::ExposableClass,
+    public GameObject<::Player>
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   Player(const Player&) = delete;
   Player& operator=(const Player&) = delete;
-#endif
 
 public:
   /**

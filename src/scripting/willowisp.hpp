@@ -17,29 +17,23 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_WILLOWISP_HPP
 #define HEADER_SUPERTUX_SCRIPTING_WILLOWISP_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
 #include "scripting/badguy.hpp"
 #include "scripting/game_object.hpp"
 
 class WillOWisp;
-#endif
 
 namespace scripting {
 
 class WillOWisp final : public scripting::BadGuy
-#ifndef SCRIPTING_API
   , virtual public GameObject<::WillOWisp>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using BadGuy::BadGuy;
 
 private:
   WillOWisp(const WillOWisp&) = delete;
   WillOWisp& operator=(const WillOWisp&) = delete;
-#endif
 
 public:
   /** Move willowisp to given node */

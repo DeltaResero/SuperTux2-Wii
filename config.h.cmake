@@ -9,11 +9,6 @@
 #define INSTALL_SUBDIR_BIN "${INSTALL_SUBDIR_BIN}"
 #define INSTALL_SUBDIR_SHARE "${INSTALL_SUBDIR_SHARE}"
 
-#define SIZEOF_VOID_P ${CMAKE_SIZEOF_VOID_P}
-#if SIZEOF_VOID_P == 8
-#define _SQ64
-#endif
-
 #cmakedefine HAVE_OPENGL
 
 #cmakedefine HAVE_GLEW

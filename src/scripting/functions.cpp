@@ -139,7 +139,7 @@ bool check_cutscene()
   return session->get_current_level().m_is_in_cutscene;
 }
 
-void wait(HSQUIRRELVM vm, float seconds)
+SQInteger wait(HSQUIRRELVM vm, float seconds)
 {
   if(GameSession::current()->get_current_level().m_skip_cutscene)
   {
@@ -190,13 +190,15 @@ void wait(HSQUIRRELVM vm, float seconds)
       log_warning << "wait(): no VM or environment available\n";
     }
   }
+  return sq_suspendvm(vm);
 }
 
-void wait_for_screenswitch(HSQUIRRELVM vm)
+SQInteger wait_for_screenswitch(HSQUIRRELVM vm)
 {
   auto squirrelvm = static_cast<SquirrelVirtualMachine*>(sq_getsharedforeignptr(vm));
   //auto squirrelenv = static_cast<SquirrelEnvironment*>(sq_getforeignptr(vm));
   squirrelvm->wait_for_screenswitch(vm);
+  return sq_suspendvm(vm);
 }
 
 void exit_screen()

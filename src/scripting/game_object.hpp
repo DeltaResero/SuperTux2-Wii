@@ -21,8 +21,6 @@
 #include "util/log.hpp"
 #include "util/uid.hpp"
 
-#ifndef SCRIPTING_API
-
 #define SCRIPT_GUARD_VOID                                               \
   auto object_ptr = get_object_ptr();                                   \
   if (object_ptr == nullptr) {                                          \
@@ -101,12 +99,13 @@ public:
   }
 
 protected:
+  // Never deleted on its own: squirrel deletes the scripting object it's part of
+  ~GameObject() = default;
+
   UID m_uid;
 };
 
 } // namespace scripting
-
-#endif
 
 #endif
 

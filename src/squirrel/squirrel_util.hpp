@@ -27,7 +27,7 @@
 
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "squirrel/squirrel_error.hpp"
-#include "scripting/wrapper.hpp"
+#include "scripting/supertux_api.hpp"
 
 using ScriptList = std::vector<HSQOBJECT>;
 

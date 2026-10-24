@@ -17,29 +17,26 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_BACKGROUND_HPP
 #define HEADER_SUPERTUX_SCRIPTING_BACKGROUND_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
+
+#include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Background;
-#endif
 
 namespace scripting {
 
 class Background final
-#ifndef SCRIPTING_API
-  : public GameObject<::Background>
-#endif
+  : public ssq::ExposableClass,
+    public GameObject<::Background>
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   Background(const Background&) = delete;
   Background& operator=(const Background&) = delete;
-#endif
 
 public:
   void set_image(const std::string& image);

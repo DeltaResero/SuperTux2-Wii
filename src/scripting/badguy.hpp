@@ -17,29 +17,26 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_BADGUY_HPP
 #define HEADER_SUPERTUX_SCRIPTING_BADGUY_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
+
+#include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class BadGuy;
-#endif
 
 namespace scripting {
 
 class BadGuy
-#ifndef SCRIPTING_API
-  : virtual public GameObject<::BadGuy>
-#endif
+  : public ssq::ExposableClass,
+    virtual public GameObject<::BadGuy>
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   BadGuy(const BadGuy&) = delete;
   BadGuy& operator=(const BadGuy&) = delete;
-#endif
 
 public:
   void kill();

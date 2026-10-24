@@ -19,26 +19,23 @@
 
 #include <string>
 
-#ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Decal;
-#endif
 
 namespace scripting {
 
 class Decal final
-#ifndef SCRIPTING_API
-  : public GameObject<::Decal>
-#endif
+  : public ssq::ExposableClass,
+    public GameObject<::Decal>
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 private:
   Decal(const Decal&) = delete;
   Decal& operator=(const Decal&) = delete;
-#endif
 
 public:
   void fade_sprite(const std::string& new_sprite_name, float fade_time);
