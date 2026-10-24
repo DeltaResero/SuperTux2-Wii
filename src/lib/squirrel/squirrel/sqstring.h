@@ -41,10 +41,10 @@ public:
     static SQString* Concat(SQSharedState* ss, const SQChar* a, SQInteger alen, const SQChar* b, SQInteger blen);
     SQInteger Next(const SQObjectPtr &refpos, SQObjectPtr &outkey, SQObjectPtr &outval);
     void Release();
-    SQSharedState *_sharedstate;
-    SQString *_next; //chain for the string table
-    SQInteger _len;
-    SQHash _hash;
+    SQSharedState *_sharedstate = nullptr;
+    SQString *_next = nullptr; //chain for the string table
+    SQInteger _len = 0;
+    SQHash _hash = 0;
     SQChar _val[1];
 };
 

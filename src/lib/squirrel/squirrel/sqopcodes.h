@@ -116,11 +116,11 @@ struct SQInstruction
     }
 
 
-    SQInt32 _arg1;
-    unsigned char op;
-    unsigned char _arg0;
-    unsigned char _arg2;
-    unsigned char _arg3;
+    SQInt32 _arg1 = 0;
+    unsigned char op = 0;
+    unsigned char _arg0 = 0;
+    unsigned char _arg2 = 0;
+    unsigned char _arg3 = 0;
 };
 
 #include "squtils.h"

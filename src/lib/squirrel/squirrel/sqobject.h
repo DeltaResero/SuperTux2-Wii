@@ -100,7 +100,7 @@ struct SQRefCounted
 struct SQWeakRef : SQRefCounted
 {
     void Release();
-    SQObject _obj;
+    SQObject _obj = {};
 };
 
 #define _realval(o) (sq_type((o)) != OT_WEAKREF?(SQObject)o:_weakref(o)->_obj)
@@ -313,9 +313,9 @@ inline void _Swap(SQObject &a,SQObject &b)
 #ifndef NO_GARBAGE_COLLECTOR
 #define MARK_FLAG 0x80000000
 struct SQCollectable : public SQRefCounted {
-    SQCollectable *_next;
-    SQCollectable *_prev;
-    SQSharedState *_sharedstate;
+    SQCollectable *_next = nullptr;
+    SQCollectable *_prev = nullptr;
+    SQSharedState *_sharedstate = nullptr;
     virtual SQObjectType GetType()=0;
     virtual void Release()=0;
     virtual void Mark(SQCollectable **chain)=0;
@@ -341,7 +341,7 @@ struct SQCollectable : public SQRefCounted {
 struct SQDelegable : public CHAINABLE_OBJ {
     bool SetDelegate(SQTable *m);
     virtual bool GetMetaMethod(SQVM *v,SQMetaMethod mm,SQObjectPtr &res);
-    SQTable *_delegate;
+    SQTable *_delegate = nullptr;
 };
 
 SQUnsignedInteger TranslateIndex(const SQObjectPtr &idx);

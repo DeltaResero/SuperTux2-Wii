@@ -22,10 +22,10 @@ struct SQExceptionTrap{
     SQExceptionTrap(SQInteger ss, SQInteger stackbase,SQInstruction *ip, SQInteger ex_target){ _stacksize = ss; _stackbase = stackbase; _ip = ip; _extarget = ex_target;}
     SQExceptionTrap(const SQExceptionTrap &et) = default;
     SQExceptionTrap &operator=(const SQExceptionTrap &et) = default;
-    SQInteger _stackbase;
-    SQInteger _stacksize;
-    SQInstruction *_ip;
-    SQInteger _extarget;
+    SQInteger _stackbase = 0;
+    SQInteger _stacksize = 0;
+    SQInstruction *_ip = nullptr;
+    SQInteger _extarget = 0;
 };
 
 #define _INLINE
@@ -36,16 +36,16 @@ struct SQVM : public CHAINABLE_OBJ
 {
     struct CallInfo{
         //CallInfo() { _generator = NULL;}
-        SQInstruction *_ip;
-        SQObjectPtr *_literals;
+        SQInstruction *_ip = nullptr;
+        SQObjectPtr *_literals = nullptr;
         SQObjectPtr _closure;
-        SQGenerator *_generator;
-        SQInt32 _etraps;
-        SQInt32 _prevstkbase;
-        SQInt32 _prevtop;
-        SQInt32 _target;
-        SQInt32 _ncalls;
-        SQBool _root;
+        SQGenerator *_generator = nullptr;
+        SQInt32 _etraps = 0;
+        SQInt32 _prevstkbase = 0;
+        SQInt32 _prevtop = 0;
+        SQInt32 _target = 0;
+        SQInt32 _ncalls = 0;
+        SQBool _root = SQFalse;
     };
 
 typedef sqvector<CallInfo> CallInfoVec;
@@ -146,8 +146,8 @@ public:
 
     SQObjectPtrVec _stack;
 
-    SQInteger _top;
-    SQInteger _stackbase;
+    SQInteger _top = 0;
+    SQInteger _stackbase = 0;
     SQOuter *_openouters;
     SQObjectPtr _roottable;
     SQObjectPtr _lasterror;
@@ -160,9 +160,9 @@ public:
     SQObjectPtr temp_reg;
 
 
-    CallInfo* _callsstack;
-    SQInteger _callsstacksize;
-    SQInteger _alloccallsstacksize;
+    CallInfo* _callsstack = nullptr;
+    SQInteger _callsstacksize = 0;
+    SQInteger _alloccallsstacksize = 0;
     sqvector<CallInfo>  _callstackdata;
 
     ExceptionsTraps _etraps;

@@ -28,7 +28,7 @@ struct SQOuterVar
 
 struct SQLocalVarInfo
 {
-    SQLocalVarInfo():_start_op(0),_end_op(0),_pos(0){}
+    SQLocalVarInfo():_name(),_start_op(0),_end_op(0),_pos(0){}
     SQLocalVarInfo(const SQLocalVarInfo &lvi) = default;
     SQLocalVarInfo &operator=(const SQLocalVarInfo &lvi) = default;
     SQObjectPtr _name;
