@@ -525,7 +525,7 @@ SQInteger sqstd_register_stringlib(HSQUIRRELVM v)
 {
     sq_pushstring(v,_SC("regexp"),-1);
     sq_newclass(v,SQFalse);
-	rex_typetag = (SQUserPointer)rexobj_funcs;
+	rex_typetag = const_cast<SQUserPointer>(static_cast<const void *>(rexobj_funcs));
 	sq_settypetag(v, -1, rex_typetag);
     SQInteger i = 0;
     while(rexobj_funcs[i].name != 0) {

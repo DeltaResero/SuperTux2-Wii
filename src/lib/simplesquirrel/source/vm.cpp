@@ -355,7 +355,7 @@ namespace ssq {
             throw RuntimeException(vm, "Failed to add enumerator '" + std::string(name) + "'!");
         }
         sq_pop(vm,1); // pop table
-        return std::move(enm);
+        return enm;
     }
 
     VM& VM::operator = (VM&& other) NOEXCEPT {
