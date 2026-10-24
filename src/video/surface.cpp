@@ -140,13 +140,13 @@ Surface::region(const Rect& rect) const
   return surface;
 }
 
-TexturePtr
+const TexturePtr&
 Surface::get_texture() const
 {
   return m_diffuse_texture;
 }
 
-TexturePtr
+const TexturePtr&
 Surface::get_displacement_texture() const
 {
   return m_displacement_texture;
