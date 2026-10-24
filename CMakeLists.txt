@@ -346,47 +346,16 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
 endif()
 
 
-## Also build external/squirrel
+## Also build external/simplesquirrel, which carries squirrel under it
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/external/squirrel/CMakeLists.txt)
-  message(FATAL_ERROR "squirrel submodule is not checked out or ${CMAKE_CURRENT_SOURCE_DIR}/external/squirrel/CMakeLists.txt is missing")
-endif()
-
-set(SQUIRREL_PREFIX ${CMAKE_BINARY_DIR}/squirrel/ex)
-ExternalProject_Add(squirrel
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/external/squirrel/"
-  BUILD_BYPRODUCTS
-  "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}sqstdlib_static${CMAKE_STATIC_LIBRARY_SUFFIX}"
-  "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}squirrel_static${CMAKE_STATIC_LIBRARY_SUFFIX}"
-  CMAKE_ARGS
-  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-  -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-  -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-  -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-  -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
-  -DCMAKE_INSTALL_PREFIX=${SQUIRREL_PREFIX}
-  -DINSTALL_INC_DIR=include
-  -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
+# simplesquirrel installs its own libraries by default; we link it, we don't ship it
+set(SSQ_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/simplesquirrel EXCLUDE_FROM_ALL)
 
 if(WIN32)
-  add_library(squirrel_lib SHARED IMPORTED)
-  set_target_properties(squirrel_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}squirrel${CMAKE_SHARED_LIBRARY_SUFFIX}")
-  set_target_properties(squirrel_lib PROPERTIES IMPORTED_IMPLIB "${SQUIRREL_PREFIX}/lib/squirrel${CMAKE_LINK_LIBRARY_SUFFIX}")
-  add_library(sqstdlib_lib SHARED IMPORTED)
-  set_target_properties(sqstdlib_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/bin/${CMAKE_SHARED_LIBRARY_PREFIX}sqstdlib${CMAKE_SHARED_LIBRARY_SUFFIX}")
-  set_target_properties(sqstdlib_lib PROPERTIES IMPORTED_IMPLIB "${SQUIRREL_PREFIX}/lib/sqstdlib${CMAKE_LINK_LIBRARY_SUFFIX}")
-
   #For debug run purposes
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/mk/msvc/run_supertux.bat.in" "${PROJECT_BINARY_DIR}/run_supertux.bat")
-else()
-  add_library(squirrel_lib STATIC IMPORTED)
-  set_target_properties(squirrel_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}squirrel_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
-  add_library(sqstdlib_lib STATIC IMPORTED)
-  set_target_properties(sqstdlib_lib PROPERTIES IMPORTED_LOCATION "${SQUIRREL_PREFIX}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}sqstdlib_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
-
-include_directories(SYSTEM ${SQUIRREL_PREFIX}/include)
 
 ## SDL_ttf, the one installed rather than a bundled copy
 if(VCPKG_BUILD)
@@ -623,8 +592,6 @@ endif(WIN32 AND NOT VCPKG_BUILD)
 
 ## Link supertux binary with squirrel and other libraries
 
-add_dependencies(supertux2_lib squirrel)
-
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2_INCLUDE_DIRS})
 target_include_directories(supertux2_lib SYSTEM PUBLIC ${SDL2IMAGE_INCLUDE_DIRS})
 if(VCPKG_BUILD AND NOT WIN32)
@@ -635,8 +602,7 @@ else()
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${SDL2TTF_TARGET})
 
-target_link_libraries(supertux2_lib PUBLIC squirrel_lib)
-target_link_libraries(supertux2_lib PUBLIC sqstdlib_lib)
+target_link_libraries(supertux2_lib PUBLIC simplesquirrel_static)
 target_link_libraries(supertux2_lib PUBLIC sexp)
 if(ENABLE_OPENAL)
   if(VCPKG_BUILD)
@@ -716,12 +682,6 @@ else(WIN32 AND NOT UNIX)
 endif(WIN32 AND NOT UNIX)
 
 install(TARGETS supertux2 DESTINATION ${INSTALL_SUBDIR_BIN})
-
-if(WIN32)
-  get_property(SQUIRREL_LIB_PATH TARGET squirrel_lib PROPERTY IMPORTED_LOCATION)
-  get_property(SQSTDLIB_LIB_PATH TARGET sqstdlib_lib PROPERTY IMPORTED_LOCATION)
-  install(FILES ${SQUIRREL_LIB_PATH} ${SQSTDLIB_LIB_PATH} DESTINATION ${INSTALL_SUBDIR_BIN})
-endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL.md ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE DESTINATION ${INSTALL_SUBDIR_DOC})
 
