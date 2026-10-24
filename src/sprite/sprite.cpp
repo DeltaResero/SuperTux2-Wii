@@ -182,7 +182,7 @@ Sprite::draw_scaled(Canvas& canvas, const Rectf& dest, int layer,
   context.pop_transform();
 }
 
-SurfacePtr
+const SurfacePtr&
 Sprite::get_current_surface()
 {
   update();

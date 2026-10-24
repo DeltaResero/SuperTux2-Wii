@@ -48,6 +48,9 @@ static const float BOUNCY_BRICK_MAX_OFFSET = 8;
 static const float BOUNCY_BRICK_SPEED = 90;
 static const float BUMP_ROTATION_ANGLE = 10;
 
+// Lets get_resting_surface() return a reference when the block isn't resting
+static const SurfacePtr no_surface;
+
 Block::Block(const ReaderMapping& mapping, const std::string& sprite_file) :
   m_sprite(),
   m_sprite_name(),
@@ -158,25 +161,25 @@ Block::update(float dt_sec)
   }
 }
 
-SurfacePtr
+const SurfacePtr&
 Block::get_resting_surface() const
 {
   const Vector pos = get_pos();
   if (m_bouncing || m_breaking || !m_sprite->is_plain() ||
       std::abs(pos.x - std::round(pos.x / 32.0f) * 32.0f) > 0.001f || std::abs(pos.y - std::round(pos.y / 32.0f) * 32.0f) > 0.001f)
   {
-    return {};
+    return no_surface;
   }
   // A picture that bends what's behind it, like an emptied block's reflection, can't come from a copy
-  SurfacePtr surface = m_sprite->get_current_surface();
-  return (surface && surface->get_displacement_texture()) ? SurfacePtr() : surface;
+  const SurfacePtr& surface = m_sprite->get_current_surface();
+  return (surface && surface->get_displacement_texture()) ? no_surface : surface;
 }
 
 void
 Block::draw(DrawingContext& context)
 {
   // Resting on the grid near the screen, it's bordered by the tiles and blocks beside it
-  const SurfacePtr surface = get_resting_surface();
+  const SurfacePtr& surface = get_resting_surface();
   if (surface && context.transform().between_pixels && VideoSystem::current()->draws_between_pixels() && d_gameobject_manager &&
       context.get_cliprect().grown(32.0f).contains(Rectf(get_pos(), Sizef(32.0f, 32.0f))))
   {
