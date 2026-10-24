@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_PARTICLESYSTEM_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class ParticleSystem;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class ParticleSystem final
 #ifndef SCRIPTING_API
-  : public GameObject<::ParticleSystem>
+  : public ssq::ExposableClass,
+    public GameObject<::ParticleSystem>
 #endif
 {
 public:

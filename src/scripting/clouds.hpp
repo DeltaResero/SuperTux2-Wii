@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_CLOUDS_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class CloudParticleSystem;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class Clouds final
 #ifndef SCRIPTING_API
-  : public GameObject<::CloudParticleSystem>
+  : public ssq::ExposableClass,
+    public GameObject<::CloudParticleSystem>
 #endif
 {
 #ifndef SCRIPTING_API

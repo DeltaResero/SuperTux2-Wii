@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_CANDLE_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Candle;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class Candle final
 #ifndef SCRIPTING_API
-  : public GameObject<::Candle>
+  : public ssq::ExposableClass,
+    public GameObject<::Candle>
 #endif
 {
 public:

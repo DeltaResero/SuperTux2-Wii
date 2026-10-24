@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_THUNDERSTORM_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Thunderstorm;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class Thunderstorm final
 #ifndef SCRIPTING_API
-  : public GameObject<::Thunderstorm>
+  : public ssq::ExposableClass,
+    public GameObject<::Thunderstorm>
 #endif
 {
 #ifndef SCRIPTING_API

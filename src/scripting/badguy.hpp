@@ -20,6 +20,8 @@
 #ifndef SCRIPTING_API
 #include <string>
 
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class BadGuy;
@@ -29,7 +31,8 @@ namespace scripting {
 
 class BadGuy
 #ifndef SCRIPTING_API
-  : virtual public GameObject<::BadGuy>
+  : public ssq::ExposableClass,
+    virtual public GameObject<::BadGuy>
 #endif
 {
 #ifndef SCRIPTING_API

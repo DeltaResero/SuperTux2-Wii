@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_TILEMAP_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class TileMap;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class TileMap final
 #ifndef SCRIPTING_API
-  : public GameObject<::TileMap>
+  : public ssq::ExposableClass,
+    public GameObject<::TileMap>
 #endif
 {
 public:

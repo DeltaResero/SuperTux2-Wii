@@ -101,6 +101,9 @@ public:
   }
 
 protected:
+  // Never deleted on its own: squirrel deletes the scripting object it's part of
+  ~GameObject() = default;
+
   UID m_uid;
 };
 

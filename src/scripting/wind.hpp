@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_WIND_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Wind;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class Wind final
 #ifndef SCRIPTING_API
-  : public GameObject<::Wind>
+  : public ssq::ExposableClass,
+    public GameObject<::Wind>
 #endif
 {
 #ifndef SCRIPTING_API

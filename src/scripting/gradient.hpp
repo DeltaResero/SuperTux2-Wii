@@ -20,6 +20,8 @@
 #ifndef SCRIPTING_API
 #include <string>
 
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Gradient;
@@ -29,7 +31,8 @@ namespace scripting {
 
 class Gradient final
 #ifndef SCRIPTING_API
-  : public GameObject<::Gradient>
+  : public ssq::ExposableClass,
+    public GameObject<::Gradient>
 #endif
 {
 #ifndef SCRIPTING_API

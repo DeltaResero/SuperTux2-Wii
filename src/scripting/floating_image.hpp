@@ -22,6 +22,8 @@
 #ifndef SCRIPTING_API
 #include <memory>
 
+#include <simplesquirrel/exposable_class.hpp>
+
 class FloatingImage;
 
 #include "scripting/game_object.hpp"
@@ -31,7 +33,8 @@ namespace scripting {
 
 class FloatingImage final
 #ifndef SCRIPTING_API
-  : public GameObject<::FloatingImage>
+  : public ssq::ExposableClass,
+    public GameObject<::FloatingImage>
 #endif
 {
 public:

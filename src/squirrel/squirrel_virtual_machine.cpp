@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "io/ifile_stream.hpp"
-#include "scripting/wrapper.hpp"
+#include "scripting/supertux_api.hpp"
 #include "squirrel/squirrel_error.hpp"
 #include "squirrel/squirrel_thread_queue.hpp"
 #include "squirrel/squirrel_scheduler.hpp"
@@ -120,7 +120,7 @@ SquirrelVirtualMachine::SquirrelVirtualMachine(bool enable_debugger) :
   m_vm.delete_table_entry("rand");
 
   // register supertux API
-  scripting::register_supertux_wrapper(m_vm.get_vm());
+  scripting::register_supertux_api(m_vm.get_vm());
 
   sq_pop(m_vm.get_vm(), 1);
 

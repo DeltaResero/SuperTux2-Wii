@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_ROCK_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Rock;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class Rock final
 #ifndef SCRIPTING_API
-  : public GameObject<::Rock>
+  : public ssq::ExposableClass,
+    public GameObject<::Rock>
 #endif
 {
 #ifndef SCRIPTING_API

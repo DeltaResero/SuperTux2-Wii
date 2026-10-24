@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_DISPLAY_EFFECT_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class DisplayEffect;
@@ -27,7 +29,8 @@ namespace scripting {
 
 class DisplayEffect final
 #ifndef SCRIPTING_API
-  : public GameObject<::DisplayEffect>
+  : public ssq::ExposableClass,
+    public GameObject<::DisplayEffect>
 #endif
 {
 #ifndef SCRIPTING_API

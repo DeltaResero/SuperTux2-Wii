@@ -20,6 +20,8 @@
 #ifndef SCRIPTING_API
 #include <string>
 
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Spotlight;
@@ -29,7 +31,8 @@ namespace scripting {
 
 class Spotlight final
 #ifndef SCRIPTING_API
-  : public GameObject<::Spotlight>
+  : public ssq::ExposableClass,
+    public GameObject<::Spotlight>
 #endif
 {
 #ifndef SCRIPTING_API

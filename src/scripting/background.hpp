@@ -20,6 +20,8 @@
 #ifndef SCRIPTING_API
 #include <string>
 
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Background;
@@ -29,7 +31,8 @@ namespace scripting {
 
 class Background final
 #ifndef SCRIPTING_API
-  : public GameObject<::Background>
+  : public ssq::ExposableClass,
+    public GameObject<::Background>
 #endif
 {
 #ifndef SCRIPTING_API

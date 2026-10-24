@@ -20,6 +20,8 @@
 #include <string>
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class RainParticleSystem;
@@ -29,7 +31,8 @@ namespace scripting {
 
 class Rain final
 #ifndef SCRIPTING_API
-  : public GameObject<::RainParticleSystem>
+  : public ssq::ExposableClass,
+    public GameObject<::RainParticleSystem>
 #endif
 {
 #ifndef SCRIPTING_API

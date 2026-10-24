@@ -19,6 +19,8 @@
 #define HEADER_SUPERTUX_SCRIPTING_TORCH_HPP
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Torch;
@@ -28,7 +30,8 @@ namespace scripting {
 
 class Torch final
 #ifndef SCRIPTING_API
-  : public GameObject<::Torch>
+  : public ssq::ExposableClass,
+    public GameObject<::Torch>
 #endif
 {
 public:

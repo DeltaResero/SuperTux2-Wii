@@ -20,6 +20,8 @@
 #include <string>
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Platform;
@@ -29,7 +31,8 @@ namespace scripting {
 
 class Platform final
 #ifndef SCRIPTING_API
-  : public GameObject<::Platform>
+  : public ssq::ExposableClass,
+    public GameObject<::Platform>
 #endif
 {
 #ifndef SCRIPTING_API

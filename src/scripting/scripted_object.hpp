@@ -19,6 +19,9 @@
 
 #ifndef SCRIPTING_API
 #include <string>
+
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class ScriptedObject;
@@ -28,7 +31,8 @@ namespace scripting {
 
 class ScriptedObject final
 #ifndef SCRIPTING_API
-  : public GameObject<::ScriptedObject>
+  : public ssq::ExposableClass,
+    public GameObject<::ScriptedObject>
 #endif
 {
 #ifndef SCRIPTING_API

@@ -19,13 +19,16 @@
 
 #ifndef SCRIPTING_API
 #include <string>
+
+#include <simplesquirrel/exposable_class.hpp>
+
 class GameObjectManager;
 #endif
 
 namespace scripting {
 
 /** Superclass for sectors and worldmaps */
-class GameObjectManager
+class GameObjectManager : public ssq::ExposableClass
 {
 #ifndef SCRIPTING_API
 private:

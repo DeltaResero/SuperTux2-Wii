@@ -20,6 +20,8 @@
 #include <string>
 
 #ifndef SCRIPTING_API
+#include <simplesquirrel/exposable_class.hpp>
+
 #include "scripting/game_object.hpp"
 
 class Decal;
@@ -29,7 +31,8 @@ namespace scripting {
 
 class Decal final
 #ifndef SCRIPTING_API
-  : public GameObject<::Decal>
+  : public ssq::ExposableClass,
+    public GameObject<::Decal>
 #endif
 {
 #ifndef SCRIPTING_API

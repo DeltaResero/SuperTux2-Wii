@@ -57,10 +57,10 @@ void end_cutscene();
 bool check_cutscene();
 
 /** Suspend the script execution for the specified number of seconds */
-void wait(HSQUIRRELVM vm, float seconds) __suspend;
+SQInteger wait(HSQUIRRELVM vm, float seconds);
 
 /** Suspend the script execution until the current screen has been changed */
-void wait_for_screenswitch(HSQUIRRELVM vm) __suspend;
+SQInteger wait_for_screenswitch(HSQUIRRELVM vm);
 
 /** Exits the currently running screen (force exit from worldmap or scrolling text for example) */
 void exit_screen();
