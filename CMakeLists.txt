@@ -352,6 +352,15 @@ endif()
 set(SSQ_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/simplesquirrel EXCLUDE_FROM_ALL)
 
+# Their headers compile inside our own files, so they're system headers to our warning flags
+foreach(TGT simplesquirrel_static squirrel_static sqstdlib_static)
+  get_target_property(TGT_INCLUDE_DIRS ${TGT} INTERFACE_INCLUDE_DIRECTORIES)
+  if(TGT_INCLUDE_DIRS)
+    set_target_properties(${TGT} PROPERTIES
+      INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${TGT_INCLUDE_DIRS}")
+  endif()
+endforeach()
+
 if(WIN32)
   #For debug run purposes
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/mk/msvc/run_supertux.bat.in" "${PROJECT_BINARY_DIR}/run_supertux.bat")
