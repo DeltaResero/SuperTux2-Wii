@@ -647,6 +647,33 @@ if(BUILD_TESTS)
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMAND ${TEST_NAME})
   endforeach()
+
+  # squirrel's own interpreter runs its samples against output recorded before we edited the VM
+  add_executable(sq tests/squirrel/sq.c)
+  target_link_libraries(sq squirrel sqstdlib)
+  set_target_properties(sq PROPERTIES C_STANDARD 99)
+
+  # These samples take a problem size and fall back to 1, which computes nothing worth recording
+  set(SQ_ARGS_ackermann 7)
+  set(SQ_ARGS_array 2000)
+  set(SQ_ARGS_fibonacci 25)
+  set(SQ_ARGS_list 3)
+  set(SQ_ARGS_matrix 40)
+  set(SQ_ARGS_methcall 200000)
+
+  file(GLOB SQUIRREL_SAMPLES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples
+       ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples/*.nut)
+  foreach(SAMPLE ${SQUIRREL_SAMPLES})
+    get_filename_component(SAMPLE_NAME ${SAMPLE} NAME_WE)
+    add_test(NAME squirrel_${SAMPLE_NAME}
+      COMMAND ${CMAKE_COMMAND}
+        -DSQ=$<TARGET_FILE:sq>
+        -DSCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples/${SAMPLE}
+        -DEXPECTED=${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/expected/${SAMPLE_NAME}.txt
+        -DARGS=${SQ_ARGS_${SAMPLE_NAME}}
+        -DTEST_NAME=squirrel_${SAMPLE_NAME}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/run_sample.cmake)
+  endforeach()
 endif()
 
 ## Install stuff
