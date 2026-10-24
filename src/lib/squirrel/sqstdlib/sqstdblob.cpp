@@ -185,11 +185,22 @@ static const SQRegFunction _blob_methods[] = {
 
 //GLOBAL FUNCTIONS
 
+/* an integer the same width as SQFloat, so a cast between them reads and
+   writes exactly the bytes that are there */
+#ifdef SQUSEDOUBLE
+typedef SQInteger SQFloatBits;
+#else
+typedef SQInt32 SQFloatBits;
+#endif
+
 static SQInteger _g_blob_casti2f(HSQUIRRELVM v)
 {
     SQInteger i;
     sq_getinteger(v,2,&i);
-    sq_pushfloat(v,*((const SQFloat *)&i));
+    const SQFloatBits bits = (SQFloatBits)i;
+    SQFloat f;
+    memcpy(&f,&bits,sizeof(f));
+    sq_pushfloat(v,f);
     return 1;
 }
 
@@ -197,7 +208,9 @@ static SQInteger _g_blob_castf2i(HSQUIRRELVM v)
 {
     SQFloat f;
     sq_getfloat(v,2,&f);
-    sq_pushinteger(v,*((const SQInteger *)&f));
+    SQFloatBits bits;
+    memcpy(&bits,&f,sizeof(f));
+    sq_pushinteger(v,(SQInteger)bits);
     return 1;
 }
 
