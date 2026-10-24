@@ -385,7 +385,7 @@ TileMap::draw(DrawingContext& context)
            !(on_grid && bordered::tile_beside(*d_gameobject_manager, *this, x, y));
   };
   const auto add_tile = [&](int x, int y, const Vector& at) {
-    const SurfacePtr surface = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
+    const SurfacePtr& surface = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
     if (!surface) return;
     auto& batch = batches[surface];
     std::get<0>(batch).emplace_back(surface->get_region());
