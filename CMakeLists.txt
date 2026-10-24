@@ -346,20 +346,34 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
 endif()
 
 
-## Also build external/simplesquirrel, which carries squirrel under it
+## Also build simplesquirrel and the squirrel it carries under it
 
-# simplesquirrel installs its own libraries by default; we link it, we don't ship it
-set(SSQ_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/simplesquirrel EXCLUDE_FROM_ALL)
+# Built here: their CMake installs a shared library we don't ship, and a subdirectory misses the flags set below
+set(SQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/simplesquirrel/libs/squirrel)
+set(SIMPLESQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/simplesquirrel)
+
+file(GLOB SQUIRREL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/squirrel/*.cpp)
+file(GLOB SQSTDLIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/sqstdlib/*.cpp)
+file(GLOB SIMPLESQUIRREL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SIMPLESQUIRREL_DIR}/source/*.cpp)
+
+add_library(squirrel STATIC ${SQUIRREL_SOURCES})
+add_library(sqstdlib STATIC ${SQSTDLIB_SOURCES})
+add_library(simplesquirrel STATIC ${SIMPLESQUIRREL_SOURCES})
 
 # Their headers compile inside our own files, so they're system headers to our warning flags
-foreach(TGT simplesquirrel_static squirrel_static sqstdlib_static)
-  get_target_property(TGT_INCLUDE_DIRS ${TGT} INTERFACE_INCLUDE_DIRECTORIES)
-  if(TGT_INCLUDE_DIRS)
-    set_target_properties(${TGT} PROPERTIES
-      INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${TGT_INCLUDE_DIRS}")
-  endif()
-endforeach()
+target_include_directories(squirrel SYSTEM PUBLIC ${SQUIRREL_DIR}/include)
+target_include_directories(simplesquirrel SYSTEM PUBLIC ${SIMPLESQUIRREL_DIR}/include)
+target_link_libraries(sqstdlib PUBLIC squirrel)
+target_link_libraries(simplesquirrel PUBLIC squirrel sqstdlib)
+
+# _SQ64 widens SQInteger, so every file that sees squirrel.h needs it, not just the library's own
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  target_compile_definitions(squirrel PUBLIC _SQ64)
+endif()
+
+# Both are C++11 code and stay on it; the project's own standard isn't theirs
+set_target_properties(squirrel sqstdlib simplesquirrel PROPERTIES
+  CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
 
 if(WIN32)
   #For debug run purposes
@@ -591,7 +605,7 @@ else()
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${SDL2TTF_TARGET})
 
-target_link_libraries(supertux2_lib PUBLIC simplesquirrel_static)
+target_link_libraries(supertux2_lib PUBLIC simplesquirrel)
 target_link_libraries(supertux2_lib PUBLIC sexp)
 if(ENABLE_OPENAL)
   if(VCPKG_BUILD)
