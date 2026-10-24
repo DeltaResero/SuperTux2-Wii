@@ -1,0 +1,25 @@
+-- blob --
+blob(-1) -> error: cannot create blob with negative size
+blob(4).resize(-1) -> error: cannot resize blob to a negative size
+blob(4).resize(8) -> ok
+blob(8).readblob(-1) -> error: cannot read a negative number of bytes
+blob(8).readblob(4) -> 4
+blob(8).readblob(99) -> 8
+-- array --
+array(-1) -> error: cannot create an array with negative length
+array(-1, 0) -> error: cannot create an array with negative length
+array(3).len() -> 3
+array(3, 7)[2] -> 7
+[1,2].resize(-1) -> error: resizing to negative length
+-- call stack --
+getstackinfos(-5) -> null
+getstackinfos(-1) -> null
+getstackinfos(0) -> table
+getstackinfos(1).func -> named
+-- regexp --
+search("ab", 5) -> null
+search("ab", -2^31) -> null
+search("ab", 2) -> null
+search("aab", 1) -> 1,3
+capture("ab", 5) -> null
+capture("aab", 1) -> 1,3
