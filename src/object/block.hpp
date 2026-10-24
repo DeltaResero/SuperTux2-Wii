@@ -42,7 +42,7 @@ public:
   virtual int get_layer() const override { return LAYER_OBJECTS + 1; }
 
   /** Its picture while it rests on the grid, else null */
-  SurfacePtr get_resting_surface() const;
+  const SurfacePtr& get_resting_surface() const;
 
 protected:
   virtual void hit(Player& player) = 0;

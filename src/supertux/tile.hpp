@@ -105,7 +105,7 @@ public:
   /** Draw a tile on the screen */
   void draw_debug(Canvas& canvas, const Vector& pos, int z_pos, const Color& color = Color(1.0f, 0.f, 1.0f, 0.5f)) const;
 
-  SurfacePtr get_current_surface() const;
+  const SurfacePtr& get_current_surface() const;
   const Surface* get_current_surface_ptr() const;
   const Surface* get_first_surface_ptr() const { return m_images.empty() ? nullptr : m_images[0].get(); }
   bool is_animated() const { return m_images.size() > 1; }

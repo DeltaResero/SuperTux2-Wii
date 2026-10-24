@@ -49,8 +49,8 @@ public:
   SurfacePtr region(const Rect& rect) const;
   SurfacePtr clone(Flip flip = NO_FLIP) const;
 
-  TexturePtr get_texture() const;
-  TexturePtr get_displacement_texture() const;
+  const TexturePtr& get_texture() const;
+  const TexturePtr& get_displacement_texture() const;
   Rect get_region() const { return m_region; }
   int get_width() const;
   int get_height() const;

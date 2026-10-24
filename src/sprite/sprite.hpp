@@ -99,7 +99,7 @@ public:
   bool has_action (const std::string& name) const { return (m_data.get_action(name) != nullptr); }
 
   /** The frame drawn now */
-  SurfacePtr get_current_surface();
+  const SurfacePtr& get_current_surface();
 
   /** Drawn as its frame alone, with no offset, turn, tint or blend */
   bool is_plain() const;

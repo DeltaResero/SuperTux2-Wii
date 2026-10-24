@@ -29,6 +29,9 @@
 
 namespace {
 
+// Lets get_current_surface() return a reference when the tile has no image
+const SurfacePtr no_surface;
+
 bool is_above_line (float l_x, float l_y, float m,
                     float p_x, float p_y)
 {
@@ -177,7 +180,7 @@ Tile::draw_debug(Canvas& canvas, const Vector& pos, int z_pos, const Color& colo
   }
 }
 
-SurfacePtr
+const SurfacePtr&
 Tile::get_current_surface() const
 {
   if (m_images.size() > 1) {
@@ -185,7 +188,7 @@ Tile::get_current_surface() const
   } else if (m_images.size() == 1) {
     return m_images[0];
   } else {
-    return {};
+    return no_surface;
   }
 }
 

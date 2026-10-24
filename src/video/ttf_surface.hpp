@@ -39,7 +39,7 @@ public:
 public:
   TTFSurface(const SurfacePtr& surface, const Sizef& size);
 
-  SurfacePtr get_surface() { return m_surface; }
+  const SurfacePtr& get_surface() const { return m_surface; }
 
   /** The size the text is drawn at, which its pixels may outnumber */
   const Sizef& get_size() const { return m_size; }
