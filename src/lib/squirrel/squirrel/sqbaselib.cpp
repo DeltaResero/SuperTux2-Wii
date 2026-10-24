@@ -252,12 +252,15 @@ static SQInteger base_array(HSQUIRRELVM v)
 {
     SQArray *a;
     SQObject &size = stack_get(v,2);
+    SQInteger nsize = tointeger(size);
+    if(nsize < 0)
+        return sq_throwerror(v, _SC("cannot create an array with negative length"));
     if(sq_gettop(v) > 2) {
         a = SQArray::Create(_ss(v),0);
-        a->Resize(tointeger(size),stack_get(v,3));
+        a->Resize(nsize,stack_get(v,3));
     }
     else {
-        a = SQArray::Create(_ss(v),tointeger(size));
+        a = SQArray::Create(_ss(v),nsize);
     }
     v->Push(a);
     return 1;
