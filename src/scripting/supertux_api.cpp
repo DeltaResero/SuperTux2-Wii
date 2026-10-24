@@ -133,6 +133,7 @@ register_supertux_api(HSQUIRRELVM v)
   root.addFunc("stop_music", &stop_music);
   root.addFunc("fade_in_music", &fade_in_music);
   root.addFunc("resume_music", &resume_music);
+  root.addFunc("pause_music", &pause_music);
   root.addFunc("play_sound", &play_sound);
   root.addFunc("set_game_speed", &set_game_speed);
   root.addFunc("grease", &grease);
@@ -360,7 +361,9 @@ register_supertux_api(HSQUIRRELVM v)
   ssq::Class sector = root.addAbstractClass<Sector>("Sector", game_object_manager);
   sector.addFunc("set_gravity", &Sector::set_gravity);
 
-  root.addAbstractClass<WorldMap>("WorldMap", game_object_manager);
+  ssq::Class world_map = root.addAbstractClass<WorldMap>("WorldMap", game_object_manager);
+  world_map.addFunc("get_tux_x", &WorldMap::get_tux_x);
+  world_map.addFunc("get_tux_y", &WorldMap::get_tux_y);
 
   ssq::Class gradient = root.addAbstractClass<Gradient>("Gradient");
   gradient.addFunc("set_direction", &Gradient::set_direction);
