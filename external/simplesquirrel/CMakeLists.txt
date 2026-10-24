@@ -11,8 +11,6 @@ include(${CMAKE_ROOT}/Modules/ExternalProject.cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Select build type")
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "RelWithDebInfo" "MinSizeRel")
-option(SSQ_BUILD_TESTS "Build tests" OFF)
-option(SSQ_BUILD_EXAMPLES "Build examples" OFF)
 option(SSQ_BUILD_INSTALL "Install library" ON)
 
 option(SSQ_USE_SQ_SUBMODULE "Use the squirrel submodule as opposed to the system squirrel" ON)
@@ -68,14 +66,3 @@ if(SSQ_BUILD_INSTALL)
   INSTALL(DIRECTORY include/simplesquirrel DESTINATION include)
 endif()
 
-# Build Tests
-if(SSQ_BUILD_TESTS)
-    # Enable testing (done by catch.hpp)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
-
-# Build Examples 
-if(SSQ_BUILD_TESTS)
-    add_subdirectory(examples)
-endif()
