@@ -34,13 +34,6 @@ SquirrelVM::SquirrelVM() :
 
 SquirrelVM::~SquirrelVM()
 {
-#ifdef ENABLE_SQDBG
-  if (debugger != nullptr) {
-    sq_rdbg_shutdown(debugger);
-    debugger = nullptr;
-  }
-#endif
-
   sq_close(m_vm);
 }
 

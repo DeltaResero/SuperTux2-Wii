@@ -47,8 +47,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk/cmake)
-include(ConfigureFiles)
-include(ExternalProject)
 include(CheckCXXCompilerFlag)
 
 set(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
@@ -194,6 +192,7 @@ set(HAVE_SDL TRUE)
 
 option(IS_SUPERTUX_RELEASE "Build as official SuperTux release" OFF)
 option(BUILD_TESTS "Build test cases" OFF)
+option(BUILD_TESTS_M32 "Also run the squirrel samples at 32-bit integer width" OFF)
 option(ENABLE_OPENGL "Enable OpenGL support" ON)
 option(ENABLE_OPENGLES2 "Enable OpenGLES2 support" OFF)
 # Only Windows' own OpenGL library stops short of the functions the renderer calls
@@ -346,20 +345,30 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
 endif()
 
 
-## Also build external/simplesquirrel, which carries squirrel under it
+## Also build simplesquirrel and the squirrel it binds
 
-# simplesquirrel installs its own libraries by default; we link it, we don't ship it
-set(SSQ_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/simplesquirrel EXCLUDE_FROM_ALL)
+# Built here: their CMake installs a shared library we don't ship, and a subdirectory misses the flags set below
+set(SQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/squirrel)
+set(SIMPLESQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/simplesquirrel)
+
+file(GLOB SQUIRREL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/squirrel/*.cpp)
+file(GLOB SQSTDLIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/sqstdlib/*.cpp)
+file(GLOB SIMPLESQUIRREL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SIMPLESQUIRREL_DIR}/source/*.cpp)
+
+add_library(squirrel STATIC ${SQUIRREL_SOURCES})
+add_library(sqstdlib STATIC ${SQSTDLIB_SOURCES})
+add_library(simplesquirrel STATIC ${SIMPLESQUIRREL_SOURCES})
 
 # Their headers compile inside our own files, so they're system headers to our warning flags
-foreach(TGT simplesquirrel_static squirrel_static sqstdlib_static)
-  get_target_property(TGT_INCLUDE_DIRS ${TGT} INTERFACE_INCLUDE_DIRECTORIES)
-  if(TGT_INCLUDE_DIRS)
-    set_target_properties(${TGT} PROPERTIES
-      INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${TGT_INCLUDE_DIRS}")
-  endif()
-endforeach()
+target_include_directories(squirrel SYSTEM PUBLIC ${SQUIRREL_DIR}/include)
+target_include_directories(simplesquirrel SYSTEM PUBLIC ${SIMPLESQUIRREL_DIR}/include)
+target_link_libraries(sqstdlib PUBLIC squirrel)
+target_link_libraries(simplesquirrel PUBLIC squirrel sqstdlib)
+
+# _SQ64 widens SQInteger, so every file that sees squirrel.h needs it, not just the library's own
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  target_compile_definitions(squirrel PUBLIC _SQ64)
+endif()
 
 if(WIN32)
   #For debug run purposes
@@ -389,6 +398,7 @@ endif(WIN32)
 
 ## Build list of sources for supertux binary
 
+# This glob reaches src/lib/*.cpp too, so nothing vendored may sit at that depth
 file(GLOB SUPERTUX_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*/*.cpp src/supertux/menu/*.cpp src/video/sdl/*.cpp src/video/null/*.cpp)
 if(NOT ENABLE_OPENAL)
   list(REMOVE_ITEM SUPERTUX_SOURCES_CXX src/audio/openal_device.cpp src/audio/openal_sound_source.cpp
@@ -535,6 +545,11 @@ endif()
 ## Some additional compiler switches
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-aliasing")
+
+  # A section per function and per object lets the linker drop what nothing reaches
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
 endif()
 
 ## On Windows, add an icon
@@ -591,7 +606,7 @@ else()
 endif()
 target_link_libraries(supertux2_lib PUBLIC ${SDL2TTF_TARGET})
 
-target_link_libraries(supertux2_lib PUBLIC simplesquirrel_static)
+target_link_libraries(supertux2_lib PUBLIC simplesquirrel)
 target_link_libraries(supertux2_lib PUBLIC sexp)
 if(ENABLE_OPENAL)
   if(VCPKG_BUILD)
@@ -632,6 +647,65 @@ if(BUILD_TESTS)
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       COMMAND ${TEST_NAME})
   endforeach()
+
+  # squirrel's own interpreter runs its samples against output recorded before we edited the VM
+  add_executable(sq tests/squirrel/sq.c)
+  target_link_libraries(sq squirrel sqstdlib)
+  set_target_properties(sq PROPERTIES C_STANDARD 99)
+
+  # These samples take a problem size and fall back to 1, which computes nothing worth recording
+  set(SQ_ARGS_ackermann 7)
+  set(SQ_ARGS_array 2000)
+  set(SQ_ARGS_fibonacci 25)
+  set(SQ_ARGS_list 3)
+  set(SQ_ARGS_matrix 40)
+  set(SQ_ARGS_methcall 200000)
+
+  # _SQ64 is set only on 64-bit, so a 32-bit build gets int where the recordings got long long
+  if(BUILD_TESTS_M32)
+    include(CheckCXXSourceCompiles)
+    set(CMAKE_REQUIRED_FLAGS "-m32")
+    check_cxx_source_compiles("int main(){return 0;}" HAVE_M32)
+    unset(CMAKE_REQUIRED_FLAGS)
+    if(NOT HAVE_M32)
+      message(FATAL_ERROR "BUILD_TESTS_M32 needs a compiler that can target -m32")
+    endif()
+
+    # Built from sources, as the squirrel targets carry _SQ64 and are the wrong width to link
+    add_executable(sq32 tests/squirrel/sq.c ${SQUIRREL_SOURCES} ${SQSTDLIB_SOURCES})
+    target_include_directories(sq32 SYSTEM PRIVATE ${SQUIRREL_DIR}/include)
+    target_include_directories(sq32 PRIVATE ${SQUIRREL_DIR}/squirrel ${SQUIRREL_DIR}/sqstdlib)
+    target_compile_options(sq32 PRIVATE -m32)
+    target_link_options(sq32 PRIVATE -m32)
+    set_target_properties(sq32 PROPERTIES C_STANDARD 99)
+  endif()
+
+  file(GLOB SQUIRREL_SAMPLES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples
+       ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples/*.nut)
+  set(SQ_TARGETS sq)
+  if(BUILD_TESTS_M32)
+    list(APPEND SQ_TARGETS sq32)
+  endif()
+  foreach(SAMPLE ${SQUIRREL_SAMPLES})
+    get_filename_component(SAMPLE_NAME ${SAMPLE} NAME_WE)
+    foreach(SQ_TARGET ${SQ_TARGETS})
+      if(SQ_TARGET STREQUAL sq)
+        set(CASE squirrel_${SAMPLE_NAME})
+      else()
+        set(CASE squirrel_m32_${SAMPLE_NAME})
+      endif()
+      add_test(NAME ${CASE}
+        COMMAND ${CMAKE_COMMAND}
+          -DSQ=$<TARGET_FILE:${SQ_TARGET}>
+          -DSCRIPT=${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/samples/${SAMPLE}
+          -DEXPECTED=${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/expected/${SAMPLE_NAME}.txt
+          -DARGS=${SQ_ARGS_${SAMPLE_NAME}}
+          -DTEST_NAME=${CASE}
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/run_sample.cmake)
+      # These finish in well under a second, so the cap only fires on a stuck VM
+      set_tests_properties(${CASE} PROPERTIES TIMEOUT 30)
+    endforeach()
+  endforeach()
 endif()
 
 ## Install stuff
@@ -654,7 +728,6 @@ if(WIN32 AND NOT UNIX)
 
   if(PACKAGE_VCREDIST)
     set(CMAKE_INSTALL_UCRT_LIBRARIES true)
-    include(InstallRequiredSystemLibraries)
   endif()
 
 else(WIN32 AND NOT UNIX)
@@ -719,6 +792,7 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 
 ## CPack/Installation-specific stuff
 
+# The only include: it has no guard and adds its install rule again each time
 include(InstallRequiredSystemLibraries)
 
 
