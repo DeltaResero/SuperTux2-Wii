@@ -431,6 +431,7 @@ static SQInteger _regexp_search(HSQUIRRELVM v)
     SQInteger start = 0;
     sq_getstring(v,2,&str);
     if(sq_gettop(v) > 2) sq_getinteger(v,3,&start);
+    if(start < 0 || start > sq_getsize(v,2)) return 0;
     if(sqstd_rex_search(self,str+start,&begin,&end) == SQTrue) {
         _addrexmatch(v,str,begin,end);
         return 1;
@@ -445,6 +446,7 @@ static SQInteger _regexp_capture(HSQUIRRELVM v)
     SQInteger start = 0;
     sq_getstring(v,2,&str);
     if(sq_gettop(v) > 2) sq_getinteger(v,3,&start);
+    if(start < 0 || start > sq_getsize(v,2)) return 0;
     if(sqstd_rex_search(self,str+start,&begin,&end) == SQTrue) {
         SQInteger n = sqstd_rex_getsubexpcount(self);
         SQRexMatch match;
