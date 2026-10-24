@@ -401,7 +401,7 @@ namespace ssq {
     void VM::defaultErrorFunc(HSQUIRRELVM vm, const SQChar *s, ...){
         va_list vl;
         va_start(vl, s);
-        fprintf(stderr, s, vl);
+        vfprintf(stderr, s, vl);
         fprintf(stderr, "\n");
         va_end(vl);
     }
