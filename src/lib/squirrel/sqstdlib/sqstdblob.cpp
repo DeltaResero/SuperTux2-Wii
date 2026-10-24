@@ -25,6 +25,7 @@ static SQInteger _blob_resize(HSQUIRRELVM v)
     SETUP_BLOB(v);
     SQInteger size;
     sq_getinteger(v,2,&size);
+    if(size < 0) return sq_throwerror(v, _SC("cannot resize blob to a negative size"));
     if(!self->Resize(size))
         return sq_throwerror(v,_SC("resize failed"));
     return 0;
