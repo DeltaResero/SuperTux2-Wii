@@ -491,6 +491,7 @@ void RefTable::Resize(SQUnsignedInteger size)
         }
         t++;
     }
+    ((void)nfound);
     assert(nfound == oldnumofslots);
     SQ_FREE(oldbucks,(oldnumofslots * sizeof(RefNode *)) + (oldnumofslots * sizeof(RefNode)));
 }
