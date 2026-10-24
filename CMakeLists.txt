@@ -669,6 +669,8 @@ if(BUILD_TESTS)
         -DARGS=${SQ_ARGS_${SAMPLE_NAME}}
         -DTEST_NAME=squirrel_${SAMPLE_NAME}
         -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/squirrel/run_sample.cmake)
+    # These finish in well under a second, so the cap only fires on a stuck VM
+    set_tests_properties(squirrel_${SAMPLE_NAME} PROPERTIES TIMEOUT 30)
   endforeach()
 endif()
 
