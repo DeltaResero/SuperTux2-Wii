@@ -115,7 +115,7 @@ void SQLexer::LexBlockComment()
         switch(CUR_CHAR) {
             case _SC('*'): { NEXT(); if(CUR_CHAR == _SC('/')) { done = true; NEXT(); }}; continue;
             case _SC('\n'): _currentline++; NEXT(); continue;
-            case SQUIRREL_EOB: Error(_SC("missing \"*/\" in comment"));
+            case SQUIRREL_EOB: Error(_SC("missing \"*/\" in comment")); [[fallthrough]];
             default: NEXT();
         }
     }
@@ -207,6 +207,7 @@ SQInteger SQLexer::Lex()
             }
             Error(_SC("error parsing the string"));
                        }
+            [[fallthrough]];
         case _SC('"'):
         case _SC('\''): {
             SQInteger stype;
@@ -215,6 +216,7 @@ SQInteger SQLexer::Lex()
             }
             Error(_SC("error parsing the string"));
             }
+            [[fallthrough]];
         case _SC('{'): case _SC('}'): case _SC('('): case _SC(')'): case _SC('['): case _SC(']'):
         case _SC(';'): case _SC(','): case _SC('?'): case _SC('^'): case _SC('~'):
             {SQInteger ret = CUR_CHAR;

@@ -123,6 +123,7 @@ SQRESULT sqstd_format(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen
                 fmt[fpos++] = f;
                 fmt[fpos++] = _SC('\0');
                 }
+                [[fallthrough]];
 #endif
             case 'c':
                 if(SQ_FAILED(sq_getinteger(v,nparam,&ti)))
