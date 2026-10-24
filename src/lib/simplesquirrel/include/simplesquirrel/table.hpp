@@ -31,7 +31,7 @@ namespace ssq {
         /**
         * @brief Creates empty table
         */
-        explicit Table(HSQUIRRELVM vm);
+        explicit Table(HSQUIRRELVM vm_);
         /**
         * @brief Copy constructor
         */

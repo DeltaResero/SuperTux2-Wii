@@ -12,7 +12,7 @@ namespace ssq {
         /**
         * @brief Creates empty script object
         */
-        Script(HSQUIRRELVM vm);
+        Script(HSQUIRRELVM vm_);
         /**
         * @brief Destructor
         */

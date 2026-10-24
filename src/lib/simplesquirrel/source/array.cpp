@@ -4,11 +4,11 @@
 #include <forward_list>
 
 namespace ssq {
-    Array::Array(HSQUIRRELVM vm, size_t len):Object(vm) {
-        sq_newarray(vm, len);
-        sq_getstackobj(vm, -1, &obj);
-        sq_addref(vm, &obj);
-        sq_pop(vm,1); // Pop array
+    Array::Array(HSQUIRRELVM vm_, size_t len):Object(vm_) {
+        sq_newarray(vm_, len);
+        sq_getstackobj(vm_, -1, &obj);
+        sq_addref(vm_, &obj);
+        sq_pop(vm_,1); // Pop array
     }
 
     Array::Array(const Object& object):Object(object) {

@@ -38,8 +38,8 @@ namespace ssq {
         sq_resetobject(&obj);
     }
 
-    Object::Object(HSQUIRRELVM vm) : vm(vm), weak(false) {
-        if (vm == nullptr) throw RuntimeException(nullptr, "VM is not initialised");
+    Object::Object(HSQUIRRELVM vm_) : vm(vm_), weak(false) {
+        if (vm_ == nullptr) throw RuntimeException(nullptr, "VM is not initialised");
         sq_resetobject(&obj);
     }
 

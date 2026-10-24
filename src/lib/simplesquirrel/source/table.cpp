@@ -17,11 +17,11 @@ namespace ssq {
         if (object.getType() != Type::TABLE) throw TypeException("bad cast", "TABLE", object.getTypeStr());
     }
 
-    Table::Table(HSQUIRRELVM vm):Object(vm) {
-        sq_newtable(vm);
-        sq_getstackobj(vm, -1, &obj);
-        sq_addref(vm, &obj);
-        sq_pop(vm,1); // Pop table
+    Table::Table(HSQUIRRELVM vm_):Object(vm_) {
+        sq_newtable(vm_);
+        sq_getstackobj(vm_, -1, &obj);
+        sq_addref(vm_, &obj);
+        sq_pop(vm_,1); // Pop table
     }
 
     Table::Table(const Table& other):Object(other) {

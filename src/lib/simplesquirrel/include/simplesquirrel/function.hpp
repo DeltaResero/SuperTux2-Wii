@@ -14,7 +14,7 @@ namespace ssq {
         /**
         * @brief Constructs empty function object
         */
-        explicit Function(HSQUIRRELVM vm);
+        explicit Function(HSQUIRRELVM vm_);
         /**
         * @brief Destructor
         */

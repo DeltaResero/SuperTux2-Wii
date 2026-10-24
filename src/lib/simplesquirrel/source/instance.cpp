@@ -9,7 +9,7 @@ namespace ssq {
             
     }
 
-    Instance::Instance(HSQUIRRELVM vm):Object(vm) {
+    Instance::Instance(HSQUIRRELVM vm_):Object(vm_) {
             
     }
 
@@ -51,7 +51,7 @@ namespace ssq {
         weak = true;
     }
 
-    SqWeakRef::SqWeakRef(HSQUIRRELVM vm):Instance(vm) {
+    SqWeakRef::SqWeakRef(HSQUIRRELVM vm_):Instance(vm_) {
         weak = true;
     }
 

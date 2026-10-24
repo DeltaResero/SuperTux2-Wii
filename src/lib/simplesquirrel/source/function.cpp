@@ -4,7 +4,7 @@
 #include <forward_list>
 
 namespace ssq {
-    Function::Function(HSQUIRRELVM vm):Object(vm) {
+    Function::Function(HSQUIRRELVM vm_):Object(vm_) {
             
     }
 

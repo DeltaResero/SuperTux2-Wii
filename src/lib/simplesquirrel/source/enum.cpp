@@ -11,11 +11,11 @@ namespace ssq {
         if (object.getType() != Type::TABLE) throw TypeException("bad cast", "TABLE", object.getTypeStr());
     }
 
-    Enum::Enum(HSQUIRRELVM vm):Object(vm) {
-        sq_newtable(vm);
-        sq_getstackobj(vm, -1, &obj);
-        sq_addref(vm, &obj);
-        sq_pop(vm,1); // Pop enum table
+    Enum::Enum(HSQUIRRELVM vm_):Object(vm_) {
+        sq_newtable(vm_);
+        sq_getstackobj(vm_, -1, &obj);
+        sq_addref(vm_, &obj);
+        sq_pop(vm_,1); // Pop enum table
     }
 
     Enum::Enum(const Enum& other):Object(other) {

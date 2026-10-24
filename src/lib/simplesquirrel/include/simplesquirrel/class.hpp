@@ -34,7 +34,7 @@ namespace ssq {
         /**
         * @brief Creates a new empty class
         */
-        Class(HSQUIRRELVM vm);
+        Class(HSQUIRRELVM vm_);
         /**
         * @brief Converts Object to class object
         * @throws TypeException if the Object is not type of a class

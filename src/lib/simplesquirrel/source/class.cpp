@@ -10,7 +10,7 @@ namespace ssq {
 
     }
 
-    Class::Class(HSQUIRRELVM vm) :Object(vm), tableSet(), tableGet() {
+    Class::Class(HSQUIRRELVM vm_) :Object(vm_), tableSet(), tableGet() {
 
     }
 

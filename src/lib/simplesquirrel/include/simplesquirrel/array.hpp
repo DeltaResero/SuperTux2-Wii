@@ -15,7 +15,7 @@ namespace ssq {
         /**
         * @brief Constructs empty array
         */
-        Array(HSQUIRRELVM vm, size_t len = 0);
+        Array(HSQUIRRELVM vm_, size_t len = 0);
         /**
         * @brief Destructor
         */

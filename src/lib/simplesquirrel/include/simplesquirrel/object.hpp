@@ -57,7 +57,7 @@ namespace ssq {
         /**
         * @brief Creates an empty object
         */
-        Object(HSQUIRRELVM vm);
+        Object(HSQUIRRELVM vm_);
         virtual ~Object();
         /**
         * @brief Swaps two objects

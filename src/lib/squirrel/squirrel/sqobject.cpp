@@ -518,11 +518,11 @@ bool SQFunctionProto::Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr 
 
     for(i = 0; i < noutervalues; i++){
         SQUnsignedInteger type;
-        SQObjectPtr name;
+        SQObjectPtr outername;
         _CHECK_IO(SafeRead(v,read,up, &type, sizeof(SQUnsignedInteger)));
         _CHECK_IO(ReadObject(v, up, read, o));
-        _CHECK_IO(ReadObject(v, up, read, name));
-        f->_outervalues[i] = SQOuterVar(name,o, (SQOuterType)type);
+        _CHECK_IO(ReadObject(v, up, read, outername));
+        f->_outervalues[i] = SQOuterVar(outername,o, (SQOuterType)type);
     }
     _CHECK_IO(CheckTag(v,read,up,SQ_CLOSURESTREAM_PART));
 

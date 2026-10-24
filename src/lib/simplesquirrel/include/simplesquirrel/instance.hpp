@@ -22,7 +22,7 @@ namespace ssq {
         /**
         * @brief Constructs empty instance
         */
-        Instance(HSQUIRRELVM vm);
+        Instance(HSQUIRRELVM vm_);
         /**
         * @brief Converts Object to Instance
         * @throws TypeException if the Object is not type of an instance
@@ -58,7 +58,7 @@ namespace ssq {
     class SSQ_API SqWeakRef: public Instance {
     public:
         SqWeakRef();
-        SqWeakRef(HSQUIRRELVM vm);
+        SqWeakRef(HSQUIRRELVM vm_);
         SqWeakRef(const SqWeakRef& other);
         SqWeakRef(SqWeakRef&& other);
         explicit SqWeakRef(const Instance& instance);

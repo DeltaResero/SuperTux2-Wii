@@ -26,7 +26,7 @@ namespace ssq {
         /**
         * @brief Creates empty enum
         */
-        explicit Enum(HSQUIRRELVM vm);
+        explicit Enum(HSQUIRRELVM vm_);
         /**
         * @brief Copy constructor
         */

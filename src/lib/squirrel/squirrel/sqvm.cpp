@@ -821,11 +821,11 @@ exception_restore:
                     case OT_TABLE:
                     case OT_USERDATA:
                     case OT_INSTANCE:{
-                        SQObjectPtr closure;
-                        if(_delegable(clo)->_delegate && _delegable(clo)->GetMetaMethod(this,MT_CALL,closure)) {
+                        SQObjectPtr mm_closure;
+                        if(_delegable(clo)->_delegate && _delegable(clo)->GetMetaMethod(this,MT_CALL,mm_closure)) {
                             Push(clo);
                             for (SQInteger i = 0; i < arg3; i++) Push(STK(arg2 + i));
-                            if(!CallMetaMethod(closure, MT_CALL, arg3+1, clo)) SQ_THROW();
+                            if(!CallMetaMethod(mm_closure, MT_CALL, arg3+1, clo)) SQ_THROW();
                             if(sarg0 != -1) {
                                 STK(arg0) = clo;
                             }
@@ -1110,11 +1110,11 @@ exception_trap:
 
         while( ci ) {
             if(ci->_etraps > 0) {
-                SQExceptionTrap &et = _etraps.top();
-                ci->_ip = et._ip;
-                _top = et._stacksize;
-                _stackbase = et._stackbase;
-                _stack._vals[_stackbase + et._extarget] = currerror;
+                SQExceptionTrap &trap = _etraps.top();
+                ci->_ip = trap._ip;
+                _top = trap._stacksize;
+                _stackbase = trap._stackbase;
+                _stack._vals[_stackbase + trap._extarget] = currerror;
                 _etraps.pop_back(); traps--; ci->_etraps--;
                 while(last_top >= _top) _stack._vals[last_top--].Null();
                 goto exception_restore;
@@ -1170,10 +1170,10 @@ void SQVM::CallDebugHook(SQInteger type,SQInteger forcedline)
         _debughook_native(this,type,src,line,fname);
     }
     else {
-        SQObjectPtr temp_reg;
+        SQObjectPtr result;
         SQInteger nparams=5;
         Push(_roottable); Push(type); Push(func->_sourcename); Push(forcedline?forcedline:func->GetLine(ci->_ip)); Push(func->_name);
-        Call(_debughook_closure,nparams,_top-nparams,temp_reg,SQFalse);
+        Call(_debughook_closure,nparams,_top-nparams,result,SQFalse);
         Pop(nparams);
     }
     _debughook = true;
@@ -1452,7 +1452,7 @@ SQInteger SQVM::FallBackSet(const SQObjectPtr &self,const SQObjectPtr &key,const
 
 bool SQVM::Clone(const SQObjectPtr &self,SQObjectPtr &target)
 {
-    SQObjectPtr temp_reg;
+    SQObjectPtr result;
     SQObjectPtr newobj;
     switch(sq_type(self)){
     case OT_TABLE:
@@ -1465,7 +1465,7 @@ cloned_mt:
         if(_delegable(newobj)->_delegate && _delegable(newobj)->GetMetaMethod(this,MT_CLONED,closure)) {
             Push(newobj);
             Push(self);
-            if(!CallMetaMethod(closure,MT_CLONED,2,temp_reg))
+            if(!CallMetaMethod(closure,MT_CLONED,2,result))
                 return false;
         }
         }
