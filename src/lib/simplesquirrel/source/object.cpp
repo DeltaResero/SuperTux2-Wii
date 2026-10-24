@@ -191,27 +191,22 @@ namespace ssq {
     }
 
     Function Object::toFunction() const {
-        auto type = getType();
         return Function(*this);
     }
 
     Instance Object::toInstance() const {
-        auto type = getType();
         return Instance(*this);
     }
     
     Class Object::toClass() const {
-        auto type = getType();
         return Class(*this);
     }
 
     Table Object::toTable() const {
-        auto type = getType();
         return Table(*this);
     }
 
     Array Object::toArray() const {
-        auto type = getType();
         return Array(*this);
     }
 }

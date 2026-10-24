@@ -948,7 +948,6 @@ public:
 		 if (_token == '{')
 		 {
 			 SQInteger retval = _fs->TopTarget();
-			 SQInteger nkeys = 0;
 			 Lex();
 			 while (_token != '}') {
 				 switch (_token) {
@@ -962,7 +961,6 @@ public:
 					 break;
 				 }
 				 if (_token == ',') Lex();
-				 nkeys++;
 				 SQInteger val = _fs->PopTarget();
 				 SQInteger key = _fs->PopTarget();
 				 _fs->AddInstruction(_OP_SET, 0xFF, retval, key, val);
