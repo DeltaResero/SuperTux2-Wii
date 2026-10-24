@@ -1,0 +1,50 @@
+-- conversions --
+%d |42|
+%i |-7|
+%u |7|
+%o |10|
+%x %X |ff FF|
+%c |A|
+%s |str|
+%% |100%|
+%.2f |2.25|
+%g |0.5|
+-- width and precision --
+%-8s |ab      |
+%8s |      ab|
+%05d |00042|
+%+d |+42|
+% d | 42|
+%#x |0xff|
+%8.3f |   0.500|
+%99s len |99|
+-- buffer growth --
+200 convs |690|
+one long |aaaabbbbccccddddeeeeffff|
+-- rejected formats --
+missing arg |error: not enough parameters for the given format string|
+want integer |error: integer expected for the specified format|
+want float |error: float expected for the specified format|
+want string |error: string expected for the specified format|
+unknown conv |error: invalid format|
+star width |error: invalid format|
+width digits |error: width format too long|
+spec too long |error: format too long|
+-- printf --
+n=3
+-- strip, split, escape --
+strip |[ab]|
+lstrip |[ab  ]|
+rstrip |[  ab]|
+split |4:abc|
+split keep |2|
+split no sep |error: empty separators string|
+escape |a\x09b\"c\\|
+-- startswith, endswith --
+startswith |true|
+startswith no |false|
+startswith long |false|
+endswith |true|
+endswith no |false|
+endswith long |false|
+empty needle |true|
