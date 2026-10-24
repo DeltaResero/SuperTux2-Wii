@@ -19,30 +19,24 @@
 
 #include <string>
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class RainParticleSystem;
-#endif
 
 namespace scripting {
 
 class Rain final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::RainParticleSystem>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   Rain(const Rain&) = delete;
   Rain& operator=(const Rain&) = delete;
-#endif
 
 public:
   void set_enabled(bool enable);

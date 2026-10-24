@@ -18,30 +18,24 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_TORCH_HPP
 #define HEADER_SUPERTUX_SCRIPTING_TORCH_HPP
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Torch;
-#endif
 
 namespace scripting {
 
 class Torch final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::Torch>
-#endif
 {
 public:
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 private:
   Torch(const Torch&) = delete;
   Torch& operator=(const Torch&) = delete;
-#endif
 
 public:
   bool get_burning() const; /**< returns true if torch is lighted */

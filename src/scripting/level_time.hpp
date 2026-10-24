@@ -17,31 +17,25 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_LEVEL_TIME_HPP
 #define HEADER_SUPERTUX_SCRIPTING_LEVEL_TIME_HPP
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class LevelTime;
-#endif
 
 namespace scripting {
 
 class LevelTime final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::LevelTime>
-#endif
 {
 public:
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   LevelTime(const LevelTime&) = delete;
   LevelTime& operator=(const LevelTime&) = delete;
-#endif
 
 public:
   /**

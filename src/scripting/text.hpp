@@ -17,7 +17,6 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_TEXT_HPP
 #define HEADER_SUPERTUX_SCRIPTING_TEXT_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
 
 #include <simplesquirrel/exposable_class.hpp>
@@ -25,24 +24,19 @@
 #include "scripting/game_object.hpp"
 
 class TextObject;
-#endif
 
 namespace scripting {
 
 class Text final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::TextObject>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   Text(const Text&) = delete;
   Text& operator=(const Text&) = delete;
-#endif
 
 public:
   void set_text(const std::string& text);

@@ -17,7 +17,6 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_SCRIPTED_OBJECT_HPP
 #define HEADER_SUPERTUX_SCRIPTING_SCRIPTED_OBJECT_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
 
 #include <simplesquirrel/exposable_class.hpp>
@@ -25,24 +24,19 @@
 #include "scripting/game_object.hpp"
 
 class ScriptedObject;
-#endif
 
 namespace scripting {
 
 class ScriptedObject final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::ScriptedObject>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   ScriptedObject(const ScriptedObject&) = delete;
   ScriptedObject& operator=(const ScriptedObject&) = delete;
-#endif
 
 public:
   void set_action(const std::string& animation);

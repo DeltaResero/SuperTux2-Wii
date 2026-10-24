@@ -19,7 +19,6 @@
 
 #include <string>
 
-#ifndef SCRIPTING_API
 #include <memory>
 
 #include <simplesquirrel/exposable_class.hpp>
@@ -27,15 +26,12 @@
 class FloatingImage;
 
 #include "scripting/game_object.hpp"
-#endif
 
 namespace scripting {
 
 class FloatingImage final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::FloatingImage>
-#endif
 {
 public:
   FloatingImage(const std::string& spritefile);
@@ -96,11 +92,9 @@ public:
   void fade_in(float fadetime);
   void fade_out(float fadetime);
 
-#ifndef SCRIPTING_API
 private:
   FloatingImage(const FloatingImage&) = delete;
   FloatingImage& operator=(const FloatingImage&) = delete;
-#endif
 };
 
 } // namespace scripting

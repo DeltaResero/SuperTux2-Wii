@@ -17,29 +17,23 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_THUNDERSTORM_HPP
 #define HEADER_SUPERTUX_SCRIPTING_THUNDERSTORM_HPP
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Thunderstorm;
-#endif
 
 namespace scripting {
 
 class Thunderstorm final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::Thunderstorm>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 private:
   Thunderstorm(const Thunderstorm&) = delete;
   Thunderstorm& operator=(const Thunderstorm&) = delete;
-#endif
 
 public:
   /**

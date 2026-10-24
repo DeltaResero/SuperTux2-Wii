@@ -21,8 +21,6 @@
 #include "util/log.hpp"
 #include "util/uid.hpp"
 
-#ifndef SCRIPTING_API
-
 #define SCRIPT_GUARD_VOID                                               \
   auto object_ptr = get_object_ptr();                                   \
   if (object_ptr == nullptr) {                                          \
@@ -108,8 +106,6 @@ protected:
 };
 
 } // namespace scripting
-
-#endif
 
 #endif
 

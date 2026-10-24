@@ -17,30 +17,24 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_ROCK_HPP
 #define HEADER_SUPERTUX_SCRIPTING_ROCK_HPP
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Rock;
-#endif
 
 namespace scripting {
 
 class Rock final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::Rock>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   Rock(const Rock&) = delete;
   Rock& operator=(const Rock&) = delete;
-#endif
 };
 
 } // namespace scripting

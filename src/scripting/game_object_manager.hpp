@@ -17,20 +17,17 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_GAME_OBJECT_MANAGER_HPP
 #define HEADER_SUPERTUX_SCRIPTING_GAME_OBJECT_MANAGER_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
 
 #include <simplesquirrel/exposable_class.hpp>
 
 class GameObjectManager;
-#endif
 
 namespace scripting {
 
 /** Superclass for sectors and worldmaps */
 class GameObjectManager : public ssq::ExposableClass
 {
-#ifndef SCRIPTING_API
 private:
   ::GameObjectManager* m_gom_parent;
 
@@ -40,7 +37,6 @@ public:
 private:
   GameObjectManager(const GameObjectManager&) = delete;
   GameObjectManager& operator=(const GameObjectManager&) = delete;
-#endif
 
 public:
   void set_ambient_light(float red, float green, float blue);

@@ -17,7 +17,6 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_TEXT_ARRAY_HPP
 #define HEADER_SUPERTUX_SCRIPTING_TEXT_ARRAY_HPP
 
-#ifndef SCRIPTING_API
 #include <string>
 
 #include <simplesquirrel/exposable_class.hpp>
@@ -25,7 +24,6 @@
 #include "scripting/game_object.hpp"
 
 class TextArrayObject;
-#endif
 
 
 namespace scripting {
@@ -34,19 +32,15 @@ namespace scripting {
  * A text array intended for scripts with narration
  */
 class TextArray final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::TextArrayObject>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   TextArray(const TextArray&) = delete;
   TextArray& operator=(const TextArray&) = delete;
-#endif
 
 public:
   /*

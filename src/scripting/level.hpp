@@ -17,9 +17,7 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_LEVEL_HPP
 #define HEADER_SUPERTUX_SCRIPTING_LEVEL_HPP
 
-#ifndef SCRIPTING_API
 #  include <string>
-#endif
 
 namespace scripting {
 

@@ -19,31 +19,25 @@
 
 #include <string>
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Camera;
-#endif
 
 namespace scripting {
 
 class Camera final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::Camera>
-#endif
 {
 public:
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   Camera(const Camera&) = delete;
   Camera& operator=(const Camera&) = delete;
-#endif
 
 public:
   void reload_config();

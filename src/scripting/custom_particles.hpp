@@ -19,30 +19,24 @@
 
 #include <string>
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class CustomParticleSystem;
-#endif
 
 namespace scripting {
 
 class CustomParticles final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::CustomParticleSystem>
-#endif
 {
-#ifndef SCRIPTING_API
 public:
   using GameObject::GameObject;
 
 private:
   CustomParticles(const CustomParticles&) = delete;
   CustomParticles& operator=(const CustomParticles&) = delete;
-#endif
 
 public:
   void set_enabled(bool enable);

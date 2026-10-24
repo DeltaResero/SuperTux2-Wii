@@ -17,30 +17,24 @@
 #ifndef HEADER_SUPERTUX_SCRIPTING_CANDLE_HPP
 #define HEADER_SUPERTUX_SCRIPTING_CANDLE_HPP
 
-#ifndef SCRIPTING_API
 #include <simplesquirrel/exposable_class.hpp>
 
 #include "scripting/game_object.hpp"
 
 class Candle;
-#endif
 
 namespace scripting {
 
 class Candle final
-#ifndef SCRIPTING_API
   : public ssq::ExposableClass,
     public GameObject<::Candle>
-#endif
 {
 public:
-#ifndef SCRIPTING_API
   using GameObject::GameObject;
 
 private:
   Candle(const Candle&) = delete;
   Candle& operator=(const Candle&) = delete;
-#endif
 
 public:
   bool get_burning() const; /**< returns true if candle is lighted */

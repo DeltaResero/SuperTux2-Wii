@@ -18,19 +18,16 @@
 #define HEADER_SUPERTUX_SCRIPTING_WORLDMAP_HPP
 
 
-#ifndef SCRIPTING_API
 #include <string>
 #include "scripting/game_object_manager.hpp"
 namespace worldmap {
 class WorldMap;
 }
-#endif
 
 namespace scripting {
 
 class WorldMap final : public GameObjectManager
 {
-#ifndef SCRIPTING_API
 private:
   ::worldmap::WorldMap* m_parent;
 
@@ -40,7 +37,6 @@ public:
 private:
   WorldMap(const WorldMap&) = delete;
   WorldMap& operator=(const WorldMap&) = delete;
-#endif
 
 public:
   float get_tux_x();
