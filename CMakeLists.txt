@@ -346,11 +346,11 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
 endif()
 
 
-## Also build simplesquirrel and the squirrel it carries under it
+## Also build simplesquirrel and the squirrel it binds
 
 # Built here: their CMake installs a shared library we don't ship, and a subdirectory misses the flags set below
-set(SQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/simplesquirrel/libs/squirrel)
-set(SIMPLESQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/simplesquirrel)
+set(SQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/squirrel)
+set(SIMPLESQUIRREL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/simplesquirrel)
 
 file(GLOB SQUIRREL_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/squirrel/*.cpp)
 file(GLOB SQSTDLIB_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${SQUIRREL_DIR}/sqstdlib/*.cpp)
@@ -403,6 +403,7 @@ endif(WIN32)
 
 ## Build list of sources for supertux binary
 
+# This glob reaches src/lib/*.cpp too, so nothing vendored may sit at that depth
 file(GLOB SUPERTUX_SOURCES_CXX RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} src/*/*.cpp src/supertux/menu/*.cpp src/video/sdl/*.cpp src/video/null/*.cpp)
 if(NOT ENABLE_OPENAL)
   list(REMOVE_ITEM SUPERTUX_SOURCES_CXX src/audio/openal_device.cpp src/audio/openal_sound_source.cpp
