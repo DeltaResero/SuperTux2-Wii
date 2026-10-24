@@ -22,6 +22,8 @@ SQInteger _stream_readblob(HSQUIRRELVM v)
     SQUserPointer data,blobp;
     SQInteger size,res;
     sq_getinteger(v,2,&size);
+    if(size < 0)
+        return sq_throwerror(v,_SC("cannot read a negative number of bytes"));
     if(size > self->Len()) {
         size = self->Len();
     }
