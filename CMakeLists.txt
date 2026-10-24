@@ -723,7 +723,6 @@ if(WIN32 AND NOT UNIX)
 
   if(PACKAGE_VCREDIST)
     set(CMAKE_INSTALL_UCRT_LIBRARIES true)
-    include(InstallRequiredSystemLibraries)
   endif()
 
 else(WIN32 AND NOT UNIX)
@@ -788,6 +787,7 @@ configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc
 
 ## CPack/Installation-specific stuff
 
+# The only include: it has no guard and adds its install rule again each time
 include(InstallRequiredSystemLibraries)
 
 
