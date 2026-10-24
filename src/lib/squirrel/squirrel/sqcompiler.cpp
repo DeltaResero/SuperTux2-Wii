@@ -72,6 +72,8 @@ struct SQScope {
 class SQCompiler
 {
 public:
+    SQCompiler(const SQCompiler &) = delete;
+    SQCompiler &operator=(const SQCompiler &) = delete;
     SQCompiler(SQVM *v, SQLEXREADFUNC rg, SQUserPointer up, const SQChar* sourcename, bool raiseerror, bool lineinfo)
     {
         _vm=v;

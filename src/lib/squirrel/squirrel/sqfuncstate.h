@@ -7,6 +7,8 @@
 struct SQFuncState
 {
     SQFuncState(SQSharedState *ss,SQFuncState *parent,CompilerErrorFunc efunc,void *ed);
+    SQFuncState(const SQFuncState &) = delete;
+    SQFuncState &operator=(const SQFuncState &) = delete;
     ~SQFuncState();
 #ifdef _DEBUG_DUMP
     void Dump(SQFunctionProto *func);

@@ -29,6 +29,7 @@ public:
     {
         copy(v);
     }
+    sqvector<T>& operator=(const sqvector<T>& v) = delete;
     void copy(const sqvector<T>& v)
     {
         if(_size) {

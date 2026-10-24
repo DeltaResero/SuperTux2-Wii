@@ -4,6 +4,8 @@
 
 struct SQBlob : public SQStream
 {
+    SQBlob(const SQBlob &) = delete;
+    SQBlob &operator=(const SQBlob &) = delete;
     SQBlob(SQInteger size) {
         _size = size;
         _allocated = size;

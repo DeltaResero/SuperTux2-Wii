@@ -181,6 +181,8 @@ public:
 
 struct AutoDec{
     AutoDec(SQInteger *n) { _n = n; }
+    AutoDec(const AutoDec &) = delete;
+    AutoDec &operator=(const AutoDec &) = delete;
     ~AutoDec() { (*_n)--; }
     SQInteger *_n;
 };

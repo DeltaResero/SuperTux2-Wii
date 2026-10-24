@@ -12,6 +12,8 @@ struct SQTable;
 struct SQStringTable
 {
     SQStringTable(SQSharedState*ss);
+    SQStringTable(const SQStringTable &) = delete;
+    SQStringTable &operator=(const SQStringTable &) = delete;
     ~SQStringTable();
     SQString *Add(const SQChar *,SQInteger len);
     SQString* Concat(const SQChar* a, SQInteger alen, const SQChar* b, SQInteger blen);
@@ -32,6 +34,8 @@ struct RefTable {
         struct RefNode *next;
     };
     RefTable();
+    RefTable(const RefTable &) = delete;
+    RefTable &operator=(const RefTable &) = delete;
     ~RefTable();
     void AddRef(SQObject &obj);
     SQBool Release(SQObject &obj);
@@ -60,6 +64,8 @@ struct SQObjectPtr;
 struct SQSharedState
 {
     SQSharedState();
+    SQSharedState(const SQSharedState &) = delete;
+    SQSharedState &operator=(const SQSharedState &) = delete;
     ~SQSharedState();
     void Init();
 public:

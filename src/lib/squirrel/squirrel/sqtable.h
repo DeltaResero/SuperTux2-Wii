@@ -28,6 +28,8 @@ private:
     struct _HashNode
     {
         _HashNode() { next = NULL; }
+        _HashNode(const _HashNode &) = delete;
+        _HashNode &operator=(const _HashNode &) = delete;
         SQObjectPtr val;
         SQObjectPtr key;
         _HashNode *next;

@@ -62,6 +62,8 @@ SQInteger sqstd_feof(SQFILE file)
 //File
 struct SQFile : public SQStream {
     SQFile() { _handle = NULL; _owns = false;}
+    SQFile(const SQFile &) = delete;
+    SQFile &operator=(const SQFile &) = delete;
     SQFile(SQFILE file, bool owns) { _handle = file; _owns = owns;}
     virtual ~SQFile() { Close(); }
     bool Open(const SQChar *filename ,const SQChar *mode) {
