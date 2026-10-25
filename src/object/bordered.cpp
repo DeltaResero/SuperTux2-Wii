@@ -186,6 +186,13 @@ fitting(const Surface* surface)
   return (s_texels.width == 0 || texels == s_texels) ? surface : nullptr;
 }
 
+/** Bends what's behind it where the renderer draws that, like ice's reflection: drawn plain, but it still borders copies */
+bool
+bends(const Surface* surface)
+{
+  return surface && surface->get_displacement_texture() && VideoSystem::current()->get_back_renderer();
+}
+
 /** SDLSurface::fill_clear_pixels on grid, only inside regions */
 void
 fill_clear(std::vector<uint32_t>& grid, int gw, int gh, const std::vector<Rect>& regions)
@@ -933,8 +940,9 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
     key.cells[c] = tiles[c] ? fitting(tiles[c]->get_current_surface_ptr()) : nullptr;
   }
   // A side is drawn here unless the tile beside it comes from a copy too and so draws the joint
-  cell.open = Open{ !key.cells[3], !key.cells[1], !key.cells[0], !key.cells[2] };
-  if (!key.cells[4] && !animated) return true;
+  const auto copied = [&key](size_t c) { return key.cells[c] && !bends(key.cells[c]); };
+  cell.open = Open{ !copied(3), !copied(1), !copied(0), !copied(2) };
+  if (!copied(4) && !animated) return true;
 
   // A layer over this one counts only where its edges change a texel of the copy, so the copies stay shared elsewhere
   for (const auto& layer : (key.cells[4] || animated) ? cover : Cover())
@@ -1021,7 +1029,7 @@ Layer::add_shown(Moving& moving) const
   }
   shown.slot = -1;
   shown.stamp = 0;
-  if (key.cells[4])
+  if (key.cells[4] && !bends(key.cells[4]))
   {
     key.over = moving.over;
     shown.slot = find_or_build(std::move(key));
