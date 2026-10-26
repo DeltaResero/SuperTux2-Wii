@@ -190,7 +190,8 @@ fitting(const Surface* surface)
 bool
 bends(const Surface* surface)
 {
-  return surface && surface->get_displacement_texture() && VideoSystem::current()->get_back_renderer();
+  return surface && surface->get_displacement_texture() &&
+         (VideoSystem::current()->get_back_renderer() || !surface->get_reflection().shown.empty());
 }
 
 /** SDLSurface::fill_clear_pixels on grid, only inside regions */

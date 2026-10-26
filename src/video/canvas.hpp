@@ -37,9 +37,11 @@
 
 class Arena;
 class DrawingContext;
+class Painter;
 class Renderer;
 class VideoSystem;
 struct DrawingRequest;
+struct TextureRequest;
 
 class Canvas final
 {
@@ -119,6 +121,9 @@ private:
 
   /** Whole pixels counted from the level, unless the picture lands between pixels anyway */
   bool on_pixel_grid() const;
+
+  /** Draws what lies above each of mirror's pictures into it upside down, fading as its reflection does */
+  void draw_reflection(Painter& painter, const TextureRequest& mirror, Filter filter) const;
 
 private:
   DrawingContext& m_context;

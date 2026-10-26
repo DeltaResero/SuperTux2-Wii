@@ -22,7 +22,8 @@
 
 Texture::Texture() :
   m_cache_key(),
-  m_pixel_size(0, 0)
+  m_pixel_size(0, 0),
+  m_opaque(false)
 {
 }
 

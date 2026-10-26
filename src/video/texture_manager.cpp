@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 #include <exception>
 #include <functional>
 #include <iterator>
@@ -109,6 +110,27 @@ SDLSurfacePtr rgba_copy(const SDL_Surface& image)
   return copy;
 }
 
+bool every_pixel_solid(const SDL_Surface& image)
+{
+  if (!has_clear_pixels(image))
+  {
+    return true;
+  }
+  if (image.format->format != SDL_PIXELFORMAT_RGBA32)
+  {
+    return false;
+  }
+  for (int y = 0; y < image.h; ++y)
+  {
+    const Uint8* pixel = static_cast<const Uint8*>(image.pixels) + y * image.pitch;
+    for (int x = 3; x < image.w * 4; x += 4)
+    {
+      if (pixel[x] != 255) return false;
+    }
+  }
+  return true;
+}
+
 // An RGBA copy of image, see-through as far as shine's picture shines, or null when their sizes differ
 SDLSurfacePtr fade(const SDL_Surface& image, const SDL_Surface& shine)
 {
@@ -129,6 +151,93 @@ SDLSurfacePtr fade(const SDL_Surface& image, const SDL_Surface& shine)
     }
   }
   return faded;
+}
+
+// See TextureManager::get_reflection; a mirror's every pixel looks straight up twice as far as its row
+Reflection reflection(const SDL_Surface& image, const SDL_Surface& shine)
+{
+  SDLSurfacePtr colors(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+  SDLSurfacePtr glints(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&shine), SDL_PIXELFORMAT_RGBA32, 0));
+  if (!colors || !glints || colors->w != glints->w || colors->h != glints->h)
+  {
+    return {};
+  }
+  const auto color = [&colors](int x, int y) { return static_cast<const Uint8*>(colors->pixels) + y * colors->pitch + x * 4; };
+  const auto glint = [&glints](int x, int y) { return static_cast<const Uint8*>(glints->pixels) + y * glints->pitch + x * 4; };
+
+  // OpenGL 3.3 bends a row by its shine, so its strongest pixels look above the picture while that's over a half
+  int last = -1;
+  std::vector<float> row;
+  for (int y = 0; y < glints->h; ++y)
+  {
+    row.clear();
+    for (int x = 0; x < glints->w; ++x)
+    {
+      const Uint8* pixel = glint(x, y);
+      if (pixel[3] == 0) continue;
+      if (std::abs(pixel[0] - 128) > 1 || std::abs(pixel[1] - 128 - 2 * y) > 1) return {};
+      row.push_back(static_cast<float>(pixel[3]) / 255.0f);
+    }
+    if (row.empty()) continue;
+    const auto strong = row.begin() + static_cast<long>((row.size() - 1) * 9 / 10);
+    std::nth_element(row.begin(), strong, row.end());
+    if (*strong > 0.5f) last = y;
+  }
+  if (last < 1)
+  {
+    return {};
+  }
+
+  // Ending on a whole strip, so pictures side by side fade out over the same rows
+  Reflection result;
+  result.width = colors->w;
+  result.height = std::min(colors->h, std::max(1, (last + 1) / Reflection::STEP_Y) * Reflection::STEP_Y);
+  const int columns = result.columns();
+  const int rows = result.rows();
+
+  // OpenGL 3.3 shows opacity x shine of the reflection, and the faded picture over it leaves 1 - opacity x (1 - shine)
+  std::vector<float> cells(static_cast<size_t>((columns - 1) * (rows - 1)));
+  for (int cell_y = 0; cell_y + 1 < rows; ++cell_y)
+  {
+    for (int cell_x = 0; cell_x + 1 < columns; ++cell_x)
+    {
+      float sum = 0.0f;
+      int count = 0;
+      for (int y = cell_y * Reflection::STEP_Y; y < static_cast<int>(result.y(cell_y + 1)); ++y)
+      {
+        for (int x = cell_x * Reflection::STEP_X; x < static_cast<int>(result.x(cell_x + 1)); ++x)
+        {
+          const float opacity = static_cast<float>(color(x, y)[3]) / 255.0f;
+          const float shine_alpha = static_cast<float>(glint(x, y)[3]) / 255.0f;
+          const float rest = 1.0f - opacity * (1.0f - shine_alpha);
+          sum += rest > 0.001f ? opacity * shine_alpha / rest : 0.0f;
+          ++count;
+        }
+      }
+      cells[static_cast<size_t>(cell_y * (columns - 1) + cell_x)] = count ? sum / static_cast<float>(count) : 0.0f;
+    }
+  }
+
+  // Each corner takes the cells round it, and the bottom ones fade out to where the reach ends
+  result.shown.assign(static_cast<size_t>(columns * rows), 0.0f);
+  for (int corner_y = 0; corner_y + 1 < rows; ++corner_y)
+  {
+    for (int corner_x = 0; corner_x < columns; ++corner_x)
+    {
+      float sum = 0.0f;
+      int count = 0;
+      for (int cell_y = std::max(0, corner_y - 1); cell_y <= std::min(corner_y, rows - 2); ++cell_y)
+      {
+        for (int cell_x = std::max(0, corner_x - 1); cell_x <= std::min(corner_x, columns - 2); ++cell_x)
+        {
+          sum += cells[static_cast<size_t>(cell_y * (columns - 1) + cell_x)];
+          ++count;
+        }
+      }
+      result.shown[static_cast<size_t>(corner_y * columns + corner_x)] = sum / static_cast<float>(count);
+    }
+  }
+  return result;
 }
 
 // A picture's file, its part and how it's drawn, as a surface's texture names them
@@ -270,6 +379,30 @@ TextureManager::get_faded(const ReaderMapping& mapping, const ReaderMapping& shi
              source.sampler);
 }
 
+Reflection
+TextureManager::get_reflection(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region)
+{
+  const Source source = read_source(mapping, region);
+  const Source mask = read_source(shine, region);
+  if (source.sampler.get_animate() != Vector(0.0f, 0.0f) || mask.sampler.get_animate() != Vector(0.0f, 0.0f))
+  {
+    return {};
+  }
+  try
+  {
+    SDLSurfacePtr keep;
+    SDLSurfacePtr shine_keep;
+    SDLSurfacePtr image = load(Texture::Key(FileSystem::normalize(source.filename), source.rect.value_or(Rect()), "", Rect()), keep);
+    SDLSurfacePtr glints = load(Texture::Key(FileSystem::normalize(mask.filename), mask.rect.value_or(Rect()), "", Rect()), shine_keep);
+    return reflection(*image, *glints);
+  }
+  catch (const std::exception& err)
+  {
+    log_warning << "Couldn't read the shine of '" << source.filename << "': " << err.what() << std::endl;
+    return {};
+  }
+}
+
 TexturePtr
 TextureManager::get(const std::string& filename)
 {
@@ -400,6 +533,7 @@ TextureManager::make_texture(const std::string& filename, const SDL_Surface& ima
   // Only tile-sized pictures are bordered at their joints, and their pixels are made again only when that needs them
   m_pixels.erase(texture.get());
   texture->m_pixel_size = (image.w == 32 && image.h == 32) ? Size(pixels.w, pixels.h) : Size(0, 0);
+  texture->m_opaque = every_pixel_solid(pixels);
   return texture;
 }
 

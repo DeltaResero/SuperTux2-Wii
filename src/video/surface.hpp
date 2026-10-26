@@ -17,8 +17,10 @@
 #ifndef HEADER_SUPERTUX_VIDEO_SURFACE_HPP
 #define HEADER_SUPERTUX_VIDEO_SURFACE_HPP
 
+#include <algorithm>
 #include <string>
 #include <optional>
+#include <vector>
 
 #include "math/rect.hpp"
 #include "math/vector.hpp"
@@ -28,6 +30,25 @@
 
 class ReaderMapping;
 class SurfaceData;
+
+/** How much of a mirror image of what's above shows across a shiny picture, at corners every STEP_X pixels across
+    and STEP_Y down from its top, down to height where it ends */
+struct Reflection
+{
+  static constexpr int STEP_X = 8;
+  static constexpr int STEP_Y = 4;
+
+  int width = 0;
+  int height = 0;
+  /** Row by row from the top, columns() each */
+  std::vector<float> shown = {};
+
+  int columns() const { return (width + STEP_X - 1) / STEP_X + 1; }
+  int rows() const { return (height + STEP_Y - 1) / STEP_Y + 1; }
+  float x(int column) const { return static_cast<float>(std::min(column * STEP_X, width)); }
+  float y(int row) const { return static_cast<float>(std::min(row * STEP_Y, height)); }
+  float at(int column, int row) const { return shown[static_cast<size_t>(row * columns() + column)]; }
+};
 
 /** A rectangular image.  The class basically holds a reference to a
     texture with additional UV coordinates that specify a rectangular
@@ -40,8 +61,10 @@ public:
   static SurfacePtr from_reader(const ReaderMapping& mapping, const std::optional<Rect>& rect = std::nullopt);
 
 private:
-  Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, Flip flip);
-  Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, const Rect& region, Flip flip);
+  Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, Flip flip,
+          Reflection reflection = {});
+  Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, const Rect& region, Flip flip,
+          Reflection reflection = {});
 
 public:
   ~Surface();
@@ -56,11 +79,15 @@ public:
   int get_height() const;
   Flip get_flip() const { return m_flip; }
 
+  /** For a renderer that redraws it, the mirror image of what's above it that a shiny picture shows */
+  const Reflection& get_reflection() const { return m_reflection; }
+
 private:
   const TexturePtr m_diffuse_texture;
   const TexturePtr m_displacement_texture;
   const Rect m_region;
   const Flip m_flip;
+  const Reflection m_reflection;
 
 private:
   Surface& operator=(const Surface&) = delete;

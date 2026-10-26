@@ -51,6 +51,9 @@ public:
 private:
   Rectf to_target(const Rectf& rect, bool between_pixels) const;
 
+  /** Draws a request with tints, each picture's colour blending between the tints at its corners */
+  void draw_tinted(const TextureRequest& request);
+
   /** Adds the picture with its FADE_ sides fading out over 1 screen pixel, so a pixel on the edge shows as much as it covers */
   void add_faded(const Rectf& src, const GLTexture& texture, uint8_t fades, Flip flip,
                  float left, float top, float right, float bottom,

@@ -76,6 +76,12 @@ GLPainter::GLPainter(GLVideoSystem& video_system, GLRenderer& renderer) :
 void
 GLPainter::draw_texture(const TextureRequest& request)
 {
+  if (!request.tints.empty())
+  {
+    draw_tinted(request);
+    return;
+  }
+
   assert_gl();
 
   const auto& texture = static_cast<const GLTexture&>(*request.texture);
@@ -215,6 +221,59 @@ GLPainter::draw_texture(const TextureRequest& request)
   }
 
   context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(floats / 2));
+
+  assert_gl();
+}
+
+void
+GLPainter::draw_tinted(const TextureRequest& request)
+{
+  assert_gl();
+
+  const auto* texture = static_cast<const GLTexture*>(request.texture);
+  const Vector uv_scale = texture ? texture->get_uv_scale() : Vector(0.0f, 0.0f);
+  m_vertices.clear();
+  m_uvs.clear();
+  std::vector<float> colors;
+  colors.reserve(request.dstrects.size() * 24);
+  for (size_t i = 0; i < request.dstrects.size(); ++i)
+  {
+    const Rectf dstrect = to_target(request.dstrects[i], request.between_pixels);
+    const Rectf& src = request.srcrects[i];
+    float uv_left = src.get_left() * uv_scale.x;
+    float uv_right = src.get_right() * uv_scale.x;
+    float uv_top = src.get_top() * uv_scale.y;
+    float uv_bottom = src.get_bottom() * uv_scale.y;
+    if (request.flip & HORIZONTAL_FLIP) std::swap(uv_left, uv_right);
+    if (request.flip & VERTICAL_FLIP) std::swap(uv_top, uv_bottom);
+
+    const float left = dstrect.get_left(), top = dstrect.get_top(), right = dstrect.get_right(), bottom = dstrect.get_bottom();
+    m_vertices.insert(m_vertices.end(), { left, top, right, top, right, bottom, left, top, right, bottom, left, bottom });
+    m_uvs.insert(m_uvs.end(), { uv_left, uv_top, uv_right, uv_top, uv_right, uv_bottom,
+                                uv_left, uv_top, uv_right, uv_bottom, uv_left, uv_bottom });
+    for (size_t corner : { 0, 1, 2, 0, 2, 3 })
+    {
+      const Color& tint = request.tints[i][corner];
+      colors.insert(colors.end(), { request.color.red * tint.red, request.color.green * tint.green, request.color.blue * tint.blue,
+                                    request.color.alpha * request.alpha * tint.alpha });
+    }
+  }
+
+  GLContext& context = m_video_system.get_context();
+  context.blend_func(sfactor(request.blend), dfactor(request.blend));
+  if (texture)
+  {
+    context.bind_texture(*texture, nullptr);
+    context.set_texcoords(m_uvs.data(), sizeof(float) * m_uvs.size());
+  }
+  else
+  {
+    context.bind_no_texture();
+    context.set_texcoord(0.0f, 0.0f);
+  }
+  context.set_positions(m_vertices.data(), sizeof(float) * m_vertices.size());
+  context.set_colors(colors.data(), sizeof(float) * colors.size());
+  context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size() / 2));
 
   assert_gl();
 }

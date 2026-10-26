@@ -466,6 +466,12 @@ SDLPainter::tinted(const SDLTexture& texture, Uint8 r, Uint8 g, Uint8 b, Uint8 a
 void
 SDLPainter::draw_texture(const TextureRequest& request)
 {
+  if (!request.tints.empty())
+  {
+    draw_tinted(request);
+    return;
+  }
+
   const auto& texture = static_cast<const SDLTexture&>(*request.texture);
 
   assert(request.srcrects.size() == request.dstrects.size());
@@ -561,6 +567,71 @@ SDLPainter::draw_texture(const TextureRequest& request)
                    texture.get_sampler(), texel_scale);
     }
   }
+}
+
+void
+SDLPainter::draw_tinted(const TextureRequest& request)
+{
+  const auto* texture = static_cast<const SDLTexture*>(request.texture);
+  SDL_Texture* sdl_texture = texture ? texture->get_texture() : nullptr;
+  Vector size(1.0f, 1.0f);
+  Vector texel_scale(0.0f, 0.0f);
+  if (texture)
+  {
+    int width = 0;
+    int height = 0;
+    SDL_QueryTexture(sdl_texture, nullptr, nullptr, &width, &height);
+    size = Vector(static_cast<float>(width), static_cast<float>(height));
+    texel_scale = texture->get_texel_scale();
+  }
+  const auto corner = [&request](const Color& tint) {
+    return SDL_Color{ static_cast<Uint8>(request.color.red * tint.red * 255.0f),
+                      static_cast<Uint8>(request.color.green * tint.green * 255.0f),
+                      static_cast<Uint8>(request.color.blue * tint.blue * 255.0f),
+                      static_cast<Uint8>(request.color.alpha * request.alpha * tint.alpha * 255.0f) };
+  };
+
+  std::vector<SDL_Vertex> vertices(request.dstrects.size() * 4);
+  std::vector<int> indices(request.dstrects.size() * 6);
+  for (size_t i = 0; i < request.dstrects.size(); ++i)
+  {
+    const Rectf& src = request.srcrects[i];
+    float u0 = src.get_left() * texel_scale.x / size.x;
+    float u1 = src.get_right() * texel_scale.x / size.x;
+    float v0 = src.get_top() * texel_scale.y / size.y;
+    float v1 = src.get_bottom() * texel_scale.y / size.y;
+    if (request.flip & HORIZONTAL_FLIP) std::swap(u0, u1);
+    if (request.flip & VERTICAL_FLIP) std::swap(v0, v1);
+    const SDL_FRect dst = to_target(request.dstrects[i], request.between_pixels);
+    const auto& tints = request.tints[i];
+    SDL_Vertex* vertex = &vertices[i * 4];
+    vertex[0] = { SDL_FPoint{ dst.x, dst.y }, corner(tints[0]), SDL_FPoint{ u0, v0 } };
+    vertex[1] = { SDL_FPoint{ dst.x + dst.w, dst.y }, corner(tints[1]), SDL_FPoint{ u1, v0 } };
+    vertex[2] = { SDL_FPoint{ dst.x + dst.w, dst.y + dst.h }, corner(tints[2]), SDL_FPoint{ u1, v1 } };
+    vertex[3] = { SDL_FPoint{ dst.x, dst.y + dst.h }, corner(tints[3]), SDL_FPoint{ u0, v1 } };
+    const int first = static_cast<int>(i * 4);
+    int* index = &indices[i * 6];
+    index[0] = first;
+    index[1] = first + 1;
+    index[2] = first + 2;
+    index[3] = first;
+    index[4] = first + 2;
+    index[5] = first + 3;
+  }
+
+  if (sdl_texture)
+  {
+    // The colour goes in with the corners, so the texture's own tint is left plain
+    SDL_SetTextureColorMod(sdl_texture, 255, 255, 255);
+    SDL_SetTextureAlphaMod(sdl_texture, 255);
+    SDL_SetTextureBlendMode(sdl_texture, blend2sdl(request.blend));
+  }
+  else
+  {
+    SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend2sdl(request.blend));
+  }
+  SDL_RenderGeometry(m_sdl_renderer, sdl_texture, vertices.data(), static_cast<int>(vertices.size()),
+                     indices.data(), static_cast<int>(indices.size()));
 }
 
 SDL_FRect

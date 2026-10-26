@@ -34,6 +34,7 @@
 #include "util/currenton.hpp"
 #include "video/sampler.hpp"
 #include "video/sdl_surface_ptr.hpp"
+#include "video/surface.hpp"
 #include "video/texture.hpp"
 #include "video/texture_ptr.hpp"
 
@@ -59,6 +60,10 @@ public:
 
   /** The picture in mapping made see-through as far as shine's picture shines, or as it is when the shine moves */
   TexturePtr get_faded(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region);
+
+  /** The mirror image of what's above that the picture in mapping shows by shine, down to the last row OpenGL 3.3
+      bends to look above it, or none when shine isn't a mirror or never looks above the picture */
+  Reflection get_reflection(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region);
 
   void debug_print(std::ostream& out) const;
 
