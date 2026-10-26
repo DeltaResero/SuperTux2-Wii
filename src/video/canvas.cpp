@@ -54,10 +54,12 @@ struct Pane
 // Where a shiny picture shows a reflection, and the request it reflects from as nothing under that shows
 struct Mirror
 {
+  const Shine* shine;
   float axis;
   Rectf area;
   std::vector<Pane> panes;
   size_t start;
+  bool built;
 };
 
 // How much shows at x, y of a pane, blending between its corners
@@ -252,6 +254,7 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
     return;
   }
 
+  const bool turned = (mirror.flip & HORIZONTAL_FLIP) != 0;
   std::vector<Mirror> mirrors;
   for (const Shine& shine : mirror.shines)
   {
@@ -264,8 +267,34 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
     const Reflection& reflection = *shine.reflection;
     const float scale_x = dst.get_width() / src.get_width();
     const float scale_y = dst.get_height() / src.get_height();
-    const bool turned = (mirror.flip & HORIZONTAL_FLIP) != 0;
-    Mirror panes{ dst.get_top() - src.get_top() * scale_y, Rectf(), {}, 0 };
+    const float axis = dst.get_top() - src.get_top() * scale_y;
+    // The most its panes could take up, so what lies above it is known before they're built
+    const float left = std::max(0.0f, src.get_left());
+    const float right = std::min(static_cast<float>(reflection.width), src.get_right());
+    const float top = std::max(0.0f, src.get_top());
+    const float bottom = std::min(static_cast<float>(reflection.height), src.get_bottom());
+    if (left >= right || top >= bottom)
+    {
+      continue;
+    }
+    const float near = dst.get_left() + (left - src.get_left()) * scale_x;
+    const float far = dst.get_left() + (right - src.get_left()) * scale_x;
+    mirrors.push_back(Mirror{ &shine, axis, Rectf(turned ? dst.get_left() + dst.get_right() - far : near, axis + top * scale_y,
+                                                  turned ? dst.get_left() + dst.get_right() - near : far, axis + bottom * scale_y),
+                              {}, 0, false });
+  }
+  if (mirrors.empty())
+  {
+    return;
+  }
+
+  // A mirror's panes, built the first time something lies above it
+  const auto build = [turned](Mirror& panes) {
+    const Rectf& src = panes.shine->srcrect;
+    const Rectf& dst = panes.shine->dstrect;
+    const Reflection& reflection = *panes.shine->reflection;
+    const float scale_x = dst.get_width() / src.get_width();
+    const float scale_y = dst.get_height() / src.get_height();
     for (int row = 0; row + 1 < reflection.rows(); ++row)
     {
       const float top = std::max(reflection.y(row), src.get_top());
@@ -302,9 +331,6 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
             std::swap(pane.shown[0], pane.shown[1]);
             std::swap(pane.shown[2], pane.shown[3]);
           }
-          panes.area = panes.panes.empty() ? pane.area :
-            Rectf(std::min(panes.area.get_left(), pane.area.get_left()), std::min(panes.area.get_top(), pane.area.get_top()),
-                  std::max(panes.area.get_right(), pane.area.get_right()), std::max(panes.area.get_bottom(), pane.area.get_bottom()));
           panes.panes.push_back(pane);
         };
         // Rows the picture's see-through ends cut alike share a pane
@@ -328,15 +354,8 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
         }
       }
     }
-    if (!panes.panes.empty())
-    {
-      mirrors.push_back(std::move(panes));
-    }
-  }
-  if (mirrors.empty())
-  {
-    return;
-  }
+    panes.built = true;
+  };
 
   // Back from the last request, the one that leaves all of what a pane reflects covered hides everything before it
   std::vector<Rectf> solid;
@@ -370,14 +389,18 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
 
   // Each piece of from that lies as far above an axis as a pane lies below it, upside down in that pane
   TextureRequest pieces;
-  const auto reflect = [&mirrors, &pieces](size_t index, const Rectf& from, const auto& add) {
-    for (const Mirror& panes : mirrors)
+  const auto reflect = [&mirrors, &pieces, &build](size_t index, const Rectf& from, const auto& add) {
+    for (Mirror& panes : mirrors)
     {
       const float twice = 2.0f * panes.axis;
       if (index < panes.start || from.get_left() >= panes.area.get_right() || from.get_right() <= panes.area.get_left() ||
           from.get_bottom() <= twice - panes.area.get_bottom() || from.get_top() >= twice - panes.area.get_top())
       {
         continue;
+      }
+      if (!panes.built)
+      {
+        build(panes);
       }
       for (const Pane& pane : panes.panes)
       {
