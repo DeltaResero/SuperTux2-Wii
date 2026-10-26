@@ -37,7 +37,8 @@ class SurfaceData;
     and STEP_Y down from its top, down to height where it ends */
 struct Reflection
 {
-  static constexpr int STEP_X = 8;
+  // A tile wide, as the strength hardly changes across one and spans stop it where the picture is see-through
+  static constexpr int STEP_X = 32;
   static constexpr int STEP_Y = 4;
 
   int width = 0;
