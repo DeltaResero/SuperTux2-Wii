@@ -69,7 +69,8 @@ GLPainter::GLPainter(GLVideoSystem& video_system, GLRenderer& renderer) :
   m_renderer(renderer),
   m_vertices(),
   m_uvs(),
-  m_shown()
+  m_shown(),
+  m_colors()
 {
 }
 
@@ -232,11 +233,12 @@ GLPainter::draw_tinted(const TextureRequest& request)
 
   const auto* texture = static_cast<const GLTexture*>(request.texture);
   const Vector uv_scale = texture ? texture->get_uv_scale() : Vector(0.0f, 0.0f);
-  m_vertices.clear();
-  m_uvs.clear();
-  std::vector<float> colors;
-  colors.reserve(request.dstrects.size() * 24);
-  for (size_t i = 0; i < request.dstrects.size(); ++i)
+  // Written in place like draw_texture's, and the lists only grow
+  const size_t count = request.dstrects.size();
+  if (m_vertices.size() < count * 12) m_vertices.resize(count * 12);
+  if (m_uvs.size() < count * 12) m_uvs.resize(count * 12);
+  if (m_colors.size() < count * 24) m_colors.resize(count * 24);
+  for (size_t i = 0; i < count; ++i)
   {
     const Rectf dstrect = to_target(request.dstrects[i], request.between_pixels);
     const Rectf& src = request.srcrects[i];
@@ -247,15 +249,27 @@ GLPainter::draw_tinted(const TextureRequest& request)
     if (request.flip & HORIZONTAL_FLIP) std::swap(uv_left, uv_right);
     if (request.flip & VERTICAL_FLIP) std::swap(uv_top, uv_bottom);
 
-    const float left = dstrect.get_left(), top = dstrect.get_top(), right = dstrect.get_right(), bottom = dstrect.get_bottom();
-    m_vertices.insert(m_vertices.end(), { left, top, right, top, right, bottom, left, top, right, bottom, left, bottom });
-    m_uvs.insert(m_uvs.end(), { uv_left, uv_top, uv_right, uv_top, uv_right, uv_bottom,
-                                uv_left, uv_top, uv_right, uv_bottom, uv_left, uv_bottom });
-    for (size_t corner : { 0, 1, 2, 0, 2, 3 })
+    // Corners from the top left round, as two triangles
+    const float xs[4] = { dstrect.get_left(), dstrect.get_right(), dstrect.get_right(), dstrect.get_left() };
+    const float ys[4] = { dstrect.get_top(), dstrect.get_top(), dstrect.get_bottom(), dstrect.get_bottom() };
+    const float us[4] = { uv_left, uv_right, uv_right, uv_left };
+    const float vs[4] = { uv_top, uv_top, uv_bottom, uv_bottom };
+    const size_t corners[6] = { 0, 1, 2, 0, 2, 3 };
+    float* vertex = &m_vertices[i * 12];
+    float* uv = &m_uvs[i * 12];
+    float* color = &m_colors[i * 24];
+    for (size_t k = 0; k < 6; ++k)
     {
+      const size_t corner = corners[k];
       const Color& tint = request.tints[i][corner];
-      colors.insert(colors.end(), { request.color.red * tint.red, request.color.green * tint.green, request.color.blue * tint.blue,
-                                    request.color.alpha * request.alpha * tint.alpha });
+      vertex[k * 2] = xs[corner];
+      vertex[k * 2 + 1] = ys[corner];
+      uv[k * 2] = us[corner];
+      uv[k * 2 + 1] = vs[corner];
+      color[k * 4] = request.color.red * tint.red;
+      color[k * 4 + 1] = request.color.green * tint.green;
+      color[k * 4 + 2] = request.color.blue * tint.blue;
+      color[k * 4 + 3] = request.color.alpha * request.alpha * tint.alpha;
     }
   }
 
@@ -264,16 +278,16 @@ GLPainter::draw_tinted(const TextureRequest& request)
   if (texture)
   {
     context.bind_texture(*texture, nullptr);
-    context.set_texcoords(m_uvs.data(), sizeof(float) * m_uvs.size());
+    context.set_texcoords(m_uvs.data(), sizeof(float) * count * 12);
   }
   else
   {
     context.bind_no_texture();
     context.set_texcoord(0.0f, 0.0f);
   }
-  context.set_positions(m_vertices.data(), sizeof(float) * m_vertices.size());
-  context.set_colors(colors.data(), sizeof(float) * colors.size());
-  context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size() / 2));
+  context.set_positions(m_vertices.data(), sizeof(float) * count * 12);
+  context.set_colors(m_colors.data(), sizeof(float) * count * 24);
+  context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(count * 6));
 
   assert_gl();
 }

@@ -319,10 +319,16 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
 
   // Back from the last request, the one that leaves all of what a pane reflects covered hides everything before it
   std::vector<Rectf> solid;
+  // All that any pane reflects, so a picture far from every one of them is passed over at once
+  Rectf reach;
+  size_t first = m_requests.size();
   for (Mirror& panes : mirrors)
   {
     const float twice = 2.0f * panes.axis;
     const Rectf above(panes.area.get_left(), twice - panes.area.get_bottom(), panes.area.get_right(), twice - panes.area.get_top());
+    reach = (&panes == &mirrors.front()) ? above :
+      Rectf(std::min(reach.get_left(), above.get_left()), std::min(reach.get_top(), above.get_top()),
+            std::max(reach.get_right(), above.get_right()), std::max(reach.get_bottom(), above.get_bottom()));
     solid.clear();
     for (size_t i = m_requests.size(); i-- > 0;)
     {
@@ -334,7 +340,12 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
         break;
       }
     }
+    first = std::min(first, panes.start);
   }
+  const auto near = [&reach](const Rectf& rect) {
+    return rect.get_left() < reach.get_right() && rect.get_right() > reach.get_left() &&
+           rect.get_top() < reach.get_bottom() && rect.get_bottom() > reach.get_top();
+  };
 
   // Each piece of from that lies as far above an axis as a pane lies below it, upside down in that pane
   TextureRequest pieces;
@@ -367,7 +378,7 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
     }
   };
 
-  for (size_t index = 0; index < m_requests.size(); ++index)
+  for (size_t index = first; index < m_requests.size(); ++index)
   {
     const DrawingRequest* request = m_requests[index];
     if (!passes(filter, *request))
@@ -395,7 +406,7 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
       pieces.between_pixels = source.between_pixels;
       for (size_t j = 0; j < source.dstrects.size(); ++j)
       {
-        if (source.angles[j] != 0.0f)
+        if (source.angles[j] != 0.0f || !near(source.dstrects[j]))
         {
           continue;
         }
