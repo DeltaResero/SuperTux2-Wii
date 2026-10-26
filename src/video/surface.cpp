@@ -30,16 +30,21 @@
 SurfacePtr
 Surface::from_reader(const ReaderMapping& mapping, const std::optional<Rect>& rect)
 {
+  std::optional<ReaderMapping> displacement_texture_mapping;
+  mapping.get("displacement-texture", displacement_texture_mapping);
+
   TexturePtr diffuse_texture;
   std::optional<ReaderMapping> diffuse_texture_mapping;
   if (mapping.get("diffuse-texture", diffuse_texture_mapping))
   {
-    diffuse_texture = TextureManager::current()->get(*diffuse_texture_mapping, rect);
+    // Where it would shine, a renderer that can't draw the shine shows what's behind
+    diffuse_texture = (displacement_texture_mapping && !VideoSystem::current()->get_back_renderer()) ?
+      TextureManager::current()->get_faded(*diffuse_texture_mapping, *displacement_texture_mapping, rect) :
+      TextureManager::current()->get(*diffuse_texture_mapping, rect);
   }
 
   TexturePtr displacement_texture;
-  std::optional<ReaderMapping> displacement_texture_mapping;
-  if (mapping.get("displacement-texture", displacement_texture_mapping))
+  if (displacement_texture_mapping)
   {
     displacement_texture = TextureManager::current()->get(*displacement_texture_mapping, rect);
   }

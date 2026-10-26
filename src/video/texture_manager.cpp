@@ -109,33 +109,37 @@ SDLSurfacePtr rgba_copy(const SDL_Surface& image)
   return copy;
 }
 
-} // namespace
-
-TextureManager::TextureManager() :
-  m_image_textures(),
-  m_surfaces(),
-  m_resize(1.0f, 1.0f),
-  m_pixels(),
-  m_pixels_clock(0),
-  m_generation(0)
+// An RGBA copy of image, see-through as far as shine's picture shines, or null when their sizes differ
+SDLSurfacePtr fade(const SDL_Surface& image, const SDL_Surface& shine)
 {
-}
-
-TextureManager::~TextureManager()
-{
-  for (const auto& texture : m_image_textures)
+  SDLSurfacePtr faded = rgba_copy(image);
+  SDLSurfacePtr mask(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&shine), SDL_PIXELFORMAT_RGBA32, 0));
+  if (!faded || !mask || faded->w != mask->w || faded->h != mask->h)
   {
-    if (!texture.second.expired())
+    return {};
+  }
+
+  for (int y = 0; y < faded->h; ++y)
+  {
+    Uint8* pixel = static_cast<Uint8*>(faded->pixels) + y * faded->pitch;
+    const Uint8* glint = static_cast<const Uint8*>(mask->pixels) + y * mask->pitch;
+    for (int x = 3; x < faded->w * 4; x += 4)
     {
-      log_warning << "Texture '" << std::get<0>(texture.first) << "' not freed" << std::endl;
+      pixel[x] = static_cast<Uint8>((pixel[x] * (255 - glint[x]) + 127) / 255);
     }
   }
-  m_image_textures.clear();
-  m_surfaces.clear();
+  return faded;
 }
 
-TexturePtr
-TextureManager::get(const ReaderMapping& mapping, const std::optional<Rect>& region)
+// A picture's file, its part and how it's drawn, as a surface's texture names them
+struct Source
+{
+  std::string filename;
+  std::optional<Rect> rect;
+  Sampler sampler;
+};
+
+Source read_source(const ReaderMapping& mapping, const std::optional<Rect>& region)
 {
   std::string filename;
   if (!mapping.get("file", filename))
@@ -217,45 +221,72 @@ TextureManager::get(const ReaderMapping& mapping, const std::optional<Rect>& reg
     }
   }
 
-  return get(filename, rect, Sampler(filter, wrap_s, wrap_t, animate));
+  return Source{ filename, rect, Sampler(filter, wrap_s, wrap_t, animate) };
 }
 
-TexturePtr
-TextureManager::get(const std::string& _filename)
+} // namespace
+
+TextureManager::TextureManager() :
+  m_image_textures(),
+  m_surfaces(),
+  m_resize(1.0f, 1.0f),
+  m_pixels(),
+  m_pixels_clock(0),
+  m_generation(0)
 {
-  std::string filename = FileSystem::normalize(_filename);
-  Texture::Key key(filename, Rect(0, 0, 0, 0));
-  auto i = m_image_textures.find(key);
+}
 
-  TexturePtr texture;
-  if (i != m_image_textures.end())
-    texture = i->second.lock();
-
-  if (!texture) {
-    texture = create_image_texture(filename, Sampler());
-    texture->m_cache_key = key;
-    m_image_textures[key] = texture;
+TextureManager::~TextureManager()
+{
+  for (const auto& texture : m_image_textures)
+  {
+    if (!texture.second.expired())
+    {
+      log_warning << "Texture '" << std::get<0>(texture.first) << "' not freed" << std::endl;
+    }
   }
-
-  return texture;
+  m_image_textures.clear();
+  m_surfaces.clear();
 }
 
 TexturePtr
-TextureManager::get(const std::string& _filename,
+TextureManager::get(const ReaderMapping& mapping, const std::optional<Rect>& region)
+{
+  const Source source = read_source(mapping, region);
+  return get(source.filename, source.rect, source.sampler);
+}
+
+TexturePtr
+TextureManager::get_faded(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region)
+{
+  const Source source = read_source(mapping, region);
+  const Source mask = read_source(shine, region);
+  if (source.sampler.get_animate() != Vector(0.0f, 0.0f) || mask.sampler.get_animate() != Vector(0.0f, 0.0f))
+  {
+    return get(source.filename, source.rect, source.sampler);
+  }
+  return get(Texture::Key(FileSystem::normalize(source.filename), source.rect.value_or(Rect()),
+                          FileSystem::normalize(mask.filename), mask.rect.value_or(Rect())),
+             source.sampler);
+}
+
+TexturePtr
+TextureManager::get(const std::string& filename)
+{
+  return get(Texture::Key(FileSystem::normalize(filename), Rect(), "", Rect()), Sampler());
+}
+
+TexturePtr
+TextureManager::get(const std::string& filename,
                     const std::optional<Rect>& rect,
                     const Sampler& sampler)
 {
-  std::string filename = FileSystem::normalize(_filename);
-  Texture::Key key;
-  if (rect)
-  {
-    key = Texture::Key(filename, *rect);
-  }
-  else
-  {
-    key = Texture::Key(filename, Rect());
-  }
+  return get(Texture::Key(FileSystem::normalize(filename), rect.value_or(Rect()), "", Rect()), sampler);
+}
 
+TexturePtr
+TextureManager::get(const Texture::Key& key, const Sampler& sampler)
+{
   auto i = m_image_textures.find(key);
 
   TexturePtr texture;
@@ -263,14 +294,7 @@ TextureManager::get(const std::string& _filename,
     texture = i->second.lock();
 
   if (!texture) {
-    if (rect)
-    {
-      texture = create_image_texture(filename, *rect, sampler);
-    }
-    else
-    {
-      texture = create_image_texture(filename, sampler);
-    }
+    texture = create_image_texture(key, sampler);
     texture->m_cache_key = key;
     m_image_textures[key] = texture;
   }
@@ -303,15 +327,7 @@ TextureManager::set_viewport(const Viewport& viewport, bool enlarge)
 
     try
     {
-      const Rect& rect_in_file = std::get<1>(entry.first);
-      if (rect_in_file.empty())
-      {
-        create_image_texture_raw(filename, Sampler(), texture);
-      }
-      else
-      {
-        create_image_texture_raw(filename, rect_in_file, Sampler(), texture);
-      }
+      create_image_texture_raw(entry.first, Sampler(), texture);
     }
     catch (const std::exception& err)
     {
@@ -398,13 +414,11 @@ TextureManager::get_pixels(const Texture& texture)
   if (it == m_pixels.end())
   {
     const std::string& filename = std::get<0>(*texture.m_cache_key);
-    const Rect& rect = std::get<1>(*texture.m_cache_key);
     SDLSurfacePtr rgba;
     try
     {
       SDLSurfacePtr keep;
-      SDLSurfacePtr image = rect.empty() ? SDLSurface::from_file(filename) : cut(filename, rect, keep);
-      if (!image) return nullptr;
+      SDLSurfacePtr image = load(*texture.m_cache_key, keep);
       SDLSurfacePtr own = prepare(filename, *image);
       rgba.reset(SDL_ConvertSurfaceFormat(own ? own.get() : image.get(), SDL_PIXELFORMAT_RGBA32, 0));
     }
@@ -451,15 +465,15 @@ TextureManager::reap_cache_entry(const Texture::Key& key)
 }
 
 TexturePtr
-TextureManager::create_image_texture(const std::string& filename, const Rect& rect, const Sampler& sampler)
+TextureManager::create_image_texture(const Texture::Key& key, const Sampler& sampler)
 {
   try
   {
-    return create_image_texture_raw(filename, rect, sampler);
+    return create_image_texture_raw(key, sampler);
   }
   catch(const std::exception& err)
   {
-    log_warning << "Couldn't load texture '" << filename << "' (now using dummy texture): " << err.what() << std::endl;
+    log_warning << "Couldn't load texture '" << std::get<0>(key) << "' (now using dummy texture): " << err.what() << std::endl;
     return create_dummy_texture();
   }
 }
@@ -487,12 +501,45 @@ TextureManager::get_surface(const std::string& filename)
 }
 
 TexturePtr
-TextureManager::create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler,
-                                         const TexturePtr& reload)
+TextureManager::create_image_texture_raw(const Texture::Key& key, const Sampler& sampler, const TexturePtr& reload)
 {
   SDLSurfacePtr keep;
-  SDLSurfacePtr subimage = cut(filename, rect, keep);
-  return make_texture(filename, *subimage, sampler, reload);
+  SDLSurfacePtr image = load(key, keep);
+  return make_texture(std::get<0>(key), *image, sampler, reload);
+}
+
+SDLSurfacePtr
+TextureManager::load(const Texture::Key& key, SDLSurfacePtr& keep)
+{
+  const auto& [filename, rect, shine_filename, shine_rect] = key;
+  SDLSurfacePtr image = rect.empty() ? SDLSurface::from_file(filename) : cut(filename, rect, keep);
+  if (!image)
+  {
+    std::ostringstream msg;
+    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
+  if (shine_filename.empty())
+  {
+    return image;
+  }
+
+  // A shine that can't be read leaves the picture as it is
+  try
+  {
+    SDLSurfacePtr shine_keep;
+    SDLSurfacePtr shine = shine_rect.empty() ? SDLSurface::from_file(shine_filename) : cut(shine_filename, shine_rect, shine_keep);
+    if (SDLSurfacePtr faded = shine ? fade(*image, *shine) : SDLSurfacePtr())
+    {
+      return faded;
+    }
+    log_warning << "Couldn't fade '" << filename << "' by '" << shine_filename << "'" << std::endl;
+  }
+  catch (const std::exception& err)
+  {
+    log_warning << "Couldn't fade '" << filename << "' by '" << shine_filename << "': " << err.what() << std::endl;
+  }
+  return image;
 }
 
 SDLSurfacePtr
@@ -558,37 +605,6 @@ TextureManager::cut(const std::string& filename, const Rect& rect, SDLSurfacePtr
 }
 
 TexturePtr
-TextureManager::create_image_texture(const std::string& filename, const Sampler& sampler)
-{
-  try
-  {
-    return create_image_texture_raw(filename, sampler);
-  }
-  catch (const std::exception& err)
-  {
-    log_warning << "Couldn't load texture '" << filename << "' (now using dummy texture): " << err.what() << std::endl;
-    return create_dummy_texture();
-  }
-}
-
-TexturePtr
-TextureManager::create_image_texture_raw(const std::string& filename, const Sampler& sampler,
-                                         const TexturePtr& reload)
-{
-  SDLSurfacePtr image = SDLSurface::from_file(filename);
-  if (!image)
-  {
-    std::ostringstream msg;
-    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
-    throw std::runtime_error(msg.str());
-  }
-  else
-  {
-    return make_texture(filename, *image, sampler, reload);
-  }
-}
-
-TexturePtr
 TextureManager::create_dummy_texture()
 {
   const std::string dummy_texture_fname = "images/engine/missing.png";
@@ -596,7 +612,7 @@ TextureManager::create_dummy_texture()
   // on error, try loading placeholder file
   try
   {
-    TexturePtr tex = create_image_texture_raw(dummy_texture_fname, Sampler());
+    TexturePtr tex = create_image_texture_raw(Texture::Key(dummy_texture_fname, Rect(), "", Rect()), Sampler());
     return tex;
   }
   catch (const std::exception& err)

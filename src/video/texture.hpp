@@ -35,8 +35,8 @@ class Texture
   friend class TextureManager;
 
 public:
-  /** filename, left, top, right, bottom */
-  using Key = std::tuple<std::string, Rect>;
+  /** filename and its part, then the picture whose shine is faded out of it and its part, or empty for none */
+  using Key = std::tuple<std::string, Rect, std::string, Rect>;
 
 protected:
   Texture();

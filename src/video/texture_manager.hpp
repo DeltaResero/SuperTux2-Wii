@@ -57,6 +57,9 @@ public:
                  const std::optional<Rect>& rect,
                  const Sampler& sampler = Sampler());
 
+  /** The picture in mapping made see-through as far as shine's picture shines, or as it is when the shine moves */
+  TexturePtr get_faded(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region);
+
   void debug_print(std::ostream& out) const;
 
   /** The level's pictures are kept at the size this view draws them, never larger unless enlarge is set, and loaded ones are redone when that changes */
@@ -75,19 +78,18 @@ public:
   int get_generation() const { return m_generation; }
 
 private:
+  TexturePtr get(const Texture::Key& key, const Sampler& sampler);
   const SDL_Surface& get_surface(const std::string& filename);
   void reap_cache_entry(const Texture::Key& key);
 
-  TexturePtr create_image_texture(const std::string& filename, const Rect& rect, const Sampler& sampler);
-
   /** on failure a dummy texture is returned and no exception is thrown */
-  TexturePtr create_image_texture(const std::string& filename, const Sampler& sampler);
+  TexturePtr create_image_texture(const Texture::Key& key, const Sampler& sampler);
 
   /** throw an exception on error; reload, when given, takes the pixels in place of a new texture */
-  TexturePtr create_image_texture_raw(const std::string& filename, const Sampler& sampler,
-                                      const TexturePtr& reload = {});
-  TexturePtr create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler,
-                                      const TexturePtr& reload = {});
+  TexturePtr create_image_texture_raw(const Texture::Key& key, const Sampler& sampler, const TexturePtr& reload = {});
+
+  /** The pixels key names, faded where it says; keep holds what they point into when that isn't the cached picture */
+  SDLSurfacePtr load(const Texture::Key& key, SDLSurfacePtr& keep);
 
   TexturePtr make_texture(const std::string& filename, const SDL_Surface& image, const Sampler& sampler,
                           const TexturePtr& reload);
