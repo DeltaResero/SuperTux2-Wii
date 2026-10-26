@@ -218,10 +218,11 @@ std::optional<Reflection> reflection(const SDL_Surface& image, const SDL_Surface
     }
   }
 
-  // Each corner takes the cells round it, and the bottom ones fade out to where the reach ends
+  // Each corner takes the cells round it, weaker the deeper it lies, and the bottom ones fade out to where the reach ends
   result.shown.assign(static_cast<size_t>(columns * rows), 0.0f);
   for (int corner_y = 0; corner_y + 1 < rows; ++corner_y)
   {
+    const float fade = 1.0f - result.y(corner_y) / static_cast<float>(colors->h);
     for (int corner_x = 0; corner_x < columns; ++corner_x)
     {
       float sum = 0.0f;
@@ -234,7 +235,7 @@ std::optional<Reflection> reflection(const SDL_Surface& image, const SDL_Surface
           ++count;
         }
       }
-      result.shown[static_cast<size_t>(corner_y * columns + corner_x)] = sum / static_cast<float>(count);
+      result.shown[static_cast<size_t>(corner_y * columns + corner_x)] = fade * sum / static_cast<float>(count);
     }
   }
   return result;
