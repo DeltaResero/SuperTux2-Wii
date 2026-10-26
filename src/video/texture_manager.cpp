@@ -154,13 +154,13 @@ SDLSurfacePtr fade(const SDL_Surface& image, const SDL_Surface& shine)
 }
 
 // See TextureManager::get_reflection; a mirror's every pixel looks straight up twice as far as its row
-Reflection reflection(const SDL_Surface& image, const SDL_Surface& shine)
+std::optional<Reflection> reflection(const SDL_Surface& image, const SDL_Surface& shine)
 {
   SDLSurfacePtr colors(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
   SDLSurfacePtr glints(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&shine), SDL_PIXELFORMAT_RGBA32, 0));
   if (!colors || !glints || colors->w != glints->w || colors->h != glints->h)
   {
-    return {};
+    return std::nullopt;
   }
   const auto color = [&colors](int x, int y) { return static_cast<const Uint8*>(colors->pixels) + y * colors->pitch + x * 4; };
   const auto glint = [&glints](int x, int y) { return static_cast<const Uint8*>(glints->pixels) + y * glints->pitch + x * 4; };
@@ -175,7 +175,7 @@ Reflection reflection(const SDL_Surface& image, const SDL_Surface& shine)
     {
       const Uint8* pixel = glint(x, y);
       if (pixel[3] == 0) continue;
-      if (std::abs(pixel[0] - 128) > 1 || std::abs(pixel[1] - 128 - 2 * y) > 1) return {};
+      if (std::abs(pixel[0] - 128) > 1 || std::abs(pixel[1] - 128 - 2 * y) > 1) return std::nullopt;
       row.push_back(static_cast<float>(pixel[3]) / 255.0f);
     }
     if (row.empty()) continue;
@@ -185,7 +185,7 @@ Reflection reflection(const SDL_Surface& image, const SDL_Surface& shine)
   }
   if (last < 1)
   {
-    return {};
+    return Reflection();
   }
 
   // Ending on a whole strip, so pictures side by side fade out over the same rows
@@ -379,14 +379,14 @@ TextureManager::get_faded(const ReaderMapping& mapping, const ReaderMapping& shi
              source.sampler);
 }
 
-Reflection
+std::optional<Reflection>
 TextureManager::get_reflection(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region)
 {
   const Source source = read_source(mapping, region);
   const Source mask = read_source(shine, region);
   if (source.sampler.get_animate() != Vector(0.0f, 0.0f) || mask.sampler.get_animate() != Vector(0.0f, 0.0f))
   {
-    return {};
+    return std::nullopt;
   }
   try
   {
@@ -399,7 +399,7 @@ TextureManager::get_reflection(const ReaderMapping& mapping, const ReaderMapping
   catch (const std::exception& err)
   {
     log_warning << "Couldn't read the shine of '" << source.filename << "': " << err.what() << std::endl;
-    return {};
+    return std::nullopt;
   }
 }
 

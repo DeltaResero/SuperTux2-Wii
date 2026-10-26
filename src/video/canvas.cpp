@@ -87,7 +87,7 @@ void add_solid(const DrawingRequest& request, const Rectf& area, std::vector<Rec
   if (request.type == TEXTURE)
   {
     const auto& picture = static_cast<const TextureRequest&>(request);
-    if (!picture.texture || !picture.texture->is_opaque() || picture.displacement_texture ||
+    if (!picture.texture || !picture.texture->is_opaque() || picture.displacement_texture || picture.reflection ||
         picture.alpha * picture.color.alpha < 1.0f)
     {
       return;
@@ -177,6 +177,14 @@ Canvas::clear()
   m_requests.clear();
 }
 
+bool
+Canvas::bends() const
+{
+  return std::any_of(m_requests.begin(), m_requests.end(), [](const DrawingRequest* request) {
+    return request->type == TEXTURE && static_cast<const TextureRequest*>(request)->displacement_texture;
+  });
+}
+
 void
 Canvas::render(Renderer& renderer, Filter filter)
 {
@@ -200,7 +208,7 @@ Canvas::render(Renderer& renderer, Filter filter)
       case TEXTURE:
       {
         const auto& texture_request = static_cast<const TextureRequest&>(request);
-        if (texture_request.reflection)
+        if (texture_request.reflection && !texture_request.reflection->shown.empty())
         {
           draw_reflection(painter, texture_request, filter);
         }
@@ -375,7 +383,7 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
     {
       // Another shiny picture isn't part of what's reflected, as with OpenGL 3.3
       const auto& source = static_cast<const TextureRequest&>(*request);
-      if (source.displacement_texture || !source.texture)
+      if (source.displacement_texture || source.reflection || !source.texture)
       {
         continue;
       }
@@ -465,7 +473,7 @@ Canvas::draw_surface(const SurfacePtr& surface,
   request->angles.emplace_back(angle);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
-  request->reflection = surface->get_reflection().shown.empty() ? nullptr : &surface->get_reflection();
+  request->reflection = surface->get_reflection();
   request->color = color;
 
   m_requests.push_back(request);
@@ -506,7 +514,7 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
   request->angles.emplace_back(0.0f);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
-  request->reflection = surface->get_reflection().shown.empty() ? nullptr : &surface->get_reflection();
+  request->reflection = surface->get_reflection();
   request->color = style.get_color();
 
   m_requests.push_back(request);
@@ -562,7 +570,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
 
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
-  request->reflection = surface->get_reflection().shown.empty() ? nullptr : &surface->get_reflection();
+  request->reflection = surface->get_reflection();
 
   m_requests.push_back(request);
 }

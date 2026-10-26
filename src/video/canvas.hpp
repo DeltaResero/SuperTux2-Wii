@@ -92,6 +92,10 @@ public:
   void get_pixel(const Vector& position, const std::shared_ptr<Color>& color_out);
 
   void clear();
+
+  /** A picture here bends what's behind it, so the screen has to be copied first */
+  bool bends() const;
+
   void render(Renderer& renderer, Filter filter);
 
   DrawingContext& get_context() { return m_context; }

@@ -76,7 +76,8 @@ Compositor::render()
   }
 
   auto back_renderer = m_video_system.get_back_renderer();
-  if (back_renderer)
+  if (back_renderer && std::any_of(m_drawing_contexts.begin(), m_drawing_contexts.end(),
+                                   [](const auto& ctx) { return ctx->color().bends(); }))
   {
     back_renderer->start_draw();
 

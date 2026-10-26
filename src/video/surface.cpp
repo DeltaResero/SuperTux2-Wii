@@ -34,25 +34,31 @@ Surface::from_reader(const ReaderMapping& mapping, const std::optional<Rect>& re
   std::optional<ReaderMapping> displacement_texture_mapping;
   mapping.get("displacement-texture", displacement_texture_mapping);
 
-  TexturePtr diffuse_texture;
   std::optional<ReaderMapping> diffuse_texture_mapping;
-  if (mapping.get("diffuse-texture", diffuse_texture_mapping))
-  {
-    // Where it would shine, a renderer that can't draw the shine shows what's behind
-    diffuse_texture = (displacement_texture_mapping && !VideoSystem::current()->get_back_renderer()) ?
-      TextureManager::current()->get_faded(*diffuse_texture_mapping, *displacement_texture_mapping, rect) :
-      TextureManager::current()->get(*diffuse_texture_mapping, rect);
-  }
+  mapping.get("diffuse-texture", diffuse_texture_mapping);
 
+  // A mirror is redrawn on every renderer, so only another shine needs OpenGL 3.3's copy of the screen
+  std::optional<Reflection> reflection;
   TexturePtr displacement_texture;
-  Reflection reflection;
   if (displacement_texture_mapping)
   {
-    displacement_texture = TextureManager::current()->get(*displacement_texture_mapping, rect);
-    if (diffuse_texture_mapping && !VideoSystem::current()->get_back_renderer())
+    if (diffuse_texture_mapping)
     {
       reflection = TextureManager::current()->get_reflection(*diffuse_texture_mapping, *displacement_texture_mapping, rect);
     }
+    if (!reflection)
+    {
+      displacement_texture = TextureManager::current()->get(*displacement_texture_mapping, rect);
+    }
+  }
+
+  TexturePtr diffuse_texture;
+  if (diffuse_texture_mapping)
+  {
+    // Where it would shine, a picture drawn without the shine shows what's behind
+    diffuse_texture = (displacement_texture_mapping && (reflection || !VideoSystem::current()->get_back_renderer())) ?
+      TextureManager::current()->get_faded(*diffuse_texture_mapping, *displacement_texture_mapping, rect) :
+      TextureManager::current()->get(*diffuse_texture_mapping, rect);
   }
 
   Flip flip = NO_FLIP;
@@ -103,7 +109,7 @@ Surface::from_file(const std::string& filename, const std::optional<Rect>& rect)
 Surface::Surface(const TexturePtr& diffuse_texture,
                  const TexturePtr& displacement_texture,
                  Flip flip,
-                 Reflection reflection) :
+                 std::optional<Reflection> reflection) :
   m_diffuse_texture(diffuse_texture),
   m_displacement_texture(displacement_texture),
   m_region(0, 0, m_diffuse_texture->get_image_width(), m_diffuse_texture->get_image_height()),
@@ -116,7 +122,7 @@ Surface::Surface(const TexturePtr& diffuse_texture,
                  const TexturePtr& displacement_texture,
                  const Rect& region,
                  Flip flip,
-                 Reflection reflection) :
+                 std::optional<Reflection> reflection) :
   m_diffuse_texture(diffuse_texture),
   m_displacement_texture(displacement_texture),
   m_region(region),

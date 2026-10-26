@@ -172,7 +172,9 @@ Block::get_resting_surface() const
   }
   // A picture that bends what's behind it, like an emptied block's reflection, can't come from a copy
   const SurfacePtr& surface = m_sprite->get_current_surface();
-  return (surface && surface->get_displacement_texture()) ? no_surface : surface;
+  const Reflection* reflection = surface ? surface->get_reflection() : nullptr;
+  return (surface && (surface->get_displacement_texture() || (reflection && !reflection->shown.empty()))) ?
+    no_surface : surface;
 }
 
 void

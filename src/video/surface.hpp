@@ -62,9 +62,9 @@ public:
 
 private:
   Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, Flip flip,
-          Reflection reflection = {});
+          std::optional<Reflection> reflection = std::nullopt);
   Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, const Rect& region, Flip flip,
-          Reflection reflection = {});
+          std::optional<Reflection> reflection = std::nullopt);
 
 public:
   ~Surface();
@@ -79,15 +79,15 @@ public:
   int get_height() const;
   Flip get_flip() const { return m_flip; }
 
-  /** For a renderer that redraws it, the mirror image of what's above it that a shiny picture shows */
-  const Reflection& get_reflection() const { return m_reflection; }
+  /** The mirror image of what's above it that a shiny picture shows, or null for a picture that isn't a mirror */
+  const Reflection* get_reflection() const { return m_reflection ? &*m_reflection : nullptr; }
 
 private:
   const TexturePtr m_diffuse_texture;
   const TexturePtr m_displacement_texture;
   const Rect m_region;
   const Flip m_flip;
-  const Reflection m_reflection;
+  const std::optional<Reflection> m_reflection;
 
 private:
   Surface& operator=(const Surface&) = delete;

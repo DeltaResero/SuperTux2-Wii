@@ -62,8 +62,8 @@ public:
   TexturePtr get_faded(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region);
 
   /** The mirror image of what's above that the picture in mapping shows by shine, down to the last row OpenGL 3.3
-      bends to look above it, or none when shine isn't a mirror or never looks above the picture */
-  Reflection get_reflection(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region);
+      bends to look above it, an empty one when it never looks above the picture, or none when shine isn't a mirror */
+  std::optional<Reflection> get_reflection(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region);
 
   void debug_print(std::ostream& out) const;
 
