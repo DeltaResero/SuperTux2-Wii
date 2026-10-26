@@ -886,8 +886,10 @@ Layer::Layer() :
 void
 Layer::refresh(const TileMap& map, const Rect& cells, const Cover& cover)
 {
-  // Room for the cells on screen and a ring round them, so none of them share a place
-  const Size size(std::max(m_size.width, cells.get_width() + 4), std::max(m_size.height, cells.get_height() + 4));
+  // Room for the cells on screen, a ring round them and a spare row and column, as a view between pixels takes one more
+  const Size need(cells.get_width() + 4, cells.get_height() + 4);
+  const Size size(need.width > m_size.width ? need.width + 1 : m_size.width,
+                  need.height > m_size.height ? need.height + 1 : m_size.height);
   const int generation = TextureManager::current()->get_generation();
   if (map.get_revision() == m_revision && generation == m_generation && cover == m_cover && size == m_size &&
       m_moving.size() < 2048)
@@ -955,7 +957,9 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
     bool opaque = true;
     for (int k = 0; k < 9; ++k)
     {
-      pictures[static_cast<size_t>(k)] = fitting(layer.first->get_still_picture_at(lx + k % 3 - 1, ly + k / 3 - 1));
+      // A picture that bends shows what's under it, so it hides nothing of this layer
+      const Surface* picture = layer.first->get_still_picture_at(lx + k % 3 - 1, ly + k / 3 - 1);
+      pictures[static_cast<size_t>(k)] = bends(picture) ? nullptr : fitting(picture);
       const uint8_t kind = kind_of(pictures[static_cast<size_t>(k)]);
       clear = clear && kind == CLEAR;
       opaque = opaque && kind == OPAQUE;

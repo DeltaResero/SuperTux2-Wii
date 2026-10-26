@@ -263,10 +263,11 @@ GameSession::draw(Compositor& compositor)
 void
 GameSession::draw_pause(DrawingContext& context)
 {
+  // After the light, or the copy of the scene that reflections show is dimmed as well and they dim twice
   context.color().draw_filled_rect(
     Rectf(0, 0, static_cast<float>(context.get_width()), static_cast<float>(context.get_height())),
     Color(0.0f, 0.0f, 0.0f, 0.25f),
-    LAYER_FOREGROUND1);
+    LAYER_LIGHTMAP + 1);
 }
 
 std::optional<Vector>
