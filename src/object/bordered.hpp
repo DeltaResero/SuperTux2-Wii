@@ -29,17 +29,21 @@
 #include "math/size.hpp"
 #include "math/sizef.hpp"
 #include "math/vector.hpp"
+#include "video/surface.hpp"
 #include "video/surface_ptr.hpp"
 
 class Block;
 class GameObjectManager;
-class Surface;
 class Tile;
 class TileMap;
 struct SDL_Surface;
 
 /** Tiles drawn from copies bordered by what lies around them, so the pixel across a joint blends both sides */
 namespace bordered {
+
+/** Bends what's behind it where the renderer draws that, as OpenGL 3.3 does for a shine that isn't a mirror: drawn plain,
+    but it still borders copies */
+bool bends(const Surface* surface);
 
 /** The RGBA pixels a picture is drawn from, or null where it can't be bordered */
 const SDL_Surface* pixels_of(const Surface* surface);
@@ -98,6 +102,8 @@ public:
     SurfacePtr page;
     std::vector<Rectf> srcrects;
     std::vector<Rectf> dstrects;
+    // Shiny tiles come in draws of their own, with where each one shines
+    std::vector<Shine> shines;
   };
 
 public:

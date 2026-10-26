@@ -34,6 +34,7 @@
 #include "video/gradient.hpp"
 #include "video/layer.hpp"
 #include "video/paint_style.hpp"
+#include "video/surface.hpp"
 
 class Arena;
 class DrawingContext;
@@ -59,20 +60,23 @@ public:
                          int layer, const PaintStyle& style = PaintStyle());
   void draw_surface_scaled(const SurfacePtr& surface, const Rectf& dstrect,
                            int layer, const PaintStyle& style = PaintStyle());
-  /** fades: for each picture, the FADE_ sides that fade out between pixels; none when left empty */
+  /** fades: for each picture, the FADE_ sides that fade out between pixels; none when left empty.
+      shines: where copies of shiny pictures shine, placed like dstrects; when left empty, the surface's own */
   void draw_surface_batch(const SurfacePtr& surface,
                           std::vector<Rectf> srcrects,
                           std::vector<Rectf> dstrects,
                           const Color& color,
                           int layer,
-                          std::vector<uint8_t> fades = {});
+                          std::vector<uint8_t> fades = {},
+                          std::vector<Shine> shines = {});
   void draw_surface_batch(const SurfacePtr& surface,
                           std::vector<Rectf> srcrects,
                           std::vector<Rectf> dstrects,
                           std::vector<float> angles,
                           const Color& color,
                           int layer,
-                          std::vector<uint8_t> fades = {});
+                          std::vector<uint8_t> fades = {},
+                          std::vector<Shine> shines = {});
   void draw_text(const FontPtr& font, const std::string& text,
                  const Vector& position, FontAlignment alignment, int layer, const Color& color = Color(1.0,1.0,1.0));
   /** Draw text to the center of the screen */

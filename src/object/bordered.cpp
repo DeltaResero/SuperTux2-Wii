@@ -186,16 +186,6 @@ fitting(const Surface* surface)
   return (s_texels.width == 0 || texels == s_texels) ? surface : nullptr;
 }
 
-/** Bends what's behind it where the renderer draws that, like ice's reflection: drawn plain, but it still borders copies */
-bool
-bends(const Surface* surface)
-{
-  if (!surface) return false;
-  const Reflection* reflection = surface->get_reflection();
-  return (surface->get_displacement_texture() && VideoSystem::current()->get_back_renderer()) ||
-         (reflection && !reflection->shown.empty());
-}
-
 /** SDLSurface::fill_clear_pixels on grid, only inside regions */
 void
 fill_clear(std::vector<uint32_t>& grid, int gw, int gh, const std::vector<Rect>& regions)
@@ -667,6 +657,12 @@ cover_after(const std::vector<const TileMap*>& above)
 
 } // namespace
 
+bool
+bends(const Surface* surface)
+{
+  return surface && surface->get_displacement_texture() && VideoSystem::current()->get_back_renderer();
+}
+
 const SDL_Surface*
 pixels_of(const Surface* surface)
 {
@@ -960,9 +956,9 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
     bool opaque = true;
     for (int k = 0; k < 9; ++k)
     {
-      // A picture that bends shows what's under it, so it hides nothing of this layer
+      // A shiny picture shows what's under it, so it hides nothing of this layer
       const Surface* picture = layer.first->get_still_picture_at(lx + k % 3 - 1, ly + k / 3 - 1);
-      pictures[static_cast<size_t>(k)] = bends(picture) ? nullptr : fitting(picture);
+      pictures[static_cast<size_t>(k)] = (bends(picture) || (picture && picture->get_reflection())) ? nullptr : fitting(picture);
       const uint8_t kind = kind_of(pictures[static_cast<size_t>(k)]);
       clear = clear && kind == CLEAR;
       opaque = opaque && kind == OPAQUE;
@@ -1059,7 +1055,7 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
   const Cover cover = cover_of(above);
   refresh(map, cells, cover);
 
-  // Which of draws is each page's
+  // Which of draws is each page's, two each as shiny tiles go apart
   std::vector<int> drawn;
   const Sizef size(32.0f, 32.0f);
   for (int y = cells.top; y < cells.bottom; ++y)
@@ -1096,16 +1092,23 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
         continue;
       }
       s_slots[static_cast<size_t>(slot)].last = s_now;
+      const Surface* picture = map.get_tile(x, y).get_current_surface_ptr();
+      const Reflection* reflection = picture ? picture->get_reflection() : nullptr;
       const size_t page = static_cast<size_t>(slot / s_per_page);
-      if (page >= drawn.size()) drawn.resize(page + 1, -1);
-      if (drawn[page] < 0)
+      const size_t which = page * 2 + (reflection ? 1 : 0);
+      if (which >= drawn.size()) drawn.resize(which + 1, -1);
+      if (drawn[which] < 0)
       {
-        drawn[page] = static_cast<int>(draws.size());
-        draws.push_back(Draw{ s_pages[page].picture, {}, {} });
+        drawn[which] = static_cast<int>(draws.size());
+        draws.push_back(Draw{ s_pages[page].picture, {}, {}, {} });
       }
-      Draw& draw = draws[static_cast<size_t>(drawn[page])];
-      place(map.get_tile_position(x, y), size, origin_of(slot), s_texels.width, s_texels.height, cell.open,
-            draw.srcrects, draw.dstrects);
+      Draw& draw = draws[static_cast<size_t>(drawn[which])];
+      const Vector pos = map.get_tile_position(x, y);
+      place(pos, size, origin_of(slot), s_texels.width, s_texels.height, cell.open, draw.srcrects, draw.dstrects);
+      if (reflection)
+      {
+        draw.shines.push_back(Shine{ reflection, Rectf(picture->get_region()), Rectf(pos, size) });
+      }
     }
   }
   prefetch(map, cells, cover);

@@ -399,6 +399,7 @@ TileMap::draw(DrawingContext& context)
 
   bool in_copies = false;
   std::vector<bordered::Layer::Draw> draws;
+  std::vector<bordered::Layer::Draw> shiny;
   std::vector<int> loose;
   if (between && d_gameobject_manager && is_on_grid())
   {
@@ -421,6 +422,11 @@ TileMap::draw(DrawingContext& context)
   {
     for (auto& draw : draws)
     {
+      if (!draw.shines.empty())
+      {
+        shiny.push_back(std::move(draw));
+        continue;
+      }
       auto& batch = batches[draw.page];
       std::get<2>(batch).resize(draw.srcrects.size(), 0);
       std::get<0>(batch) = std::move(draw.srcrects);
@@ -462,6 +468,13 @@ TileMap::draw(DrawingContext& context)
                                 m_current_tint, m_z_pos,
                                 std::move(std::get<2>(it.second)));
     }
+  }
+  // After the rest, so their reflections lie over what's under them
+  for (auto& draw : shiny)
+  {
+    const size_t count = draw.srcrects.size();
+    canvas.draw_surface_batch(draw.page, std::move(draw.srcrects), std::move(draw.dstrects), m_current_tint, m_z_pos,
+                              std::vector<uint8_t>(count, 0), std::move(draw.shines));
   }
 
   context.pop_transform();

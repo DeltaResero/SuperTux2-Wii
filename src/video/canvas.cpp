@@ -87,7 +87,7 @@ void add_solid(const DrawingRequest& request, const Rectf& area, std::vector<Rec
   if (request.type == TEXTURE)
   {
     const auto& picture = static_cast<const TextureRequest&>(request);
-    if (!picture.texture || !picture.texture->is_opaque() || picture.displacement_texture || picture.reflection ||
+    if (!picture.texture || !picture.texture->is_opaque() || picture.displacement_texture || !picture.shines.empty() ||
         picture.alpha * picture.color.alpha < 1.0f)
     {
       return;
@@ -208,7 +208,7 @@ Canvas::render(Renderer& renderer, Filter filter)
       case TEXTURE:
       {
         const auto& texture_request = static_cast<const TextureRequest&>(request);
-        if (texture_request.reflection && !texture_request.reflection->shown.empty())
+        if (!texture_request.shines.empty())
         {
           draw_reflection(painter, texture_request, filter);
         }
@@ -252,16 +252,16 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
     return;
   }
 
-  const Reflection& reflection = *mirror.reflection;
   std::vector<Mirror> mirrors;
-  for (size_t i = 0; i < mirror.dstrects.size(); ++i)
+  for (const Shine& shine : mirror.shines)
   {
-    const Rectf& src = mirror.srcrects[i];
-    const Rectf& dst = mirror.dstrects[i];
-    if (mirror.angles[i] != 0.0f || src.get_width() <= 0.0f || src.get_height() <= 0.0f)
+    const Rectf& src = shine.srcrect;
+    const Rectf& dst = shine.dstrect;
+    if (!shine.reflection || shine.reflection->shown.empty() || src.get_width() <= 0.0f || src.get_height() <= 0.0f)
     {
       continue;
     }
+    const Reflection& reflection = *shine.reflection;
     const float scale_x = dst.get_width() / src.get_width();
     const float scale_y = dst.get_height() / src.get_height();
     const bool turned = (mirror.flip & HORIZONTAL_FLIP) != 0;
@@ -383,7 +383,7 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
     {
       // Another shiny picture isn't part of what's reflected, as with OpenGL 3.3
       const auto& source = static_cast<const TextureRequest&>(*request);
-      if (source.displacement_texture || source.reflection || !source.texture)
+      if (source.displacement_texture || !source.shines.empty() || !source.texture)
       {
         continue;
       }
@@ -473,7 +473,11 @@ Canvas::draw_surface(const SurfacePtr& surface,
   request->angles.emplace_back(angle);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
-  request->reflection = surface->get_reflection();
+  if (const Reflection* reflection = surface->get_reflection())
+  {
+    // Turned, it shows none
+    request->shines.push_back(Shine{ angle == 0.0f ? reflection : nullptr, request->srcrects[0], request->dstrects[0] });
+  }
   request->color = color;
 
   m_requests.push_back(request);
@@ -514,7 +518,10 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
   request->angles.emplace_back(0.0f);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
-  request->reflection = surface->get_reflection();
+  if (const Reflection* reflection = surface->get_reflection())
+  {
+    request->shines.push_back(Shine{ reflection, request->srcrects[0], request->dstrects[0] });
+  }
   request->color = style.get_color();
 
   m_requests.push_back(request);
@@ -526,14 +533,15 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
                            std::vector<Rectf> dstrects,
                            const Color& color,
                            int layer,
-                           std::vector<uint8_t> fades)
+                           std::vector<uint8_t> fades,
+                           std::vector<Shine> shines)
 {
   const size_t len = srcrects.size();
   draw_surface_batch(surface,
                      std::move(srcrects),
                      std::move(dstrects),
                      std::vector<float>(len, 0.0f),
-                     color, layer, std::move(fades));
+                     color, layer, std::move(fades), std::move(shines));
 }
 
 void
@@ -543,7 +551,8 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
                            std::vector<float> angles,
                            const Color& color,
                            int layer,
-                           std::vector<uint8_t> fades)
+                           std::vector<uint8_t> fades,
+                           std::vector<Shine> shines)
 {
   if (!surface) return;
 
@@ -570,7 +579,22 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
 
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
-  request->reflection = surface->get_reflection();
+  if (!shines.empty())
+  {
+    for (auto& shine : shines)
+    {
+      shine.dstrect = place(taken, shine.dstrect.p1(), shine.dstrect.get_size());
+    }
+    request->shines = std::move(shines);
+  }
+  else if (const Reflection* reflection = surface->get_reflection())
+  {
+    for (size_t i = 0; i < request->dstrects.size(); ++i)
+    {
+      request->shines.push_back(Shine{ request->angles[i] == 0.0f ? reflection : nullptr,
+                                       request->srcrects[i], request->dstrects[i] });
+    }
+  }
 
   m_requests.push_back(request);
 }

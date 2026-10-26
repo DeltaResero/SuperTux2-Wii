@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "math/rect.hpp"
+#include "math/rectf.hpp"
 #include "math/vector.hpp"
 #include "video/flip.hpp"
 #include "video/surface_ptr.hpp"
@@ -48,6 +49,14 @@ struct Reflection
   float x(int column) const { return static_cast<float>(std::min(column * STEP_X, width)); }
   float y(int row) const { return static_cast<float>(std::min(row * STEP_Y, height)); }
   float at(int column, int row) const { return shown[static_cast<size_t>(row * columns() + column)]; }
+};
+
+/** A part of a shiny picture, in its own pixels, and where it's drawn, with the reflection it shows there or null for none */
+struct Shine
+{
+  const Reflection* reflection;
+  Rectf srcrect;
+  Rectf dstrect;
 };
 
 /** A rectangular image.  The class basically holds a reference to a

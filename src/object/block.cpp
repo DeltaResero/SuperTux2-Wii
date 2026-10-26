@@ -170,11 +170,8 @@ Block::get_resting_surface() const
   {
     return no_surface;
   }
-  // A picture that bends what's behind it, like an emptied block's reflection, can't come from a copy
   const SurfacePtr& surface = m_sprite->get_current_surface();
-  const Reflection* reflection = surface ? surface->get_reflection() : nullptr;
-  return (surface && (surface->get_displacement_texture() || (reflection && !reflection->shown.empty()))) ?
-    no_surface : surface;
+  return bordered::bends(surface.get()) ? no_surface : surface;
 }
 
 void
@@ -204,9 +201,15 @@ Block::draw(DrawingContext& context)
       std::vector<Rectf> srcrects;
       std::vector<Rectf> dstrects;
       bordered::place(get_pos(), Sizef(32.0f, 32.0f), origin, texels.width, texels.height, open, srcrects, dstrects);
+      std::vector<Shine> shines;
+      if (const Reflection* reflection = surface->get_reflection())
+      {
+        shines.push_back(Shine{ reflection, Rectf(surface->get_region()), Rectf(get_pos(), Sizef(32.0f, 32.0f)) });
+      }
       context.push_transform();
       context.transform().part_texels = true;
-      context.color().draw_surface_batch(page, std::move(srcrects), std::move(dstrects), Color::WHITE, LAYER_OBJECTS + 1);
+      context.color().draw_surface_batch(page, std::move(srcrects), std::move(dstrects), Color::WHITE, LAYER_OBJECTS + 1, {},
+                                         std::move(shines));
       context.pop_transform();
       return;
     }

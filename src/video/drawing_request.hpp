@@ -30,9 +30,7 @@
 #include "video/color.hpp"
 #include "video/drawing_context.hpp"
 #include "video/font.hpp"
-
-class Surface;
-struct Reflection;
+#include "video/surface.hpp"
 
 /** Sides of a picture that fade out over a pixel when it lands between pixels */
 enum : uint8_t
@@ -82,7 +80,7 @@ struct TextureRequest : public DrawingRequest
     between_pixels(false),
     fades(),
     part_texels(false),
-    reflection(),
+    shines(),
     tints()
   {}
 
@@ -95,8 +93,8 @@ struct TextureRequest : public DrawingRequest
   bool between_pixels;
   std::vector<uint8_t> fades;
   bool part_texels;
-  /** The mirror image of what's above that the picture shows, when it shows one */
-  const Reflection* reflection;
+  /** Where the pictures shine, when they're shiny */
+  std::vector<Shine> shines;
   /** For each picture when given, the colours its corners are tinted from the top left round, blending between them;
       with no texture they're all that's drawn */
   std::vector<std::array<Color, 4>> tints;
