@@ -392,9 +392,9 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
 
     if (request->type == TEXTURE)
     {
-      // Another shiny picture isn't part of what's reflected, as with OpenGL 3.3
+      // Another shiny picture isn't part of what's reflected, as with OpenGL 3.3, nor is the scenery
       const auto& source = static_cast<const TextureRequest&>(*request);
-      if (source.displacement_texture || !source.shines.empty() || !source.texture)
+      if (source.displacement_texture || !source.shines.empty() || !source.texture || source.backdrop)
       {
         continue;
       }
@@ -417,32 +417,6 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
                                    Color(1.0f, 1.0f, 1.0f, shown[2]), Color(1.0f, 1.0f, 1.0f, shown[3]) });
         });
       }
-    }
-    else if (request->type == GRADIENT)
-    {
-      const auto& gradient = static_cast<const GradientRequest&>(*request);
-      const Rectf& region = gradient.region;
-      const bool vertical = gradient.direction == VERTICAL || gradient.direction == VERTICAL_SECTOR;
-      const auto color_at = [&](float x, float y, float strength) {
-        const float along = vertical ? (y - region.get_top()) / region.get_height() : (x - region.get_left()) / region.get_width();
-        const float t = std::clamp(along, 0.0f, 1.0f);
-        return Color(gradient.top.red + (gradient.bottom.red - gradient.top.red) * t,
-                     gradient.top.green + (gradient.bottom.green - gradient.top.green) * t,
-                     gradient.top.blue + (gradient.bottom.blue - gradient.top.blue) * t,
-                     (gradient.top.alpha + (gradient.bottom.alpha - gradient.top.alpha) * t) * strength);
-      };
-      pieces.texture = nullptr;
-      pieces.flip = NO_FLIP;
-      pieces.alpha = 1.0f;
-      pieces.blend = gradient.blend;
-      pieces.color = Color(1.0f, 1.0f, 1.0f);
-      pieces.between_pixels = mirror.between_pixels;
-      reflect(index, region, [&](float left, float top, float right, float bottom, const std::array<float, 4>& shown) {
-        // A corner of the piece shows the gradient where it was before it turned upside down
-        pieces.srcrects.emplace_back(0.0f, 0.0f, 0.0f, 0.0f);
-        pieces.tints.push_back({ color_at(left, bottom, shown[0]), color_at(right, bottom, shown[1]),
-                                 color_at(right, top, shown[2]), color_at(left, top, shown[3]) });
-      });
     }
 
     if (!pieces.dstrects.empty())
@@ -478,6 +452,7 @@ Canvas::draw_surface(const SurfacePtr& surface,
 
   request->srcrects.emplace_back(Rectf(surface->get_region()));
   request->between_pixels = between_pixels();
+  request->backdrop = m_context.transform().backdrop;
   request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
   request->dstrects.emplace_back(place(position, Sizef(static_cast<float>(surface->get_width()),
                                                       static_cast<float>(surface->get_height()))));
@@ -524,6 +499,7 @@ Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const
 
   request->srcrects.emplace_back(srcrect);
   request->between_pixels = between_pixels();
+  request->backdrop = m_context.transform().backdrop;
   request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
   request->dstrects.emplace_back(place(dstrect.p1(), dstrect.get_size()));
   request->angles.emplace_back(0.0f);
@@ -580,6 +556,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
   request->angles = std::move(angles);
 
   request->between_pixels = between_pixels();
+  request->backdrop = m_context.transform().backdrop;
   request->fades = std::move(fades);
   request->part_texels = m_context.transform().part_texels;
   const Placing taken = placing();

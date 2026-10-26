@@ -231,8 +231,8 @@ GLPainter::draw_tinted(const TextureRequest& request)
 {
   assert_gl();
 
-  const auto* texture = static_cast<const GLTexture*>(request.texture);
-  const Vector uv_scale = texture ? texture->get_uv_scale() : Vector(0.0f, 0.0f);
+  const auto& texture = static_cast<const GLTexture&>(*request.texture);
+  const Vector uv_scale = texture.get_uv_scale();
   // Written in place like draw_texture's, and the lists only grow
   const size_t count = request.dstrects.size();
   if (m_vertices.size() < count * 12) m_vertices.resize(count * 12);
@@ -275,16 +275,8 @@ GLPainter::draw_tinted(const TextureRequest& request)
 
   GLContext& context = m_video_system.get_context();
   context.blend_func(sfactor(request.blend), dfactor(request.blend));
-  if (texture)
-  {
-    context.bind_texture(*texture, nullptr);
-    context.set_texcoords(m_uvs.data(), sizeof(float) * count * 12);
-  }
-  else
-  {
-    context.bind_no_texture();
-    context.set_texcoord(0.0f, 0.0f);
-  }
+  context.bind_texture(texture, nullptr);
+  context.set_texcoords(m_uvs.data(), sizeof(float) * count * 12);
   context.set_positions(m_vertices.data(), sizeof(float) * count * 12);
   context.set_colors(m_colors.data(), sizeof(float) * count * 24);
   context.draw_arrays(GL_TRIANGLES, 0, static_cast<GLsizei>(count * 6));

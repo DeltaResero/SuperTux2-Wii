@@ -80,6 +80,7 @@ struct TextureRequest : public DrawingRequest
     between_pixels(false),
     fades(),
     part_texels(false),
+    backdrop(false),
     shines(),
     tints()
   {}
@@ -93,6 +94,7 @@ struct TextureRequest : public DrawingRequest
   bool between_pixels;
   std::vector<uint8_t> fades;
   bool part_texels;
+  bool backdrop;
   /** Where the pictures shine, when they're shiny */
   std::vector<Shine> shines;
   /** For each picture when given, the colours its corners are tinted from the top left round, blending between them;

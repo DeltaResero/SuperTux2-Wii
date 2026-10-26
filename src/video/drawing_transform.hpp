@@ -40,6 +40,9 @@ public:
   /** Source rectangles may start or end inside a texel and are drawn exactly so */
   bool part_texels;
 
+  /** Scenery behind or in front of the level, which shiny pictures don't mirror as it shows through them anyway */
+  bool backdrop;
+
   DrawingTransform() :
     translation(0.0f, 0.0f),
     flip(NO_FLIP),
@@ -48,7 +51,8 @@ public:
     pixel_grid(false),
     between_pixels(false),
     fade_edges(true),
-    part_texels(false)
+    part_texels(false),
+    backdrop(false)
   {}
 };
 

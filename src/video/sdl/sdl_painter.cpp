@@ -572,18 +572,13 @@ SDLPainter::draw_texture(const TextureRequest& request)
 void
 SDLPainter::draw_tinted(const TextureRequest& request)
 {
-  const auto* texture = static_cast<const SDLTexture*>(request.texture);
-  SDL_Texture* sdl_texture = texture ? texture->get_texture() : nullptr;
-  Vector size(1.0f, 1.0f);
-  Vector texel_scale(0.0f, 0.0f);
-  if (texture)
-  {
-    int width = 0;
-    int height = 0;
-    SDL_QueryTexture(sdl_texture, nullptr, nullptr, &width, &height);
-    size = Vector(static_cast<float>(width), static_cast<float>(height));
-    texel_scale = texture->get_texel_scale();
-  }
+  const auto& texture = static_cast<const SDLTexture&>(*request.texture);
+  SDL_Texture* sdl_texture = texture.get_texture();
+  int width = 0;
+  int height = 0;
+  SDL_QueryTexture(sdl_texture, nullptr, nullptr, &width, &height);
+  const Vector size(static_cast<float>(width), static_cast<float>(height));
+  const Vector texel_scale = texture.get_texel_scale();
   const auto corner = [&request](const Color& tint) {
     return SDL_Color{ static_cast<Uint8>(request.color.red * tint.red * 255.0f),
                       static_cast<Uint8>(request.color.green * tint.green * 255.0f),
@@ -619,17 +614,10 @@ SDLPainter::draw_tinted(const TextureRequest& request)
     index[5] = first + 3;
   }
 
-  if (sdl_texture)
-  {
-    // The colour goes in with the corners, so the texture's own tint is left plain
-    SDL_SetTextureColorMod(sdl_texture, 255, 255, 255);
-    SDL_SetTextureAlphaMod(sdl_texture, 255);
-    SDL_SetTextureBlendMode(sdl_texture, blend2sdl(request.blend));
-  }
-  else
-  {
-    SDL_SetRenderDrawBlendMode(m_sdl_renderer, blend2sdl(request.blend));
-  }
+  // The colour goes in with the corners, so the texture's own tint is left plain
+  SDL_SetTextureColorMod(sdl_texture, 255, 255, 255);
+  SDL_SetTextureAlphaMod(sdl_texture, 255);
+  SDL_SetTextureBlendMode(sdl_texture, blend2sdl(request.blend));
   SDL_RenderGeometry(m_sdl_renderer, sdl_texture, vertices.data(), static_cast<int>(vertices.size()),
                      indices.data(), static_cast<int>(indices.size()));
 }
