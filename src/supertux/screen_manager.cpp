@@ -245,33 +245,39 @@ ScreenManager::draw_fps(DrawingContext& context, FPS_Stats& fps_statistics)
 }
 
 void
+ScreenManager::take_player_pos()
+{
+  const auto pos = m_screen_stack.back()->get_player_pos();
+  if (!pos) return;
+  const std::string x_text = position_text(pos->x);
+  const std::string y_text = position_text(pos->y);
+  // Each new position is new text, and the text cache can't clear old ones as fast as Tux makes them
+  if (x_text != m_player_x_text)
+  {
+    TTFSurfaceManager::current()->forget(m_player_x_text);
+    m_player_x_text = x_text;
+  }
+  if (y_text != m_player_y_text)
+  {
+    TTFSurfaceManager::current()->forget(m_player_y_text);
+    m_player_y_text = y_text;
+  }
+}
+
+void
 ScreenManager::draw_player_pos(DrawingContext& context)
 {
-  if (const auto pos = m_screen_stack.back()->get_player_pos())
+  if (m_screen_stack.back()->get_player_pos())
   {
-    const std::string x_text = position_text(pos->x);
-    const std::string y_text = position_text(pos->y);
-    // Each new position is new text, and the text cache can't clear old ones as fast as Tux makes them
-    if (x_text != m_player_x_text)
-    {
-      TTFSurfaceManager::current()->forget(m_player_x_text);
-      m_player_x_text = x_text;
-    }
-    if (y_text != m_player_y_text)
-    {
-      TTFSurfaceManager::current()->forget(m_player_y_text);
-      m_player_y_text = y_text;
-    }
-
     // Below the FPS lines, the labels fixed and the numbers right-aligned in room for a minus and five 4s or the capped text
     static const float slot = std::max(Resources::small_font->get_text_width(" -44444"),
                                        Resources::small_font->get_text_width(" -99999+"));
     static const float y_label = Resources::small_font->get_text_width(" Y:");
     const float right = readout_right(context);
     const float y = BORDER_Y + 95;
-    context.color().draw_text(Resources::small_font, y_text, Vector(right, y), ALIGN_RIGHT, LAYER_HUD);
+    context.color().draw_text(Resources::small_font, m_player_y_text, Vector(right, y), ALIGN_RIGHT, LAYER_HUD);
     context.color().draw_text(Resources::small_font, "Y:", Vector(right - slot, y), ALIGN_RIGHT, LAYER_HUD);
-    context.color().draw_text(Resources::small_font, x_text, Vector(right - slot - y_label, y), ALIGN_RIGHT, LAYER_HUD);
+    context.color().draw_text(Resources::small_font, m_player_x_text, Vector(right - slot - y_label, y), ALIGN_RIGHT, LAYER_HUD);
     context.color().draw_text(Resources::small_font, "X:", Vector(right - slot - y_label - slot, y), ALIGN_RIGHT, LAYER_HUD);
   }
 }
@@ -280,6 +286,12 @@ void
 ScreenManager::draw(Compositor& compositor, FPS_Stats& fps_statistics)
 {
   assert(!m_screen_stack.empty());
+
+  // First, so the number it lets go of can't be text this frame still has to draw, like the coin count
+  if (g_config->show_player_pos)
+  {
+    take_player_pos();
+  }
 
   // draw the actual screen
   m_screen_stack.back()->draw(compositor);
