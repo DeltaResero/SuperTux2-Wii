@@ -71,9 +71,9 @@ public:
 
 private:
   Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, Flip flip,
-          std::optional<Reflection> reflection = std::nullopt);
+          std::optional<Reflection> reflection = std::nullopt, SurfacePtr plain = SurfacePtr());
   Surface(const TexturePtr& diffuse_texture, const TexturePtr& displacement_texture, const Rect& region, Flip flip,
-          std::optional<Reflection> reflection = std::nullopt);
+          std::optional<Reflection> reflection = std::nullopt, SurfacePtr plain = SurfacePtr());
 
 public:
   ~Surface();
@@ -91,12 +91,16 @@ public:
   /** The mirror image of what's above it that a shiny picture shows, or null for a picture that isn't a mirror */
   const Reflection* get_reflection() const { return m_reflection ? &*m_reflection : nullptr; }
 
+  /** A mirror's picture without its shine, for where something in front lies on its top, else null */
+  const SurfacePtr& get_plain() const { return m_plain; }
+
 private:
   const TexturePtr m_diffuse_texture;
   const TexturePtr m_displacement_texture;
   const Rect m_region;
   const Flip m_flip;
   const std::optional<Reflection> m_reflection;
+  const SurfacePtr m_plain;
 
 private:
   Surface& operator=(const Surface&) = delete;

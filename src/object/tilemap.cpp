@@ -385,8 +385,14 @@ TileMap::draw(DrawingContext& context)
            !(on_grid && bordered::tile_beside(*d_gameobject_manager, *this, x, y));
   };
   const auto add_tile = [&](int x, int y, const Vector& at) {
-    const SurfacePtr& surface = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
-    if (!surface) return;
+    const SurfacePtr& picture = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
+    if (!picture) return;
+    // A mirror shows nothing above it where something in front lies on its top
+    const Vector cell = get_tile_position(x, y) / 32.0f;
+    const bool plain = on_grid && picture->get_plain() &&
+                       bordered::top_covered(*d_gameobject_manager, get_layer(), static_cast<int>(std::lround(cell.x)),
+                                             static_cast<int>(std::lround(cell.y)));
+    const SurfacePtr& surface = plain ? picture->get_plain() : picture;
     auto& batch = batches[surface];
     std::get<0>(batch).emplace_back(surface->get_region());
     std::get<1>(batch).emplace_back(at, Sizef(static_cast<float>(surface->get_width()),

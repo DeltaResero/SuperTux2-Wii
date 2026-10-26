@@ -177,13 +177,17 @@ Block::get_resting_surface() const
 void
 Block::draw(DrawingContext& context)
 {
+  const SurfacePtr& resting = get_resting_surface();
+  const int cx = static_cast<int>(std::round(get_pos().x / 32.0f));
+  const int cy = static_cast<int>(std::round(get_pos().y / 32.0f));
+  // A mirror shows nothing above it where something in front lies on its top
+  const bool plain = resting && resting->get_plain() && d_gameobject_manager &&
+                     bordered::top_covered(*d_gameobject_manager, LAYER_OBJECTS + 1, cx, cy);
+  const SurfacePtr& surface = plain ? resting->get_plain() : resting;
   // Resting on the grid near the screen, it's bordered by the tiles and blocks beside it
-  const SurfacePtr& surface = get_resting_surface();
   if (surface && context.transform().between_pixels && VideoSystem::current()->draws_between_pixels() && d_gameobject_manager &&
       context.get_cliprect().grown(32.0f).contains(Rectf(get_pos(), Sizef(32.0f, 32.0f))))
   {
-    const int cx = static_cast<int>(std::round(get_pos().x / 32.0f));
-    const int cy = static_cast<int>(std::round(get_pos().y / 32.0f));
     std::array<const Surface*, 9> cells;
     for (int k = 0; k < 9; ++k)
     {
@@ -213,6 +217,11 @@ Block::draw(DrawingContext& context)
       context.pop_transform();
       return;
     }
+  }
+  if (plain)
+  {
+    context.color().draw_surface(surface, get_pos(), LAYER_OBJECTS + 1);
+    return;
   }
   m_sprite->draw(context.color(), get_pos(), LAYER_OBJECTS+1);
 }

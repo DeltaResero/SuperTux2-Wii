@@ -112,6 +112,8 @@ Uint32 s_scene_ticks = 0;
 // What a picture is to what's under it, by its alpha
 enum Kind : uint8_t { CLEAR, OPAQUE, MIXED };
 std::unordered_map<const Surface*, uint8_t> s_kinds;
+// Whether a picture drawn in front lies on a mirror's top
+std::unordered_map<const Surface*, bool> s_tops;
 // The tile layers on the grid in drawing order, taken once a frame
 std::vector<const TileMap*> s_layers;
 int s_layers_frame = -1;
@@ -261,6 +263,33 @@ kind_of(const Surface* surface)
   const uint8_t kind = clear ? CLEAR : (opaque ? OPAQUE : MIXED);
   s_kinds[surface] = kind;
   return kind;
+}
+
+/** In front of a mirror, it lies on its top: at least half its top row solid, and no shine of its own */
+bool
+lies_on_top(const Surface* surface)
+{
+  if (!surface || bends(surface) || surface->get_reflection()) return false;
+  const SDL_Surface* pixels = pixels_of(surface);
+  if (!pixels) return false;
+  const auto it = s_tops.find(surface);
+  if (it != s_tops.end()) return it->second;
+  int solid = 0;
+  for (int x = 0; x < pixels->w; ++x)
+  {
+    if (texel(*pixels, x, 0)[3] == 255) ++solid;
+  }
+  const bool top = solid * 2 >= pixels->w;
+  s_tops[surface] = top;
+  return top;
+}
+
+/** The picture a tile shows now, without its shine when it's a mirror something lies on */
+const Surface*
+tile_picture(const Tile& tile, bool plain)
+{
+  const Surface* picture = tile.get_current_surface_ptr();
+  return (plain && picture && picture->get_plain()) ? picture->get_plain().get() : picture;
 }
 
 /** Two texels that tell apart at a glance, so showing one in the other's place would show */
@@ -607,6 +636,7 @@ clear_all()
   s_pages.clear();
   s_slots.clear();
   s_kinds.clear();
+  s_tops.clear();
   s_texels = Size(0, 0);
   s_per_row = 0;
   s_per_page = 0;
@@ -653,6 +683,19 @@ cover_after(const std::vector<const TileMap*>& above)
     if (layer->get_target_alpha() >= 1.0f) cover.emplace_back(layer, layer->get_revision());
   }
   return cover;
+}
+
+/** One of cover's layers lies on the top of map's cell x, y */
+bool
+top_covered(const Layer::Cover& cover, const TileMap& map, int x, int y)
+{
+  for (const auto& layer : cover)
+  {
+    const int lx = x + tiles_in(map.get_offset().x) - tiles_in(layer.first->get_offset().x);
+    const int ly = y + tiles_in(map.get_offset().y) - tiles_in(layer.first->get_offset().y);
+    if (lies_on_top(layer.first->get_still_picture_at(lx, ly))) return true;
+  }
+  return false;
 }
 
 } // namespace
@@ -832,10 +875,26 @@ grid_surface_at(const GameObjectManager& objects, int x, int y)
     const int ty = y - tiles_in(tilemap->get_offset().y);
     if (id_at(*tilemap, tx, ty) == 0) continue;
     const Surface* surface = tilemap->get_tile(tx, ty).get_current_surface_ptr();
+    if (surface && surface->get_plain() && top_covered(objects, tilemap->get_layer(), x, y)) return surface->get_plain().get();
     if (surface) return surface;
   }
   const Block* block = block_at(x, y);
   return block ? block->get_resting_surface().get() : nullptr;
+}
+
+bool
+top_covered(const GameObjectManager& objects, int layer, int x, int y)
+{
+  take_layers(objects);
+  for (const TileMap* over : s_layers)
+  {
+    if (over->get_layer() <= layer || over->get_alpha() < 1.0f || over->is_fading()) continue;
+    if (lies_on_top(over->get_still_picture_at(x - tiles_in(over->get_offset().x), y - tiles_in(over->get_offset().y))))
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool
@@ -899,7 +958,7 @@ Layer::refresh(const TileMap& map, const Rect& cells, const Cover& cover)
   m_generation = generation;
   m_cover = cover;
   m_size = size;
-  m_cells.assign(static_cast<size_t>(m_size.width * m_size.height), Cell{ -1, -1, 0, -1, {} });
+  m_cells.assign(static_cast<size_t>(m_size.width * m_size.height), Cell{ -1, -1, 0, -1, {}, false });
   m_moving.clear();
   m_moving_index.clear();
 }
@@ -928,17 +987,25 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
 
   std::array<const Tile*, 9> tiles{};
   bool animated = false;
+  uint16_t plain = 0;
   for (int k = 0; k < 9; ++k)
   {
     if (!used(k % 3 - 1, k / 3 - 1)) continue;
     const Tile* tile = &map.get_tile(x + k % 3 - 1, y + k / 3 - 1);
     tiles[static_cast<size_t>(k)] = tile;
     animated = animated || tile->is_animated();
+    // A mirror shows nothing above it where something in front lies on its top
+    const Surface* picture = tile->get_current_surface_ptr();
+    if (picture && picture->get_plain() && top_covered(cover, map, x + k % 3 - 1, y + k / 3 - 1))
+    {
+      plain = static_cast<uint16_t>(plain | (1 << k));
+    }
   }
+  cell.plain = (plain >> 4) & 1;
   Key key;
   for (size_t c = 0; c < 9; ++c)
   {
-    key.cells[c] = tiles[c] ? fitting(tiles[c]->get_current_surface_ptr()) : nullptr;
+    key.cells[c] = tiles[c] ? fitting(tile_picture(*tiles[c], (plain >> c) & 1)) : nullptr;
   }
   // A side is drawn here unless the tile beside it comes from a copy too and so draws the joint
   const auto copied = [&key](size_t c) { return key.cells[c] && !bends(key.cells[c]); };
@@ -975,11 +1042,11 @@ Layer::resolve(const TileMap& map, int x, int y, const Cover& cover, Cell& cell)
 
   if (animated)
   {
-    auto it = m_moving_index.find({ tiles, key.over });
+    auto it = m_moving_index.find({ tiles, plain, key.over });
     if (it == m_moving_index.end())
     {
-      it = m_moving_index.emplace(std::make_pair(tiles, key.over), static_cast<int>(m_moving.size())).first;
-      m_moving.push_back(Moving{ tiles, std::move(key.over), {}, 0, -1 });
+      it = m_moving_index.emplace(std::make_tuple(tiles, plain, key.over), static_cast<int>(m_moving.size())).first;
+      m_moving.push_back(Moving{ tiles, plain, std::move(key.over), {}, 0, -1 });
     }
     cell.moving = it->second;
     return true;
@@ -1027,7 +1094,7 @@ Layer::add_shown(Moving& moving) const
   Key key;
   for (size_t c = 0; c < 9; ++c)
   {
-    key.cells[c] = moving.tiles[c] ? fitting(moving.tiles[c]->get_current_surface_ptr()) : nullptr;
+    key.cells[c] = moving.tiles[c] ? fitting(tile_picture(*moving.tiles[c], (moving.plain >> c) & 1)) : nullptr;
     shown.frames[c] = static_cast<uint8_t>(moving.tiles[c] ? moving.tiles[c]->get_frame() : 0);
   }
   shown.slot = -1;
@@ -1093,7 +1160,7 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
       }
       s_slots[static_cast<size_t>(slot)].last = s_now;
       const Surface* picture = map.get_tile(x, y).get_current_surface_ptr();
-      const Reflection* reflection = picture ? picture->get_reflection() : nullptr;
+      const Reflection* reflection = (picture && !cell.plain) ? picture->get_reflection() : nullptr;
       const size_t page = static_cast<size_t>(slot / s_per_page);
       const size_t which = page * 2 + (reflection ? 1 : 0);
       if (which >= drawn.size()) drawn.resize(which + 1, -1);

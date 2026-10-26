@@ -69,7 +69,13 @@ Surface::from_reader(const ReaderMapping& mapping, const std::optional<Rect>& re
     flip ^= flip_v[1] ? VERTICAL_FLIP : NO_FLIP;
   }
 
-  auto surface = new Surface(diffuse_texture, displacement_texture, flip, std::move(reflection));
+  SurfacePtr plain;
+  if (reflection && diffuse_texture_mapping)
+  {
+    plain.reset(new Surface(TextureManager::current()->get(*diffuse_texture_mapping, rect), TexturePtr(), flip));
+  }
+
+  auto surface = new Surface(diffuse_texture, displacement_texture, flip, std::move(reflection), std::move(plain));
   return SurfacePtr(surface);
 }
 
@@ -109,12 +115,14 @@ Surface::from_file(const std::string& filename, const std::optional<Rect>& rect)
 Surface::Surface(const TexturePtr& diffuse_texture,
                  const TexturePtr& displacement_texture,
                  Flip flip,
-                 std::optional<Reflection> reflection) :
+                 std::optional<Reflection> reflection,
+                 SurfacePtr plain) :
   m_diffuse_texture(diffuse_texture),
   m_displacement_texture(displacement_texture),
   m_region(0, 0, m_diffuse_texture->get_image_width(), m_diffuse_texture->get_image_height()),
   m_flip(flip),
-  m_reflection(std::move(reflection))
+  m_reflection(std::move(reflection)),
+  m_plain(std::move(plain))
 {
 }
 
@@ -122,12 +130,14 @@ Surface::Surface(const TexturePtr& diffuse_texture,
                  const TexturePtr& displacement_texture,
                  const Rect& region,
                  Flip flip,
-                 std::optional<Reflection> reflection) :
+                 std::optional<Reflection> reflection,
+                 SurfacePtr plain) :
   m_diffuse_texture(diffuse_texture),
   m_displacement_texture(displacement_texture),
   m_region(region),
   m_flip(flip),
-  m_reflection(std::move(reflection))
+  m_reflection(std::move(reflection)),
+  m_plain(std::move(plain))
 {
 }
 
@@ -148,7 +158,8 @@ Surface::clone(Flip flip) const
                                  m_displacement_texture,
                                  m_region,
                                  m_flip ^ flip,
-                                 m_reflection));
+                                 m_reflection,
+                                 m_plain ? m_plain->clone(flip) : SurfacePtr()));
   return surface;
 }
 
@@ -159,7 +170,8 @@ Surface::region(const Rect& rect) const
                                  m_displacement_texture,
                                  rect,
                                  m_flip,
-                                 m_reflection));
+                                 m_reflection,
+                                 m_plain ? m_plain->region(rect) : SurfacePtr()));
   return surface;
 }
 
