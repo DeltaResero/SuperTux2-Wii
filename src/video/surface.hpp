@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <string>
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "math/rect.hpp"
@@ -43,6 +44,8 @@ struct Reflection
   int height = 0;
   /** Row by row from the top, columns() each */
   std::vector<float> shown = {};
+  /** Each pixel row down to height, from its first pixel to past its last that isn't see-through with nothing to show */
+  std::vector<std::pair<int, int>> spans = {};
 
   int columns() const { return (width + STEP_X - 1) / STEP_X + 1; }
   int rows() const { return (height + STEP_Y - 1) / STEP_Y + 1; }

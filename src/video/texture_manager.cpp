@@ -196,6 +196,13 @@ std::optional<Reflection> reflection(const SDL_Surface& image, const SDL_Surface
   const int rows = result.rows();
 
   // OpenGL 3.3 shows opacity x shine of the reflection, and the faded picture over it leaves 1 - opacity x (1 - shine)
+  const auto opacity = [&](int x, int y) { return static_cast<float>(color(x, y)[3]) / 255.0f; };
+  const auto shine_alpha = [&](int x, int y) { return static_cast<float>(glint(x, y)[3]) / 255.0f; };
+  const auto faded = [&](int x, int y) { return opacity(x, y) * (1.0f - shine_alpha(x, y)); };
+  const auto strength = [&](int x, int y) {
+    const float rest = 1.0f - faded(x, y);
+    return rest > 0.001f ? opacity(x, y) * shine_alpha(x, y) / rest : 0.0f;
+  };
   std::vector<float> cells(static_cast<size_t>((columns - 1) * (rows - 1)));
   for (int cell_y = 0; cell_y + 1 < rows; ++cell_y)
   {
@@ -207,10 +214,7 @@ std::optional<Reflection> reflection(const SDL_Surface& image, const SDL_Surface
       {
         for (int x = cell_x * Reflection::STEP_X; x < static_cast<int>(result.x(cell_x + 1)); ++x)
         {
-          const float opacity = static_cast<float>(color(x, y)[3]) / 255.0f;
-          const float shine_alpha = static_cast<float>(glint(x, y)[3]) / 255.0f;
-          const float rest = 1.0f - opacity * (1.0f - shine_alpha);
-          sum += rest > 0.001f ? opacity * shine_alpha / rest : 0.0f;
+          sum += strength(x, y);
           ++count;
         }
       }
@@ -237,6 +241,21 @@ std::optional<Reflection> reflection(const SDL_Surface& image, const SDL_Surface
       }
       result.shown[static_cast<size_t>(corner_y * columns + corner_x)] = fade * sum / static_cast<float>(count);
     }
+  }
+
+  // A cell's strength spreads across it, so each row stops where the picture's ends are see-through with nothing to show
+  result.spans.assign(static_cast<size_t>(result.height), std::make_pair(0, 0));
+  for (int y = 0; y < result.height; ++y)
+  {
+    int first = -1;
+    int last = -1;
+    for (int x = 0; x < colors->w; ++x)
+    {
+      if (strength(x, y) < 0.2f && faded(x, y) < 0.5f) continue;
+      if (first < 0) first = x;
+      last = x;
+    }
+    if (first >= 0) result.spans[static_cast<size_t>(y)] = std::make_pair(first, last + 1);
   }
   return result;
 }

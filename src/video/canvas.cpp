@@ -291,20 +291,41 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
                               (reflection.at(column + 1, row + 1) - reflection.at(column, row + 1)) * across;
           return upper + (lower - upper) * down;
         };
-        const float near = dst.get_left() + (left - src.get_left()) * scale_x;
-        const float far = dst.get_left() + (right - src.get_left()) * scale_x;
-        Pane pane{ Rectf(turned ? dst.get_left() + dst.get_right() - far : near, panes.axis + top * scale_y,
-                         turned ? dst.get_left() + dst.get_right() - near : far, panes.axis + bottom * scale_y),
-                   { at(left, top), at(right, top), at(right, bottom), at(left, bottom) } };
-        if (turned)
+        const auto add = [&](float pane_left, float pane_top, float pane_right, float pane_bottom) {
+          const float near = dst.get_left() + (pane_left - src.get_left()) * scale_x;
+          const float far = dst.get_left() + (pane_right - src.get_left()) * scale_x;
+          Pane pane{ Rectf(turned ? dst.get_left() + dst.get_right() - far : near, panes.axis + pane_top * scale_y,
+                           turned ? dst.get_left() + dst.get_right() - near : far, panes.axis + pane_bottom * scale_y),
+                     { at(pane_left, pane_top), at(pane_right, pane_top), at(pane_right, pane_bottom), at(pane_left, pane_bottom) } };
+          if (turned)
+          {
+            std::swap(pane.shown[0], pane.shown[1]);
+            std::swap(pane.shown[2], pane.shown[3]);
+          }
+          panes.area = panes.panes.empty() ? pane.area :
+            Rectf(std::min(panes.area.get_left(), pane.area.get_left()), std::min(panes.area.get_top(), pane.area.get_top()),
+                  std::max(panes.area.get_right(), pane.area.get_right()), std::max(panes.area.get_bottom(), pane.area.get_bottom()));
+          panes.panes.push_back(pane);
+        };
+        // Rows the picture's see-through ends cut alike share a pane
+        const auto cut = [&](float y) {
+          const auto& span = reflection.spans[static_cast<size_t>(y)];
+          return std::make_pair(std::max(left, static_cast<float>(span.first)), std::min(right, static_cast<float>(span.second)));
+        };
+        for (float from = top; from < bottom;)
         {
-          std::swap(pane.shown[0], pane.shown[1]);
-          std::swap(pane.shown[2], pane.shown[3]);
+          const auto here = cut(from);
+          float to = std::min(std::floor(from) + 1.0f, bottom);
+          while (to < bottom && cut(to) == here)
+          {
+            to = std::min(to + 1.0f, bottom);
+          }
+          if (here.first < here.second)
+          {
+            add(here.first, from, here.second, to);
+          }
+          from = to;
         }
-        panes.area = panes.panes.empty() ? pane.area :
-          Rectf(std::min(panes.area.get_left(), pane.area.get_left()), std::min(panes.area.get_top(), pane.area.get_top()),
-                std::max(panes.area.get_right(), pane.area.get_right()), std::max(panes.area.get_bottom(), pane.area.get_bottom()));
-        panes.panes.push_back(pane);
       }
     }
     if (!panes.panes.empty())
