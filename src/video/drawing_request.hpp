@@ -17,9 +17,12 @@
 #ifndef HEADER_SUPERTUX_VIDEO_DRAWING_REQUEST_HPP
 #define HEADER_SUPERTUX_VIDEO_DRAWING_REQUEST_HPP
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <memory>
+#include <utility>
+#include <vector>
 
 #include "math/rectf.hpp"
 #include "math/sizef.hpp"
@@ -27,8 +30,7 @@
 #include "video/color.hpp"
 #include "video/drawing_context.hpp"
 #include "video/font.hpp"
-
-class Surface;
+#include "video/surface.hpp"
 
 /** Sides of a picture that fade out over a pixel when it lands between pixels */
 enum : uint8_t
@@ -77,7 +79,10 @@ struct TextureRequest : public DrawingRequest
     color(1.0f, 1.0f, 1.0f),
     between_pixels(false),
     fades(),
-    part_texels(false)
+    part_texels(false),
+    backdrop(false),
+    shines(),
+    tints()
   {}
 
   const Texture* texture;
@@ -89,6 +94,12 @@ struct TextureRequest : public DrawingRequest
   bool between_pixels;
   std::vector<uint8_t> fades;
   bool part_texels;
+  bool backdrop;
+  /** Where the pictures shine, when they're shiny */
+  std::vector<Shine> shines;
+  /** For each picture when given, the colours its corners are tinted from the top left round, blending between them;
+      with no texture they're all that's drawn */
+  std::vector<std::array<Color, 4>> tints;
 
 private:
   TextureRequest(const TextureRequest&) = delete;

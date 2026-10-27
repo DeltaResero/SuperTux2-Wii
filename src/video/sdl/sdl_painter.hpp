@@ -63,6 +63,8 @@ public:
 
 private:
   SDL_FRect to_target(const Rectf& rect, bool between_pixels) const;
+  /** Draws a request with tints, each picture's colour blending between the tints at its corners */
+  void draw_tinted(const TextureRequest& request);
   SDL_FRect to_sdl_frect(const SDL_Rect& rect) const;
   /** False for a rectangle that's empty on whole pixels, as real SDL2's software renderer still fills a row */
   bool shows(const SDL_FRect& rect) const;

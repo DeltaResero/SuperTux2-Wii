@@ -35,8 +35,8 @@ class Texture
   friend class TextureManager;
 
 public:
-  /** filename, left, top, right, bottom */
-  using Key = std::tuple<std::string, Rect>;
+  /** filename and its part, then the picture whose shine is faded out of it and its part, or empty for none */
+  using Key = std::tuple<std::string, Rect, std::string, Rect>;
 
 protected:
   Texture();
@@ -56,10 +56,14 @@ public:
   /** Puts pixels in over part of a picture made at its texture's size, with their top left at x, y */
   virtual void update(const SDL_Surface& pixels, int x, int y) = 0;
 
+  /** Every pixel of a picture from a file is solid */
+  bool is_opaque() const { return m_opaque; }
+
 private:
   std::optional<Key> m_cache_key;
   // The pixels a tile-sized picture holds, else 0 by 0
   Size m_pixel_size;
+  bool m_opaque;
 
 private:
   Texture(const Texture&) = delete;

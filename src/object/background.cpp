@@ -346,6 +346,7 @@ Background::draw(DrawingContext& context)
   // Copies sit edge to edge, so their edges don't fade
   context.push_transform();
   context.transform().fade_edges = false;
+  context.transform().backdrop = true;
   draw_image(context, pos + scroll + Vector(center_offset.x * (1.0f - m_parallax_speed.x),
                                                      center_offset.y * (1.0f - m_parallax_speed.y)));
   context.pop_transform();

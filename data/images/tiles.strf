@@ -3148,7 +3148,8 @@
     (ice #t)
     (solid #t)
     (images
-      "objects/icecube/icecube.png"))
+      (surface (diffuse-texture (file "objects/icecube/icecube.png"))
+               (displacement-texture (file "objects/icecube/icecube-displacement.png")))))
 
   (tiles
     (width 18)

@@ -68,6 +68,8 @@ public:
 private:
   struct FPS_Stats;
   void draw_fps(DrawingContext& context, FPS_Stats& fps_statistics);
+  /** The position readout's text for this frame, the last let go of before anything draws */
+  void take_player_pos();
   void draw_player_pos(DrawingContext& context);
   void draw(Compositor& compositor, FPS_Stats& fps_statistics);
   void update_gamelogic(float dt_sec);

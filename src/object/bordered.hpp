@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -29,17 +30,21 @@
 #include "math/size.hpp"
 #include "math/sizef.hpp"
 #include "math/vector.hpp"
+#include "video/surface.hpp"
 #include "video/surface_ptr.hpp"
 
 class Block;
 class GameObjectManager;
-class Surface;
 class Tile;
 class TileMap;
 struct SDL_Surface;
 
 /** Tiles drawn from copies bordered by what lies around them, so the pixel across a joint blends both sides */
 namespace bordered {
+
+/** Bends what's behind it where the renderer draws that, as OpenGL 3.3 does for a shine that isn't a mirror: drawn plain,
+    but it still borders copies */
+bool bends(const Surface* surface);
 
 /** The RGBA pixels a picture is drawn from, or null where it can't be bordered */
 const SDL_Surface* pixels_of(const Surface* surface);
@@ -80,6 +85,9 @@ const Block* block_at(int x, int y);
 /** The tile of a solid layer at cell x, y as it shows now, else a resting block's picture */
 const Surface* grid_surface_at(const GameObjectManager& objects, int x, int y);
 
+/** A tile layer on the grid drawn over layer lies on the top of cell x, y, so a mirror there shows nothing above it */
+bool top_covered(const GameObjectManager& objects, int layer, int x, int y);
+
 /** Another layer on the grid that's drawn has a tile at map's cell x, y, so the picture carries on there */
 bool tile_beside(const GameObjectManager& objects, const TileMap& map, int x, int y);
 
@@ -98,6 +106,8 @@ public:
     SurfacePtr page;
     std::vector<Rectf> srcrects;
     std::vector<Rectf> dstrects;
+    // Shiny tiles come in draws of their own, with where each one shines
+    std::vector<Shine> shines;
   };
 
 public:
@@ -127,6 +137,8 @@ private:
     // Its neighbourhood in m_moving when a tile round it animates, else -1
     int moving;
     Open open;
+    // Its tile is a mirror shown without its shine
+    bool plain;
   };
 
   /** A copy for one set of animation frames, its slot as a cell's */
@@ -141,6 +153,8 @@ private:
   struct Moving
   {
     std::array<const Tile*, 9> tiles;
+    // Which of them, a bit each, are mirrors shown without their shine
+    uint16_t plain;
     std::vector<const Surface*> over;
     // The copy of each set of frames it has shown, kept while it's drawn so a long animation doesn't make them again
     std::vector<Shown> shown;
@@ -164,7 +178,7 @@ private:
   // Cells near the screen, each at its x and y wrapped round the size
   std::vector<Cell> m_cells;
   std::vector<Moving> m_moving;
-  std::map<std::pair<std::array<const Tile*, 9>, std::vector<const Surface*>>, int> m_moving_index;
+  std::map<std::tuple<std::array<const Tile*, 9>, uint16_t, std::vector<const Surface*>>, int> m_moving_index;
   Size m_size;
   int m_revision;
   int m_generation;

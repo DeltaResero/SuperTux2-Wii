@@ -170,21 +170,24 @@ Block::get_resting_surface() const
   {
     return no_surface;
   }
-  // A picture that bends what's behind it, like an emptied block's reflection, can't come from a copy
   const SurfacePtr& surface = m_sprite->get_current_surface();
-  return (surface && surface->get_displacement_texture()) ? no_surface : surface;
+  return bordered::bends(surface.get()) ? no_surface : surface;
 }
 
 void
 Block::draw(DrawingContext& context)
 {
+  const SurfacePtr& resting = get_resting_surface();
+  const int cx = static_cast<int>(std::round(get_pos().x / 32.0f));
+  const int cy = static_cast<int>(std::round(get_pos().y / 32.0f));
+  // A mirror shows nothing above it where something in front lies on its top
+  const bool plain = resting && resting->get_plain() && d_gameobject_manager &&
+                     bordered::top_covered(*d_gameobject_manager, LAYER_OBJECTS + 1, cx, cy);
+  const SurfacePtr& surface = plain ? resting->get_plain() : resting;
   // Resting on the grid near the screen, it's bordered by the tiles and blocks beside it
-  const SurfacePtr& surface = get_resting_surface();
   if (surface && context.transform().between_pixels && VideoSystem::current()->draws_between_pixels() && d_gameobject_manager &&
       context.get_cliprect().grown(32.0f).contains(Rectf(get_pos(), Sizef(32.0f, 32.0f))))
   {
-    const int cx = static_cast<int>(std::round(get_pos().x / 32.0f));
-    const int cy = static_cast<int>(std::round(get_pos().y / 32.0f));
     std::array<const Surface*, 9> cells;
     for (int k = 0; k < 9; ++k)
     {
@@ -202,12 +205,23 @@ Block::draw(DrawingContext& context)
       std::vector<Rectf> srcrects;
       std::vector<Rectf> dstrects;
       bordered::place(get_pos(), Sizef(32.0f, 32.0f), origin, texels.width, texels.height, open, srcrects, dstrects);
+      std::vector<Shine> shines;
+      if (const Reflection* reflection = surface->get_reflection())
+      {
+        shines.push_back(Shine{ reflection, Rectf(surface->get_region()), Rectf(get_pos(), Sizef(32.0f, 32.0f)) });
+      }
       context.push_transform();
       context.transform().part_texels = true;
-      context.color().draw_surface_batch(page, std::move(srcrects), std::move(dstrects), Color::WHITE, LAYER_OBJECTS + 1);
+      context.color().draw_surface_batch(page, std::move(srcrects), std::move(dstrects), Color::WHITE, LAYER_OBJECTS + 1, {},
+                                         std::move(shines));
       context.pop_transform();
       return;
     }
+  }
+  if (plain)
+  {
+    context.color().draw_surface(surface, get_pos(), LAYER_OBJECTS + 1);
+    return;
   }
   m_sprite->draw(context.color(), get_pos(), LAYER_OBJECTS+1);
 }

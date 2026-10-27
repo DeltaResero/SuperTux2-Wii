@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 #include <exception>
 #include <functional>
 #include <iterator>
@@ -109,33 +110,165 @@ SDLSurfacePtr rgba_copy(const SDL_Surface& image)
   return copy;
 }
 
-} // namespace
-
-TextureManager::TextureManager() :
-  m_image_textures(),
-  m_surfaces(),
-  m_resize(1.0f, 1.0f),
-  m_pixels(),
-  m_pixels_clock(0),
-  m_generation(0)
+bool every_pixel_solid(const SDL_Surface& image)
 {
-}
-
-TextureManager::~TextureManager()
-{
-  for (const auto& texture : m_image_textures)
+  if (!has_clear_pixels(image))
   {
-    if (!texture.second.expired())
+    return true;
+  }
+  if (image.format->format != SDL_PIXELFORMAT_RGBA32)
+  {
+    return false;
+  }
+  for (int y = 0; y < image.h; ++y)
+  {
+    const Uint8* pixel = static_cast<const Uint8*>(image.pixels) + y * image.pitch;
+    for (int x = 3; x < image.w * 4; x += 4)
     {
-      log_warning << "Texture '" << std::get<0>(texture.first) << "' not freed" << std::endl;
+      if (pixel[x] != 255) return false;
     }
   }
-  m_image_textures.clear();
-  m_surfaces.clear();
+  return true;
 }
 
-TexturePtr
-TextureManager::get(const ReaderMapping& mapping, const std::optional<Rect>& region)
+// An RGBA copy of image, see-through as far as shine's picture shines, or null when their sizes differ
+SDLSurfacePtr fade(const SDL_Surface& image, const SDL_Surface& shine)
+{
+  SDLSurfacePtr faded = rgba_copy(image);
+  SDLSurfacePtr mask(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&shine), SDL_PIXELFORMAT_RGBA32, 0));
+  if (!faded || !mask || faded->w != mask->w || faded->h != mask->h)
+  {
+    return {};
+  }
+
+  for (int y = 0; y < faded->h; ++y)
+  {
+    Uint8* pixel = static_cast<Uint8*>(faded->pixels) + y * faded->pitch;
+    const Uint8* glint = static_cast<const Uint8*>(mask->pixels) + y * mask->pitch;
+    for (int x = 3; x < faded->w * 4; x += 4)
+    {
+      pixel[x] = static_cast<Uint8>((pixel[x] * (255 - glint[x]) + 127) / 255);
+    }
+  }
+  return faded;
+}
+
+// See TextureManager::get_reflection; a mirror's every pixel looks straight up twice as far as its row
+std::optional<Reflection> reflection(const SDL_Surface& image, const SDL_Surface& shine)
+{
+  SDLSurfacePtr colors(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&image), SDL_PIXELFORMAT_RGBA32, 0));
+  SDLSurfacePtr glints(SDL_ConvertSurfaceFormat(const_cast<SDL_Surface*>(&shine), SDL_PIXELFORMAT_RGBA32, 0));
+  if (!colors || !glints || colors->w != glints->w || colors->h != glints->h)
+  {
+    return std::nullopt;
+  }
+  const auto color = [&colors](int x, int y) { return static_cast<const Uint8*>(colors->pixels) + y * colors->pitch + x * 4; };
+  const auto glint = [&glints](int x, int y) { return static_cast<const Uint8*>(glints->pixels) + y * glints->pitch + x * 4; };
+
+  // OpenGL 3.3 bends a row by its shine, so its strongest pixels look above the picture while that's over a half
+  int last = -1;
+  std::vector<float> row;
+  for (int y = 0; y < glints->h; ++y)
+  {
+    row.clear();
+    for (int x = 0; x < glints->w; ++x)
+    {
+      const Uint8* pixel = glint(x, y);
+      if (pixel[3] == 0) continue;
+      if (std::abs(pixel[0] - 128) > 1 || std::abs(pixel[1] - 128 - 2 * y) > 1) return std::nullopt;
+      row.push_back(static_cast<float>(pixel[3]) / 255.0f);
+    }
+    if (row.empty()) continue;
+    const auto strong = row.begin() + static_cast<long>((row.size() - 1) * 9 / 10);
+    std::nth_element(row.begin(), strong, row.end());
+    if (*strong > 0.5f) last = y;
+  }
+  if (last < 1)
+  {
+    return Reflection();
+  }
+
+  // Ending on a whole strip, so pictures side by side fade out over the same rows
+  Reflection result;
+  result.width = colors->w;
+  result.height = std::min(colors->h, std::max(1, (last + 1) / Reflection::STEP_Y) * Reflection::STEP_Y);
+  const int columns = result.columns();
+  const int rows = result.rows();
+
+  // OpenGL 3.3 shows opacity x shine of the reflection, and the faded picture over it leaves 1 - opacity x (1 - shine)
+  const auto opacity = [&](int x, int y) { return static_cast<float>(color(x, y)[3]) / 255.0f; };
+  const auto shine_alpha = [&](int x, int y) { return static_cast<float>(glint(x, y)[3]) / 255.0f; };
+  const auto faded = [&](int x, int y) { return opacity(x, y) * (1.0f - shine_alpha(x, y)); };
+  const auto strength = [&](int x, int y) {
+    const float rest = 1.0f - faded(x, y);
+    return rest > 0.001f ? opacity(x, y) * shine_alpha(x, y) / rest : 0.0f;
+  };
+  std::vector<float> cells(static_cast<size_t>((columns - 1) * (rows - 1)));
+  for (int cell_y = 0; cell_y + 1 < rows; ++cell_y)
+  {
+    for (int cell_x = 0; cell_x + 1 < columns; ++cell_x)
+    {
+      float sum = 0.0f;
+      int count = 0;
+      for (int y = cell_y * Reflection::STEP_Y; y < static_cast<int>(result.y(cell_y + 1)); ++y)
+      {
+        for (int x = cell_x * Reflection::STEP_X; x < static_cast<int>(result.x(cell_x + 1)); ++x)
+        {
+          sum += strength(x, y);
+          ++count;
+        }
+      }
+      cells[static_cast<size_t>(cell_y * (columns - 1) + cell_x)] = count ? sum / static_cast<float>(count) : 0.0f;
+    }
+  }
+
+  // Each corner takes the cells round it, weaker the deeper it lies, and the bottom ones fade out to where the reach ends
+  result.shown.assign(static_cast<size_t>(columns * rows), 0.0f);
+  for (int corner_y = 0; corner_y + 1 < rows; ++corner_y)
+  {
+    const float fade = 1.0f - result.y(corner_y) / static_cast<float>(colors->h);
+    for (int corner_x = 0; corner_x < columns; ++corner_x)
+    {
+      float sum = 0.0f;
+      int count = 0;
+      for (int cell_y = std::max(0, corner_y - 1); cell_y <= std::min(corner_y, rows - 2); ++cell_y)
+      {
+        for (int cell_x = std::max(0, corner_x - 1); cell_x <= std::min(corner_x, columns - 2); ++cell_x)
+        {
+          sum += cells[static_cast<size_t>(cell_y * (columns - 1) + cell_x)];
+          ++count;
+        }
+      }
+      result.shown[static_cast<size_t>(corner_y * columns + corner_x)] = fade * sum / static_cast<float>(count);
+    }
+  }
+
+  // A cell's strength spreads across it, so each row stops where the picture's ends are see-through with nothing to show
+  result.spans.assign(static_cast<size_t>(result.height), std::make_pair(0, 0));
+  for (int y = 0; y < result.height; ++y)
+  {
+    int first = -1;
+    int last = -1;
+    for (int x = 0; x < colors->w; ++x)
+    {
+      if (strength(x, y) < 0.2f && faded(x, y) < 0.5f) continue;
+      if (first < 0) first = x;
+      last = x;
+    }
+    if (first >= 0) result.spans[static_cast<size_t>(y)] = std::make_pair(first, last + 1);
+  }
+  return result;
+}
+
+// A picture's file, its part and how it's drawn, as a surface's texture names them
+struct Source
+{
+  std::string filename;
+  std::optional<Rect> rect;
+  Sampler sampler;
+};
+
+Source read_source(const ReaderMapping& mapping, const std::optional<Rect>& region)
 {
   std::string filename;
   if (!mapping.get("file", filename))
@@ -217,45 +350,96 @@ TextureManager::get(const ReaderMapping& mapping, const std::optional<Rect>& reg
     }
   }
 
-  return get(filename, rect, Sampler(filter, wrap_s, wrap_t, animate));
+  return Source{ filename, rect, Sampler(filter, wrap_s, wrap_t, animate) };
 }
 
-TexturePtr
-TextureManager::get(const std::string& _filename)
+} // namespace
+
+TextureManager::TextureManager() :
+  m_image_textures(),
+  m_surfaces(),
+  m_resize(1.0f, 1.0f),
+  m_pixels(),
+  m_pixels_clock(0),
+  m_generation(0)
 {
-  std::string filename = FileSystem::normalize(_filename);
-  Texture::Key key(filename, Rect(0, 0, 0, 0));
-  auto i = m_image_textures.find(key);
+}
 
-  TexturePtr texture;
-  if (i != m_image_textures.end())
-    texture = i->second.lock();
-
-  if (!texture) {
-    texture = create_image_texture(filename, Sampler());
-    texture->m_cache_key = key;
-    m_image_textures[key] = texture;
+TextureManager::~TextureManager()
+{
+  for (const auto& texture : m_image_textures)
+  {
+    if (!texture.second.expired())
+    {
+      log_warning << "Texture '" << std::get<0>(texture.first) << "' not freed" << std::endl;
+    }
   }
-
-  return texture;
+  m_image_textures.clear();
+  m_surfaces.clear();
 }
 
 TexturePtr
-TextureManager::get(const std::string& _filename,
+TextureManager::get(const ReaderMapping& mapping, const std::optional<Rect>& region)
+{
+  const Source source = read_source(mapping, region);
+  return get(source.filename, source.rect, source.sampler);
+}
+
+TexturePtr
+TextureManager::get_faded(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region)
+{
+  const Source source = read_source(mapping, region);
+  const Source mask = read_source(shine, region);
+  if (source.sampler.get_animate() != Vector(0.0f, 0.0f) || mask.sampler.get_animate() != Vector(0.0f, 0.0f))
+  {
+    return get(source.filename, source.rect, source.sampler);
+  }
+  return get(Texture::Key(FileSystem::normalize(source.filename), source.rect.value_or(Rect()),
+                          FileSystem::normalize(mask.filename), mask.rect.value_or(Rect())),
+             source.sampler);
+}
+
+std::optional<Reflection>
+TextureManager::get_reflection(const ReaderMapping& mapping, const ReaderMapping& shine, const std::optional<Rect>& region)
+{
+  const Source source = read_source(mapping, region);
+  const Source mask = read_source(shine, region);
+  if (source.sampler.get_animate() != Vector(0.0f, 0.0f) || mask.sampler.get_animate() != Vector(0.0f, 0.0f))
+  {
+    return std::nullopt;
+  }
+  try
+  {
+    SDLSurfacePtr keep;
+    SDLSurfacePtr shine_keep;
+    SDLSurfacePtr image = load(Texture::Key(FileSystem::normalize(source.filename), source.rect.value_or(Rect()), "", Rect()), keep);
+    SDLSurfacePtr glints = load(Texture::Key(FileSystem::normalize(mask.filename), mask.rect.value_or(Rect()), "", Rect()), shine_keep);
+    return reflection(*image, *glints);
+  }
+  catch (const std::exception& err)
+  {
+    log_warning << "Couldn't read the shine of '" << source.filename << "': " << err.what() << std::endl;
+    return std::nullopt;
+  }
+}
+
+TexturePtr
+TextureManager::get(const std::string& filename)
+{
+  return get(Texture::Key(FileSystem::normalize(filename), Rect(), "", Rect()), Sampler());
+}
+
+TexturePtr
+TextureManager::get(const std::string& filename,
                     const std::optional<Rect>& rect,
                     const Sampler& sampler)
 {
-  std::string filename = FileSystem::normalize(_filename);
-  Texture::Key key;
-  if (rect)
-  {
-    key = Texture::Key(filename, *rect);
-  }
-  else
-  {
-    key = Texture::Key(filename, Rect());
-  }
+  return get(Texture::Key(FileSystem::normalize(filename), rect.value_or(Rect()), "", Rect()), sampler);
+}
 
+TexturePtr
+TextureManager::get(const Texture::Key& key, const Sampler& sampler)
+{
   auto i = m_image_textures.find(key);
 
   TexturePtr texture;
@@ -263,14 +447,7 @@ TextureManager::get(const std::string& _filename,
     texture = i->second.lock();
 
   if (!texture) {
-    if (rect)
-    {
-      texture = create_image_texture(filename, *rect, sampler);
-    }
-    else
-    {
-      texture = create_image_texture(filename, sampler);
-    }
+    texture = create_image_texture(key, sampler);
     texture->m_cache_key = key;
     m_image_textures[key] = texture;
   }
@@ -303,15 +480,7 @@ TextureManager::set_viewport(const Viewport& viewport, bool enlarge)
 
     try
     {
-      const Rect& rect_in_file = std::get<1>(entry.first);
-      if (rect_in_file.empty())
-      {
-        create_image_texture_raw(filename, Sampler(), texture);
-      }
-      else
-      {
-        create_image_texture_raw(filename, rect_in_file, Sampler(), texture);
-      }
+      create_image_texture_raw(entry.first, Sampler(), texture);
     }
     catch (const std::exception& err)
     {
@@ -384,6 +553,7 @@ TextureManager::make_texture(const std::string& filename, const SDL_Surface& ima
   // Only tile-sized pictures are bordered at their joints, and their pixels are made again only when that needs them
   m_pixels.erase(texture.get());
   texture->m_pixel_size = (image.w == 32 && image.h == 32) ? Size(pixels.w, pixels.h) : Size(0, 0);
+  texture->m_opaque = every_pixel_solid(pixels);
   return texture;
 }
 
@@ -398,13 +568,11 @@ TextureManager::get_pixels(const Texture& texture)
   if (it == m_pixels.end())
   {
     const std::string& filename = std::get<0>(*texture.m_cache_key);
-    const Rect& rect = std::get<1>(*texture.m_cache_key);
     SDLSurfacePtr rgba;
     try
     {
       SDLSurfacePtr keep;
-      SDLSurfacePtr image = rect.empty() ? SDLSurface::from_file(filename) : cut(filename, rect, keep);
-      if (!image) return nullptr;
+      SDLSurfacePtr image = load(*texture.m_cache_key, keep);
       SDLSurfacePtr own = prepare(filename, *image);
       rgba.reset(SDL_ConvertSurfaceFormat(own ? own.get() : image.get(), SDL_PIXELFORMAT_RGBA32, 0));
     }
@@ -451,15 +619,15 @@ TextureManager::reap_cache_entry(const Texture::Key& key)
 }
 
 TexturePtr
-TextureManager::create_image_texture(const std::string& filename, const Rect& rect, const Sampler& sampler)
+TextureManager::create_image_texture(const Texture::Key& key, const Sampler& sampler)
 {
   try
   {
-    return create_image_texture_raw(filename, rect, sampler);
+    return create_image_texture_raw(key, sampler);
   }
   catch(const std::exception& err)
   {
-    log_warning << "Couldn't load texture '" << filename << "' (now using dummy texture): " << err.what() << std::endl;
+    log_warning << "Couldn't load texture '" << std::get<0>(key) << "' (now using dummy texture): " << err.what() << std::endl;
     return create_dummy_texture();
   }
 }
@@ -487,12 +655,45 @@ TextureManager::get_surface(const std::string& filename)
 }
 
 TexturePtr
-TextureManager::create_image_texture_raw(const std::string& filename, const Rect& rect, const Sampler& sampler,
-                                         const TexturePtr& reload)
+TextureManager::create_image_texture_raw(const Texture::Key& key, const Sampler& sampler, const TexturePtr& reload)
 {
   SDLSurfacePtr keep;
-  SDLSurfacePtr subimage = cut(filename, rect, keep);
-  return make_texture(filename, *subimage, sampler, reload);
+  SDLSurfacePtr image = load(key, keep);
+  return make_texture(std::get<0>(key), *image, sampler, reload);
+}
+
+SDLSurfacePtr
+TextureManager::load(const Texture::Key& key, SDLSurfacePtr& keep)
+{
+  const auto& [filename, rect, shine_filename, shine_rect] = key;
+  SDLSurfacePtr image = rect.empty() ? SDLSurface::from_file(filename) : cut(filename, rect, keep);
+  if (!image)
+  {
+    std::ostringstream msg;
+    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
+    throw std::runtime_error(msg.str());
+  }
+  if (shine_filename.empty())
+  {
+    return image;
+  }
+
+  // A shine that can't be read leaves the picture as it is
+  try
+  {
+    SDLSurfacePtr shine_keep;
+    SDLSurfacePtr shine = shine_rect.empty() ? SDLSurface::from_file(shine_filename) : cut(shine_filename, shine_rect, shine_keep);
+    if (SDLSurfacePtr faded = shine ? fade(*image, *shine) : SDLSurfacePtr())
+    {
+      return faded;
+    }
+    log_warning << "Couldn't fade '" << filename << "' by '" << shine_filename << "'" << std::endl;
+  }
+  catch (const std::exception& err)
+  {
+    log_warning << "Couldn't fade '" << filename << "' by '" << shine_filename << "': " << err.what() << std::endl;
+  }
+  return image;
 }
 
 SDLSurfacePtr
@@ -558,37 +759,6 @@ TextureManager::cut(const std::string& filename, const Rect& rect, SDLSurfacePtr
 }
 
 TexturePtr
-TextureManager::create_image_texture(const std::string& filename, const Sampler& sampler)
-{
-  try
-  {
-    return create_image_texture_raw(filename, sampler);
-  }
-  catch (const std::exception& err)
-  {
-    log_warning << "Couldn't load texture '" << filename << "' (now using dummy texture): " << err.what() << std::endl;
-    return create_dummy_texture();
-  }
-}
-
-TexturePtr
-TextureManager::create_image_texture_raw(const std::string& filename, const Sampler& sampler,
-                                         const TexturePtr& reload)
-{
-  SDLSurfacePtr image = SDLSurface::from_file(filename);
-  if (!image)
-  {
-    std::ostringstream msg;
-    msg << "Couldn't load image '" << filename << "' :" << SDL_GetError();
-    throw std::runtime_error(msg.str());
-  }
-  else
-  {
-    return make_texture(filename, *image, sampler, reload);
-  }
-}
-
-TexturePtr
 TextureManager::create_dummy_texture()
 {
   const std::string dummy_texture_fname = "images/engine/missing.png";
@@ -596,7 +766,7 @@ TextureManager::create_dummy_texture()
   // on error, try loading placeholder file
   try
   {
-    TexturePtr tex = create_image_texture_raw(dummy_texture_fname, Sampler());
+    TexturePtr tex = create_image_texture_raw(Texture::Key(dummy_texture_fname, Rect(), "", Rect()), Sampler());
     return tex;
   }
   catch (const std::exception& err)

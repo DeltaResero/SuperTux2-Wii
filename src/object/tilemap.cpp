@@ -385,8 +385,14 @@ TileMap::draw(DrawingContext& context)
            !(on_grid && bordered::tile_beside(*d_gameobject_manager, *this, x, y));
   };
   const auto add_tile = [&](int x, int y, const Vector& at) {
-    const SurfacePtr& surface = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
-    if (!surface) return;
+    const SurfacePtr& picture = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
+    if (!picture) return;
+    // A mirror shows nothing above it where something in front lies on its top
+    const Vector cell = get_tile_position(x, y) / 32.0f;
+    const bool plain = on_grid && picture->get_plain() &&
+                       bordered::top_covered(*d_gameobject_manager, get_layer(), static_cast<int>(std::lround(cell.x)),
+                                             static_cast<int>(std::lround(cell.y)));
+    const SurfacePtr& surface = plain ? picture->get_plain() : picture;
     auto& batch = batches[surface];
     std::get<0>(batch).emplace_back(surface->get_region());
     std::get<1>(batch).emplace_back(at, Sizef(static_cast<float>(surface->get_width()),
@@ -399,6 +405,7 @@ TileMap::draw(DrawingContext& context)
 
   bool in_copies = false;
   std::vector<bordered::Layer::Draw> draws;
+  std::vector<bordered::Layer::Draw> shiny;
   std::vector<int> loose;
   if (between && d_gameobject_manager && is_on_grid())
   {
@@ -421,6 +428,11 @@ TileMap::draw(DrawingContext& context)
   {
     for (auto& draw : draws)
     {
+      if (!draw.shines.empty())
+      {
+        shiny.push_back(std::move(draw));
+        continue;
+      }
       auto& batch = batches[draw.page];
       std::get<2>(batch).resize(draw.srcrects.size(), 0);
       std::get<0>(batch) = std::move(draw.srcrects);
@@ -462,6 +474,13 @@ TileMap::draw(DrawingContext& context)
                                 m_current_tint, m_z_pos,
                                 std::move(std::get<2>(it.second)));
     }
+  }
+  // After the rest, so their reflections lie over what's under them
+  for (auto& draw : shiny)
+  {
+    const size_t count = draw.srcrects.size();
+    canvas.draw_surface_batch(draw.page, std::move(draw.srcrects), std::move(draw.dstrects), m_current_tint, m_z_pos,
+                              std::vector<uint8_t>(count, 0), std::move(draw.shines));
   }
 
   context.pop_transform();
