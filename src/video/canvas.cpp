@@ -608,6 +608,9 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
   {
     dstrect = place(taken, dstrect.p1(), dstrect.get_size());
   }
+  // A tile drawn just past the edge of the screen has none of its reflection in view
+  const Rectf cliprect = m_context.get_cliprect();
+  const Rectf screen = place(taken, cliprect.p1(), cliprect.get_size());
 
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
@@ -616,6 +619,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
     for (auto& shine : shines)
     {
       shine.dstrect = place(taken, shine.dstrect.p1(), shine.dstrect.get_size());
+      if (!screen.contains(shine.dstrect)) shine.reflection = nullptr;
     }
     request->shines = std::move(shines);
   }
@@ -623,7 +627,7 @@ Canvas::draw_surface_batch(const SurfacePtr& surface,
   {
     for (size_t i = 0; i < request->dstrects.size(); ++i)
     {
-      request->shines.push_back(Shine{ request->angles[i] == 0.0f ? reflection : nullptr,
+      request->shines.push_back(Shine{ request->angles[i] == 0.0f && screen.contains(request->dstrects[i]) ? reflection : nullptr,
                                        request->srcrects[i], request->dstrects[i] });
     }
   }
