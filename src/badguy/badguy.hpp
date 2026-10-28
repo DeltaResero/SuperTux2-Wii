@@ -75,6 +75,9 @@ public:
       as the collision pass settles a solid object onto a badguy like onto ground and never reports the hit */
   static void crush_below(const MovingObject& falling, float fall, bool spare_frozen = false);
 
+  /** Real fire, a walking flame or an orbiting one, not an ice or ghost flame */
+  static bool is_fire(const BadGuy& badguy);
+
   /** True if this badguy can break bricks or open bonusblocks in his
       current form. */
   virtual bool can_break() const { return false; }

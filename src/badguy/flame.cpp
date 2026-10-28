@@ -37,6 +37,7 @@ Flame::Flame(const ReaderMapping& reader, const std::string& sprite) :
   angle(0),
   radius(),
   speed(),
+  liquid(0),
   sound_source()
 {
   reader.get("radius", radius, 100.0f);
@@ -70,13 +71,14 @@ Flame::active_update(float dt_sec)
     return;
   MrIceBlock::douse_held(*this);
   // Water puts out fire and lava melts ice once its middle is in, which it has to look for itself as it never touches tiles
-  if (m_col.get_group() == COLGROUP_DISABLED)
-    return;
-  const Rectf middle(m_col.m_bbox.get_middle(), Sizef(1.0f, 1.0f));
-  if (is_freezable() && !Sector::get().is_free_of_tiles(middle, false, Tile::WATER))
-    freeze();
-  else if (is_flammable() && !Sector::get().is_free_of_tiles(middle, false, Tile::FIRE))
-    ignite();
+  if (liquid && m_col.get_group() != COLGROUP_DISABLED &&
+      !Sector::get().is_free_of_tiles(Rectf(m_col.m_bbox.get_middle(), Sizef(1.0f, 1.0f)), false, liquid))
+  {
+    if (liquid == Tile::WATER)
+      freeze();
+    else
+      ignite();
+  }
 }
 
 void
@@ -89,6 +91,12 @@ Flame::activate()
   sound_source->set_gain(4.0f);
   sound_source->set_close_range();
   sound_source->play();
+
+  // Most orbits never come near water or lava, so look once and spare the check every frame
+  liquid = is_freezable() ? Tile::WATER : is_flammable() ? Tile::FIRE : 0;
+  const Vector centre = m_start_position + Vector(m_col.m_bbox.get_width(), m_col.m_bbox.get_height()) / 2.0f;
+  if (liquid && Sector::get().is_free_of_tiles(Rectf(centre, Sizef(0.0f, 0.0f)).grown(radius + 1.0f), false, liquid))
+    liquid = 0;
 }
 
 void

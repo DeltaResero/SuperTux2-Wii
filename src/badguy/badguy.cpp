@@ -28,7 +28,6 @@
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
 #include "object/player.hpp"
-#include "object/portable.hpp"
 #include "object/sprite_particle.hpp"
 #include "object/water_drop.hpp"
 #include "sprite/sprite.hpp"
@@ -48,11 +47,14 @@ static const float SHEEN_SWEEP = 0.4f;
 static const float SHEEN_PERIOD = 3.0f;
 static const float SHEEN_STRENGTH = 0.7f;
 
+/** Faster than gravity nudges a resting frozen badguy, slower than any drop onto another */
+static const float FALL_SPEED = 100.0f;
+
 static const float X_OFFSCREEN_DISTANCE = 1280;
 static const float Y_OFFSCREEN_DISTANCE = 800;
 
-/** Real fire, not an ice or ghost flame */
-static bool is_fire(const BadGuy& badguy)
+bool
+BadGuy::is_fire(const BadGuy& badguy)
 {
   return (dynamic_cast<const Flame*>(&badguy) || dynamic_cast<const LiveFire*>(&badguy)) && badguy.is_freezable();
 }
@@ -234,8 +236,8 @@ BadGuy::update(float dt_sec)
       if (m_frozen && is_grabbed())
         break;
       active_update(dt_sec);
-      // Frozen, it lands on another badguy as hard as a rock, except one that's frozen too
-      if (m_frozen && m_col.get_movement().y > 0.0f && !is_grabbed())
+      // Frozen, it lands on another badguy as hard as a rock, except one that's frozen too; resting, gravity still nudges it down
+      if (m_frozen && m_physic.get_velocity_y() > FALL_SPEED && !is_grabbed())
         crush_below(*this, m_col.get_movement().y, true);
       // A thrown one stops where it lands, whatever its own landing does
       if (m_frozen && m_physic.get_velocity_x() != 0.0f && m_physic.get_velocity_y() >= 0.0f &&

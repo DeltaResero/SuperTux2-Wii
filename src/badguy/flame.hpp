@@ -51,6 +51,8 @@ protected:
   float angle;
   float radius;
   float speed;
+  /** The tile that puts it out, WATER or FIRE, when some lies in reach of its orbit; 0 when none does */
+  uint32_t liquid;
 
   std::unique_ptr<SoundSource> sound_source;
 
