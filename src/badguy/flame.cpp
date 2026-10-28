@@ -106,10 +106,12 @@ Flame::kill_fall()
 HitResponse
 Flame::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
 {
-  // A falling stalactite puts the flame out like an iceball does, and so does a shell, which melts doing it
+  // A falling stalactite or a shell puts the flame out like an iceball does, and breaks or melts doing it
+  auto stalactite = dynamic_cast<Stalactite*>(&badguy);
   auto shell = dynamic_cast<MrIceBlock*>(&badguy);
-  if ((dynamic_cast<Stalactite*>(&badguy) || (shell && shell->is_shell())) && is_freezable()) {
+  if ((stalactite || (shell && shell->is_shell())) && is_freezable()) {
     freeze();
+    if (stalactite) stalactite->squish();
     if (shell) shell->melt();
   }
   return BadGuy::collision_badguy(badguy, hit);
