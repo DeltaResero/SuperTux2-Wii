@@ -48,13 +48,15 @@ public:
   /** Melts away, out of Tux's hands first if he's holding it */
   void melt();
 
-  /** The shell Tux holds doesn't collide, so a fire looks for it: if they touch, the fire goes out and the shell
-      melts, before the fire reaches him; true if it did */
-  static bool douse_held(BadGuy& fire);
 
   virtual std::string get_class() const override { return "mriceblock"; }
 
   bool can_break();
+
+private:
+  /** Held, it doesn't collide, so it looks for fire itself: one it touches goes out and the shell melts, before
+      the fire reaches Tux */
+  void douse_fire();
 
 protected:
   enum IceState {

@@ -44,6 +44,9 @@ public:
 
   virtual std::string get_class() const override { return "flame"; }
 
+  /** Where its middle can go on its orbit */
+  Rectf get_reach() const;
+
   virtual void stop_looping_sounds() override;
   virtual void play_looping_sounds() override;
 

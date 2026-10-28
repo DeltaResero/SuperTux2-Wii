@@ -18,8 +18,11 @@
 
 #include <cassert>
 #include <cmath>
+#include <typeindex>
+#include <typeinfo>
 
 #include "audio/sound_manager.hpp"
+#include "badguy/flame.hpp"
 #include "badguy/livefire.hpp"
 #include "collision/collision.hpp"
 #include "object/player.hpp"
@@ -56,8 +59,10 @@ MrIceBlock::initialize()
 void
 MrIceBlock::active_update(float dt_sec)
 {
-  if (ice_state == ICESTATE_GRABBED)
+  if (ice_state == ICESTATE_GRABBED) {
+    douse_fire();
     return;
+  }
 
   if (ice_state == ICESTATE_FLAT && flat_timer.check()) {
     set_state(ICESTATE_WAKING);
@@ -323,15 +328,24 @@ MrIceBlock::melt()
   ignite();
 }
 
-bool
-MrIceBlock::douse_held(BadGuy& fire)
+void
+MrIceBlock::douse_fire()
 {
-  auto shell = dynamic_cast<MrIceBlock*>(Sector::get().get_player().get_grabbed_object());
-  if (!shell || !fire.is_freezable() || !collision::intersects(shell->get_bbox(), fire.get_bbox()))
-    return false;
-  fire.freeze();
-  shell->melt();
-  return true;
+  for (const std::type_index type : { std::type_index(typeid(Flame)), std::type_index(typeid(LiveFire)),
+                                      std::type_index(typeid(LiveFireAsleep)), std::type_index(typeid(LiveFireDormant)) })
+  {
+    for (auto* object : Sector::get().get_objects_by_type_index(type))
+    {
+      auto* fire = static_cast<BadGuy*>(object);
+      if (fire->get_group() != COLGROUP_DISABLED && fire->is_freezable() &&
+          collision::intersects(get_bbox(), fire->get_bbox()))
+      {
+        fire->freeze();
+        melt();
+        return;
+      }
+    }
+  }
 }
 
 void

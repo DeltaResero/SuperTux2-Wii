@@ -67,9 +67,6 @@ Flame::active_update(float dt_sec)
 
   if (m_sprite->get_action() == "fade" && m_sprite->animation_done()) remove_me();
 
-  if (m_col.get_group() == COLGROUP_DISABLED)
-    return;
-  MrIceBlock::douse_held(*this);
   // Water puts out fire and lava melts ice once its middle is in, which it has to look for itself as it never touches tiles
   if (liquid && m_col.get_group() != COLGROUP_DISABLED &&
       !Sector::get().is_free_of_tiles(Rectf(m_col.m_bbox.get_middle(), Sizef(1.0f, 1.0f)), false, liquid))
@@ -94,9 +91,15 @@ Flame::activate()
 
   // Most orbits never come near water or lava, so look once and spare the check every frame
   liquid = is_freezable() ? Tile::WATER : is_flammable() ? Tile::FIRE : 0;
-  const Vector centre = m_start_position + Vector(m_col.m_bbox.get_width(), m_col.m_bbox.get_height()) / 2.0f;
-  if (liquid && Sector::get().is_free_of_tiles(Rectf(centre, Sizef(0.0f, 0.0f)).grown(radius + 1.0f), false, liquid))
+  if (liquid && Sector::get().is_free_of_tiles(get_reach().grown(1.0f), false, liquid))
     liquid = 0;
+}
+
+Rectf
+Flame::get_reach() const
+{
+  const Vector centre = m_start_position + Vector(m_col.m_bbox.get_width(), m_col.m_bbox.get_height()) / 2.0f;
+  return Rectf(centre, Sizef(0.0f, 0.0f)).grown(radius);
 }
 
 void

@@ -26,6 +26,7 @@ class Iceflame final : public Flame
 public:
   Iceflame(const ReaderMapping& reader);
 
+  virtual void activate() override;
   virtual void active_update(float dt_sec) override;
   virtual HitResponse collision_badguy(BadGuy& badguy, const CollisionHit& hit) override;
 
@@ -33,6 +34,10 @@ public:
   virtual bool is_flammable() const override;
   virtual bool is_freezable() const override;
   virtual std::string get_class() const override { return "iceflame"; }
+
+private:
+  /** An orbiting fire's orbit comes near enough for the two to meet */
+  bool fire_in_reach;
 
 private:
   Iceflame(const Iceflame&) = delete;

@@ -17,7 +17,6 @@
 #include "badguy/livefire.hpp"
 
 #include "audio/sound_manager.hpp"
-#include "badguy/mriceblock.hpp"
 #include "object/player.hpp"
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite.hpp"
@@ -56,9 +55,6 @@ LiveFire::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
 
 void
 LiveFire::active_update(float dt_sec) {
-
-  if (m_col.get_group() != COLGROUP_DISABLED && MrIceBlock::douse_held(*this))
-    return;
 
   // Remove when extinguish animation is done
   if ((m_sprite->get_action() == "extinguish-left" || m_sprite->get_action() == "extinguish-right" )

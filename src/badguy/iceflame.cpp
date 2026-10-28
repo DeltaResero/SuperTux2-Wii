@@ -29,9 +29,28 @@
 #include "supertux/sector.hpp"
 
 Iceflame::Iceflame(const ReaderMapping& reader) :
-  Flame(reader, "images/creatures/flame/iceflame.sprite")
+  Flame(reader, "images/creatures/flame/iceflame.sprite"),
+  fire_in_reach(false)
 {
   m_lightsprite->set_color(Color(0.00f, 0.13f, 0.18f));
+}
+
+void
+Iceflame::activate()
+{
+  Flame::activate();
+
+  // Orbits never move, so whether a fire's can ever meet this one is known as it comes on screen
+  const Rectf reach = get_reach().grown(m_col.m_bbox.get_width());
+  fire_in_reach = false;
+  for (auto* object : Sector::get().get_objects_by_type_index(typeid(Flame)))
+  {
+    if (collision::intersects(reach, static_cast<Flame*>(object)->get_reach()))
+    {
+      fire_in_reach = true;
+      break;
+    }
+  }
 }
 
 void
@@ -41,7 +60,7 @@ Iceflame::active_update(float dt_sec)
   m_sprite->set_angle(math::degrees(angle) * 3.0f);
 
   // It and an orbiting fire put each other out, which the collision pass can't see as it never lets two flames touch
-  if (m_col.get_group() == COLGROUP_DISABLED)
+  if (!fire_in_reach || m_col.get_group() == COLGROUP_DISABLED)
     return;
   for (auto* object : Sector::get().get_objects_by_type_index(typeid(Flame)))
   {

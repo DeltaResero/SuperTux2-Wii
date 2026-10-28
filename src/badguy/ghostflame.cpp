@@ -35,9 +35,19 @@ static const float LAMP_BELOW = 78.0f;
 
 Ghostflame::Ghostflame(const ReaderMapping& reader) :
   Flame(reader, "images/creatures/flame/ghostflame.sprite"),
-  m_fade(-1.0f)
+  m_fade(-1.0f),
+  m_light(nullptr)
 {
   m_lightsprite->set_color(Color(0.21f, 0.00f, 0.21f));
+}
+
+void
+Ghostflame::activate()
+{
+  Flame::activate();
+
+  const auto& lights = Sector::get().get_objects_by_type_index(typeid(AmbientLight));
+  m_light = lights.empty() ? nullptr : static_cast<AmbientLight*>(lights.front());
 }
 
 void
@@ -65,9 +75,8 @@ Ghostflame::active_update(float dt_sec)
 bool
 Ghostflame::in_bright_light() const
 {
-  for (auto* object : Sector::get().get_objects_by_type_index(typeid(AmbientLight)))
-    if (static_cast<AmbientLight*>(object)->get_ambient_light() == Color::WHITE)
-      return true;
+  if (m_light && m_light->get_ambient_light() == Color::WHITE)
+    return true;
 
   const Player& tux = Sector::get().get_player();
   if (tux.get_status().bonus != EARTH_BONUS || tux.is_dying())
