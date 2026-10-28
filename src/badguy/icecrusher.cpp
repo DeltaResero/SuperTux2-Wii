@@ -134,7 +134,7 @@ IceCrusher::collision(GameObject& other, const CollisionHit& hit)
     if (player->is_invincible()) {
       return ABORT_MOVE;
     }
-    player->kill(false);
+    player->kill(true);
     return FORCE_MOVE;
   }
   auto badguy = dynamic_cast<BadGuy*>(&other);
