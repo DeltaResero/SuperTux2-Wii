@@ -31,6 +31,7 @@
 #include "object/water_drop.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/tile.hpp"
@@ -40,6 +41,10 @@
 static const float SQUISH_TIME = 2;
 static const float GEAR_TIME = 2;
 static const float BURN_TIME = 1;
+
+static const float SHEEN_SWEEP = 0.4f;
+static const float SHEEN_PERIOD = 3.0f;
+static const float SHEEN_STRENGTH = 0.7f;
 
 static const float X_OFFSCREEN_DISTANCE = 1280;
 static const float Y_OFFSCREEN_DISTANCE = 800;
@@ -73,7 +78,8 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   m_state_timer(),
   m_on_ground_flag(false),
   m_floor_normal(0.0f, 0.0f),
-  m_colgroup_active(COLGROUP_MOVING)
+  m_colgroup_active(COLGROUP_MOVING),
+  m_sheen_time(-1.0f)
 {
   SoundManager::current()->preload("sounds/squish.flac");
   SoundManager::current()->preload("sounds/fall.flac");
@@ -107,7 +113,8 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   m_state_timer(),
   m_on_ground_flag(false),
   m_floor_normal(0.0f, 0.0f),
-  m_colgroup_active(COLGROUP_MOVING)
+  m_colgroup_active(COLGROUP_MOVING),
+  m_sheen_time(-1.0f)
 {
   std::string dir_str = "auto";
   reader.get("direction", dir_str);
@@ -140,11 +147,29 @@ BadGuy::draw(DrawingContext& context)
     context.pop_transform();
   } else {
     m_sprite->draw(context.color(), get_pos(), m_layer);
+    draw_sheen(context);
   }
 
   if (m_glowing) {
     m_lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
   }
+}
+
+void
+BadGuy::draw_sheen(DrawingContext& context)
+{
+  if (!m_frozen)
+  {
+    m_sheen_time = -1.0f;
+    return;
+  }
+
+  // Once as it freezes, then every few seconds, each frozen badguy on its own beat
+  if (m_sheen_time < 0.0f) m_sheen_time = g_game_time;
+  while (g_game_time >= m_sheen_time + SHEEN_SWEEP)
+    m_sheen_time += graphicsRandom.randf(SHEEN_PERIOD - 0.5f, SHEEN_PERIOD + 0.5f);
+  if (g_game_time < m_sheen_time) return;
+  m_sprite->draw_sheen(context.color(), get_pos(), m_layer, (g_game_time - m_sheen_time) / SHEEN_SWEEP, SHEEN_STRENGTH);
 }
 
 void

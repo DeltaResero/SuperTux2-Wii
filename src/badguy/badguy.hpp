@@ -222,6 +222,9 @@ protected:
 private:
   void try_activate();
 
+  /** A frozen badguy glints now and then */
+  void draw_sheen(DrawingContext& context);
+
 protected:
   Physic m_physic;
 
@@ -276,6 +279,9 @@ private:
 
   /** CollisionGroup the badguy should be in while active */
   CollisionGroup m_colgroup_active;
+
+  /** When the next glint starts while frozen, negative while thawed */
+  float m_sheen_time;
 
 private:
   BadGuy(const BadGuy&) = delete;

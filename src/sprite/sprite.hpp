@@ -38,6 +38,10 @@ public:
   void draw(Canvas& canvas, const Vector& pos, int layer,
             Flip flip = NO_FLIP);
 
+  /** Brightens the frame drawn at pos under a sliding band, see Canvas::draw_sheen */
+  void draw_sheen(Canvas& canvas, const Vector& pos, int layer, float across, float strength,
+                  Flip flip = NO_FLIP);
+
   /** Draw sprite stretched over a rectangle, ignoring the action's offset and the sprite's angle */
   void draw_scaled(Canvas& canvas, const Rectf& dest, int layer,
                    Flip flip = NO_FLIP);

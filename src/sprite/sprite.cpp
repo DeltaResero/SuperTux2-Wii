@@ -164,6 +164,26 @@ Sprite::draw(Canvas& canvas, const Vector& pos, int layer,
 }
 
 void
+Sprite::draw_sheen(Canvas& canvas, const Vector& pos, int layer, float across, float strength,
+                   Flip flip)
+{
+  assert(m_action != nullptr);
+  // Turned, the band wouldn't line up with the picture
+  if (m_angle != 0.0f) return;
+
+  DrawingContext& context = canvas.get_context();
+  context.push_transform();
+
+  context.set_flip(context.get_flip() ^ flip);
+  context.set_alpha(context.get_alpha() * m_alpha);
+
+  canvas.draw_sheen(m_action->surfaces[m_frameidx], pos - Vector(m_action->x_offset, m_action->y_offset),
+                    across, strength, m_color, layer);
+
+  context.pop_transform();
+}
+
+void
 Sprite::draw_scaled(Canvas& canvas, const Rectf& dest, int layer,
                     Flip flip)
 {
