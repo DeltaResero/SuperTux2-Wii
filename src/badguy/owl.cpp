@@ -120,8 +120,11 @@ Owl::active_update (float dt_sec)
 }
 
 bool
-Owl::collision_squished(GameObject&)
+Owl::collision_squished(GameObject& object)
 {
+  if (m_frozen)
+    return BadGuy::collision_squished(object);
+
   auto player = Sector::get().get_nearest_player(m_col.m_bbox);
   if (player)
     player->bounce (*this);

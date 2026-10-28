@@ -109,6 +109,9 @@ LeafShot::is_freezable() const
 bool
 LeafShot::collision_squished(GameObject& object)
 {
+  if (m_frozen)
+    return BadGuy::collision_squished(object);
+
   m_sprite->set_action(m_dir == Direction::LEFT ? "squished-left" : "squished-right");
   // Spawn death particles
   spawn_explosion_sprites(3, "images/particles/leafshot.sprite");
