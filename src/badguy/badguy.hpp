@@ -69,6 +69,10 @@ public:
   /** Call this, if you use custom kill_fall() or kill_squashed(GameObject& object) */
   virtual void run_dead_script();
 
+  /** Kills the badguys that falling's bottom edge reaches as it drops by fall, as the collision pass settles a solid
+      object onto a badguy like onto ground and never reports the hit */
+  static void crush_below(const MovingObject& falling, float fall);
+
   /** True if this badguy can break bricks or open bonusblocks in his
       current form. */
   virtual bool can_break() const { return false; }

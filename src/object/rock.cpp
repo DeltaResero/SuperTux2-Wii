@@ -20,6 +20,7 @@
 #include <cmath>
 
 #include "audio/sound_manager.hpp"
+#include "badguy/badguy.hpp"
 #include "object/explosion.hpp"
 #include "object/coin.hpp"
 #include "supertux/sector.hpp"
@@ -79,8 +80,11 @@ Rock::Rock(const ReaderMapping& reader, const std::string& spritename) :
 void
 Rock::update(float dt_sec)
 {
-  if (!is_grabbed())
-    m_col.set_movement(physic.get_movement(dt_sec));
+  if (is_grabbed()) return;
+
+  m_col.set_movement(physic.get_movement(dt_sec));
+  if (!on_ground && physic.get_velocity_y() > 200)
+    BadGuy::crush_below(*this, m_col.get_movement().y);
 }
 
 void

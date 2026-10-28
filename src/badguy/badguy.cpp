@@ -173,6 +173,25 @@ BadGuy::draw_sheen(DrawingContext& context)
 }
 
 void
+BadGuy::crush_below(const MovingObject& falling, float fall)
+{
+  const Rectf& bbox = falling.get_bbox();
+  const Rectf below(bbox.get_left(), bbox.get_bottom(), bbox.get_right(), bbox.get_bottom() + fall);
+  for (auto* object : Sector::get().get_nearby_objects(below.get_middle(), bbox.get_width() + fall))
+  {
+    auto badguy = dynamic_cast<BadGuy*>(object);
+    if (!badguy || badguy == &falling || !badguy->is_active() || badguy->get_group() == COLGROUP_TOUCHABLE)
+      continue;
+    // Only one coming up from underneath, not one already overlapped
+    const Rectf& other = badguy->get_bbox();
+    if (other.get_top() < bbox.get_bottom() - 1.0f || other.get_top() > below.get_bottom() ||
+        other.get_right() <= bbox.get_left() || other.get_left() >= bbox.get_right())
+      continue;
+    badguy->kill_fall();
+  }
+}
+
+void
 BadGuy::update(float dt_sec)
 {
   if (!Sector::get().inside(m_col.m_bbox)) {
