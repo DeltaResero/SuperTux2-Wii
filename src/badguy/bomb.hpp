@@ -21,12 +21,10 @@
 #include <string>
 
 #include "badguy/badguy.hpp"
-#include "object/portable.hpp"
 
 class SoundSource;
 
-class Bomb final : public BadGuy,
-                   public Portable
+class Bomb final : public BadGuy
 {
 public:
   Bomb(const Vector& pos, Direction dir, const std::string& custom_sprite = "images/creatures/mr_bomb/bomb.sprite" );
@@ -42,6 +40,7 @@ public:
 
   virtual void grab(MovingObject& object, const Vector& pos, Direction dir) override;
   virtual void ungrab(MovingObject& object, Direction dir) override;
+  virtual bool is_portable() const override { return true; }
 
   virtual void stop_looping_sounds() override;
   virtual void play_looping_sounds() override;

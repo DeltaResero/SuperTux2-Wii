@@ -34,6 +34,8 @@ public:
   virtual void active_update(float) override;
 
   virtual bool is_freezable() const override;
+  /** Part of the level, even frozen */
+  virtual bool is_portable() const override { return false; }
 
   virtual void ignite() override;
 

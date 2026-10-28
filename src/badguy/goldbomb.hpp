@@ -23,11 +23,10 @@
 #include <string>
 
 #include "badguy/walking_badguy.hpp"
-#include "object/portable.hpp"
 
 class SoundSource;
 
-class GoldBomb final : public WalkingBadguy, public Portable
+class GoldBomb final : public WalkingBadguy
 {
 public:
   GoldBomb(const ReaderMapping& reader);

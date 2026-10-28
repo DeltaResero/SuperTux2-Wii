@@ -196,8 +196,7 @@ void
 BadGuy::update(float dt_sec)
 {
   if (!Sector::get().inside(m_col.m_bbox)) {
-    auto this_portable = dynamic_cast<Portable*> (this);
-    if (!this_portable || !this_portable->is_grabbed())
+    if (!is_grabbed())
     {
       run_dead_script();
       m_is_active_flag = false;
@@ -223,11 +222,18 @@ BadGuy::update(float dt_sec)
   switch (m_state) {
     case STATE_ACTIVE: {
       m_is_active_flag = true;
+      // Held frozen, it goes where Tux puts it
+      if (m_frozen && is_grabbed())
+        break;
       active_update(dt_sec);
       // Frozen, it lands on another badguy as hard as a rock, except one that's frozen too
-      auto portable = dynamic_cast<Portable*>(this);
-      if (m_frozen && m_col.get_movement().y > 0.0f && !(portable && portable->is_grabbed()))
+      if (m_frozen && m_col.get_movement().y > 0.0f && !is_grabbed())
         crush_below(*this, m_col.get_movement().y, true);
+      // A thrown one stops where it lands, whatever its own landing does
+      if (m_frozen && m_physic.get_velocity_x() != 0.0f && m_physic.get_velocity_y() >= 0.0f &&
+          !Sector::get().is_free_of_statics(Rectf(m_col.m_bbox.get_left() + 1.0f, m_col.m_bbox.get_bottom(),
+                                                  m_col.m_bbox.get_right() - 1.0f, m_col.m_bbox.get_bottom() + 1.0f), this))
+        m_physic.set_velocity_x(0.0f);
     } break;
 
     case STATE_INIT:
@@ -793,6 +799,47 @@ bool
 BadGuy::is_freezable() const
 {
   return false;
+}
+
+void
+BadGuy::grab(MovingObject& object, const Vector& pos, Direction dir_)
+{
+  Portable::grab(object, pos, dir_);
+  m_col.set_movement(pos - get_pos());
+  m_dir = dir_;
+  if (m_frozen && m_sprite->has_action("iced-left"))
+    m_sprite->set_action(m_dir == Direction::LEFT ? "iced-left" : "iced-right", 1);
+  set_group(COLGROUP_DISABLED);
+}
+
+void
+BadGuy::ungrab(MovingObject& object, Direction dir_)
+{
+  set_group(m_frozen ? COLGROUP_MOVING_STATIC : m_colgroup_active);
+  auto player = dynamic_cast<Player*>(&object);
+  if (player && m_frozen)
+  {
+    m_physic.enable_gravity(true);
+    if (player->is_swimming() || player->is_water_jumping())
+    {
+      float swimangle = player->get_swimming_angle();
+      m_physic.set_velocity(player->get_velocity() + Vector(std::cos(swimangle), std::sin(swimangle)));
+    }
+    else
+    {
+      m_physic.set_velocity_x(fabsf(player->get_physic().get_velocity_x()) < 1.f ? 0.f :
+        player->m_dir == Direction::LEFT ? -200.f : 200.f);
+      m_physic.set_velocity_y((dir_ == Direction::UP) ? -500.f : (dir_ == Direction::DOWN) ? 500.f :
+        (glm::length(m_col.get_movement()) > 1) ? -200.f : 0.f);
+    }
+  }
+  Portable::ungrab(object, dir_);
+}
+
+bool
+BadGuy::is_portable() const
+{
+  return m_frozen;
 }
 
 bool

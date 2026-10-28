@@ -21,9 +21,8 @@
 #include <string>
 
 #include "badguy/badguy.hpp"
-#include "object/portable.hpp"
 
-class SkyDive final : public BadGuy, public Portable
+class SkyDive final : public BadGuy
 {
 public:
   SkyDive(const ReaderMapping& reader);
@@ -37,6 +36,7 @@ public:
   /* Inherited from Portable */
   virtual void grab(MovingObject& object, const Vector& pos, Direction dir) override;
   virtual void ungrab(MovingObject& object, Direction dir) override;
+  virtual bool is_portable() const override { return true; }
   virtual std::string get_class() const override { return "skydive"; }
 
 private:

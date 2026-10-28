@@ -85,9 +85,9 @@ WalkingBadguy::active_update(float dt_sec, float dest_x_velocity, float modifier
 
   float current_x_velocity = m_physic.get_velocity_x ();
 
+  // Frozen, it only moves when thrown
   if (m_frozen)
   {
-    m_physic.set_velocity_x (0.0);
     m_physic.set_acceleration_x (0.0);
   }
   /* We're very close to our target speed. Just set it to avoid oscillation */

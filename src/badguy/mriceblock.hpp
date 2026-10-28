@@ -20,10 +20,8 @@
 #include <string>
 
 #include "badguy/walking_badguy.hpp"
-#include "object/portable.hpp"
 
-class MrIceBlock : public WalkingBadguy,
-                   public Portable
+class MrIceBlock : public WalkingBadguy
 {
 public:
   MrIceBlock(const ReaderMapping& reader);
