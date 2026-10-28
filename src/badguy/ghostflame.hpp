@@ -26,9 +26,19 @@ class Ghostflame final : public Flame
 public:
   Ghostflame(const ReaderMapping& reader);
 
+  virtual void active_update(float dt_sec) override;
+
   virtual bool is_flammable() const override;
   virtual bool is_freezable() const override;
   virtual std::string get_class() const override { return "ghostflame"; }
+
+private:
+  /** Full light, or the beam of Earth Tux's lamp */
+  bool in_bright_light() const;
+
+private:
+  /** Fades out once bright light reaches it, negative until then */
+  float m_fade;
 
 private:
   Ghostflame(const Ghostflame&) = delete;

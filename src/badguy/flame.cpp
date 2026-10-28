@@ -69,10 +69,14 @@ Flame::active_update(float dt_sec)
   if (m_col.get_group() == COLGROUP_DISABLED)
     return;
   MrIceBlock::douse_held(*this);
-  // Water puts it out once its middle is under, which it has to look for itself as it never touches tiles
-  if (is_freezable() && m_col.get_group() != COLGROUP_DISABLED &&
-      !Sector::get().is_free_of_tiles(Rectf(m_col.m_bbox.get_middle(), Sizef(1.0f, 1.0f)), false, Tile::WATER))
+  // Water puts out fire and lava melts ice once its middle is in, which it has to look for itself as it never touches tiles
+  if (m_col.get_group() == COLGROUP_DISABLED)
+    return;
+  const Rectf middle(m_col.m_bbox.get_middle(), Sizef(1.0f, 1.0f));
+  if (is_freezable() && !Sector::get().is_free_of_tiles(middle, false, Tile::WATER))
     freeze();
+  else if (is_flammable() && !Sector::get().is_free_of_tiles(middle, false, Tile::FIRE))
+    ignite();
 }
 
 void
