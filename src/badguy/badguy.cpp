@@ -22,6 +22,8 @@
 
 #include "audio/sound_manager.hpp"
 #include "badguy/dispenser.hpp"
+#include "badguy/flame.hpp"
+#include "badguy/livefire.hpp"
 #include "math/random.hpp"
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
@@ -48,6 +50,12 @@ static const float SHEEN_STRENGTH = 0.7f;
 
 static const float X_OFFSCREEN_DISTANCE = 1280;
 static const float Y_OFFSCREEN_DISTANCE = 800;
+
+/** Real fire, not an ice or ghost flame */
+static bool is_fire(const BadGuy& badguy)
+{
+  return (dynamic_cast<const Flame*>(&badguy) || dynamic_cast<const LiveFire*>(&badguy)) && badguy.is_freezable();
+}
 
 BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
                const std::string& light_sprite_name) :
@@ -391,6 +399,9 @@ BadGuy::collision(GameObject& other, const CollisionHit& hit)
   if (!is_active()) return ABORT_MOVE;
 
   auto badguy = dynamic_cast<BadGuy*> (&other);
+  // Fire thaws a frozen badguy it touches
+  if (m_frozen && badguy && badguy->is_active() && is_fire(*badguy))
+    unfreeze();
   if (badguy && badguy->is_active() && badguy->m_col.get_group() == COLGROUP_MOVING) {
 
     /* Badguys don't let badguys squish other badguys. It's bad. */
