@@ -26,6 +26,7 @@
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
+#include "supertux/tile.hpp"
 #include "util/reader_mapping.hpp"
 
 static const std::string FLAME_SOUND = "sounds/flame.flac";
@@ -65,8 +66,13 @@ Flame::active_update(float dt_sec)
 
   if (m_sprite->get_action() == "fade" && m_sprite->animation_done()) remove_me();
 
-  if (m_col.get_group() != COLGROUP_DISABLED)
-    MrIceBlock::douse_held(*this);
+  if (m_col.get_group() == COLGROUP_DISABLED)
+    return;
+  MrIceBlock::douse_held(*this);
+  // Water puts it out once its middle is under, which it has to look for itself as it never touches tiles
+  if (is_freezable() && m_col.get_group() != COLGROUP_DISABLED &&
+      !Sector::get().is_free_of_tiles(Rectf(m_col.m_bbox.get_middle(), Sizef(1.0f, 1.0f)), false, Tile::WATER))
+    freeze();
 }
 
 void

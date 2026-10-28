@@ -22,6 +22,7 @@
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/sector.hpp"
+#include "supertux/tile.hpp"
 
 LiveFire::LiveFire(const ReaderMapping& reader) :
   WalkingBadguy(reader, "images/creatures/livefire/livefire.sprite", "left", "right"),
@@ -95,6 +96,18 @@ LiveFire::active_update(float dt_sec) {
   }
 
   BadGuy::active_update(dt_sec);
+}
+
+void
+LiveFire::collision_tile(uint32_t tile_attributes)
+{
+  // Water puts it out
+  if ((tile_attributes & Tile::WATER) && is_active())
+  {
+    freeze();
+    return;
+  }
+  WalkingBadguy::collision_tile(tile_attributes);
 }
 
 void
