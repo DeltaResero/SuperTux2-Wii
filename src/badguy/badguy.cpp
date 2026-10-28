@@ -478,6 +478,8 @@ BadGuy::collision_player(Player& player, const CollisionHit& )
       auto badguy = dynamic_cast<BadGuy*>(player.get_grabbed_object());
       if(badguy != nullptr)
       {
+        // What he holds takes the hit, and the blast if either one is a bomb
+        player.shield_from_blast();
         player.get_grabbed_object()->ungrab(player, player.m_dir);
         player.stop_grabbing();
         badguy->kill_fall();

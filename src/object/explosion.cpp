@@ -150,7 +150,7 @@ Explosion::collision(GameObject& other, const CollisionHit& )
     return ABORT_MOVE;
 
   auto player = dynamic_cast<Player*>(&other);
-  if (player != nullptr) {
+  if (player != nullptr && !player->is_shielded_from_blast()) {
     player->kill(false);
   }
 

@@ -97,6 +97,9 @@ public:
   void make_invincible();
 
   bool is_invincible() const { return m_invincible_timer.started(); }
+  /** Something he held took a blast for him, so for a moment explosions push him without hurting him */
+  void shield_from_blast();
+  bool is_shielded_from_blast() const { return m_blast_shield_timer.started(); }
   bool is_dying() const { return m_dying; }
 
   Direction peeking_direction_x() const { return m_peekingX; }
@@ -306,6 +309,7 @@ public:
 private:
   Timer m_skidding_timer;
   Timer m_safe_timer;
+  Timer m_blast_shield_timer;
   Timer m_kick_timer;
   Timer m_shooting_timer;   // used to show the arm when Tux is shooting
   Timer m_ability_timer;  // maximum lengh of time that special abilities can last

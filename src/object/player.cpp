@@ -57,6 +57,8 @@ namespace {
 
 /* Times: */
 const float TUX_SAFE_TIME = 1.8f;
+/** Long enough to outlast an explosion's hurting frames */
+const float BLAST_SHIELD_TIME = 0.75f;
 const float TUX_INVINCIBLE_TIME = 14.0f;
 const float TUX_BACKFLIP_TIME = 2.1f; // minimum air time that backflip results in a loss of control
 
@@ -188,6 +190,7 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
   m_invincible_timer(),
   m_skidding_timer(),
   m_safe_timer(),
+  m_blast_shield_timer(),
   m_kick_timer(),
   m_shooting_timer(),
   m_ability_timer(),
@@ -1875,6 +1878,12 @@ Player::on_flip(float height)
   Vector pos = get_pos();
   pos.y = height - pos.y - get_bbox().get_height();
   move(pos);
+}
+
+void
+Player::shield_from_blast()
+{
+  m_blast_shield_timer.start(BLAST_SHIELD_TIME);
 }
 
 void
