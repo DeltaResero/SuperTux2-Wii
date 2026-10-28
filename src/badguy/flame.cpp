@@ -19,6 +19,7 @@
 #include <cmath>
 
 #include "audio/sound_manager.hpp"
+#include "badguy/stalactite.hpp"
 #include "math/util.hpp"
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite.hpp"
@@ -86,6 +87,15 @@ Flame::deactivate()
 void
 Flame::kill_fall()
 {
+}
+
+HitResponse
+Flame::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
+{
+  // Only a falling stalactite gets here, and it puts the flame out like an iceball does
+  if (dynamic_cast<Stalactite*>(&badguy) && is_freezable())
+    freeze();
+  return BadGuy::collision_badguy(badguy, hit);
 }
 
 void
