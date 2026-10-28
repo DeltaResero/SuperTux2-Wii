@@ -173,14 +173,15 @@ BadGuy::draw_sheen(DrawingContext& context)
 }
 
 void
-BadGuy::crush_below(const MovingObject& falling, float fall)
+BadGuy::crush_below(const MovingObject& falling, float fall, bool spare_frozen)
 {
   const Rectf& bbox = falling.get_bbox();
   const Rectf below(bbox.get_left(), bbox.get_bottom(), bbox.get_right(), bbox.get_bottom() + fall);
   for (auto* object : Sector::get().get_nearby_objects(below.get_middle(), bbox.get_width() + fall))
   {
     auto badguy = dynamic_cast<BadGuy*>(object);
-    if (!badguy || badguy == &falling || !badguy->is_active() || badguy->get_group() == COLGROUP_TOUCHABLE)
+    if (!badguy || badguy == &falling || !badguy->is_active() || badguy->get_group() == COLGROUP_TOUCHABLE ||
+        (spare_frozen && badguy->is_frozen()))
       continue;
     // Only one coming up from underneath, not one already overlapped
     const Rectf& other = badguy->get_bbox();
@@ -220,10 +221,14 @@ BadGuy::update(float dt_sec)
   }
 
   switch (m_state) {
-    case STATE_ACTIVE:
+    case STATE_ACTIVE: {
       m_is_active_flag = true;
       active_update(dt_sec);
-      break;
+      // Frozen, it lands on another badguy as hard as a rock, except one that's frozen too
+      auto portable = dynamic_cast<Portable*>(this);
+      if (m_frozen && m_col.get_movement().y > 0.0f && !(portable && portable->is_grabbed()))
+        crush_below(*this, m_col.get_movement().y, true);
+    } break;
 
     case STATE_INIT:
     case STATE_INACTIVE:
