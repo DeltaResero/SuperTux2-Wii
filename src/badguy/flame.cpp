@@ -19,6 +19,7 @@
 #include <cmath>
 
 #include "audio/sound_manager.hpp"
+#include "badguy/mriceblock.hpp"
 #include "badguy/stalactite.hpp"
 #include "math/util.hpp"
 #include "object/sprite_particle.hpp"
@@ -63,6 +64,9 @@ Flame::active_update(float dt_sec)
   sound_source->set_position(get_pos());
 
   if (m_sprite->get_action() == "fade" && m_sprite->animation_done()) remove_me();
+
+  if (m_col.get_group() != COLGROUP_DISABLED)
+    MrIceBlock::douse_held(*this);
 }
 
 void
@@ -92,9 +96,12 @@ Flame::kill_fall()
 HitResponse
 Flame::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
 {
-  // Only a falling stalactite gets here, and it puts the flame out like an iceball does
-  if (dynamic_cast<Stalactite*>(&badguy) && is_freezable())
+  // A falling stalactite puts the flame out like an iceball does, and so does a shell, which melts doing it
+  auto shell = dynamic_cast<MrIceBlock*>(&badguy);
+  if ((dynamic_cast<Stalactite*>(&badguy) || (shell && shell->is_shell())) && is_freezable()) {
     freeze();
+    if (shell) shell->melt();
+  }
   return BadGuy::collision_badguy(badguy, hit);
 }
 

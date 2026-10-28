@@ -20,6 +20,8 @@
 #include <cmath>
 
 #include "audio/sound_manager.hpp"
+#include "badguy/livefire.hpp"
+#include "collision/collision.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/sector.hpp"
@@ -153,6 +155,12 @@ MrIceBlock::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
     case ICESTATE_WAKING:
       return FORCE_MOVE;
     case ICESTATE_KICKED:
+      // A walking flame goes out instead, and the shell melts away
+      if (dynamic_cast<LiveFire*>(&badguy) && badguy.is_freezable()) {
+        badguy.freeze();
+        melt();
+        return FORCE_MOVE;
+      }
       badguy.kill_fall();
       return FORCE_MOVE;
     default:
@@ -302,6 +310,28 @@ bool
 MrIceBlock::is_portable() const
 {
   return ice_state == ICESTATE_FLAT;
+}
+
+void
+MrIceBlock::melt()
+{
+  if (auto player = dynamic_cast<Player*>(m_owner)) {
+    player->stop_grabbing();
+    Portable::ungrab(*player, m_dir);
+    set_colgroup_active(COLGROUP_MOVING);
+  }
+  ignite();
+}
+
+bool
+MrIceBlock::douse_held(BadGuy& fire)
+{
+  auto shell = dynamic_cast<MrIceBlock*>(Sector::get().get_player().get_grabbed_object());
+  if (!shell || !fire.is_freezable() || !collision::intersects(shell->get_bbox(), fire.get_bbox()))
+    return false;
+  fire.freeze();
+  shell->melt();
+  return true;
 }
 
 void

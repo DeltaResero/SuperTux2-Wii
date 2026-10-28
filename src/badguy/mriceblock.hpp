@@ -44,6 +44,16 @@ public:
 
   virtual void ignite() override;
 
+  /** Out of his walk, he's a shell that puts fire out */
+  bool is_shell() const { return ice_state != ICESTATE_NORMAL; }
+
+  /** Melts away, out of Tux's hands first if he's holding it */
+  void melt();
+
+  /** The shell Tux holds doesn't collide, so a fire looks for it: if they touch, the fire goes out and the shell
+      melts, before the fire reaches him; true if it did */
+  static bool douse_held(BadGuy& fire);
+
   virtual std::string get_class() const override { return "mriceblock"; }
 
   bool can_break();
