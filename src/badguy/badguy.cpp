@@ -466,11 +466,12 @@ BadGuy::on_flip(float height)
 HitResponse
 BadGuy::collision_player(Player& player, const CollisionHit& )
 {
-  if (player.is_invincible()) {
+  // A frozen one stays solid to star Tux so he can pick it up, and his star keeps the one he holds safe
+  if (player.is_invincible() && !m_frozen) {
     kill_fall();
     return ABORT_MOVE;
   }
-  if(player.get_grabbed_object() != nullptr)
+  if(player.get_grabbed_object() != nullptr && !player.is_invincible())
   {
       auto badguy = dynamic_cast<BadGuy*>(player.get_grabbed_object());
       if(badguy != nullptr)
