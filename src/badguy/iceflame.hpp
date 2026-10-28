@@ -27,6 +27,7 @@ public:
   Iceflame(const ReaderMapping& reader);
 
   virtual void active_update(float dt_sec) override;
+  virtual HitResponse collision_badguy(BadGuy& badguy, const CollisionHit& hit) override;
 
   virtual void ignite() override;
   virtual bool is_flammable() const override;

@@ -17,9 +17,12 @@
 #include "badguy/iceflame.hpp"
 
 #include <cmath>
+#include <typeinfo>
 
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
+#include "badguy/livefire.hpp"
+#include "collision/collision.hpp"
 #include "math/util.hpp"
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite.hpp"
@@ -36,6 +39,32 @@ Iceflame::active_update(float dt_sec)
 {
   Flame::active_update(dt_sec);
   m_sprite->set_angle(math::degrees(angle) * 3.0f);
+
+  // It and an orbiting fire put each other out, which the collision pass can't see as it never lets two flames touch
+  if (m_col.get_group() == COLGROUP_DISABLED)
+    return;
+  for (auto* object : Sector::get().get_objects_by_type_index(typeid(Flame)))
+  {
+    auto& fire = static_cast<Flame&>(*object);
+    if (fire.get_group() != COLGROUP_DISABLED && collision::intersects(get_bbox(), fire.get_bbox()))
+    {
+      fire.freeze();
+      ignite();
+      return;
+    }
+  }
+}
+
+HitResponse
+Iceflame::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
+{
+  // It and a walking flame put each other out
+  if (dynamic_cast<LiveFire*>(&badguy) && m_col.get_group() != COLGROUP_DISABLED)
+  {
+    badguy.freeze();
+    ignite();
+  }
+  return Flame::collision_badguy(badguy, hit);
 }
 
 void
