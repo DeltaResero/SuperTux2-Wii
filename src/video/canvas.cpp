@@ -438,7 +438,7 @@ Canvas::draw_reflection(Painter& painter, const TextureRequest& mirror, Filter f
     {
       // Another shiny picture isn't part of what's reflected, as with OpenGL 3.3, nor is the scenery
       const auto& source = static_cast<const TextureRequest&>(*request);
-      if (source.displacement_texture || !source.shines.empty() || !source.texture || source.backdrop)
+      if (source.displacement_texture || !source.shines.empty() || !source.texture || source.backdrop || !source.tints.empty())
       {
         continue;
       }
@@ -510,6 +510,71 @@ Canvas::draw_surface(const SurfacePtr& surface,
   }
   request->color = color;
 
+  m_requests.push_back(request);
+}
+
+void
+Canvas::draw_sheen(const SurfacePtr& surface, const Vector& position, float across, float strength,
+                   const Color& color, int layer)
+{
+  if (!surface || strength <= 0.0f) return;
+
+  const Sizef size(static_cast<float>(surface->get_width()), static_cast<float>(surface->get_height()));
+  const auto& cliprect = m_context.get_cliprect();
+  if (position.x > cliprect.get_right() || position.y > cliprect.get_bottom() ||
+      position.x + size.width < cliprect.get_left() || position.y + size.height < cliprect.get_top())
+    return;
+
+  const Rectf dst = place(position, size);
+  const float scale = dst.get_width() / size.width;
+  const float cell = 4.0f * scale;
+  const float width = std::max(8.0f, size.width * 0.22f) * scale;
+  // The band leans back, its middle line rising to the right
+  const float slant = 0.7f;
+  const float middle = dst.get_top() + dst.get_height() / 2.0f;
+  const float reach = slant * dst.get_height() / 2.0f + width / 2.0f;
+  const float ridge = dst.get_left() - reach + across * (dst.get_width() + 2.0f * reach);
+  const auto shown = [&](float x, float y) {
+    return strength * std::max(0.0f, 1.0f - 2.0f * std::abs(x + slant * (y - middle) - ridge) / width);
+  };
+
+  const Flip flip = m_context.transform().flip ^ surface->get_flip();
+  const Rectf region(surface->get_region());
+  std::vector<Rectf> srcrects;
+  std::vector<Rectf> dstrects;
+  std::vector<std::array<Color, 4>> tints;
+
+  // Small cells over the band, each corner as bright as the band is there
+  for (float top = dst.get_top(); top < dst.get_bottom(); top += cell)
+  {
+    const float bottom = std::min(top + cell, dst.get_bottom());
+    const float from = std::max(dst.get_left(), ridge - width / 2.0f - slant * (bottom - middle));
+    const float to = std::min(dst.get_right(), ridge + width / 2.0f - slant * (top - middle));
+    for (float left = dst.get_left() + std::floor((from - dst.get_left()) / cell) * cell; left < to; left += cell)
+    {
+      const float right = std::min(left + cell, dst.get_right());
+      const std::array<float, 4> corners{ shown(left, top), shown(right, top), shown(right, bottom), shown(left, bottom) };
+      if (corners[0] + corners[1] + corners[2] + corners[3] <= 0.0f) continue;
+      srcrects.push_back(part_of(region, dst, flip, left, top, right, bottom));
+      dstrects.emplace_back(left, top, right, bottom);
+      tints.push_back({ Color(1.0f, 1.0f, 1.0f, corners[0]), Color(1.0f, 1.0f, 1.0f, corners[1]),
+                        Color(1.0f, 1.0f, 1.0f, corners[2]), Color(1.0f, 1.0f, 1.0f, corners[3]) });
+    }
+  }
+  if (dstrects.empty()) return;
+
+  auto request = new(m_arena) TextureRequest();
+  request->layer = layer;
+  request->flip = flip;
+  request->alpha = m_context.transform().alpha;
+  request->blend = Blend::ADD;
+  request->between_pixels = between_pixels();
+  request->texture = surface->get_texture().get();
+  request->color = color;
+  request->angles.assign(dstrects.size(), 0.0f);
+  request->srcrects = std::move(srcrects);
+  request->dstrects = std::move(dstrects);
+  request->tints = std::move(tints);
   m_requests.push_back(request);
 }
 

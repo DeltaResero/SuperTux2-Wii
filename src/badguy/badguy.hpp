@@ -21,6 +21,7 @@
 #include <string>
 
 #include "object/moving_sprite.hpp"
+#include "object/portable.hpp"
 #include "scripting/badguy.hpp"
 #include "squirrel/exposed_object.hpp"
 #include "supertux/direction.hpp"
@@ -33,7 +34,8 @@ class Bullet;
 
 /** Base class for moving sprites that can hurt the Player. */
 class BadGuy : public MovingSprite,
-               public ExposedObject<BadGuy, scripting::BadGuy>
+               public ExposedObject<BadGuy, scripting::BadGuy>,
+               public Portable
 {
 public:
   BadGuy(const Vector& pos, const std::string& sprite_name, int layer = LAYER_OBJECTS,
@@ -69,6 +71,13 @@ public:
   /** Call this, if you use custom kill_fall() or kill_squashed(GameObject& object) */
   virtual void run_dead_script();
 
+  /** Kills the badguys that falling's bottom edge reaches as it drops by fall, frozen ones too unless spare_frozen,
+      as the collision pass settles a solid object onto a badguy like onto ground and never reports the hit */
+  static void crush_below(const MovingObject& falling, float fall, bool spare_frozen = false);
+
+  /** Real fire, a walking flame or an orbiting one, not an ice or ghost flame */
+  static bool is_fire(const BadGuy& badguy);
+
   /** True if this badguy can break bricks or open bonusblocks in his
       current form. */
   virtual bool can_break() const { return false; }
@@ -95,6 +104,11 @@ public:
   virtual void unfreeze();
 
   virtual bool is_freezable() const;
+
+  /** Frozen, Tux carries it and throws it like a rock */
+  virtual void grab(MovingObject& object, const Vector& pos, Direction dir) override;
+  virtual void ungrab(MovingObject& object, Direction dir) override;
+  virtual bool is_portable() const override;
 
   /** Return true if this badguy can be hurt by tiles
       with the attribute "hurts" */
@@ -222,6 +236,9 @@ protected:
 private:
   void try_activate();
 
+  /** A frozen badguy glints now and then */
+  void draw_sheen(DrawingContext& context);
+
 protected:
   Physic m_physic;
 
@@ -276,6 +293,9 @@ private:
 
   /** CollisionGroup the badguy should be in while active */
   CollisionGroup m_colgroup_active;
+
+  /** When the next glint starts while frozen, negative while thawed */
+  float m_sheen_time;
 
 private:
   BadGuy(const BadGuy&) = delete;

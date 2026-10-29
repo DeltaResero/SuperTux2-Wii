@@ -58,6 +58,9 @@ public:
                     int layer);
   void draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const Rectf& dstrect,
                          int layer, const PaintStyle& style = PaintStyle());
+  /** Brightens the picture under a soft slanted band, which across 0 to 1 carries from just left of it to just right */
+  void draw_sheen(const SurfacePtr& surface, const Vector& position, float across, float strength,
+                  const Color& color, int layer);
   void draw_surface_scaled(const SurfacePtr& surface, const Rectf& dstrect,
                            int layer, const PaintStyle& style = PaintStyle());
   /** fades: for each picture, the FADE_ sides that fade out between pixels; none when left empty.

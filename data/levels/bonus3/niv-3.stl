@@ -726,7 +726,7 @@
     (name "Skysector")
     (gravity 5)
     (ambient-light
-      (color 1 1 1)
+      (color 0.7 0.7 0.7)
     )
     (background
       (speed 5)

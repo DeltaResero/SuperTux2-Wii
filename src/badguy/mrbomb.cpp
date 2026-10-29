@@ -16,8 +16,6 @@
 
 #include "badguy/mrbomb.hpp"
 
-#include <cassert>
-
 #include "audio/sound_manager.hpp"
 #include "audio/sound_source.hpp"
 #include "badguy/bomb.hpp"
@@ -117,35 +115,10 @@ MrBomb::ignite()
   kill_fall();
 }
 
-void
-MrBomb::grab(MovingObject& object, const Vector& pos, Direction dir_)
-{
-  Portable::grab(object, pos, dir_);
-  assert(m_frozen);
-  m_col.set_movement(pos - get_pos());
-  m_dir = dir_;
-  m_sprite->set_action(dir_ == Direction::LEFT ? "iced-left" : "iced-right");
-  set_colgroup_active(COLGROUP_DISABLED);
-}
-
-void
-MrBomb::ungrab(MovingObject& object, Direction dir_)
-{
-  m_dir = dir_;
-  set_colgroup_active(COLGROUP_MOVING);
-  Portable::ungrab(object, dir_);
-}
-
 bool
 MrBomb::is_freezable() const
 {
   return true;
-}
-
-bool
-MrBomb::is_portable() const
-{
-  return m_frozen;
 }
 
 /* EOF */

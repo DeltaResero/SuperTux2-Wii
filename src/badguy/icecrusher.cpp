@@ -22,6 +22,7 @@
 
 #include "audio/sound_manager.hpp"
 #include "badguy/badguy.hpp"
+#include "badguy/flame.hpp"
 #include "math/util.hpp"
 #include "object/coin.hpp"
 #include "object/camera.hpp"
@@ -133,12 +134,18 @@ IceCrusher::collision(GameObject& other, const CollisionHit& hit)
     if (player->is_invincible()) {
       return ABORT_MOVE;
     }
-    player->kill(false);
+    player->kill(true);
     return FORCE_MOVE;
   }
   auto badguy = dynamic_cast<BadGuy*>(&other);
   if (badguy) {
-    badguy->kill_fall();
+    // Ice puts out a fire or an ice flame, which falling can't kill
+    if (BadGuy::is_fire(*badguy))
+      badguy->freeze();
+    else if (dynamic_cast<Flame*>(badguy) && badguy->is_flammable())
+      badguy->ignite();
+    else
+      badguy->kill_fall();
   }
 
   auto heavy_coin = dynamic_cast<HeavyCoin*>(&other);

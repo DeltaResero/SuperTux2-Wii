@@ -47,6 +47,8 @@ public:
   virtual void unfreeze() override;
   virtual bool is_freezable() const override;
   virtual bool is_flammable() const override;
+  /** Part of the level, even frozen */
+  virtual bool is_portable() const override { return false; }
   virtual std::string get_class() const override { return "dispenser"; }
 
   virtual void expose(HSQUIRRELVM vm, SQInteger table_idx) override

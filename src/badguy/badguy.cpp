@@ -22,15 +22,17 @@
 
 #include "audio/sound_manager.hpp"
 #include "badguy/dispenser.hpp"
+#include "badguy/flame.hpp"
+#include "badguy/livefire.hpp"
 #include "math/random.hpp"
 #include "object/bullet.hpp"
 #include "object/camera.hpp"
 #include "object/player.hpp"
-#include "object/portable.hpp"
 #include "object/sprite_particle.hpp"
 #include "object/water_drop.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/tile.hpp"
@@ -41,8 +43,21 @@ static const float SQUISH_TIME = 2;
 static const float GEAR_TIME = 2;
 static const float BURN_TIME = 1;
 
+static const float SHEEN_SWEEP = 0.4f;
+static const float SHEEN_PERIOD = 3.0f;
+static const float SHEEN_STRENGTH = 0.7f;
+
+/** Faster than gravity nudges a resting frozen badguy, slower than any drop onto another */
+static const float FALL_SPEED = 100.0f;
+
 static const float X_OFFSCREEN_DISTANCE = 1280;
 static const float Y_OFFSCREEN_DISTANCE = 800;
+
+bool
+BadGuy::is_fire(const BadGuy& badguy)
+{
+  return (dynamic_cast<const Flame*>(&badguy) || dynamic_cast<const LiveFire*>(&badguy)) && badguy.is_freezable();
+}
 
 BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
                const std::string& light_sprite_name) :
@@ -73,7 +88,8 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   m_state_timer(),
   m_on_ground_flag(false),
   m_floor_normal(0.0f, 0.0f),
-  m_colgroup_active(COLGROUP_MOVING)
+  m_colgroup_active(COLGROUP_MOVING),
+  m_sheen_time(-1.0f)
 {
   SoundManager::current()->preload("sounds/squish.flac");
   SoundManager::current()->preload("sounds/fall.flac");
@@ -107,7 +123,8 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   m_state_timer(),
   m_on_ground_flag(false),
   m_floor_normal(0.0f, 0.0f),
-  m_colgroup_active(COLGROUP_MOVING)
+  m_colgroup_active(COLGROUP_MOVING),
+  m_sheen_time(-1.0f)
 {
   std::string dir_str = "auto";
   reader.get("direction", dir_str);
@@ -140,6 +157,7 @@ BadGuy::draw(DrawingContext& context)
     context.pop_transform();
   } else {
     m_sprite->draw(context.color(), get_pos(), m_layer);
+    draw_sheen(context);
   }
 
   if (m_glowing) {
@@ -148,11 +166,47 @@ BadGuy::draw(DrawingContext& context)
 }
 
 void
+BadGuy::draw_sheen(DrawingContext& context)
+{
+  if (!m_frozen)
+  {
+    m_sheen_time = -1.0f;
+    return;
+  }
+
+  // Once as it freezes, then every few seconds, each frozen badguy on its own beat
+  if (m_sheen_time < 0.0f) m_sheen_time = g_game_time;
+  while (g_game_time >= m_sheen_time + SHEEN_SWEEP)
+    m_sheen_time += graphicsRandom.randf(SHEEN_PERIOD - 0.5f, SHEEN_PERIOD + 0.5f);
+  if (g_game_time < m_sheen_time) return;
+  m_sprite->draw_sheen(context.color(), get_pos(), m_layer, (g_game_time - m_sheen_time) / SHEEN_SWEEP, SHEEN_STRENGTH);
+}
+
+void
+BadGuy::crush_below(const MovingObject& falling, float fall, bool spare_frozen)
+{
+  const Rectf& bbox = falling.get_bbox();
+  const Rectf below(bbox.get_left(), bbox.get_bottom(), bbox.get_right(), bbox.get_bottom() + fall);
+  for (auto* object : Sector::get().get_nearby_objects(below.get_middle(), bbox.get_width() + fall))
+  {
+    auto badguy = dynamic_cast<BadGuy*>(object);
+    if (!badguy || badguy == &falling || !badguy->is_active() || badguy->get_group() == COLGROUP_TOUCHABLE ||
+        (spare_frozen && badguy->is_frozen()))
+      continue;
+    // Only one coming up from underneath, not one already overlapped
+    const Rectf& other = badguy->get_bbox();
+    if (other.get_top() < bbox.get_bottom() - 1.0f || other.get_top() > below.get_bottom() ||
+        other.get_right() <= bbox.get_left() || other.get_left() >= bbox.get_right())
+      continue;
+    badguy->kill_fall();
+  }
+}
+
+void
 BadGuy::update(float dt_sec)
 {
   if (!Sector::get().inside(m_col.m_bbox)) {
-    auto this_portable = dynamic_cast<Portable*> (this);
-    if (!this_portable || !this_portable->is_grabbed())
+    if (!is_grabbed())
     {
       run_dead_script();
       m_is_active_flag = false;
@@ -176,10 +230,21 @@ BadGuy::update(float dt_sec)
   }
 
   switch (m_state) {
-    case STATE_ACTIVE:
+    case STATE_ACTIVE: {
       m_is_active_flag = true;
+      // Held frozen, it goes where Tux puts it
+      if (m_frozen && is_grabbed())
+        break;
       active_update(dt_sec);
-      break;
+      // Frozen, it lands on another badguy as hard as a rock, except one that's frozen too; resting, gravity still nudges it down
+      if (m_frozen && m_physic.get_velocity_y() > FALL_SPEED && !is_grabbed())
+        crush_below(*this, m_col.get_movement().y, true);
+      // A thrown one stops where it lands, whatever its own landing does
+      if (m_frozen && m_physic.get_velocity_x() != 0.0f && m_physic.get_velocity_y() >= 0.0f &&
+          !Sector::get().is_free_of_statics(Rectf(m_col.m_bbox.get_left() + 1.0f, m_col.m_bbox.get_bottom(),
+                                                  m_col.m_bbox.get_right() - 1.0f, m_col.m_bbox.get_bottom() + 1.0f), this))
+        m_physic.set_velocity_x(0.0f);
+    } break;
 
     case STATE_INIT:
     case STATE_INACTIVE:
@@ -336,6 +401,9 @@ BadGuy::collision(GameObject& other, const CollisionHit& hit)
   if (!is_active()) return ABORT_MOVE;
 
   auto badguy = dynamic_cast<BadGuy*> (&other);
+  // Fire thaws a frozen badguy it touches
+  if (m_frozen && badguy && badguy->is_active() && is_fire(*badguy))
+    unfreeze();
   if (badguy && badguy->is_active() && badguy->m_col.get_group() == COLGROUP_MOVING) {
 
     /* Badguys don't let badguys squish other badguys. It's bad. */
@@ -400,15 +468,18 @@ BadGuy::on_flip(float height)
 HitResponse
 BadGuy::collision_player(Player& player, const CollisionHit& )
 {
-  if (player.is_invincible()) {
+  // A frozen one stays solid to star Tux so he can pick it up, and his star keeps the one he holds safe
+  if (player.is_invincible() && !m_frozen) {
     kill_fall();
     return ABORT_MOVE;
   }
-  if(player.get_grabbed_object() != nullptr)
+  if(player.get_grabbed_object() != nullptr && !player.is_invincible())
   {
       auto badguy = dynamic_cast<BadGuy*>(player.get_grabbed_object());
       if(badguy != nullptr)
       {
+        // What he holds takes the hit, and the blast if either one is a bomb
+        player.shield_from_blast();
         player.get_grabbed_object()->ungrab(player, player.m_dir);
         player.stop_grabbing();
         badguy->kill_fall();
@@ -744,6 +815,47 @@ bool
 BadGuy::is_freezable() const
 {
   return false;
+}
+
+void
+BadGuy::grab(MovingObject& object, const Vector& pos, Direction dir_)
+{
+  Portable::grab(object, pos, dir_);
+  m_col.set_movement(pos - get_pos());
+  m_dir = dir_;
+  if (m_frozen && m_sprite->has_action("iced-left"))
+    m_sprite->set_action(m_dir == Direction::LEFT ? "iced-left" : "iced-right", 1);
+  set_group(COLGROUP_DISABLED);
+}
+
+void
+BadGuy::ungrab(MovingObject& object, Direction dir_)
+{
+  set_group(m_frozen ? COLGROUP_MOVING_STATIC : m_colgroup_active);
+  auto player = dynamic_cast<Player*>(&object);
+  if (player && m_frozen)
+  {
+    m_physic.enable_gravity(true);
+    if (player->is_swimming() || player->is_water_jumping())
+    {
+      float swimangle = player->get_swimming_angle();
+      m_physic.set_velocity(player->get_velocity() + Vector(std::cos(swimangle), std::sin(swimangle)));
+    }
+    else
+    {
+      m_physic.set_velocity_x(fabsf(player->get_physic().get_velocity_x()) < 1.f ? 0.f :
+        player->m_dir == Direction::LEFT ? -200.f : 200.f);
+      m_physic.set_velocity_y((dir_ == Direction::UP) ? -500.f : (dir_ == Direction::DOWN) ? 500.f :
+        (glm::length(m_col.get_movement()) > 1) ? -200.f : 0.f);
+    }
+  }
+  Portable::ungrab(object, dir_);
+}
+
+bool
+BadGuy::is_portable() const
+{
+  return m_frozen;
 }
 
 bool

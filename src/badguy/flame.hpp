@@ -36,11 +36,16 @@ public:
   virtual void active_update(float dt_sec) override;
   virtual void kill_fall() override;
 
+  virtual HitResponse collision_badguy(BadGuy& badguy, const CollisionHit& hit) override;
+
   virtual void freeze() override;
   virtual bool is_freezable() const override;
   virtual bool is_flammable() const override;
 
   virtual std::string get_class() const override { return "flame"; }
+
+  /** Where its middle can go on its orbit */
+  Rectf get_reach() const;
 
   virtual void stop_looping_sounds() override;
   virtual void play_looping_sounds() override;
@@ -49,6 +54,8 @@ protected:
   float angle;
   float radius;
   float speed;
+  /** The tile that puts it out, WATER or FIRE, when some lies in reach of its orbit; 0 when none does */
+  uint32_t liquid;
 
   std::unique_ptr<SoundSource> sound_source;
 

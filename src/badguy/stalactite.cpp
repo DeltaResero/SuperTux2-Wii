@@ -17,6 +17,7 @@
 #include "badguy/stalactite.hpp"
 
 #include "audio/sound_manager.hpp"
+#include "badguy/livefire.hpp"
 #include "math/random.hpp"
 #include "object/bullet.hpp"
 #include "object/player.hpp"
@@ -115,6 +116,9 @@ Stalactite::collision_badguy(BadGuy& other, const CollisionHit& hit)
 
   if (other.is_freezable()) {
     other.freeze();
+    // Putting out a walking flame breaks it
+    if (dynamic_cast<LiveFire*>(&other))
+      squish();
   } else {
     other.kill_fall();
   }

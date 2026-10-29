@@ -18,8 +18,13 @@
 
 #include <cassert>
 #include <cmath>
+#include <typeindex>
+#include <typeinfo>
 
 #include "audio/sound_manager.hpp"
+#include "badguy/flame.hpp"
+#include "badguy/livefire.hpp"
+#include "collision/collision.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
 #include "supertux/sector.hpp"
@@ -54,8 +59,10 @@ MrIceBlock::initialize()
 void
 MrIceBlock::active_update(float dt_sec)
 {
-  if (ice_state == ICESTATE_GRABBED)
+  if (ice_state == ICESTATE_GRABBED) {
+    douse_fire();
     return;
+  }
 
   if (ice_state == ICESTATE_FLAT && flat_timer.check()) {
     set_state(ICESTATE_WAKING);
@@ -153,6 +160,12 @@ MrIceBlock::collision_badguy(BadGuy& badguy, const CollisionHit& hit)
     case ICESTATE_WAKING:
       return FORCE_MOVE;
     case ICESTATE_KICKED:
+      // A walking flame goes out instead, and the shell melts away
+      if (dynamic_cast<LiveFire*>(&badguy) && badguy.is_freezable()) {
+        badguy.freeze();
+        melt();
+        return FORCE_MOVE;
+      }
       badguy.kill_fall();
       return FORCE_MOVE;
     default:
@@ -302,6 +315,37 @@ bool
 MrIceBlock::is_portable() const
 {
   return ice_state == ICESTATE_FLAT;
+}
+
+void
+MrIceBlock::melt()
+{
+  if (auto player = dynamic_cast<Player*>(m_owner)) {
+    player->stop_grabbing();
+    Portable::ungrab(*player, m_dir);
+    set_colgroup_active(COLGROUP_MOVING);
+  }
+  ignite();
+}
+
+void
+MrIceBlock::douse_fire()
+{
+  for (const std::type_index type : { std::type_index(typeid(Flame)), std::type_index(typeid(LiveFire)),
+                                      std::type_index(typeid(LiveFireAsleep)), std::type_index(typeid(LiveFireDormant)) })
+  {
+    for (auto* object : Sector::get().get_objects_by_type_index(type))
+    {
+      auto* fire = static_cast<BadGuy*>(object);
+      if (fire->get_group() != COLGROUP_DISABLED && fire->is_freezable() &&
+          collision::intersects(get_bbox(), fire->get_bbox()))
+      {
+        fire->freeze();
+        melt();
+        return;
+      }
+    }
+  }
 }
 
 void

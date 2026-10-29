@@ -20,10 +20,8 @@
 #include <string>
 
 #include "badguy/walking_badguy.hpp"
-#include "object/portable.hpp"
 
-class MrIceBlock : public WalkingBadguy,
-                   public Portable
+class MrIceBlock : public WalkingBadguy
 {
 public:
   MrIceBlock(const ReaderMapping& reader);
@@ -44,9 +42,21 @@ public:
 
   virtual void ignite() override;
 
+  /** Out of his walk, he's a shell that puts fire out */
+  bool is_shell() const { return ice_state != ICESTATE_NORMAL; }
+
+  /** Melts away, out of Tux's hands first if he's holding it */
+  void melt();
+
+
   virtual std::string get_class() const override { return "mriceblock"; }
 
   bool can_break();
+
+private:
+  /** Held, it doesn't collide, so it looks for fire itself: one it touches goes out and the shell melts, before
+      the fire reaches Tux */
+  void douse_fire();
 
 protected:
   enum IceState {
