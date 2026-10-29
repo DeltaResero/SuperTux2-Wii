@@ -362,6 +362,8 @@ WorldMap::update(float dt_sec)
   m_last_step_time = g_game_time;
   GameObjectManager::begin_step();
 
+  m_squirrel_environment->update(dt_sec);
+
   GameObjectManager::update(dt_sec);
 
   m_camera->update(dt_sec);
