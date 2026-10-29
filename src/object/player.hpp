@@ -174,7 +174,8 @@ public:
   void set_on_ground(bool flag);
 
   Portable* get_grabbed_object() const { return m_grabbed_object; }
-  void stop_grabbing() { m_grabbed_object = nullptr; }
+  /** Lets go of the grabbed object without throwing it */
+  void stop_grabbing();
 
   /** Checks whether the player has grabbed a certain object
       @param name Name of the object to check */
