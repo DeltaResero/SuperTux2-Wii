@@ -386,8 +386,8 @@ GameSession::update(float dt_sec, const Controller& controller)
     }
   }
 
-  // Update the world state and all objects in the world
-  if (!m_game_pause) {
+  // Update the world state and all objects in the world, skipping the unpause frame that still has no time in it
+  if (!m_game_pause && dt_sec > 0.0f) {
     assert(m_currentsector != nullptr);
     // Update the world
     if (!m_end_sequence) {
