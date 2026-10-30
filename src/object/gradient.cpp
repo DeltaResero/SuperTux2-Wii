@@ -202,10 +202,11 @@ Gradient::draw(DrawingContext& context)
   Rectf gradient_region;
   if (m_gradient_direction != HORIZONTAL && m_gradient_direction != VERTICAL)
   {
-      auto camera_translation = Sector::get().get_camera().get_translation();
-      auto sector_width = Sector::get().get_width();
-      auto sector_height = Sector::get().get_height();
-      gradient_region = Rectf(-camera_translation.x, -camera_translation.y, sector_width, sector_height);
+      // The sector's rectangle as this frame's camera shows it
+      const Vector translation = context.get_translation();
+      gradient_region = Rectf(-translation.x, -translation.y,
+                              Sector::get().get_width() - translation.x,
+                              Sector::get().get_height() - translation.y);
   }
   else
   {
