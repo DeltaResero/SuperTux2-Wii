@@ -86,6 +86,11 @@ GLVideoSystem::GLVideoSystem(bool use_opengl33core) :
 
 GLVideoSystem::~GLVideoSystem()
 {
+  m_texture_manager.reset();
+  m_renderer.reset();
+  m_lightmap.reset();
+  m_back_renderer.reset();
+  m_context.reset();
   SDL_GL_DeleteContext(m_glcontext);
 }
 
