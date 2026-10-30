@@ -17,8 +17,10 @@
 
 #include "badguy/owl.hpp"
 
+#include <algorithm>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "audio/sound_manager.hpp"
 #include "object/player.hpp"
@@ -33,6 +35,7 @@ namespace {
 
 const float FLYING_SPEED = 120.0f;
 const float ACTIVATION_DISTANCE = 128.0f;
+const std::vector<std::string> CARRIABLE_OBJECTS = { "skydive", "rock", "lantern", "trampoline", "rustytrampoline" };
 
 } // namespace
 
@@ -42,6 +45,11 @@ Owl::Owl(const ReaderMapping& reader) :
   carried_object(nullptr)
 {
   reader.get("carry", carried_obj_name, "skydive");
+  if (std::find(CARRIABLE_OBJECTS.begin(), CARRIABLE_OBJECTS.end(), carried_obj_name) == CARRIABLE_OBJECTS.end())
+  {
+    log_warning << "Owl can't carry \"" << carried_obj_name << "\", carrying a skydive instead" << std::endl;
+    carried_obj_name = "skydive";
+  }
   set_action (m_dir == Direction::LEFT ? "left" : "right", /* loops = */ -1);
 }
 
