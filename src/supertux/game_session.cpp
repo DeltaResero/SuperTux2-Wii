@@ -82,6 +82,7 @@ GameSession::GameSession(const std::string& levelfile_, Savegame& savegame, Stat
   m_max_fire_bullets_at_start(),
   m_max_ice_bullets_at_start(),
   m_active(false),
+  m_on_screen(false),
   m_end_seq_started(false),
   m_current_cutscene_text()
 {
@@ -150,7 +151,8 @@ GameSession::restart_level(bool after_death)
     }
   } catch(std::exception& e) {
     log_fatal << "Couldn't start level: " << e.what() << std::endl;
-    ScreenManager::current()->pop_screen();
+    if (m_on_screen)
+      ScreenManager::current()->pop_screen();
     return (-1);
   }
 
@@ -281,6 +283,8 @@ GameSession::get_player_pos() const
 void
 GameSession::setup()
 {
+  m_on_screen = true;
+
   if (m_currentsector == nullptr)
     return;
 
