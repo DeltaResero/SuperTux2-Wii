@@ -39,6 +39,7 @@ public:
   virtual void unfreeze() override;
   virtual void kill_fall() override;
   virtual bool is_freezable() const override;
+  virtual bool is_portable() const override { return false; }
   virtual std::string get_class() const override { return "fish"; }
 
 private:
