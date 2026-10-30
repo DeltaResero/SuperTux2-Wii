@@ -18,6 +18,7 @@
 
 #include "sprite/sprite.hpp"
 #include "util/file_system.hpp"
+#include "util/log.hpp"
 #include "util/reader_document.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/string_util.hpp"
@@ -27,6 +28,13 @@
 #include <sstream>
 #include <stdexcept>
 #include <utility>
+
+namespace {
+
+// An image name loads as a one-frame sprite
+const std::string DUMMY_SPRITE = "images/engine/missing.png";
+
+} // namespace
 
 SpriteManager::SpriteManager() :
   sprites()
@@ -40,7 +48,14 @@ SpriteManager::create(const std::string& name)
   SpriteData* data;
   if (i == sprites.end()) {
     // try loading the spritefile
-    data = load(name);
+    try {
+      data = load(name);
+    } catch (const std::exception& e) {
+      if (name == DUMMY_SPRITE)
+        throw;
+      log_warning << "Couldn't load sprite '" << name << "' (now using dummy sprite): " << e.what() << std::endl;
+      return create(DUMMY_SPRITE);
+    }
     if (data == nullptr) {
       std::stringstream msg;
       msg << "Sprite '" << name << "' not found.";
