@@ -129,6 +129,9 @@ public:
       filename is relative to data root path */
   void change(const std::string& filename, const std::string& force_spawnpoint="");
 
+  /** Switches to another worldmap when this map next updates, after any level Tux is in */
+  void queue_change(const std::string& filename) { m_queued_worldmap = filename; }
+
   /** Moves Tux to the given spawnpoint
       @param spawnpoint Name of the spawnpoint to move to
       @param pan Pan the camera during to new spawnpoint
@@ -203,6 +206,8 @@ private:
   int m_fade_direction;
 
   bool m_in_level;
+
+  std::string m_queued_worldmap;
 
   /** The camera as the last step began, and the game time of that step */
   Vector m_last_camera_offset;

@@ -91,6 +91,7 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   m_initial_fade_tilemap(),
   m_fade_direction(),
   m_in_level(false),
+  m_queued_worldmap(),
   m_last_camera_offset(0.0f, 0.0f),
   m_last_step_time(-1.0f)
 {
@@ -356,6 +357,12 @@ WorldMap::update(float dt_sec)
 
   if (m_in_level) return;
   if (MenuManager::instance().is_active()) return;
+
+  if (!m_queued_worldmap.empty()) {
+    change(m_queued_worldmap);
+    m_queued_worldmap.clear();
+    return;
+  }
 
   // Where everything starts the step, so frames shown before the next one can be drawn part way along
   m_last_camera_offset = m_camera->get_offset();
