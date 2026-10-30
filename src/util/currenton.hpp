@@ -47,6 +47,9 @@ protected:
     }
   }
 
+  /** For taking over again after a newer instance fails to construct */
+  void make_current() { s_current = this; }
+
 public:
   static C* current() { return static_cast<C*>(s_current); }
 };

@@ -209,6 +209,9 @@ private:
 
   std::string m_queued_worldmap;
 
+  /** Not loaded again after it fails, or an automatic teleporter retries it every frame */
+  std::string m_failed_worldmap;
+
   /** The camera as the last step began, and the game time of that step */
   Vector m_last_camera_offset;
   float m_last_step_time;
