@@ -202,7 +202,7 @@ Rock::ungrab(MovingObject& object, Direction dir)
   }
 
   running_grab_script = false;
-  if (!on_ungrab_script.empty() && !running_ungrab_script)
+  if (!on_ungrab_script.empty() && !running_ungrab_script && Sector::current())
   {
     running_ungrab_script = true;
     Sector::get().run_script(on_ungrab_script, "Rock::on_ungrab");
