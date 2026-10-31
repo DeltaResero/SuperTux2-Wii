@@ -1757,8 +1757,8 @@ Player::draw(DrawingContext& context)
     m_sprite->draw(context.color(), get_pos() + shake_delta, LAYER_OBJECTS + 1);
     // draw hardhat
     m_powersprite->draw(context.color(), get_pos() + shake_delta, LAYER_OBJECTS + 1);
-    // light
-    m_lightsprite->draw(context.light(), get_pos(), 0);
+    // light, drawn after the light reads so magic blocks ignore it
+    m_lightsprite->draw(context.light(), get_pos(), LAYER_GETPIXEL + 1);
 
     // give an indicator that stone form cannot be used for a while
     if (m_cooldown_timer.started() && graphicsRandom.rand(0, 4) == 0) {
