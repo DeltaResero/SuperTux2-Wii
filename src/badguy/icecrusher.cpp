@@ -138,7 +138,10 @@ IceCrusher::collision(GameObject& other, const CollisionHit& hit)
     return FORCE_MOVE;
   }
   auto badguy = dynamic_cast<BadGuy*>(&other);
-  if (badguy) {
+  const bool in_path = (state == CRUSHING && hit.bottom) ||
+                       (state == CRUSHING_LEFT && hit.left) ||
+                       (state == CRUSHING_RIGHT && hit.right);
+  if (badguy && in_path) {
     // Ice puts out a fire or an ice flame, which falling can't kill
     if (BadGuy::is_fire(*badguy))
       badguy->freeze();
