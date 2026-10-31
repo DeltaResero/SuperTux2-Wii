@@ -17,6 +17,7 @@
 #include "object/pushbutton.hpp"
 
 #include "audio/sound_manager.hpp"
+#include "badguy/badguy.hpp"
 #include "object/player.hpp"
 #include "object/rock.hpp"
 #include "sprite/sprite.hpp"
@@ -46,6 +47,13 @@ PushButton::PushButton(const ReaderMapping& mapping) :
 void
 PushButton::update(float /*dt_sec*/)
 {
+}
+
+bool
+PushButton::collides(GameObject& other, const CollisionHit& ) const
+{
+  // Enemies can't press it, and a frozen one shoved it around
+  return dynamic_cast<BadGuy*>(&other) == nullptr;
 }
 
 HitResponse

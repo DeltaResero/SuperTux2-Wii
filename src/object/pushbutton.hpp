@@ -28,6 +28,7 @@ public:
   PushButton(const ReaderMapping& reader);
 
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
+  virtual bool collides(GameObject& other, const CollisionHit& hit) const override;
   virtual void update(float dt_sec) override;
   virtual std::string get_class() const override { return "pushbutton"; }
 
