@@ -59,7 +59,9 @@ LevelTime::update(float dt_sec)
     }
     if (prev_time != static_cast<int>(floorf(time_left*5)))
     {
-      Sector::get().get_player().add_coins(-1);
+      auto& player = Sector::get().get_player();
+      if (!player.is_dead() && !player.is_dying() && !player.is_winning())
+        player.add_coins(-1);
     }
   }
 }
