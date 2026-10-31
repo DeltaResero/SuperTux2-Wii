@@ -63,7 +63,10 @@ PushButton::collision(GameObject& other, const CollisionHit& hit)
     if (hit.top)
     {
       player->get_physic().set_velocity_y(0);
-      player->set_on_ground(true);
+      if(!player->is_swimming())
+      {
+        player->set_on_ground(true);
+      }
     }
   }
 
