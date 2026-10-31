@@ -16,6 +16,7 @@
 
 #include "object/spotlight.hpp"
 
+#include <algorithm>
 #include <stdexcept>
 
 #include "sprite/sprite.hpp"
@@ -119,9 +120,13 @@ Spotlight::draw(DrawingContext& context)
 
   center->draw(context.color(), m_col.m_bbox.p1(), m_layer);
 
-  lightcone->set_color(color);
+  // Full-strength hue so a dim colour still shows where beams cross
+  const float peak = std::max({color.red, color.green, color.blue});
+  lightcone->set_color(peak > 0.0f ? Color(color.red / peak, color.green / peak, color.blue / peak, 0.7f) : color);
+  // Added after the lighting so crossing beams mix like light
+  lightcone->set_blend(Blend::ADD);
   lightcone->set_angle(angle);
-  lightcone->draw(context.color(), m_col.m_bbox.p1(), LAYER_FOREGROUND1 + 10);
+  lightcone->draw(context.color(), m_col.m_bbox.p1(), LAYER_LIGHTMAP + 1);
 }
 
 HitResponse
