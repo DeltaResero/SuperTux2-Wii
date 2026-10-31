@@ -174,6 +174,7 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
   m_jump_early_apex(false),
   m_on_ice(false),
   m_ice_this_frame(false),
+  m_squeeze_dirsign(0.f),
   m_lightsprite(SpriteManager::current()->create("images/creatures/tux/light.sprite")),
   m_powersprite(SpriteManager::current()->create("images/creatures/tux/powerups.sprite")),
   m_dir(Direction::RIGHT),
@@ -875,6 +876,21 @@ Player::handle_horizontal_input()
 
   if (m_on_ice && on_ground()) {
     ax *= ICE_ACCELERATION_MULTIPLIER;
+  }
+
+  // A squeeze stops Tux, and pushing on stays stopped until there's room
+  if (get_collision_object()->get_pressure() != Vector(0.0f, 0.0f)) {
+    vx = 0.0f; vy = 0.0f;
+    ax = 0.0f; ay = 0.0f;
+    m_squeeze_dirsign = dirsign;
+  } else if (m_squeeze_dirsign != 0.f) {
+    const Rectf ahead = get_bbox().moved(Vector(m_squeeze_dirsign, 0.0f));
+    if (dirsign == m_squeeze_dirsign && on_ground() && !Sector::get().is_free_of_statics(ahead, this, true)) {
+      vx = 0.0f;
+      ax = 0.0f;
+    } else {
+      m_squeeze_dirsign = 0.f;
+    }
   }
 
   m_physic.set_velocity(vx, vy);

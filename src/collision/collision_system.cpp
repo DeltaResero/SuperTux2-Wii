@@ -423,6 +423,7 @@ CollisionSystem::collision_static_constrains(CollisionObject& object)
         // later if we're really crushed or things will solve itself when
         // looking at the vertical constraints
         pressure.y += object.get_bbox().get_height() - height;
+        object.m_pressure.y = pressure.y;
       } else {
         dest.set_bottom(constraints.get_position_bottom() - EPSILON);
         dest.set_top(dest.get_bottom() - object.get_bbox().get_height());
@@ -456,6 +457,7 @@ CollisionSystem::collision_static_constrains(CollisionObject& object)
         // later if we're really crushed or things will solve itself when
         // looking at the horizontal constraints
         pressure.x += object.get_bbox().get_width() - width;
+        object.m_pressure.x = pressure.x;
       } else {
         float xmid = constraints.get_x_midpoint ();
         dest.set_left(xmid - object.get_bbox().get_width()/2);
@@ -531,6 +533,7 @@ CollisionSystem::update()
     }
 
     object->m_dest = object->get_bbox();
+    object->m_pressure = Vector(0, 0);
     object->m_dest.move(object->get_movement());
     object->clear_bottom_collision_list();
   }

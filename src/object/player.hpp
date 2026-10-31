@@ -282,6 +282,7 @@ private:
   bool m_jump_early_apex;
   bool m_on_ice;
   bool m_ice_this_frame;
+  float m_squeeze_dirsign; /**< Which way Tux was pushing when something last squeezed him */
   SpritePtr m_lightsprite;
   SpritePtr m_powersprite;
 

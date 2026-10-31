@@ -95,6 +95,11 @@ public:
     return m_bbox.p1();
   }
 
+  Vector get_pressure() const
+  {
+    return m_pressure;
+  }
+
   /** moves entire object to a specific position, including all
       points those the object has, exactly like the object has
       spawned in that given pos instead.*/
@@ -154,6 +159,11 @@ private:
       This field holds the currently anticipated destination of the object
       during collision detection */
   Rectf m_dest;
+
+  /**
+   * Contains the current pressure on this object
+   */
+  Vector m_pressure;
 
   /** Objects that were touching the top of this object at the last frame,
       if this object was static or moving static. */
