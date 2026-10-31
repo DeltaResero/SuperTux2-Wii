@@ -46,7 +46,7 @@ public:
 
   // Minimum and maximum multiplier for the amount of particles (intensity)
   static float constexpr const max_amount = 5.0f;
-  static float constexpr const min_amount = 0.1f;
+  static float constexpr const min_amount = 0.0f;
 
   // Minimum value of m_current_amount for the fog to be > 0
   static float constexpr const fog_start_amount = 1.0f;
