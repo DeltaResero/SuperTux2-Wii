@@ -936,13 +936,14 @@ Player::do_duck() {
 
 void
 Player::do_standup(bool force_standup) {
-  if (!m_duck)
+  if (!m_duck || !is_big() || m_backflipping || m_stone)
     return;
-  if (!is_big())
-    return;
-  if (m_backflipping)
-    return;
-  if (m_stone)
+
+  Rectf new_bbox = m_col.m_bbox;
+  float new_height = m_swimming ? TUX_WIDTH : BIG_TUX_HEIGHT;
+  new_bbox.move(Vector(0, m_col.m_bbox.get_height() - new_height));
+  new_bbox.set_height(new_height);
+  if (!Sector::get().is_free_of_movingstatics(new_bbox, this) && !force_standup)
     return;
 
   if (m_swimming ? adjust_height(TUX_WIDTH) : adjust_height(BIG_TUX_HEIGHT)) {
