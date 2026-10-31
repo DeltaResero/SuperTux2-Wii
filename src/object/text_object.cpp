@@ -75,7 +75,7 @@ TextObject::wrap_text()
 
   // strip all newlines except double ones (markdown'ish)
   char prev_c = ' ';
-  for(char& c : m_text) {
+  for (const char& c : m_text) {
     if (c == '\n') {
       if (prev_c == '\n') {
         rest += '\n';
@@ -85,6 +85,7 @@ TextObject::wrap_text()
     } else {
       rest += c;
     }
+    prev_c = c;
   }
 
   m_wrapped_text.clear();
