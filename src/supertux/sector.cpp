@@ -470,6 +470,13 @@ Sector::is_free_of_movingstatics(const Rectf& rect, const MovingObject* ignore_o
 }
 
 bool
+Sector::is_free_of_specifically_movingstatics(const Rectf& rect, const MovingObject* ignore_object) const
+{
+  return m_collision_system->is_free_of_specifically_movingstatics(rect,
+                                                      ignore_object ? ignore_object->get_collision_object() : nullptr);
+}
+
+bool
 Sector::free_line_of_sight(const Vector& line_start, const Vector& line_end, bool ignore_objects, const MovingObject* ignore_object) const
 {
   return m_collision_system->free_line_of_sight(line_start, line_end, ignore_objects,

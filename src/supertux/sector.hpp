@@ -112,6 +112,10 @@ public:
       This includes badguys and players. */
   bool is_free_of_movingstatics(const Rectf& rect, const MovingObject* ignore_object = nullptr) const;
 
+  /** Checks if the specified rectangle is free of MovingObjects in COLGROUP_MOVINGSTATIC.
+      Note that this does not include moving badguys, or players */
+  bool is_free_of_specifically_movingstatics(const Rectf& rect, const MovingObject* ignore_object = nullptr) const;
+
   bool free_line_of_sight(const Vector& line_start, const Vector& line_end, bool ignore_objects = false, const MovingObject* ignore_object = nullptr) const;
   bool can_see_player(const Vector& eye) const;
 
