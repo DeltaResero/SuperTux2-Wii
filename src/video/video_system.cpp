@@ -16,6 +16,7 @@
 
 #include "video/video_system.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <exception>
 #include <stdexcept>
@@ -29,60 +30,82 @@
 #  include "video/gl/gl_video_system.hpp"
 #endif
 
+namespace {
+
+// What the game was started with, as asked for and as it turned out
+VideoSystem::Enum s_requested = VideoSystem::VIDEO_AUTO;
+VideoSystem::Enum s_running = VideoSystem::VIDEO_AUTO;
+std::vector<VideoSystem::Enum> s_unavailable;
+
+} // namespace
+
 std::unique_ptr<VideoSystem>
 VideoSystem::create(VideoSystem::Enum video_system)
 {
-  switch (video_system)
+  s_requested = video_system;
+  s_unavailable.clear();
+
+  if (video_system == VIDEO_NULL)
   {
-    case VIDEO_AUTO:
-#ifdef HAVE_OPENGL
-      try
-      {
-        return std::make_unique<GLVideoSystem>(true);
-      }
-      catch(std::exception& err)
-      {
-        try
-        {
-          log_warning << "Error creating GLVideoSystem-330core, using GLVideoSystem-20 fallback: "  << err.what() << std::endl;
-          return std::make_unique<GLVideoSystem>(false);
-        }
-        catch(std::exception& err2)
-        {
-          log_warning << "Error creating GLVideoSystem-20, using SDL fallback: "  << err2.what() << std::endl;
-          return std::make_unique<SDLVideoSystem>();
-        }
-      }
-#else
-      log_info << "new SDL renderer\n";
-      return std::make_unique<SDLVideoSystem>();
-#endif
-
-#ifdef HAVE_OPENGL
-    case VIDEO_OPENGL33CORE:
-      return std::make_unique<GLVideoSystem>(true);
-
-    case VIDEO_OPENGL20:
-      return std::make_unique<GLVideoSystem>(false);
-#else
-    case VIDEO_OPENGL33CORE:
-    case VIDEO_OPENGL20:
-      log_warning << "OpenGL requested, but missing using SDL fallback" << std::endl;
-      return std::make_unique<SDLVideoSystem>();
-#endif
-
-    case VIDEO_SDL:
-      log_info << "new SDL renderer\n";
-      return std::make_unique<SDLVideoSystem>();
-
-    case VIDEO_NULL:
-      return std::make_unique<NullVideoSystem>();
-
-    default:
-      log_fatal << "invalid video system in config" << std::endl;
-      assert(false);
-      return {};
+    s_running = VIDEO_NULL;
+    return std::make_unique<NullVideoSystem>();
   }
+
+#ifdef HAVE_OPENGL
+  // A renderer the driver refuses steps down to the next one, the way Auto always has
+  std::vector<Enum> order;
+  if (video_system == VIDEO_AUTO || video_system == VIDEO_OPENGL33CORE)
+  {
+    order.push_back(VIDEO_OPENGL33CORE);
+  }
+  if (video_system != VIDEO_SDL)
+  {
+    order.push_back(VIDEO_OPENGL20);
+  }
+
+  for (size_t i = 0; i < order.size(); ++i)
+  {
+    try
+    {
+      auto result = std::make_unique<GLVideoSystem>(order[i] == VIDEO_OPENGL33CORE);
+      s_running = order[i];
+      return result;
+    }
+    catch(std::exception& err)
+    {
+      const std::string next = (i + 1 < order.size()) ? get_video_string(order[i + 1]) : "sdl";
+      log_warning << "Error creating the " << get_video_string(order[i]) << " renderer, using " << next << " instead: " << err.what() << std::endl;
+      s_unavailable.push_back(order[i]);
+    }
+  }
+#else
+  if (video_system == VIDEO_OPENGL33CORE || video_system == VIDEO_OPENGL20)
+  {
+    log_warning << "OpenGL requested, but missing using SDL fallback" << std::endl;
+  }
+#endif
+
+  log_info << "new SDL renderer\n";
+  s_running = VIDEO_SDL;
+  return std::make_unique<SDLVideoSystem>();
+}
+
+VideoSystem::Enum
+VideoSystem::get_requested_video_system()
+{
+  return s_requested;
+}
+
+VideoSystem::Enum
+VideoSystem::get_running_video_system()
+{
+  return s_running;
+}
+
+bool
+VideoSystem::is_unavailable(Enum video)
+{
+  return std::find(s_unavailable.begin(), s_unavailable.end(), video) != s_unavailable.end();
 }
 
 VideoSystem::Enum
@@ -140,6 +163,21 @@ VideoSystem::get_video_string(VideoSystem::Enum video)
       assert(false);
       return "auto";
   }
+}
+
+std::vector<VideoSystem::Info>
+VideoSystem::get_available_video_systems()
+{
+  std::vector<Info> output;
+#ifdef HAVE_OPENGL
+  output.push_back({ VIDEO_AUTO, "Auto", "OpenGL 3.3 if the graphics driver has it, then OpenGL 2.0, then SDL" });
+  output.push_back({ VIDEO_OPENGL33CORE, "OpenGL 3.3", "Draws every effect, including water and heat haze bending what's behind them" });
+  output.push_back({ VIDEO_OPENGL20, "OpenGL 2.0", "For graphics drivers without OpenGL 3.3" });
+#else
+  output.push_back({ VIDEO_AUTO, "Auto", "SDL, as this build has no OpenGL" });
+#endif
+  output.push_back({ VIDEO_SDL, "SDL", "Doesn't need OpenGL" });
+  return output;
 }
 
 /* EOF */

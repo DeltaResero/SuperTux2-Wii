@@ -33,6 +33,7 @@
 #include "supertux/game_session.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
+#include "supertux/menu/renderer_menu.hpp"
 #include "supertux/menu/resolution_menu.hpp"
 #include "util/log.hpp"
 #include "video/renderer.hpp"
@@ -87,7 +88,8 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
   vsyncs(),
   sound_volumes(),
   music_volumes(),
-  m_resolution_item(nullptr)
+  m_resolution_item(nullptr),
+  m_renderer_item(nullptr)
 {
   switch (section)
   {
@@ -286,6 +288,9 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
     MenuItem& aspect = add_string_select(MNID_ASPECTRATIO, "Aspect Ratio", &next_aspect_ratio, aspect_ratios);
     aspect.set_help("Adjust the aspect ratio");
 #endif
+
+    m_renderer_item = &add_submenu("", MenuStorage::RENDERER_MENU);
+    m_renderer_item->set_help("How the game draws to the screen. A change takes effect after a restart");
   }
 
   if (section == Section::AUDIO)
@@ -383,8 +388,14 @@ OptionsMenu::refresh()
     m_resolution_item->set_text("Resolution: " + current_resolution_text());
     m_resolution_item->set_help(g_config->use_fullscreen ? "The resolution the screen is switched to" :
                                                            "The size of the window the game is drawn in");
-    calculate_width();
   }
+
+  if (m_renderer_item)
+  {
+    m_renderer_item->set_text("Renderer: " + current_renderer_text());
+  }
+
+  calculate_width();
 }
 
 void

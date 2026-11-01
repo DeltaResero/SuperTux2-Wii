@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <SDL.h>
 
 #include "math/size.hpp"
@@ -44,10 +45,24 @@ public:
     VIDEO_NULL
   };
 
+  /** A renderer the player can pick, named for the options menu */
+  struct Info
+  {
+    Enum value;
+    std::string name;
+    std::string description;
+  };
+
   static std::unique_ptr<VideoSystem> create(VideoSystem::Enum video_system);
 
   static Enum get_video_system(const std::string &video);
   static std::string get_video_string(Enum video);
+  static std::vector<Info> get_available_video_systems();
+
+  /** What create() was last asked for and what it made, which differ once a driver refuses one */
+  static Enum get_requested_video_system();
+  static Enum get_running_video_system();
+  static bool is_unavailable(Enum video);
 
 public:
   VideoSystem() {}

@@ -61,6 +61,7 @@ private:
 
   /** Names the size in use, which can change from outside this menu */
   MenuItem* m_resolution_item;
+  MenuItem* m_renderer_item;
 
 private:
   OptionsMenu(const OptionsMenu&) = delete;
