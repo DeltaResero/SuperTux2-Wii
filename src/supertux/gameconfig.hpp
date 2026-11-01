@@ -65,6 +65,8 @@ public:
   VideoSystem::Enum video;
   // 1 waits for every refresh, 0 never waits, -1 waits unless the frame is late
   int vsync;
+  /** How bright a thunderstorm's lightning is, in percent of its full flash */
+  int flash_intensity;
   bool show_fps;
   bool show_player_pos;
   bool show_controller;

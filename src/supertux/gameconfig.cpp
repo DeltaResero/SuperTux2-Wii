@@ -16,6 +16,7 @@
 
 #include "supertux/gameconfig.hpp"
 
+#include <algorithm>
 #include <exception>
 #include <stdexcept>
 
@@ -38,6 +39,7 @@ Config::Config() :
   use_fullscreen(false),
   video(VideoSystem::VIDEO_AUTO),
   vsync(-1),
+  flash_intensity(100),
   show_fps(false),
   show_player_pos(false),
   show_controller(false),
@@ -130,6 +132,8 @@ Config::load()
 
     config_video_mapping->get("aspect_width",  aspect_size.width);
     config_video_mapping->get("aspect_height", aspect_size.height);
+    config_video_mapping->get("flash_intensity", flash_intensity);
+    flash_intensity = std::clamp(flash_intensity, 0, 100);
 
     config_video_mapping->get("magnification", magnification);
 
@@ -209,6 +213,7 @@ Config::save()
 
   writer.write("aspect_width",  aspect_size.width);
   writer.write("aspect_height", aspect_size.height);
+  writer.write("flash_intensity", flash_intensity);
 
 
   writer.write("magnification", magnification);
