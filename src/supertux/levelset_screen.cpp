@@ -16,6 +16,7 @@
 
 #include "supertux/levelset_screen.hpp"
 
+#include <exception>
 #include <memory>
 
 #include "supertux/game_session.hpp"
@@ -80,13 +81,21 @@ LevelsetScreen::setup()
   {
     m_level_started = true;
 
-    auto screen = std::make_unique<GameSession>(FileSystem::join(m_basedir, m_level_filename),
-                                                m_savegame);
-    if (m_start_pos) {
-      screen->set_start_pos(m_start_pos->first, m_start_pos->second);
-      screen->restart_level();
+    try
+    {
+      auto screen = std::make_unique<GameSession>(FileSystem::join(m_basedir, m_level_filename),
+                                                  m_savegame);
+      if (m_start_pos) {
+        screen->set_start_pos(m_start_pos->first, m_start_pos->second);
+        screen->restart_level();
+      }
+      ScreenManager::current()->push_screen(std::move(screen));
     }
-    ScreenManager::current()->push_screen(std::move(screen));
+    catch (const std::exception& e)
+    {
+      log_fatal << "Couldn't load level: " << e.what() << std::endl;
+      ScreenManager::current()->pop_screen();
+    }
   }
 }
 

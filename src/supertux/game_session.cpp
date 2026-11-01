@@ -82,6 +82,7 @@ GameSession::GameSession(const std::string& levelfile_, Savegame& savegame, Stat
   m_max_fire_bullets_at_start(),
   m_max_ice_bullets_at_start(),
   m_active(false),
+  m_on_screen(false),
   m_end_seq_started(false),
   m_current_cutscene_text()
 {
@@ -150,7 +151,8 @@ GameSession::restart_level(bool after_death)
     }
   } catch(std::exception& e) {
     log_fatal << "Couldn't start level: " << e.what() << std::endl;
-    ScreenManager::current()->pop_screen();
+    if (m_on_screen)
+      ScreenManager::current()->pop_screen();
     return (-1);
   }
 
@@ -281,6 +283,8 @@ GameSession::get_player_pos() const
 void
 GameSession::setup()
 {
+  m_on_screen = true;
+
   if (m_currentsector == nullptr)
     return;
 
@@ -386,13 +390,16 @@ GameSession::update(float dt_sec, const Controller& controller)
     }
   }
 
-  // Update the world state and all objects in the world
-  if (!m_game_pause) {
+  // Update the world state and all objects in the world, skipping the unpause frame that still has no time in it
+  if (!m_game_pause && dt_sec > 0.0f) {
     assert(m_currentsector != nullptr);
     // Update the world
     if (!m_end_sequence) {
-      m_play_time += dt_sec; //TODO: make sure we don't count cutscene time
-      m_level->m_stats.finish(m_play_time);
+      if (!m_level->m_is_in_cutscene)
+      {
+        m_play_time += dt_sec;
+        m_level->m_stats.finish(m_play_time);
+      }
       m_currentsector->update(dt_sec);
     } else {
       if (!m_end_sequence->is_tux_stopped()) {

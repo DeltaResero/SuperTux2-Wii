@@ -39,10 +39,6 @@ public:
 
   virtual std::string get_class() const override { return "scriptedobject"; }
 
-  // --- scripting Interface stuff ---
-  void set_action(const std::string& animation);
-  std::string get_action() const;
-
   void move(float x, float y);
   float get_pos_x() const;
   float get_pos_y() const;

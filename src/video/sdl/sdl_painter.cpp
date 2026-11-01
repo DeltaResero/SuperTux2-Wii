@@ -749,36 +749,23 @@ SDLPainter::draw_gradient(const GradientRequest& request)
     if (direction == VERTICAL || direction == VERTICAL_SECTOR)
     {
       rect.x = static_cast<int>(region.get_left());
-      rect.y = static_cast<int>(region.get_bottom() * static_cast<float>(i) / static_cast<float>(n));
-      rect.w = static_cast<int>(region.get_right());
-      rect.h = static_cast<int>((region.get_bottom() * static_cast<float>(i+1) / static_cast<float>(n)) - static_cast<float>(rect.y));
+      rect.y = static_cast<int>(region.get_top() + region.get_height() * static_cast<float>(i) / static_cast<float>(n));
+      rect.w = static_cast<int>(region.get_right()) - rect.x;
+      rect.h = static_cast<int>(region.get_top() + region.get_height() * static_cast<float>(i+1) / static_cast<float>(n)) - rect.y;
     }
     else
     {
-      rect.x = static_cast<int>(region.get_right() * static_cast<float>(i) / static_cast<float>(n));
+      rect.x = static_cast<int>(region.get_left() + region.get_width() * static_cast<float>(i) / static_cast<float>(n));
       rect.y = static_cast<int>(region.get_top());
-      rect.w = static_cast<int>((region.get_right() * static_cast<float>(i+1) / static_cast<float>(n)) - static_cast<float>(rect.x));
-      rect.h = static_cast<int>(region.get_bottom());
+      rect.w = static_cast<int>(region.get_left() + region.get_width() * static_cast<float>(i+1) / static_cast<float>(n)) - rect.x;
+      rect.h = static_cast<int>(region.get_bottom()) - rect.y;
     }
 
     float p = static_cast<float>(i+1) / static_cast<float>(n);
-    Uint8 r, g, b, a;
-
-    if ( direction == HORIZONTAL_SECTOR || direction == VERTICAL_SECTOR)
-    {
-        float begin_percentage = region.get_left() * -1 / region.get_right();
-        r = static_cast<Uint8>(((1.0f - begin_percentage - p) * top.red + (p + begin_percentage) * bottom.red)  * 255);
-        g = static_cast<Uint8>(((1.0f - begin_percentage - p) * top.green + (p + begin_percentage) * bottom.green) * 255);
-        b = static_cast<Uint8>(((1.0f - begin_percentage - p) * top.blue + (p + begin_percentage) * bottom.blue) * 255);
-        a = static_cast<Uint8>(((1.0f - begin_percentage - p) * top.alpha + (p + begin_percentage) * bottom.alpha) * 255);
-    }
-    else
-    {
-        r = static_cast<Uint8>(((1.0f - p) * top.red + p * bottom.red)  * 255);
-        g = static_cast<Uint8>(((1.0f - p) * top.green + p * bottom.green) * 255);
-        b = static_cast<Uint8>(((1.0f - p) * top.blue + p * bottom.blue) * 255);
-        a = static_cast<Uint8>(((1.0f - p) * top.alpha + p * bottom.alpha) * 255);
-    }
+    Uint8 r = static_cast<Uint8>(((1.0f - p) * top.red + p * bottom.red)  * 255);
+    Uint8 g = static_cast<Uint8>(((1.0f - p) * top.green + p * bottom.green) * 255);
+    Uint8 b = static_cast<Uint8>(((1.0f - p) * top.blue + p * bottom.blue) * 255);
+    Uint8 a = static_cast<Uint8>(((1.0f - p) * top.alpha + p * bottom.alpha) * 255);
 
     // The software renderer fills far faster without blending, and an opaque strip needs none
     const bool opaque = m_whole_pixels && a == 255 && request.blend == Blend::BLEND;

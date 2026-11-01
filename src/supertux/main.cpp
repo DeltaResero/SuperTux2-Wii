@@ -184,6 +184,7 @@ void FileSystemSubsystem::find_datadir() const
 void FileSystemSubsystem::find_userdir() const
 {
   std::string userdir;
+  bool default_userdir = false;
   if (m_forced_userdir)
   {
     userdir = *m_forced_userdir;
@@ -202,6 +203,7 @@ void FileSystemSubsystem::find_userdir() const
 #endif
   userdir = prefpath ? prefpath : std::string();
   SDL_free(prefpath);
+  default_userdir = true;
   }
 //Kept for backwards-compatability only
 const char* home = getenv("HOME");
@@ -214,7 +216,8 @@ std::string olduserdir = FileSystem::join(home_dir, PACKAGE_NAME);
 #else
 std::string olduserdir = FileSystem::join(home_dir, "." PACKAGE_NAME);
 #endif
-if (!home_dir.empty() && FileSystem::is_directory(olduserdir)) {
+// Never for a chosen userdir: it may be the old folder itself
+if (default_userdir && !home_dir.empty() && FileSystem::is_directory(olduserdir)) {
   std::filesystem::path olduserpath(olduserdir);
   std::filesystem::path userpath(userdir);
 

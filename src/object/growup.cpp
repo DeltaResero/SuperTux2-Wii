@@ -65,8 +65,12 @@ GrowUp::collision_solid(const CollisionHit& hit)
     physic.set_velocity_y(0);
   if (hit.bottom && physic.get_velocity_y() > 0)
     physic.set_velocity_y(0);
-  if (hit.left || hit.right) {
+  // A floor slope gets rolled over, but a ceiling slope turns it like a wall
+  if (hit.slope_normal.y >= 0.0f &&
+      ((hit.left && physic.get_velocity_x() < 0.0f) ||
+      (hit.right && physic.get_velocity_x() > 0.0f))) {
     physic.set_velocity_x(-physic.get_velocity_x());
+    physic.set_acceleration_x(-physic.get_acceleration_x());
   }
 }
 

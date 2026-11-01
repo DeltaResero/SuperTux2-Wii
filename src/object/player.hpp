@@ -174,7 +174,8 @@ public:
   void set_on_ground(bool flag);
 
   Portable* get_grabbed_object() const { return m_grabbed_object; }
-  void stop_grabbing() { m_grabbed_object = nullptr; }
+  /** Lets go of the grabbed object without throwing it */
+  void stop_grabbing();
 
   /** Checks whether the player has grabbed a certain object
       @param name Name of the object to check */
@@ -281,6 +282,7 @@ private:
   bool m_jump_early_apex;
   bool m_on_ice;
   bool m_ice_this_frame;
+  float m_squeeze_dirsign; /**< Which way Tux was pushing when something last squeezed him */
   SpritePtr m_lightsprite;
   SpritePtr m_powersprite;
 

@@ -91,6 +91,8 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   m_initial_fade_tilemap(),
   m_fade_direction(),
   m_in_level(false),
+  m_queued_worldmap(),
+  m_failed_worldmap(),
   m_last_camera_offset(0.0f, 0.0f),
   m_last_step_time(-1.0f)
 {
@@ -101,7 +103,13 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
 
   // load worldmap objects
   WorldMapParser parser(*this);
-  parser.load_worldmap(filename);
+  try {
+    parser.load_worldmap(filename);
+  } catch (...) {
+    // The destructor doesn't run for a map that fails to build
+    clear_objects();
+    throw;
+  }
 
   // Only a teleporter that stays on this map plays the warp sound
   for (const auto& teleporter : get_objects_by_type<Teleporter>()) {
@@ -172,10 +180,23 @@ WorldMap::move_to_spawnpoint(const std::string& spawnpoint, bool pan, bool main_
 void
 WorldMap::change(const std::string& filename, const std::string& force_spawnpoint_)
 {
+  if (filename == m_failed_worldmap)
+    return;
+
+  std::unique_ptr<WorldMap> worldmap;
+  try {
+    worldmap = std::make_unique<WorldMap>(filename, m_savegame, force_spawnpoint_);
+  } catch (const std::exception& e) {
+    log_warning << "Couldn't load worldmap '" << filename << "': " << e.what() << std::endl;
+    // The failed map took over as current while it was built
+    make_current();
+    m_failed_worldmap = filename;
+    return;
+  }
+
   m_savegame.get_player_status().last_worldmap = filename;
   ScreenManager::current()->pop_screen();
-  ScreenManager::current()->push_screen(std::make_unique<WorldMapScreen>(
-                                          std::make_unique<WorldMap>(filename, m_savegame, force_spawnpoint_)));
+  ScreenManager::current()->push_screen(std::make_unique<WorldMapScreen>(std::move(worldmap)));
 }
 
 void
@@ -357,10 +378,18 @@ WorldMap::update(float dt_sec)
   if (m_in_level) return;
   if (MenuManager::instance().is_active()) return;
 
+  if (!m_queued_worldmap.empty()) {
+    change(m_queued_worldmap);
+    m_queued_worldmap.clear();
+    return;
+  }
+
   // Where everything starts the step, so frames shown before the next one can be drawn part way along
   m_last_camera_offset = m_camera->get_offset();
   m_last_step_time = g_game_time;
   GameObjectManager::begin_step();
+
+  m_squirrel_environment->update(dt_sec);
 
   GameObjectManager::update(dt_sec);
 

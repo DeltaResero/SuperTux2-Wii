@@ -62,6 +62,8 @@ public:
 
   void set_control(Control control, bool value);
 
+  void set_jump_key_with_up(bool value);
+
   /** returns true if the control is pressed down */
   bool hold(Control control) const;
 
@@ -79,6 +81,9 @@ protected:
 
   /** control status at last frame */
   bool m_old_controls[static_cast<int>(Control::CONTROLCOUNT)];
+
+  /** the jump key is pressed for this controller */
+  bool m_jump_key_pressed;
 
 private:
   Controller(const Controller&) = delete;

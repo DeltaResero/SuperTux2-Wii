@@ -40,7 +40,6 @@
 #include "video/viewport.hpp"
 #include "worldmap/tux.hpp"
 #include "worldmap/worldmap.hpp"
-#include "worldmap/worldmap_screen.hpp"
 
 namespace {
 
@@ -141,7 +140,9 @@ bool check_cutscene()
 
 SQInteger wait(HSQUIRRELVM vm, float seconds)
 {
-  if(GameSession::current()->get_current_level().m_skip_cutscene)
+  auto session = GameSession::current();
+
+  if(session && session->get_current_level().m_skip_cutscene)
   {
     if (auto squirrelenv = static_cast<SquirrelEnvironment*>(sq_getforeignptr(vm)))
     {
@@ -157,7 +158,7 @@ SQInteger wait(HSQUIRRELVM vm, float seconds)
       log_warning << "wait(): no VM or environment available\n";
     }
   }
-  else if(GameSession::current()->get_current_level().m_is_in_cutscene)
+  else if(session && session->get_current_level().m_is_in_cutscene)
   {
     if (auto squirrelenv = static_cast<SquirrelEnvironment*>(sq_getforeignptr(vm)))
     {
@@ -221,8 +222,7 @@ void load_worldmap(const std::string& filename)
   }
   else
   {
-    ScreenManager::current()->push_screen(std::make_unique<WorldMapScreen>(
-                                            std::make_unique<::worldmap::WorldMap>(filename, ::worldmap::WorldMap::current()->get_savegame())));
+    ::worldmap::WorldMap::current()->queue_change(filename);
   }
 }
 
@@ -233,13 +233,23 @@ void set_next_worldmap(const std::string& dirname, const std::string& spawnpoint
 
 void load_level(const std::string& filename)
 {
-  if (!GameSession::current())
+  GameSession* session = GameSession::current();
+  if (!session)
   {
     throw std::runtime_error("Can't start level without active level.");
   }
   else
   {
-    ScreenManager::current()->push_screen(std::make_unique<GameSession>(filename, GameSession::current()->get_savegame()));
+    try
+    {
+      ScreenManager::current()->push_screen(std::make_unique<GameSession>(filename, session->get_savegame()));
+    }
+    catch (...)
+    {
+      // The level that failed took over as current while it was built
+      session->make_current();
+      throw;
+    }
   }
 }
 

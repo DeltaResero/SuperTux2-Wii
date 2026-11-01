@@ -100,8 +100,9 @@ void RainParticleSystem::init()
 void RainParticleSystem::set_amount(float amount)
 {
   // Don't spawn too many particles to avoid destroying the player's computer
-  float real_amount = (amount < min_amount) ? min_amount : amount;
-        real_amount = (amount > max_amount) ? max_amount : amount;
+  float real_amount = amount < min_amount ? min_amount
+    : amount > max_amount ? max_amount
+    : amount;
 
   int old_raindropcount = static_cast<int>(virtual_width*m_current_real_amount/6.0f);
   int new_raindropcount = static_cast<int>(virtual_width*real_amount/6.0f);

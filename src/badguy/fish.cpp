@@ -33,6 +33,11 @@ Fish::Fish(const ReaderMapping& reader) :
 void
 Fish::collision_solid(const CollisionHit& chit)
 {
+  // Landing on ground kills a fish and shatters a frozen one
+  if (chit.bottom && !is_grabbed()) {
+    kill_fall();
+    return;
+  }
   hit(chit);
 }
 

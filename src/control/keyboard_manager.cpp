@@ -86,7 +86,7 @@ KeyboardManager::process_key_event(const SDL_KeyboardEvent& event)
     m_parent->get_controller().set_control(control, value);
 
     if (m_keyboard_config.m_jump_with_up_kbd && control == Control::UP) {
-      m_parent->get_controller().set_control(Control::JUMP, value);
+      m_parent->get_controller().set_jump_key_with_up(value);
     }
   }
 }

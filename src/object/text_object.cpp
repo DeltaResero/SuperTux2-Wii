@@ -75,7 +75,7 @@ TextObject::wrap_text()
 
   // strip all newlines except double ones (markdown'ish)
   char prev_c = ' ';
-  for(char& c : m_text) {
+  for (const char& c : m_text) {
     if (c == '\n') {
       if (prev_c == '\n') {
         rest += '\n';
@@ -85,6 +85,7 @@ TextObject::wrap_text()
     } else {
       rest += c;
     }
+    prev_c = c;
   }
 
   m_wrapped_text.clear();
@@ -163,11 +164,10 @@ TextObject::draw(DrawingContext& context)
 
   context.color().draw_filled_rect(Rectf(spos, Sizef(width, height)),
                                    Color(0.6f, 0.7f, 0.8f, 0.5f), LAYER_GUI+50);
-  if (m_centered) {
-    context.color().draw_center_text(m_font, m_wrapped_text, spos, LAYER_GUI+60, TextObject::default_color);
-  } else {
-    context.color().draw_text(m_font, m_wrapped_text, spos + Vector(10, 10), ALIGN_LEFT, LAYER_GUI+60, TextObject::default_color);
-  }
+  context.color().draw_text(m_font, m_wrapped_text,
+                            spos + Vector(m_centered ? width / 2.f : 10.f, 10.f),
+                            m_centered ? ALIGN_CENTER : ALIGN_LEFT,
+                            LAYER_GUI+60, TextObject::default_color);
 
   context.pop_transform();
 }

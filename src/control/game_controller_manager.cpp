@@ -123,8 +123,13 @@ GameControllerManager::process_axis_event(const SDL_ControllerAxisEvent& ev)
   Controller& controller = m_parent->get_controller();
   auto set_control = [this, &controller](Control control, bool value)
   {
-    m_stick_state[static_cast<int>(control)] = value;
-    controller.set_control(control, m_button_state[static_cast<int>(control)] || m_stick_state[static_cast<int>(control)]);
+    bool& stick = m_stick_state[static_cast<int>(control)];
+    // A stick still held presses again after a key lets go of the same direction
+    if (stick != value || (value && !controller.hold(control)))
+    {
+      stick = value;
+      controller.set_control(control, m_button_state[static_cast<int>(control)] || stick);
+    }
   };
 
   auto axis2button = [this, &set_control](int value, Control control_left, Control control_right)

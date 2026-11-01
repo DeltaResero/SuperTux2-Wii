@@ -30,7 +30,8 @@
 #include "video/viewport.hpp"
 
 GhostParticleSystem::GhostParticleSystem(const ReaderMapping& reader) :
-  ParticleSystem(reader)
+  // Room for the tallest ghost, so one leaves the screen before it wraps
+  ParticleSystem(reader, 210)
 {
   init();
 }
@@ -46,6 +47,8 @@ GhostParticleSystem::init()
   ghosts[1] = Surface::from_file("images/particles/ghost1.png");
 
   virtual_width = static_cast<float>(SCREEN_WIDTH) * 2.0f;
+  // The tallest ghost's room above the screen, and the usual 60 below
+  virtual_height = static_cast<float>(SCREEN_HEIGHT) + max_particle_size + 60.0f;
 
   // create two ghosts
   size_t ghostcount = 2;

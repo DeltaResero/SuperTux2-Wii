@@ -141,6 +141,8 @@ private:
 
   bool m_active; /** Game active? **/
 
+  bool m_on_screen; /** Whether a failed restart has a screen of its own to close **/
+
   bool m_end_seq_started;
 
   std::unique_ptr<GameObject> m_current_cutscene_text;

@@ -155,7 +155,9 @@ WalkingBadguy::collision_solid(const CollisionHit& hit)
     if (m_physic.get_velocity_y() > 0) m_physic.set_velocity_y(0);
   }
 
-  if ((hit.left && (m_dir == Direction::LEFT)) || (hit.right && (m_dir == Direction::RIGHT))) {
+  // A floor slope gets climbed, but a ceiling slope turns them like a wall
+  if (hit.slope_normal.y >= 0.0f &&
+      ((hit.left && m_dir == Direction::LEFT) || (hit.right && m_dir == Direction::RIGHT))) {
     turn_around();
   }
 

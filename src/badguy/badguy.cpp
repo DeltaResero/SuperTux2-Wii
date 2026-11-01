@@ -224,8 +224,11 @@ BadGuy::update(float dt_sec)
       return;
     }
   }
-  if ((m_state != STATE_INACTIVE) && is_offscreen()) {
-    if (m_state == STATE_ACTIVE) deactivate();
+
+  // Deactivate badguy, if off-screen and not falling down.
+  if (m_is_active_flag && is_offscreen() && m_physic.get_velocity_y() <= 0.f)
+  {
+    deactivate();
     set_state(STATE_INACTIVE);
   }
 
@@ -249,6 +252,7 @@ BadGuy::update(float dt_sec)
     case STATE_INIT:
     case STATE_INACTIVE:
       m_is_active_flag = false;
+      m_in_water = !Sector::get().is_free_of_tiles(m_col.get_bbox(), false, Tile::WATER);
       inactive_update(dt_sec);
       try_activate();
       break;
@@ -364,7 +368,7 @@ BadGuy::collision_tile(uint32_t tile_attributes)
   // Don't kill badguys that have already been killed
   if (!is_active()) return;
 
-  if (tile_attributes & Tile::WATER && !is_in_water())
+  if (tile_attributes & Tile::WATER && !(tile_attributes & Tile::HURTS) && !is_in_water())
   {
     m_in_water = true;
     SoundManager::current()->play("sounds/splash.flac", get_pos());
@@ -745,7 +749,9 @@ BadGuy::might_fall(int height) const
     x1 = m_col.m_bbox.get_right();
     x2 = m_col.m_bbox.get_right() + 1;
   }
-  return Sector::get().is_free_of_statics(Rectf(x1, y1, x2, y2));
+  const Rectf rect = Rectf(x1, y1, x2, y2);
+
+  return Sector::get().is_free_of_statics(rect) && Sector::get().is_free_of_specifically_movingstatics(rect);
 }
 
 Player*

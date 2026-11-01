@@ -174,6 +174,7 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
   m_jump_early_apex(false),
   m_on_ice(false),
   m_ice_this_frame(false),
+  m_squeeze_dirsign(0.f),
   m_lightsprite(SpriteManager::current()->create("images/creatures/tux/light.sprite")),
   m_powersprite(SpriteManager::current()->create("images/creatures/tux/powerups.sprite")),
   m_dir(Direction::RIGHT),
@@ -335,74 +336,77 @@ Player::update(float dt_sec)
   //handling of swimming
 
 #ifdef SWIMMING
-  if (no_water)
+  if (!m_ghost_mode)
   {
+    if (no_water)
+    {
+      if (m_swimming)
+      {
+        m_water_jump = true;
+        if (m_physic.get_velocity_y() > -350.f && m_controller->hold(Control::UP))
+          m_physic.set_velocity_y(-350.f);
+      }
+      m_swimming = false;
+    }
+
+    if ((on_ground() || m_climbing || m_does_buttjump) && m_water_jump)
+    {
+      if (is_big() && !adjust_height(BIG_TUX_HEIGHT))
+      {
+        //Force Tux's box up a little in order to not phase into floor
+        adjust_height(BIG_TUX_HEIGHT, 10.f);
+        do_duck();
+      }
+      else if (!is_big())
+      {
+        adjust_height(SMALL_TUX_HEIGHT);
+      }
+      m_dir = (m_physic.get_velocity_x() >= 0.f) ? Direction::RIGHT : Direction::LEFT;
+      m_water_jump = false;
+      m_swimboosting = false;
+      m_powersprite->set_angle(0.f);
+      m_lightsprite->set_angle(0.f);
+    }
+    no_water = true;
+
+    if ((m_swimming || m_water_jump) && is_big())
+    {
+      m_col.set_size(TUX_WIDTH, TUX_WIDTH);
+      adjust_height(TUX_WIDTH);
+    }
+
+    Rectf swim_here_box = get_bbox();
+    swim_here_box.set_bottom(m_col.m_bbox.get_bottom() - 16.f);
+    bool can_swim_here = !Sector::get().is_free_of_tiles(swim_here_box, true, Tile::WATER);
+
     if (m_swimming)
     {
-      m_water_jump = true;
-      if (m_physic.get_velocity_y() > -350.f && m_controller->hold(Control::UP))
-        m_physic.set_velocity_y(-350.f);
-    }
-    m_swimming = false;
-  }
-
-  if ((on_ground() || m_climbing || m_does_buttjump) && m_water_jump)
-  {
-    if (is_big() && !adjust_height(BIG_TUX_HEIGHT))
-    {
-      //Force Tux's box up a little in order to not phase into floor
-      adjust_height(BIG_TUX_HEIGHT, 10.f);
-      do_duck();
-    }
-    else if (!is_big())
-    {
-      adjust_height(SMALL_TUX_HEIGHT);
-    }
-    m_dir = (m_physic.get_velocity_x() >= 0.f) ? Direction::RIGHT : Direction::LEFT;
-    m_water_jump = false;
-    m_swimboosting = false;
-    m_powersprite->set_angle(0.f);
-    m_lightsprite->set_angle(0.f);
-  }
-  no_water = true;
-
-  if ((m_swimming || m_water_jump) && is_big())
-  {
-    m_col.set_size(TUX_WIDTH, TUX_WIDTH);
-    adjust_height(TUX_WIDTH);
-  }
-
-  Rectf swim_here_box = get_bbox();
-  swim_here_box.set_bottom(m_col.m_bbox.get_bottom() - 16.f);
-  bool can_swim_here = !Sector::get().is_free_of_tiles(swim_here_box, true, Tile::WATER);
-
-  if (m_swimming)
-  {
-    if (can_swim_here)
-    {
-      no_water = false;
+      if (can_swim_here)
+      {
+        no_water = false;
+      }
+      else
+      {
+        m_swimming = false;
+        m_water_jump = true;
+        if (m_physic.get_velocity_y() > -350.f && m_controller->hold(Control::UP))
+          m_physic.set_velocity_y(-350.f);
+      }
     }
     else
     {
-      m_swimming = false;
-      m_water_jump = true;
-      if (m_physic.get_velocity_y() > -350.f && m_controller->hold(Control::UP))
-        m_physic.set_velocity_y(-350.f);
-    }
-  }
-  else
-  {
-    if (can_swim_here && !m_stone && !m_climbing)
-    {
-      no_water = false;
-      m_water_jump = false;
-      m_swimming = true;
-      m_swimming_angle = math::angle(Vector(m_physic.get_velocity_x(), m_physic.get_velocity_y()));
-      if (is_big())
-        adjust_height(TUX_WIDTH);
-      m_wants_buttjump = m_does_buttjump = m_backflipping = false;
-      m_dir = (m_physic.get_velocity_x() > 0) ? Direction::LEFT : Direction::RIGHT;
-      SoundManager::current()->play("sounds/splash2.flac");
+      if (can_swim_here && !m_stone && !m_climbing)
+      {
+        no_water = false;
+        m_water_jump = false;
+        m_swimming = true;
+        m_swimming_angle = math::angle(Vector(m_physic.get_velocity_x(), m_physic.get_velocity_y()));
+        if (is_big())
+          adjust_height(TUX_WIDTH);
+        m_wants_buttjump = m_does_buttjump = m_backflipping = false;
+        m_dir = (m_physic.get_velocity_x() > 0) ? Direction::LEFT : Direction::RIGHT;
+        SoundManager::current()->play("sounds/splash2.flac");
+      }
     }
   }
 #endif
@@ -877,6 +881,21 @@ Player::handle_horizontal_input()
     ax *= ICE_ACCELERATION_MULTIPLIER;
   }
 
+  // A squeeze stops Tux, and pushing on stays stopped until there's room
+  if (get_collision_object()->get_pressure() != Vector(0.0f, 0.0f)) {
+    vx = 0.0f; vy = 0.0f;
+    ax = 0.0f; ay = 0.0f;
+    m_squeeze_dirsign = dirsign;
+  } else if (m_squeeze_dirsign != 0.f) {
+    const Rectf ahead = get_bbox().moved(Vector(m_squeeze_dirsign, 0.0f));
+    if (dirsign == m_squeeze_dirsign && on_ground() && !Sector::get().is_free_of_statics(ahead, this, true)) {
+      vx = 0.0f;
+      ax = 0.0f;
+    } else {
+      m_squeeze_dirsign = 0.f;
+    }
+  }
+
   m_physic.set_velocity(vx, vy);
   m_physic.set_acceleration(ax, ay);
 
@@ -920,13 +939,14 @@ Player::do_duck() {
 
 void
 Player::do_standup(bool force_standup) {
-  if (!m_duck)
+  if (!m_duck || !is_big() || m_backflipping || m_stone)
     return;
-  if (!is_big())
-    return;
-  if (m_backflipping)
-    return;
-  if (m_stone)
+
+  Rectf new_bbox = m_col.m_bbox;
+  float new_height = m_swimming ? TUX_WIDTH : BIG_TUX_HEIGHT;
+  new_bbox.move(Vector(0, m_col.m_bbox.get_height() - new_height));
+  new_bbox.set_height(new_height);
+  if (!Sector::get().is_free_of_movingstatics(new_bbox, this, true) && !force_standup)
     return;
 
   if (m_swimming ? adjust_height(TUX_WIDTH) : adjust_height(BIG_TUX_HEIGHT)) {
@@ -960,7 +980,7 @@ Player::do_backflip() {
 
 void
 Player::do_jump(float yspeed) {
-  if (!m_can_walljump && !m_in_walljump_tile && !on_ground() && !m_coyote_timer.started())
+  if (!m_can_walljump && !on_ground() && !m_coyote_timer.started())
     return;
 
   // jump only if it would make Tux go faster upwards
@@ -1121,10 +1141,10 @@ Player::handle_input()
   }
 
   /* Peeking */
-  if ( m_controller->released( Control::PEEK_LEFT ) || m_controller->released( Control::PEEK_RIGHT ) ) {
+  if (!m_controller->hold( Control::PEEK_LEFT ) && !m_controller->hold( Control::PEEK_RIGHT )) {
     m_peekingX = Direction::AUTO;
   }
-  if ( m_controller->released( Control::PEEK_UP ) || m_controller->released( Control::PEEK_DOWN ) ) {
+  if (!m_controller->hold( Control::PEEK_UP ) && !m_controller->hold( Control::PEEK_DOWN )) {
     m_peekingY = Direction::AUTO;
   }
   if ( m_controller->pressed( Control::PEEK_LEFT ) ) {
@@ -1336,7 +1356,7 @@ Player::try_grab()
     for (auto& moving_object : Sector::get().get_objects_by_type<MovingObject>())
     {
       Portable* portable = dynamic_cast<Portable*>(&moving_object);
-      if (portable && portable->is_portable())
+      if (portable && portable->is_portable() && !portable->is_grabbed())
       {
         // make sure the Portable isn't currently non-solid
         if (moving_object.get_group() == COLGROUP_DISABLED) continue;
@@ -1737,8 +1757,8 @@ Player::draw(DrawingContext& context)
     m_sprite->draw(context.color(), get_pos() + shake_delta, LAYER_OBJECTS + 1);
     // draw hardhat
     m_powersprite->draw(context.color(), get_pos() + shake_delta, LAYER_OBJECTS + 1);
-    // light
-    m_lightsprite->draw(context.light(), get_pos(), 0);
+    // light, drawn after the light reads so magic blocks ignore it
+    m_lightsprite->draw(context.light(), get_pos(), LAYER_GETPIXEL + 1);
 
     // give an indicator that stone form cannot be used for a while
     if (m_cooldown_timer.started() && graphicsRandom.rand(0, 4) == 0) {
@@ -2227,6 +2247,17 @@ Player::ungrab_object(GameObject* gameobject)
   if (!gameobject)
     m_grabbed_object->ungrab(*this, m_dir);
 
+  GameObject* go = dynamic_cast<GameObject*>(m_grabbed_object);
+
+  if (go && m_grabbed_object_remove_listener)
+    go->del_remove_listener(m_grabbed_object_remove_listener.get());
+
+  m_grabbed_object = nullptr;
+}
+
+void
+Player::stop_grabbing()
+{
   GameObject* go = dynamic_cast<GameObject*>(m_grabbed_object);
 
   if (go && m_grabbed_object_remove_listener)
