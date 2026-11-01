@@ -21,6 +21,7 @@
 #include <sstream>
 
 #include "object/player.hpp"
+#include "supertux/game_session.hpp"
 #include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
@@ -54,6 +55,10 @@ LevelTime::update(float dt_sec)
   int prev_time = static_cast<int>(floorf(time_left*5));
   time_left -= dt_sec;
   if (time_left <= 0) {
+    // Needed to avoid charging a player coins if they had a checkpoint
+    if (GameSession::current())
+      GameSession::current()->set_reset_point("", Vector());
+
     if (time_left <= -5 || !Sector::get().get_player().get_coins())
     {
       Sector::get().get_player().kill(true);
