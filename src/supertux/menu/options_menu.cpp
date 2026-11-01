@@ -63,6 +63,7 @@ enum OptionsMenuIDs {
   MNID_ASPECTRATIO,
   MNID_VSYNC,
   MNID_FLASH_INTENSITY,
+  MNID_CAMERA_SHAKE,
   MNID_SOUND,
   MNID_MUSIC,
   MNID_SOUND_VOLUME,
@@ -302,6 +303,9 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
 
     add_string_select(MNID_FLASH_INTENSITY, "Flash Intensity", &next_flash_intensity, flash_intensities)
       .set_help("Configure thunderstorm lightning flash brightness");
+
+    add_toggle(MNID_CAMERA_SHAKE, "Camera Shake", &g_config->camera_shake)
+      .set_help("Shake the screen on heavy landings");
 
     m_renderer_item = &add_submenu("", MenuStorage::RENDERER_MENU);
     m_renderer_item->set_help("How the game draws to the screen. A change takes effect after a restart");

@@ -67,6 +67,7 @@ public:
   int vsync;
   /** How bright a thunderstorm's lightning is, in percent of its full flash */
   int flash_intensity;
+  bool camera_shake;
   bool show_fps;
   bool show_player_pos;
   bool show_controller;

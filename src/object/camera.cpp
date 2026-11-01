@@ -22,6 +22,8 @@
 
 #include "math/util.hpp"
 #include "object/player.hpp"
+#include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"
 #include "util/file_system.hpp"
@@ -236,6 +238,11 @@ Camera::reset(const Vector& tuxpos)
 void
 Camera::shake(float duration, float x, float y)
 {
+  if (!g_config->camera_shake)
+  {
+    return;
+  }
+
   m_shaketimer.start(duration);
   m_shakedepth_x = x;
   m_shakedepth_y = y;

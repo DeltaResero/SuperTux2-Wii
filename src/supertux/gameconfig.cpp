@@ -40,6 +40,7 @@ Config::Config() :
   video(VideoSystem::VIDEO_AUTO),
   vsync(-1),
   flash_intensity(100),
+  camera_shake(true),
   show_fps(false),
   show_player_pos(false),
   show_controller(false),
@@ -135,6 +136,13 @@ Config::load()
     config_video_mapping->get("flash_intensity", flash_intensity);
     flash_intensity = std::clamp(flash_intensity, 0, 100);
 
+    // Upstream's "reduced" leaves out earthquakes, and there are none here to leave out
+    std::string screen_shake_mode;
+    if (config_video_mapping->get("screen_shake_mode", screen_shake_mode))
+    {
+      camera_shake = (screen_shake_mode != "off");
+    }
+
     config_video_mapping->get("magnification", magnification);
 
   }
@@ -214,6 +222,7 @@ Config::save()
   writer.write("aspect_width",  aspect_size.width);
   writer.write("aspect_height", aspect_size.height);
   writer.write("flash_intensity", flash_intensity);
+  writer.write("screen_shake_mode", camera_shake ? "full" : "off");
 
 
   writer.write("magnification", magnification);
