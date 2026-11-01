@@ -26,7 +26,19 @@
 GLProgram::GLProgram() :
   m_program(glCreateProgram()),
   m_frag_shader(),
-  m_vert_shader()
+  m_vert_shader(),
+  m_backbuffer_location(-1),
+  m_fragcoord2uv_location(-1),
+  m_diffuse_texture_location(-1),
+  m_displacement_texture_location(-1),
+  m_framebuffer_texture_location(-1),
+  m_game_time_location(-1),
+  m_modelviewprojection_location(-1),
+  m_animate_location(-1),
+  m_displacement_animate_location(-1),
+  m_position_location(-1),
+  m_texcoord_location(-1),
+  m_diffuse_location(-1)
 {
   assert_gl();
 
@@ -50,6 +62,20 @@ GLProgram::GLProgram() :
     out << "link failure:\n" << get_info_log() << std::endl;
     throw std::runtime_error(out.str());
   }
+
+  // A linked program's locations never change
+  m_backbuffer_location = get_uniform_location("backbuffer");
+  m_fragcoord2uv_location = get_uniform_location("fragcoord2uv");
+  m_diffuse_texture_location = get_uniform_location("diffuse_texture");
+  m_displacement_texture_location = get_uniform_location("displacement_texture");
+  m_framebuffer_texture_location = get_uniform_location("framebuffer_texture");
+  m_game_time_location = get_uniform_location("game_time");
+  m_modelviewprojection_location = get_uniform_location("modelviewprojection");
+  m_animate_location = get_uniform_location("animate");
+  m_displacement_animate_location = get_uniform_location("displacement_animate");
+  m_position_location = get_attrib_location("position");
+  m_texcoord_location = get_attrib_location("texcoord");
+  m_diffuse_location = get_attrib_location("diffuse");
 
   assert_gl();
 }
