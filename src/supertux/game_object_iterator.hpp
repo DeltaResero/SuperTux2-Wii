@@ -18,6 +18,8 @@
 #define HEADER_SUPERTUX_SUPERTUX_GAME_OBJECT_ITERATOR_HPP
 
 #include <memory>
+#include <type_traits>
+#include <typeinfo>
 #include <vector>
 
 #include "game_object_manager.hpp"
@@ -107,6 +109,54 @@ private:
   T* m_object;
 };
 
+/** Walks the manager's list of objects of exactly type T, so none needs a dynamic_cast */
+template<typename T>
+class ExactObjectIterator
+{
+public:
+  using Iterator = std::vector<GameObject*>::const_iterator;
+
+public:
+  ExactObjectIterator(Iterator it) :
+    m_it(it)
+  {
+  }
+
+  ExactObjectIterator& operator++()
+  {
+    ++m_it;
+    return *this;
+  }
+
+  ExactObjectIterator operator++(int)
+  {
+    ExactObjectIterator tmp(*this);
+    ++m_it;
+    return tmp;
+  }
+
+  T* operator->() const {
+    return static_cast<T*>(*m_it);
+  }
+
+  T& operator*() const {
+    return *static_cast<T*>(*m_it);
+  }
+
+  bool operator==(const ExactObjectIterator& other) const
+  {
+    return m_it == other.m_it;
+  }
+
+  bool operator!=(const ExactObjectIterator& other) const
+  {
+    return !(*this == other);
+  }
+
+private:
+  Iterator m_it;
+};
+
 template<typename T>
 class GameObjectRange
 {
@@ -115,12 +165,19 @@ public:
     m_manager(manager)
   {}
 
-  GameObjectIterator<T> begin() const {
-    return GameObjectIterator<T>(m_manager.get_objects().begin(), m_manager.get_objects().end());
+  // A final class has no subclasses, so its own list holds every match, in the same order
+  auto begin() const {
+    if constexpr (std::is_final_v<T>)
+      return ExactObjectIterator<T>(m_manager.get_objects_by_type_index(typeid(T)).begin());
+    else
+      return GameObjectIterator<T>(m_manager.get_objects().begin(), m_manager.get_objects().end());
   }
 
-  GameObjectIterator<T> end() const {
-    return GameObjectIterator<T>(m_manager.get_objects().end(), m_manager.get_objects().end());
+  auto end() const {
+    if constexpr (std::is_final_v<T>)
+      return ExactObjectIterator<T>(m_manager.get_objects_by_type_index(typeid(T)).end());
+    else
+      return GameObjectIterator<T>(m_manager.get_objects().end(), m_manager.get_objects().end());
   }
 
 private:
