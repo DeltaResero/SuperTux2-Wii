@@ -204,7 +204,8 @@ WorldMapParser::load_level_information(LevelTile& level)
       return;
     }
 
-    auto doc = ReaderDocument::from_file(filename);
+    // Reads only the level's own settings and skips what's nested in them
+    auto doc = ReaderDocument::from_file(filename, 1);
     auto root = doc.get_root();
     if (root.get_name() != "supertux-level") {
       return;

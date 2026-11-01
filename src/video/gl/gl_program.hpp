@@ -32,10 +32,22 @@ public:
 
   void bind();
 
-  GLint get_attrib_location(const char* name) const;
-  GLint get_uniform_location(const char* name) const;
+  GLint get_backbuffer_location() const { return m_backbuffer_location; }
+  GLint get_fragcoord2uv_location() const { return m_fragcoord2uv_location; }
+  GLint get_diffuse_texture_location() const { return m_diffuse_texture_location; }
+  GLint get_displacement_texture_location() const { return m_displacement_texture_location; }
+  GLint get_framebuffer_texture_location() const { return m_framebuffer_texture_location; }
+  GLint get_game_time_location() const { return m_game_time_location; }
+  GLint get_modelviewprojection_location() const { return m_modelviewprojection_location; }
+  GLint get_animate_location() const { return m_animate_location; }
+  GLint get_displacement_animate_location() const { return m_displacement_animate_location; }
+  GLint get_position_location() const { return m_position_location; }
+  GLint get_texcoord_location() const { return m_texcoord_location; }
+  GLint get_diffuse_location() const { return m_diffuse_location; }
 
 private:
+  GLint get_attrib_location(const char* name) const;
+  GLint get_uniform_location(const char* name) const;
   bool get_link_status() const;
   std::string get_info_log() const;
 
@@ -44,6 +56,19 @@ private:
 
   std::unique_ptr<GLShader> m_frag_shader;
   std::unique_ptr<GLShader> m_vert_shader;
+
+  GLint m_backbuffer_location;
+  GLint m_fragcoord2uv_location;
+  GLint m_diffuse_texture_location;
+  GLint m_displacement_texture_location;
+  GLint m_framebuffer_texture_location;
+  GLint m_game_time_location;
+  GLint m_modelviewprojection_location;
+  GLint m_animate_location;
+  GLint m_displacement_animate_location;
+  GLint m_position_location;
+  GLint m_texcoord_location;
+  GLint m_diffuse_location;
 
 private:
   GLProgram(const GLProgram&) = delete;
