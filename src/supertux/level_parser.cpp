@@ -33,7 +33,7 @@ LevelParser::get_level_name(const std::string& filename)
 {
   try
   {
-    auto doc = ReaderDocument::from_file(filename);
+    auto doc = ReaderDocument::from_file(filename, 1);
     auto root = doc.get_root();
 
     if (root.get_name() != "supertux-level") {

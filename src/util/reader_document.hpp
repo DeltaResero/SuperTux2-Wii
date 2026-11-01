@@ -28,8 +28,8 @@
 class ReaderDocument final
 {
 public:
-  static ReaderDocument from_stream(std::istream& stream, const std::string& filename = "<stream>");
-  static ReaderDocument from_file(const std::string& filename);
+  static ReaderDocument from_stream(std::istream& stream, const std::string& filename = "<stream>", int depth = -1);
+  static ReaderDocument from_file(const std::string& filename, int depth = -1);
 
 public:
   ReaderDocument(const std::string& filename, sexp::Value sx);
