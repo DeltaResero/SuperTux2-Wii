@@ -69,6 +69,7 @@ enum OptionsMenuIDs {
   MNID_DEVELOPER_MODE,
   MNID_CHRISTMAS_MODE,
   MNID_TRANSITIONS,
+  MNID_SHOW_GAME_TIMER,
   MNID_CONFIRMATION_DIALOG,
   MNID_PAUSE_ON_FOCUSLOSS,
   MNID_CUSTOM_CURSOR
@@ -341,6 +342,9 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
 
     MenuItem& enable_transitions = add_toggle(MNID_TRANSITIONS, "Enable transitions", &g_config->transitions_enabled);
     enable_transitions.set_help("Enable screen transitions and smooth menu animation");
+
+    add_toggle(MNID_SHOW_GAME_TIMER, "Show game timer", &g_config->show_game_timer)
+      .set_help("Show how long you've been playing the level");
 
     if (g_config->is_christmas() || g_config->christmas_mode)
     {

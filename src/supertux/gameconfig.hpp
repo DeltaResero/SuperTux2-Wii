@@ -68,6 +68,7 @@ public:
   bool show_fps;
   bool show_player_pos;
   bool show_controller;
+  bool show_game_timer;
   bool sound_enabled;
   bool music_enabled;
   int sound_volume;

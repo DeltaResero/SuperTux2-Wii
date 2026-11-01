@@ -21,6 +21,8 @@
 #include <sstream>
 
 #include "object/player.hpp"
+#include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
@@ -80,6 +82,11 @@ LevelTime::draw(DrawingContext& context)
     if (time_surface)
     {
       float all_width = static_cast<float>(time_surface->get_width()) + Resources::normal_font->get_text_width(time_text);
+      // Moves aside for the game timer
+      if (g_config->show_game_timer)
+      {
+        all_width += static_cast<float>(context.get_width()) * 0.2f;
+      }
       context.color().draw_surface(time_surface,
                                    Vector((static_cast<float>(context.get_width()) - all_width) / 2.0f,
                                           BORDER_Y + 1),
