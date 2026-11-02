@@ -26,6 +26,7 @@
 #include "object/bordered.hpp"
 #include "supertux/d_scope.hpp"
 #include "supertux/debug.hpp"
+#include "supertux/gameconfig.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/sector.hpp"
 #include "supertux/tile.hpp"
@@ -283,6 +284,10 @@ TileMap::update(float dt_sec)
     }
   }
 
+  m_flashes.erase(std::remove_if(m_flashes.begin(), m_flashes.end(),
+                                 [this](const Flash& flash) { return m_tiles[flash.index] != flash.over; }),
+                  m_flashes.end());
+
   m_movement = Vector(0,0);
   // if we have a path to follow, follow it
   if (get_walker()) {
@@ -371,10 +376,23 @@ TileMap::draw(DrawingContext& context)
   Vector pos(0.0f, 0.0f);
   int tx, ty;
 
-  std::unordered_map<SurfacePtr,
-                     std::tuple<std::vector<Rectf>,
-                                std::vector<Rectf>,
-                                std::vector<uint8_t>>> batches;
+  using Batches = std::unordered_map<SurfacePtr,
+                                     std::tuple<std::vector<Rectf>,
+                                                std::vector<Rectf>,
+                                                std::vector<uint8_t>>>;
+  Batches batches;
+
+  // Below 100% Flash Intensity a flash's tile is mixed into the one under it, a tenth kept so the hazard shows
+  const float flash_mix = 0.1f + 0.9f * static_cast<float>(g_config->flash_intensity) / 100.0f;
+  std::unordered_map<int, uint32_t> flash_under;
+  if (flash_mix < 1.0f)
+  {
+    for (const auto& flash : m_flashes)
+    {
+      if (m_tiles[flash.index] == flash.over) flash_under[flash.index] = flash.under;
+    }
+  }
+  Batches flash_batches;
 
   // Worldmap roads carry on across layers, so an empty side here isn't an edge
   const bool fades = !d_worldmap;
@@ -384,8 +402,8 @@ TileMap::draw(DrawingContext& context)
     return fades && x >= 0 && y >= 0 && x < m_width && y < m_height && m_tiles[y * m_width + x] == 0 &&
            !(on_grid && bordered::tile_beside(*d_gameobject_manager, *this, x, y));
   };
-  const auto add_tile = [&](int x, int y, const Vector& at) {
-    const SurfacePtr& picture = m_tileset->get(m_tiles[y * m_width + x]).get_current_surface();
+  const auto add_tile_to = [&](Batches& to, uint32_t id, int x, int y, const Vector& at) {
+    const SurfacePtr& picture = m_tileset->get(id).get_current_surface();
     if (!picture) return;
     // A mirror shows nothing above it where something in front lies on its top
     const Vector cell = get_tile_position(x, y) / 32.0f;
@@ -393,7 +411,7 @@ TileMap::draw(DrawingContext& context)
                        bordered::top_covered(*d_gameobject_manager, get_layer(), static_cast<int>(std::lround(cell.x)),
                                              static_cast<int>(std::lround(cell.y)));
     const SurfacePtr& surface = plain ? picture->get_plain() : picture;
-    auto& batch = batches[surface];
+    auto& batch = to[surface];
     std::get<0>(batch).emplace_back(surface->get_region());
     std::get<1>(batch).emplace_back(at, Sizef(static_cast<float>(surface->get_width()),
                                               static_cast<float>(surface->get_height())));
@@ -401,6 +419,17 @@ TileMap::draw(DrawingContext& context)
                                                       (empty(x + 1, y) ? FADE_RIGHT : 0) |
                                                       (empty(x, y - 1) ? FADE_TOP : 0) |
                                                       (empty(x, y + 1) ? FADE_BOTTOM : 0)));
+  };
+  const auto add_tile = [&](int x, int y, const Vector& at) {
+    const int index = y * m_width + x;
+    const auto under = flash_under.find(index);
+    if (under == flash_under.end())
+    {
+      add_tile_to(batches, m_tiles[index], x, y, at);
+      return;
+    }
+    add_tile_to(batches, under->second, x, y, at);
+    if (flash_mix > 0.0f) add_tile_to(flash_batches, m_tiles[index], x, y, at);
   };
 
   bool in_copies = false;
@@ -424,6 +453,8 @@ TileMap::draw(DrawingContext& context)
       in_copies = m_bordered->draw(*this, t_draw_rect, {}, draws, loose);
     }
   }
+  // The copies hold the flash at full strength
+  if (!flash_under.empty()) in_copies = false;
   if (in_copies)
   {
     for (auto& draw : draws)
@@ -483,6 +514,14 @@ TileMap::draw(DrawingContext& context)
                               std::vector<uint8_t>(count, 0), std::move(draw.shines));
   }
 
+  Color flash_color = m_current_tint;
+  flash_color.alpha *= flash_mix;
+  for (auto& it : flash_batches)
+  {
+    canvas.draw_surface_batch(it.first, std::move(std::get<0>(it.second)), std::move(std::get<1>(it.second)),
+                              flash_color, m_z_pos, std::move(std::get<2>(it.second)));
+  }
+
   context.pop_transform();
 }
 
@@ -520,6 +559,7 @@ TileMap::set(int newwidth, int newheight, const std::vector<unsigned int>&newt,
 
   m_tiles.resize(newt.size());
   m_tiles = newt;
+  m_flashes.clear();
 
   if (new_z_pos > (LAYER_GUI - 100))
     m_z_pos = LAYER_GUI - 100;
@@ -538,6 +578,7 @@ TileMap::resize(int new_width, int new_height, int fill_id,
                 int xoffset, int yoffset)
 {
   ++m_revision;
+  m_flashes.clear();
   bool offset_finished_x = false;
   bool offset_finished_y = false;
   if (xoffset < 0 && new_width - m_width < 0)
@@ -722,6 +763,19 @@ TileMap::change_all(uint32_t oldtile, uint32_t newtile)
 
       change(x,y,newtile);
     }
+  }
+}
+
+void
+TileMap::flash_all(uint32_t oldtile, uint32_t newtile)
+{
+  for (int index = 0; index < m_width * m_height; ++index) {
+    if (m_tiles[index] != oldtile)
+      continue;
+
+    ++m_revision;
+    m_tiles[index] = newtile;
+    m_flashes.push_back({index, oldtile, newtile});
   }
 }
 

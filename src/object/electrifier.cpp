@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "object/tilemap.hpp"
 #include "supertux/sector.hpp"
 
 Electrifier::Electrifier(TileChangeMap replacements, float seconds) :
@@ -26,7 +27,9 @@ Electrifier::Electrifier(TileChangeMap replacements, float seconds) :
 {
   duration.start(seconds);
   for (auto& tile : change_map) {
-    Sector::get().change_solid_tiles(tile.first, tile.second);
+    for (auto& solids : Sector::get().get_solid_tilemaps()) {
+      solids->flash_all(tile.first, tile.second);
+    }
   }
 }
 
