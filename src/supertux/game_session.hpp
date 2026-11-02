@@ -88,6 +88,7 @@ private:
 
   void drawstatus(DrawingContext& context);
   void draw_pause(DrawingContext& context);
+  void draw_timer(DrawingContext& context) const;
 
   void on_escape_press(bool force_quick_respawn);
 
@@ -130,6 +131,8 @@ private:
   Statistics* m_best_level_statistics;
   Savegame& m_savegame;
 
+  // Note: m_play_time should reset when a level is restarted from the beginning
+  //       but NOT if Tux respawns at a checkpoint (for LevelTimes to work)
   float m_play_time; /**< total time in seconds that this session ran interactively */
 
   bool m_levelintro_shown; /**< true if the LevelIntro screen was already shown */

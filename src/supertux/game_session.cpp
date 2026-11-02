@@ -16,7 +16,9 @@
 
 #include "supertux/game_session.hpp"
 
+#include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cfloat>
 #include <exception>
 #include <optional>
@@ -42,6 +44,7 @@
 #include "supertux/levelintro.hpp"
 #include "supertux/levelset_screen.hpp"
 #include "supertux/menu/menu_storage.hpp"
+#include "supertux/resources.hpp"
 #include "supertux/savegame.hpp"
 #include "supertux/screen_manager.hpp"
 #include "supertux/sector.hpp"
@@ -162,6 +165,15 @@ GameSession::restart_level(bool after_death)
   } else {
     SoundManager::current()->stop_music();
     music_object.play_music(LEVEL_MUSIC);
+  }
+
+  auto level_times = m_currentsector->get_objects_by_type<LevelTime>();
+  auto it = level_times.begin();
+
+  while (it != level_times.end())
+  {
+    it->set_time(it->get_time() - m_play_time);
+    it++;
   }
 
   start_recording();
@@ -582,7 +594,48 @@ GameSession::drawstatus(DrawingContext& context)
 
   m_level->m_stats.draw_ingame_stats(context, m_game_pause);
 
+  if (g_config->show_game_timer)
+  {
+    draw_timer(context);
+  }
+
   context.pop_transform();
+}
+
+void
+GameSession::draw_timer(DrawingContext& context) const
+{
+  // One character at a time in slots as wide as the widest digit, so the time holds still and the text cache only ever makes twelve
+  static const float digit_width = [] {
+    float width = 0.0f;
+    for (char digit = '0'; digit <= '9'; ++digit)
+    {
+      width = std::max(width, Resources::normal_font->get_text_width(std::string(1, digit)));
+    }
+    return width;
+  }();
+
+  const std::string text = (m_play_time > 0.0f) ? Statistics::time_to_string(m_play_time) : "00:00.00";
+  float text_width = 0.0f;
+  for (char c : text)
+  {
+    text_width += std::isdigit(static_cast<unsigned char>(c)) ? digit_width : Resources::normal_font->get_text_width(std::string(1, c));
+  }
+
+  // A level's time limit sits at the same spot, and the two move apart to share it
+  float x = static_cast<float>(context.get_width()) / 2.0f - text_width / 2.0f;
+  if (m_currentsector->get_object_count<LevelTime>() > 0)
+  {
+    x += static_cast<float>(context.get_width()) * 0.1f;
+  }
+
+  for (char c : text)
+  {
+    const std::string character(1, c);
+    const float width = std::isdigit(static_cast<unsigned char>(c)) ? digit_width : Resources::normal_font->get_text_width(character);
+    context.color().draw_text(Resources::normal_font, character, Vector(x + width / 2.0f, BORDER_Y), ALIGN_CENTER, LAYER_HUD);
+    x += width;
+  }
 }
 
 /* EOF */

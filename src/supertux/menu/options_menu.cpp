@@ -33,6 +33,7 @@
 #include "supertux/game_session.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/menu/menu_storage.hpp"
+#include "supertux/menu/renderer_menu.hpp"
 #include "supertux/menu/resolution_menu.hpp"
 #include "util/log.hpp"
 #include "video/renderer.hpp"
@@ -61,6 +62,8 @@ enum OptionsMenuIDs {
   MNID_MAGNIFICATION,
   MNID_ASPECTRATIO,
   MNID_VSYNC,
+  MNID_FLASH_INTENSITY,
+  MNID_CAMERA_SHAKE,
   MNID_SOUND,
   MNID_MUSIC,
   MNID_SOUND_VOLUME,
@@ -68,6 +71,7 @@ enum OptionsMenuIDs {
   MNID_DEVELOPER_MODE,
   MNID_CHRISTMAS_MODE,
   MNID_TRANSITIONS,
+  MNID_SHOW_GAME_TIMER,
   MNID_CONFIRMATION_DIALOG,
   MNID_PAUSE_ON_FOCUSLOSS,
   MNID_CUSTOM_CURSOR
@@ -82,12 +86,15 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
   next_vsync(0),
   next_sound_volume(0),
   next_music_volume(0),
+  next_flash_intensity(0),
   magnifications(),
   aspect_ratios(),
   vsyncs(),
   sound_volumes(),
   music_volumes(),
-  m_resolution_item(nullptr)
+  flash_intensities(),
+  m_resolution_item(nullptr),
+  m_renderer_item(nullptr)
 {
   switch (section)
   {
@@ -264,6 +271,13 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
     ++cnt_;
   }
 
+  // Flash intensity, where a value set by hand shows as the nearest step
+  for (int percent = 0; percent <= 100; percent += 10)
+  {
+    flash_intensities.push_back(std::to_string(percent) + "%");
+  }
+  next_flash_intensity = (g_config->flash_intensity + 5) / 10;
+
   if (section == Section::VIDEO)
   {
 #ifndef ENABLE_TOUCHSCREEN_SUPPORT
@@ -286,6 +300,15 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
     MenuItem& aspect = add_string_select(MNID_ASPECTRATIO, "Aspect Ratio", &next_aspect_ratio, aspect_ratios);
     aspect.set_help("Adjust the aspect ratio");
 #endif
+
+    add_string_select(MNID_FLASH_INTENSITY, "Flash Intensity", &next_flash_intensity, flash_intensities)
+      .set_help("Configure thunderstorm lightning flash brightness");
+
+    add_toggle(MNID_CAMERA_SHAKE, "Camera Shake", &g_config->camera_shake)
+      .set_help("Shake the screen on heavy landings");
+
+    m_renderer_item = &add_submenu("", MenuStorage::RENDERER_MENU);
+    m_renderer_item->set_help("How the game draws to the screen. A change takes effect after a restart");
   }
 
   if (section == Section::AUDIO)
@@ -337,6 +360,9 @@ OptionsMenu::OptionsMenu(Section section, bool complete) :
     MenuItem& enable_transitions = add_toggle(MNID_TRANSITIONS, "Enable transitions", &g_config->transitions_enabled);
     enable_transitions.set_help("Enable screen transitions and smooth menu animation");
 
+    add_toggle(MNID_SHOW_GAME_TIMER, "Show game timer", &g_config->show_game_timer)
+      .set_help("Show how long you've been playing the level");
+
     if (g_config->is_christmas() || g_config->christmas_mode)
     {
       add_toggle(MNID_CHRISTMAS_MODE, "Christmas Mode", &g_config->christmas_mode);
@@ -383,8 +409,14 @@ OptionsMenu::refresh()
     m_resolution_item->set_text("Resolution: " + current_resolution_text());
     m_resolution_item->set_help(g_config->use_fullscreen ? "The resolution the screen is switched to" :
                                                            "The size of the window the game is drawn in");
-    calculate_width();
   }
+
+  if (m_renderer_item)
+  {
+    m_renderer_item->set_text("Renderer: " + current_renderer_text());
+  }
+
+  calculate_width();
 }
 
 void
@@ -442,6 +474,10 @@ OptionsMenu::menu_action(MenuItem& item)
           break;
       }
       VideoSystem::current()->set_vsync(g_config->vsync);
+      break;
+
+    case MNID_FLASH_INTENSITY:
+      g_config->flash_intensity = next_flash_intensity * 10;
       break;
 
     case MNID_FULLSCREEN:

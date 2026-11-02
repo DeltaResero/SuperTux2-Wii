@@ -16,6 +16,7 @@
 
 #include "supertux/gameconfig.hpp"
 
+#include <algorithm>
 #include <exception>
 #include <stdexcept>
 
@@ -38,9 +39,12 @@ Config::Config() :
   use_fullscreen(false),
   video(VideoSystem::VIDEO_AUTO),
   vsync(-1),
+  flash_intensity(100),
+  camera_shake(true),
   show_fps(false),
   show_player_pos(false),
   show_controller(false),
+  show_game_timer(false),
   sound_enabled(true),
   music_enabled(true),
   sound_volume(100),
@@ -80,6 +84,7 @@ Config::load()
   config_mapping.get("show_fps", show_fps);
   config_mapping.get("show_player_pos", show_player_pos);
   config_mapping.get("show_controller", show_controller);
+  config_mapping.get("show_game_timer", show_game_timer);
   config_mapping.get("developer", developer_mode);
   config_mapping.get("confirmation_dialog", confirmation_dialog);
   config_mapping.get("pause_on_focusloss", pause_on_focusloss);
@@ -128,6 +133,15 @@ Config::load()
 
     config_video_mapping->get("aspect_width",  aspect_size.width);
     config_video_mapping->get("aspect_height", aspect_size.height);
+    config_video_mapping->get("flash_intensity", flash_intensity);
+    flash_intensity = std::clamp(flash_intensity, 0, 100);
+
+    // Upstream's "reduced" leaves out earthquakes, and there are none here to leave out
+    std::string screen_shake_mode;
+    if (config_video_mapping->get("screen_shake_mode", screen_shake_mode))
+    {
+      camera_shake = (screen_shake_mode != "off");
+    }
 
     config_video_mapping->get("magnification", magnification);
 
@@ -174,6 +188,7 @@ Config::save()
   writer.write("show_fps", show_fps);
   writer.write("show_player_pos", show_player_pos);
   writer.write("show_controller", show_controller);
+  writer.write("show_game_timer", show_game_timer);
   writer.write("developer", developer_mode);
   writer.write("confirmation_dialog", confirmation_dialog);
   writer.write("pause_on_focusloss", pause_on_focusloss);
@@ -206,6 +221,8 @@ Config::save()
 
   writer.write("aspect_width",  aspect_size.width);
   writer.write("aspect_height", aspect_size.height);
+  writer.write("flash_intensity", flash_intensity);
+  writer.write("screen_shake_mode", camera_shake ? "full" : "off");
 
 
   writer.write("magnification", magnification);

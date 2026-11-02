@@ -166,6 +166,9 @@ public:
   /** changes all tiles with the given ID */
   void change_all(uint32_t oldtile, uint32_t newtile);
 
+  /** Changes all tiles with the given ID for a flash, Flash Intensity dimming each one back towards the old tile */
+  void flash_all(uint32_t oldtile, uint32_t newtile);
+
   Flip get_flip() const { return m_flip; }
 
   /** Start fading the tilemap to opacity given by @c alpha.
@@ -243,6 +246,15 @@ private:
 
   int m_revision;
   std::unique_ptr<bordered::Layer> m_bordered;
+
+  struct Flash
+  {
+    int index;
+    uint32_t under;
+    uint32_t over;
+  };
+  /** Tiles flash_all changed that haven't been changed back yet */
+  std::vector<Flash> m_flashes;
 
 private:
   TileMap(const TileMap&) = delete;

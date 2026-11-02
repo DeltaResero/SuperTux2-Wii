@@ -18,6 +18,8 @@
 
 #include "audio/sound_manager.hpp"
 #include "object/electrifier.hpp"
+#include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader.hpp"
 #include "util/reader_mapping.hpp"
@@ -77,9 +79,9 @@ Thunderstorm::update(float )
 void
 Thunderstorm::draw(DrawingContext& context)
 {
-  if (!flash_display_timer.started()) return;
+  if (!flash_display_timer.started() || g_config->flash_intensity <= 0) return;
 
-  float alpha = 0.33f;
+  float alpha = 0.33f * static_cast<float>(g_config->flash_intensity) / 100.0f;
   context.push_transform();
   context.set_translation(Vector(0, 0));
   context.color().draw_filled_rect(Rectf(0, 0,
