@@ -207,6 +207,7 @@ protected:
   /** initial position of the enemy. Also the position where enemy
       respawns when after being deactivated. */
   bool is_offscreen() const;
+  bool is_offscreen(const Player* nearest) const;
 
   /** Returns true if we might soon fall at least @c height
       pixels. Minimum value for height is 1 pixel */
