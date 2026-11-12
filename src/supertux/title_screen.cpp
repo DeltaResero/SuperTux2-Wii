@@ -17,7 +17,7 @@
 
 #include "supertux/title_screen.hpp"
 
-#include <version.h>
+#include <config.h>
 #include <optional>
 
 #include "gui/menu_manager.hpp"

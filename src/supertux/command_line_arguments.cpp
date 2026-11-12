@@ -26,7 +26,6 @@
 #include "io/ifile_stream.hpp"
 #include "supertux/gameconfig.hpp"
 #include "util/file_system.hpp"
-#include "version.h"
 
 CommandLineArguments::CommandLineArguments() :
   m_action(NO_ACTION),

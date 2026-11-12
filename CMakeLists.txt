@@ -294,15 +294,6 @@ set(SUPERTUX_VERSION_STRING "${SUPERTUX_VERSION_MAJOR}.${SUPERTUX_VERSION_MINOR}
 
 set(SUPERTUX_VERSION ${SUPERTUX_VERSION_STRING})
 
-configure_file(version.h.in ${CMAKE_BINARY_DIR}/version.h )
-
-set_source_files_properties(${CMAKE_BINARY_DIR}/version.h
-  PROPERTIES GENERATED true)
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/main.cpp
-  PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_screen.cpp
-  PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-
 # Include altivec wrapper on ppc
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/ppc)
@@ -535,7 +526,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 ## Add target for supertux binary
 
-add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} ${SUPERTUX_SOURCES_C})
+add_library(supertux2_lib STATIC ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} ${SUPERTUX_SOURCES_C})
 
 target_link_libraries(supertux2_lib PUBLIC glm::glm)
 target_compile_definitions(supertux2_lib PUBLIC -DGLM_ENABLE_EXPERIMENTAL)
@@ -734,7 +725,7 @@ install(FILES "${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl" DESTINATION "${INS
 
 ## Create config.h now that INSTALL_SUBDIR_* have been set.
 
-configure_file(config.h.cmake ${CMAKE_BINARY_DIR}/config.h )
+configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
 ## Configure main menu logo
 if(("${SUPERTUX_VERSION_STRING}" MATCHES "^v[0-9]+\\.[0-9]+\\.[0-9]+$") OR IS_SUPERTUX_RELEASE)
