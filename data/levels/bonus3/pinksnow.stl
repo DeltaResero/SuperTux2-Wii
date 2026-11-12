@@ -12,7 +12,7 @@
     (background
       (color 1 1 1)
       (speed 0.5)
-      (image-top "images/background/arctis_top.jpg")
+      (image-top "images/background/misc/transparent_up.png")
       (image "images/background/arctis2.png")
       (image-bottom "images/background/arctis2.png")
     )
