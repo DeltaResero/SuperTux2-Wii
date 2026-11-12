@@ -92,6 +92,10 @@ private:
   SurfacePtr m_image; /**< image to draw, anchored at pos */
   SurfacePtr m_image_bottom; /**< image to draw below pos+screenheight */
 
+  /** Set when the top or bottom was asked to be blank and not left out */
+  bool m_blank_top;
+  bool m_blank_bottom;
+
   Blend m_blend;
   Color m_color;
   DrawingTarget m_target;
