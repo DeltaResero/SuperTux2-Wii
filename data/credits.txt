@@ -251,11 +251,23 @@
       (string "Level Design")
     )
     (blank)
-	(person
+    (person
+      (name "Abednego")
+    )
+    (person
       (name "AllytheOcelot")
     )
     (person
+      (name "Anja")
+    )
+    (person
       (name "Wolfgang Becker")
+    )
+    (person
+      (name "Tore Bergebakken")
+    )
+    (person
+      (name "Big C")
     )
     (person
       (name "Matthias \"MatzeB\" Braun")
@@ -264,13 +276,46 @@
       (name "CT. da'Bomb")
     )
     (person
+      (name "Denilson")
+    )
+    (person
+      (name "Tobe Deprez")
+    )
+    (person
+      (name "Torfi Gunnarsson")
+    )
+    (person
+      (name "Corlin Heydman")
+    )
+    (person
       (name "Hume")
     )
     (person
       (name "Kai Alex \"Serano\" Jockers")
     )
     (person
+      (name "Kevin")
+    )
+    (person
+      (name "Jason Kleinemas")
+    )
+    (person
+      (name "lazure")
+    )
+    (person
       (name "LMH")
+    )
+    (person
+      (name "Matr1x")
+    )
+    (person
+      (name "Nilrok")
+    )
+    (person
+      (name "Thomas Nilsen")
+    )
+    (person
+      (name "niso")
     )
     (person
       (name "Arvid Norlander")
@@ -279,13 +324,22 @@
       (name "Ingo \"grumbel\" Ruhnke")
     )
     (person
+      (name "Stuart Rynn")
+    )
+    (person
       (name "Christoph Sommer")
+    )
+    (person
+      (name "Jason W. Thompson")
+    )
+    (person
+      (name "Daniel \"WeLuvGoatz\" Ward")
     )
     (person
       (name "Carsten \"RustyBox\" Wirtz")
     )
-	(person
-      (name "Daniel \"WeLuvGoatz\" Ward")
+    (person
+      (name "Wolfs")
     )
     (blank)
     (blank)
