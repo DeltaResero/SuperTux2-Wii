@@ -76,6 +76,9 @@ public:
   /** How many pixels a tile-sized texture holds, or 0 by 0 for any other */
   Size get_pixel_size(const Texture& texture) const { return texture.m_pixel_size; }
 
+  /** Lets go of the decoded sheets that no loaded picture was cut from */
+  void release_unused_sheets();
+
   /** Lets go of all but the keep most recently used pixels */
   void trim_pixels(size_t keep);
 

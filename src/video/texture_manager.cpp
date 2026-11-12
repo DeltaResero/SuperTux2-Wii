@@ -24,8 +24,10 @@
 #include <exception>
 #include <functional>
 #include <iterator>
+#include <set>
 #include <sstream>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -601,6 +603,22 @@ TextureManager::get_pixels(const Texture& texture)
   }
   it->second.used = m_pixels_clock;
   return it->second.surface.get();
+}
+
+void
+TextureManager::release_unused_sheets()
+{
+  // A sheet with pictures still loaded stays, as tile joints and a new view size cut from it again
+  std::set<std::string> used;
+  for (const auto& entry : m_image_textures)
+  {
+    if (entry.second.expired()) continue;
+    used.insert(std::get<0>(entry.first));
+    used.insert(std::get<2>(entry.first));
+  }
+  std::erase_if(m_surfaces, [&used](const auto& entry) {
+    return !used.contains(entry.first);
+  });
 }
 
 void

@@ -40,6 +40,7 @@
 #include "util/log.hpp"
 #include "video/compositor.hpp"
 #include "video/drawing_context.hpp"
+#include "video/texture_manager.hpp"
 #include "video/ttf_surface_manager.hpp"
 
 #include <algorithm>
@@ -530,7 +531,7 @@ ScreenManager::handle_screen_switch()
         }
       }
 
-      // A closed screen took its objects with it, so their sprites and tiles can go
+      // A closed screen took its objects with it, so their sprites, tiles and sheets can go
       if (screen_closed)
       {
         if (SpriteManager::current() != nullptr)
@@ -540,6 +541,10 @@ ScreenManager::handle_screen_switch()
         if (TileManager::current() != nullptr)
         {
           TileManager::current()->release_unused();
+        }
+        if (TextureManager::current() != nullptr)
+        {
+          TextureManager::current()->release_unused_sheets();
         }
       }
 
