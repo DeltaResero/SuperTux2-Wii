@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_SPRITE_SPRITE_HPP
 #define HEADER_SUPERTUX_SPRITE_SPRITE_HPP
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -29,7 +30,7 @@
 class Sprite final
 {
 public:
-  Sprite(SpriteData& data);
+  Sprite(std::shared_ptr<SpriteData> data);
   ~Sprite();
 
   SpritePtr clone() const;
@@ -100,7 +101,7 @@ public:
 
   void set_blend(const Blend& blend);
 
-  bool has_action (const std::string& name) const { return (m_data.get_action(name) != nullptr); }
+  bool has_action (const std::string& name) const { return (m_data->get_action(name) != nullptr); }
 
   /** The frame drawn now */
   const SurfacePtr& get_current_surface();
@@ -111,7 +112,7 @@ public:
 private:
   void update();
 
-  SpriteData& m_data;
+  std::shared_ptr<SpriteData> m_data;
 
   // between 0 and 1
   float m_frame;

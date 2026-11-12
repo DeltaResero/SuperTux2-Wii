@@ -25,8 +25,8 @@
 #include "video/paint_style.hpp"
 #include "video/surface.hpp"
 
-Sprite::Sprite(SpriteData& newdata) :
-  m_data(newdata),
+Sprite::Sprite(std::shared_ptr<SpriteData> newdata) :
+  m_data(std::move(newdata)),
   m_frame(0),
   m_frameidx(0),
   m_animation_loops(-1),
@@ -35,10 +35,10 @@ Sprite::Sprite(SpriteData& newdata) :
   m_alpha(1.0f),
   m_color(1.0f, 1.0f, 1.0f, 1.0f),
   m_blend(),
-  m_action(m_data.get_action("normal"))
+  m_action(m_data->get_action("normal"))
 {
   if (!m_action)
-    m_action = m_data.actions.begin()->second.get();
+    m_action = m_data->actions.begin()->second.get();
   m_last_ticks = g_game_time;
 }
 
@@ -72,7 +72,7 @@ Sprite::set_action(const std::string& name, int loops)
   if (m_action && m_action->name == name)
     return;
 
-  const SpriteData::Action* newaction = m_data.get_action(name);
+  const SpriteData::Action* newaction = m_data->get_action(name);
   if (!newaction) {
     log_debug << "Action '" << name << "' not found." << std::endl;
     return;
@@ -97,7 +97,7 @@ Sprite::set_action_continued(const std::string& name)
   if (m_action && m_action->name == name)
     return;
 
-  const SpriteData::Action* newaction = m_data.get_action(name);
+  const SpriteData::Action* newaction = m_data->get_action(name);
   if (!newaction) {
     log_debug << "Action '" << name << "' not found." << std::endl;
     return;

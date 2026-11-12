@@ -23,6 +23,7 @@
 #include "gui/dialog.hpp"
 #include "gui/menu_manager.hpp"
 #include "gui/mousecursor.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "supertux/console.hpp"
 #include "supertux/constants.hpp"
@@ -497,6 +498,7 @@ ScreenManager::handle_screen_switch()
       // move actions to a new vector since setup() might modify it
       auto actions = std::move(m_actions);
       bool quit_action_triggered = false;
+      bool screen_closed = false;
 
       for (auto& action : actions)
       {
@@ -510,6 +512,7 @@ ScreenManager::handle_screen_switch()
               current_screen = nullptr;
             }
             m_screen_stack.pop_back();
+            screen_closed = true;
             break;
 
           case Action::PUSH_ACTION:
@@ -521,8 +524,15 @@ ScreenManager::handle_screen_switch()
             m_screen_stack.clear();
             current_screen = nullptr;
             quit_action_triggered = true;
+            screen_closed = true;
             break;
         }
+      }
+
+      // A closed screen took its objects with it, so their sprites can go
+      if (screen_closed && SpriteManager::current() != nullptr)
+      {
+        SpriteManager::current()->release_unused();
       }
 
       if (!quit_action_triggered)
