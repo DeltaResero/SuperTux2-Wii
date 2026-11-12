@@ -935,6 +935,7 @@ Layer::Layer() :
   m_revision(-1),
   m_generation(-1),
   m_cover(),
+  m_kept(),
   m_draws(),
   m_loose(),
   m_ready_frame(-1)
@@ -959,6 +960,8 @@ Layer::refresh(const TileMap& map, const Rect& cells, const Cover& cover)
   m_cover = cover;
   m_size = size;
   m_cells.assign(static_cast<size_t>(m_size.width * m_size.height), Cell{ -1, -1, 0, -1, {}, false });
+  m_kept.valid = false;
+  m_kept.draws.clear();
   m_moving.clear();
   m_moving_index.clear();
 }
@@ -1122,6 +1125,19 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
   const Cover cover = cover_of(above);
   refresh(map, cells, cover);
 
+  // Most frames show the cells and copies the last one did, so what it made is handed out again
+  if (kept_holds(map, cells))
+  {
+    draws = m_kept.draws;
+    loose = m_kept.loose;
+    prefetch(map, cells, cover);
+    return true;
+  }
+  m_kept.valid = false;
+  m_kept.draws.clear();
+  m_kept.slots.clear();
+  m_kept.moving.clear();
+
   // Which of draws is each page's, two each as shiny tiles go apart
   std::vector<int> drawn;
   const Sizef size(32.0f, 32.0f);
@@ -1152,6 +1168,11 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
         }
         moving.checked = s_frame;
         slot = moving.shown[moving.now].slot;
+        m_kept.moving.emplace_back(cell.moving, slot, moving.shown[moving.now].stamp);
+      }
+      else if (slot >= 0)
+      {
+        m_kept.slots.emplace_back(slot, cell.stamp);
       }
       if (slot < 0)
       {
@@ -1178,7 +1199,41 @@ Layer::draw(const TileMap& map, const Rect& cells, const std::vector<const TileM
       }
     }
   }
+  const auto once = [](auto& list) {
+    std::sort(list.begin(), list.end());
+    list.erase(std::unique(list.begin(), list.end()), list.end());
+  };
+  once(m_kept.slots);
+  once(m_kept.moving);
+  m_kept.cells = cells;
+  m_kept.corner = map.get_tile_position(0, 0);
+  m_kept.draws = draws;
+  m_kept.loose = loose;
+  m_kept.valid = true;
   prefetch(map, cells, cover);
+  return true;
+}
+
+bool
+Layer::kept_holds(const TileMap& map, const Rect& cells)
+{
+  if (!m_kept.valid || !(m_kept.cells == cells) || m_kept.corner != map.get_tile_position(0, 0)) return false;
+  for (const auto& kept : m_kept.slots)
+  {
+    const size_t slot = static_cast<size_t>(kept.first);
+    if (slot >= s_slots.size() || s_slots[slot].stamp != kept.second) return false;
+    s_slots[slot].last = s_now;
+  }
+  for (const auto& kept : m_kept.moving)
+  {
+    Moving& moving = m_moving[static_cast<size_t>(std::get<0>(kept))];
+    // One showing frames it has no copy of yet is left for draw() to make
+    if (moving.checked != s_frame && !find_shown(moving)) return false;
+    moving.checked = s_frame;
+    const Shown& shown = moving.shown[moving.now];
+    if (shown.slot != std::get<1>(kept) || shown.stamp != std::get<2>(kept)) return false;
+    if (shown.slot >= 0) s_slots[static_cast<size_t>(shown.slot)].last = s_now;
+  }
   return true;
 }
 

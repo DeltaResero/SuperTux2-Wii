@@ -173,6 +173,8 @@ private:
   /** False when there's no room left for its copy */
   bool add_shown(Moving& moving) const;
   void prefetch(const TileMap& map, const Rect& cells, const Cover& cover);
+  /** True when what draw() last made still holds for these cells, its copies kept from being let go */
+  bool kept_holds(const TileMap& map, const Rect& cells);
 
 private:
   // Cells near the screen, each at its x and y wrapped round the size
@@ -183,6 +185,19 @@ private:
   int m_revision;
   int m_generation;
   Cover m_cover;
+  // What draw() last made, kept while the same cells show the same copies
+  struct Kept
+  {
+    bool valid;
+    Rect cells;
+    Vector corner;
+    std::vector<Draw> draws;
+    std::vector<int> loose;
+    // The copies drawn and their stamps, then the moving neighbourhoods drawn with the copy each showed
+    std::vector<std::pair<int, uint32_t>> slots;
+    std::vector<std::tuple<int, int, uint32_t>> moving;
+  };
+  Kept m_kept;
   // What ready() made, and in which frame
   std::vector<Draw> m_draws;
   std::vector<int> m_loose;
