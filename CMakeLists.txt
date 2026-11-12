@@ -56,7 +56,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk/cmake)
 include(CheckCXXCompilerFlag)
 
 set(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
-set(BUILD_CONFIG_DATA_DIR "${CMAKE_BINARY_DIR}/data")
 ## Add definitions
 if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
   add_definitions(-DRELEASE)
@@ -728,16 +727,12 @@ install(DIRECTORY
   DESTINATION ${INSTALL_SUBDIR_SHARE})
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
-  DESTINATION ${INSTALL_SUBDIR_SHARE}
-  PATTERN "data/levels/misc/menu.stl.in" EXCLUDE)
-
-install(FILES "${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl" DESTINATION "${INSTALL_SUBDIR_SHARE}/levels/misc")
+  DESTINATION ${INSTALL_SUBDIR_SHARE})
 
 ## Create config.h now that INSTALL_SUBDIR_* have been set.
 
 configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
-configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
 
 
 ## CPack/Installation-specific stuff
