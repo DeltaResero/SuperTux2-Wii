@@ -196,7 +196,6 @@ else(WIN32)
 endif(WIN32)
 set(HAVE_SDL TRUE)
 
-option(IS_SUPERTUX_RELEASE "Build as official SuperTux release" OFF)
 option(BUILD_TESTS "Build test cases" OFF)
 option(BUILD_TESTS_M32 "Also run the squirrel samples at 32-bit integer width" OFF)
 option(ENABLE_OPENGL "Enable OpenGL support" ON)
@@ -738,12 +737,6 @@ install(FILES "${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl" DESTINATION "${INS
 
 configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
-## Configure main menu logo
-if(("${SUPERTUX_VERSION_STRING}" MATCHES "^v[0-9]+\\.[0-9]+\\.[0-9]+$") OR IS_SUPERTUX_RELEASE)
-  set(LOGO_FILE "logo_final.sprite")
-else()
-  set(LOGO_FILE "logo.sprite")
-endif()
 configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
 
 
