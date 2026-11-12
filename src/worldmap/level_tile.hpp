@@ -22,6 +22,7 @@
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 #include "supertux/statistics.hpp"
 
@@ -29,7 +30,8 @@ class ReaderMapping;
 
 namespace worldmap {
 
-class LevelTile final : public GameObject
+class LevelTile final : public GameObject,
+                        public ArtworkInterface
 {
   friend class WorldMapParser;
 
@@ -38,6 +40,9 @@ public:
   ~LevelTile() override;
 
   virtual void draw(DrawingContext& context) override;
+
+  virtual void release_artwork() override;
+  virtual void reacquire_artwork() override;
   virtual bool is_still() const override { return true; }
   virtual void update(float dt_sec) override;
 
@@ -84,6 +89,7 @@ private:
   Statistics m_statistics;
 
   SpritePtr m_sprite;
+  std::string m_sprite_name;
   Color m_title_color;
 
 private:

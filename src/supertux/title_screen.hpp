@@ -46,7 +46,11 @@ public:
 private:
   void make_tux_jump();
 
+  /** Builds the level the menu is played over */
+  void create_session();
+
 private:
+  Savegame& m_savegame;
   SurfacePtr m_frame;
   std::unique_ptr<CodeController> m_controller;
   std::unique_ptr<GameSession> m_titlesession;

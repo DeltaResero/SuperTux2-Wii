@@ -70,6 +70,10 @@ public:
   void setup();
   void leave();
 
+  /** Called either side of a screen that covers the map, so it holds no pictures while it isn't shown */
+  void release_artwork();
+  void reacquire_artwork();
+
   void draw(DrawingContext& context);
   void update(float dt_sec);
 
@@ -186,7 +190,7 @@ private:
 
   Savegame& m_savegame;
 
-  TileSet* m_tileset;
+  std::shared_ptr<TileSet> m_tileset;
 
   std::string m_name;
   std::string m_init_script;
@@ -206,6 +210,9 @@ private:
   int m_fade_direction;
 
   bool m_in_level;
+
+  /** Set while another screen covers the map and its pictures are put down */
+  bool m_artwork_released;
 
   std::string m_queued_worldmap;
 

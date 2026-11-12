@@ -25,6 +25,7 @@ namespace worldmap {
 Teleporter::Teleporter(const ReaderMapping& mapping) :
   m_pos(0.0f, 0.0f),
   m_sprite(),
+  m_sprite_name(),
   m_worldmap(),
   m_spawnpoint(),
   m_automatic(false),
@@ -33,9 +34,8 @@ Teleporter::Teleporter(const ReaderMapping& mapping) :
   mapping.get("x", m_pos.x);
   mapping.get("y", m_pos.y);
 
-  std::string spritefile = "";
-  if (mapping.get("sprite", spritefile)) {
-    m_sprite = SpriteManager::current()->create(spritefile);
+  if (mapping.get("sprite", m_sprite_name)) {
+    m_sprite = SpriteManager::current()->create(m_sprite_name);
   }
 
   if (!mapping.get("worldmap", m_worldmap)) {
@@ -49,6 +49,20 @@ Teleporter::Teleporter(const ReaderMapping& mapping) :
   }
   if (!mapping.get("message", m_message)) {
     // Optional message not set. Ignore!
+  }
+}
+
+void
+Teleporter::release_artwork()
+{
+  m_sprite.reset();
+}
+
+void
+Teleporter::reacquire_artwork()
+{
+  if (!m_sprite_name.empty()) {
+    m_sprite = SpriteManager::current()->create(m_sprite_name);
   }
 }
 

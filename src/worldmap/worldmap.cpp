@@ -34,6 +34,7 @@
 #include "scripting/worldmap.hpp"
 #include "sprite/sprite.hpp"
 #include "squirrel/squirrel_environment.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/constants.hpp"
 #include "supertux/d_scope.hpp"
 #include "supertux/debug.hpp"
@@ -51,6 +52,7 @@
 #include "supertux/shrinkfade.hpp"
 #include "supertux/tile.hpp"
 #include "supertux/tile_manager.hpp"
+#include "supertux/tile_set.hpp"
 #include "util/file_system.hpp"
 #include "util/reader.hpp"
 #include "util/reader_document.hpp"
@@ -91,6 +93,7 @@ WorldMap::WorldMap(const std::string& filename, Savegame& savegame, const std::s
   m_initial_fade_tilemap(),
   m_fade_direction(),
   m_in_level(false),
+  m_artwork_released(false),
   m_queued_worldmap(),
   m_failed_worldmap(),
   m_last_camera_offset(0.0f, 0.0f),
@@ -659,6 +662,12 @@ WorldMap::setup()
   MenuManager::instance().clear_menu_stack();
   ScreenManager::current()->set_screen_fade(std::make_unique<FadeToBlack>(FadeToBlack::FADEIN, 1.0f));
 
+  // Before load_state, as it has each level dot show the right picture
+  if (m_artwork_released) {
+    reacquire_artwork();
+    m_artwork_released = false;
+  }
+
   load_state();
 
   // if force_spawnpoint was set, move Tux there, then clear force_spawnpoint
@@ -717,6 +726,35 @@ WorldMap::leave()
   m_squirrel_environment->unexpose_self();
 
   GameManager::current()->load_next_worldmap();
+
+  // Only the pictures go, as a level played from here keeps reading its dot's records
+  release_artwork();
+  m_artwork_released = true;
+}
+
+void
+WorldMap::release_artwork()
+{
+  for (const auto& object : get_objects()) {
+    if (auto* artwork = dynamic_cast<ArtworkInterface*>(object.get())) {
+      artwork->release_artwork();
+    }
+  }
+  m_tileset->unload();
+}
+
+void
+WorldMap::reacquire_artwork()
+{
+  for (const auto& object : get_objects()) {
+    if (auto* artwork = dynamic_cast<ArtworkInterface*>(object.get())) {
+      artwork->reacquire_artwork();
+    }
+  }
+  // Every tile at once, so walking the map later reads nothing
+  for (const TileMap& tilemap : get_objects_by_type<TileMap>()) {
+    tilemap.load_tiles();
+  }
 }
 
 void

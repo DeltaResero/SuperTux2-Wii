@@ -137,13 +137,13 @@ TileSetParser::parse_tile(const ReaderMapping& reader)
     attributes |= Tile::SOLID | Tile::SLOPE;
   }
 
-  std::vector<SurfacePtr> surfaces;
+  std::vector<Tile::Image> surfaces;
   std::optional<ReaderMapping> images_mapping;
   if (reader.get("images", images_mapping)) {
     surfaces = parse_imagespecs(*images_mapping);
   }
 
-  auto tile = std::make_unique<Tile>(surfaces,
+  auto tile = std::make_unique<Tile>(std::move(surfaces),
                                      attributes, data, fps,
                                      object_name, object_data);
   m_tileset.add_tile(id, std::move(tile));
@@ -224,11 +224,14 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
   {
     if (shared_surface)
     {
+      // Tiles sharing a surface are parts of it, so it's made now
       std::vector<SurfacePtr> surfaces;
       std::optional<ReaderMapping> surfaces_mapping;
       if (reader.get("image", surfaces_mapping) ||
          reader.get("images", surfaces_mapping)) {
-        surfaces = parse_imagespecs(*surfaces_mapping);
+        for (const Tile::Image& image : parse_imagespecs(*surfaces_mapping)) {
+          surfaces.push_back(image.surface ? image.surface : Surface::from_file(image.file, image.region));
+        }
       }
 
       for (size_t i = 0; i < ids.size(); ++i)
@@ -238,14 +241,14 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
           const int x = static_cast<int>(32 * (i % width));
           const int y = static_cast<int>(32 * (i / width));
 
-          std::vector<SurfacePtr> regions;
+          std::vector<Tile::Image> regions;
           regions.reserve(surfaces.size());
           std::transform(surfaces.begin(), surfaces.end(), std::back_inserter(regions),
               [x, y] (const SurfacePtr& surface) {
-                return surface->region(Rect(x, y, Size(32, 32)));
+                return Tile::Image{ surface->region(Rect(x, y, Size(32, 32))), {}, {} };
               });
 
-          auto tile = std::make_unique<Tile>(regions,
+          auto tile = std::make_unique<Tile>(std::move(regions),
                                              (has_attributes ? attributes[i] : 0),
                                              (has_datas ? datas[i] : 0),
                                              fps);
@@ -263,14 +266,14 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
           int x = static_cast<int>(32 * (i % width));
           int y = static_cast<int>(32 * (i / width));
 
-          std::vector<SurfacePtr> surfaces;
+          std::vector<Tile::Image> surfaces;
           std::optional<ReaderMapping> surfaces_mapping;
           if (reader.get("image", surfaces_mapping) ||
              reader.get("images", surfaces_mapping)) {
             surfaces = parse_imagespecs(*surfaces_mapping, Rect(x, y, Size(32, 32)));
           }
 
-          auto tile = std::make_unique<Tile>(surfaces,
+          auto tile = std::make_unique<Tile>(std::move(surfaces),
                                              (has_attributes ? attributes[i] : 0),
                                              (has_datas ? datas[i] : 0),
                                              fps);
@@ -282,11 +285,12 @@ TileSetParser::parse_tiles(const ReaderMapping& reader)
   }
 }
 
-std::vector<SurfacePtr>
+std::vector<Tile::Image>
   TileSetParser::parse_imagespecs(const ReaderMapping& images_mapping,
                                   const std::optional<Rect>& surface_region) const
 {
-  std::vector<SurfacePtr> surfaces;
+  // A file is only named here and read when its tile is first wanted
+  std::vector<Tile::Image> surfaces;
 
   // (images "foo.png" "foo.bar" ...)
   // (images (region "foo.png" 0 0 32 32))
@@ -296,11 +300,11 @@ std::vector<SurfacePtr>
     if (iter.is_string())
     {
       std::string file = iter.as_string_item();
-      surfaces.push_back(Surface::from_file(FileSystem::join(m_tiles_path, file), surface_region));
+      surfaces.push_back({ {}, FileSystem::join(m_tiles_path, file), surface_region });
     }
     else if (iter.is_pair() && iter.get_key() == "surface")
     {
-      surfaces.push_back(Surface::from_reader(iter.as_mapping(), surface_region));
+      surfaces.push_back({ Surface::from_reader(iter.as_mapping(), surface_region), {}, {} });
     }
     else if (iter.is_pair() && iter.get_key() == "region")
     {
@@ -329,8 +333,7 @@ std::vector<SurfacePtr>
           rect.bottom = rect.top + surface_region->get_height();
         }
 
-        surfaces.push_back(Surface::from_file(FileSystem::join(m_tiles_path, file),
-                                              rect));
+        surfaces.push_back({ {}, FileSystem::join(m_tiles_path, file), rect });
       }
     }
     else

@@ -20,6 +20,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "sprite/sprite_ptr.hpp"
 #include "util/currenton.hpp"
@@ -29,8 +30,12 @@ class SpriteData;
 class SpriteManager final : public Currenton<SpriteManager>
 {
 private:
-  using Sprites = std::map<std::string, std::unique_ptr<SpriteData> >;
+  /** Sprites already read, shared by everything using them and not owned here */
+  using Sprites = std::map<std::string, std::weak_ptr<SpriteData> >;
   Sprites sprites;
+
+  /** Keeps every sprite read until a screen closes, so play never re-reads one */
+  std::vector<std::shared_ptr<SpriteData> > held;
 
 public:
   SpriteManager();
@@ -38,8 +43,11 @@ public:
   /** loads a sprite. */
   SpritePtr create(const std::string& filename);
 
+  /** Lets go of every sprite nothing uses any more */
+  void release_unused();
+
 private:
-  SpriteData* load(const std::string& filename);
+  std::shared_ptr<SpriteData> load(const std::string& filename);
 };
 
 #endif

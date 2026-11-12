@@ -43,6 +43,9 @@ public:
 
   const Tile& get(const uint32_t id) const;
 
+  /** Lets go of every tile picture made from a file, to be made again when a tile is next wanted */
+  void unload() const;
+
 
   void print_debug_info(const std::string& filename);
 

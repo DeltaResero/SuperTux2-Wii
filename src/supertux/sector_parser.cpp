@@ -221,7 +221,7 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
   std::vector<unsigned int> tiles;
   if (reader.get("interactive-tm", tiles)
      || reader.get("tilemap", tiles)) {
-    auto* tileset = TileManager::current()->get_tileset(m_sector.get_level().get_tileset());
+    auto tileset = TileManager::current()->get_tileset(m_sector.get_level().get_tileset());
     auto& tilemap = m_sector.add<TileMap>(tileset);
     tilemap.set(width, height, tiles, LAYER_TILES, true);
 
@@ -238,14 +238,14 @@ SectorParser::parse_old_format(const ReaderMapping& reader)
   }
 
   if (reader.get("background-tm", tiles)) {
-    auto* tileset = TileManager::current()->get_tileset(m_sector.get_level().get_tileset());
+    auto tileset = TileManager::current()->get_tileset(m_sector.get_level().get_tileset());
     auto& tilemap = m_sector.add<TileMap>(tileset);
     tilemap.set(width, height, tiles, LAYER_BACKGROUNDTILES, false);
     if (height < 19) tilemap.resize(width, 19);
   }
 
   if (reader.get("foreground-tm", tiles)) {
-    auto* tileset = TileManager::current()->get_tileset(m_sector.get_level().get_tileset());
+    auto tileset = TileManager::current()->get_tileset(m_sector.get_level().get_tileset());
     auto& tilemap = m_sector.add<TileMap>(tileset);
     tilemap.set(width, height, tiles, LAYER_FOREGROUNDTILES, false);
 

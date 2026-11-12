@@ -22,6 +22,7 @@
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 
 class ReaderMapping;
@@ -29,7 +30,8 @@ class Sprite;
 
 namespace worldmap {
 
-class SpriteChange final : public GameObject
+class SpriteChange final : public GameObject,
+                           public ArtworkInterface
 {
 private:
   static std::list<SpriteChange*> s_all_sprite_changes;
@@ -39,6 +41,9 @@ public:
   ~SpriteChange() override;
 
   virtual void draw(DrawingContext& context) override;
+
+  virtual void release_artwork() override;
+  virtual void reacquire_artwork() override;
   virtual bool is_still() const override { return true; }
   virtual void update(float dt_sec) override;
 

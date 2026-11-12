@@ -62,6 +62,9 @@ struct Open
 void place(const Vector& pos, const Sizef& size, const Vector& origin, int texels_x, int texels_y, const Open& open,
            std::vector<Rectf>& srcrects, std::vector<Rectf>& dstrects);
 
+/** Drops every copy and what was learnt of the pictures, for when pictures go while tilemaps remain */
+void forget();
+
 /** The tile layers alive, so the copies go with the last of them */
 void hold();
 void release();

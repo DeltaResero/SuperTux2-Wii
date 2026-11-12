@@ -55,6 +55,18 @@ SpriteChange::~SpriteChange()
 }
 
 void
+SpriteChange::release_artwork()
+{
+  m_sprite.reset();
+}
+
+void
+SpriteChange::reacquire_artwork()
+{
+  m_sprite = SpriteManager::current()->create(m_sprite_name);
+}
+
+void
 SpriteChange::draw(DrawingContext& context)
 {
   if (m_in_stay_action && !m_stay_action.empty()) {

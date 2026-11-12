@@ -32,6 +32,16 @@
 #include "video/drawing_context.hpp"
 #include "video/surface.hpp"
 
+namespace {
+
+const char* const BLANK_IMAGE = "images/background/misc/transparent_up.png";
+
+// The size the blank picture had
+const float BLANK_WIDTH = 1024.0f;
+const float BLANK_HEIGHT = 768.0f;
+
+} // namespace
+
 Background::Background() :
   ExposedObject<Background, scripting::Background>(this),
   m_alignment(NO_ALIGNMENT),
@@ -48,6 +58,8 @@ Background::Background() :
   m_image_top(),
   m_image(),
   m_image_bottom(),
+  m_blank_top(false),
+  m_blank_bottom(false),
   m_blend(),
   m_color(1.f, 1.f, 1.f),
   m_target(DrawingTarget::COLORMAP),
@@ -74,6 +86,8 @@ Background::Background(const ReaderMapping& reader) :
   m_image_top(),
   m_image(),
   m_image_bottom(),
+  m_blank_top(false),
+  m_blank_bottom(false),
   m_blend(),
   m_color(),
   m_target(DrawingTarget::COLORMAP),
@@ -129,7 +143,7 @@ Background::Background(const ReaderMapping& reader) :
 
   m_layer = reader_get_layer(reader, LAYER_BACKGROUND0);
 
-  reader.get("image", m_imagefile, "images/background/misc/transparent_up.png");
+  reader.get("image", m_imagefile, BLANK_IMAGE);
   m_image = load_background(m_imagefile);
 
   if(!reader.get("speed-x", m_parallax_speed.x))
@@ -142,14 +156,12 @@ Background::Background(const ReaderMapping& reader) :
 
   if (reader.get("image-top", m_imagefile_top)) {
     m_image_top = load_background(m_imagefile_top);
-  } else {
-    m_imagefile_top = m_imagefile;
+    m_blank_top = !m_image_top;
   }
 
   if (reader.get("image-bottom", m_imagefile_bottom)) {
     m_image_bottom = load_background(m_imagefile_bottom);
-    } else {
-    m_imagefile_bottom = m_imagefile;
+    m_blank_bottom = !m_image_bottom;
   }
 
   std::vector<float> color;
@@ -213,12 +225,31 @@ Background::set_images(const std::string& name_top,
 {
   m_image_top = load_background(name_top);
   m_imagefile_top = name_top;
+  m_blank_top = !m_image_top;
 
   m_image = load_background(name_middle);
   m_imagefile = name_middle;
 
   m_image_bottom = load_background(name_bottom);
   m_imagefile_bottom = name_bottom;
+  m_blank_bottom = !m_image_bottom;
+}
+
+void
+Background::release_artwork()
+{
+  m_image_top.reset();
+  m_image.reset();
+  m_image_bottom.reset();
+}
+
+void
+Background::reacquire_artwork()
+{
+  // A top or bottom that was never named has no file and stays unset
+  if (!m_imagefile.empty()) m_image = load_background(m_imagefile);
+  if (!m_imagefile_top.empty()) m_image_top = load_background(m_imagefile_top);
+  if (!m_imagefile_bottom.empty()) m_image_bottom = load_background(m_imagefile_bottom);
 }
 
 void
@@ -238,8 +269,9 @@ Background::draw_image(DrawingContext& context, const Vector& pos_)
                                   (1.0f - m_parallax_speed.y) * screen.height + level.height * m_parallax_speed.y);
 
   const Rectf cliprect = context.get_cliprect();
-  const float img_w = static_cast<float>(m_image->get_width());
-  const float img_h = static_cast<float>(m_image->get_height());
+  // A blank middle keeps the grid its picture gave the top and bottom
+  const float img_w = m_image ? static_cast<float>(m_image->get_width()) : BLANK_WIDTH;
+  const float img_h = m_image ? static_cast<float>(m_image->get_height()) : BLANK_HEIGHT;
 
   const float img_w_2 = img_w / 2.0f;
   const float img_h_2 = img_h / 2.0f;
@@ -306,17 +338,12 @@ Background::draw_image(DrawingContext& context, const Vector& pos_)
             Vector p(pos_.x + static_cast<float>(x) * img_w - img_w_2,
                      pos_.y + static_cast<float>(y) * img_h - img_h_2);
 
-            if (m_image_top.get() != nullptr && (y < 0))
+            const SurfacePtr& image = (y < 0 && (m_image_top || m_blank_top)) ? m_image_top :
+                                      (y > 0 && (m_image_bottom || m_blank_bottom)) ? m_image_bottom :
+                                      m_image;
+            if (image)
             {
-              canvas.draw_surface(m_image_top, p, 0.f, m_color, m_blend, m_layer);
-            }
-            else if (m_image_bottom.get() != nullptr && (y > 0))
-            {
-              canvas.draw_surface(m_image_bottom, p, 0.f, m_color, m_blend, m_layer);
-            }
-            else
-            {
-              canvas.draw_surface(m_image, p, 0.f, m_color, m_blend, m_layer);
+              canvas.draw_surface(image, p, 0.f, m_color, m_blend, m_layer);
             }
           }
         break;
@@ -327,7 +354,8 @@ Background::draw_image(DrawingContext& context, const Vector& pos_)
 void
 Background::draw(DrawingContext& context)
 {
-  if (m_image.get() == nullptr)
+  // Only the tiled layout has a top and bottom to draw around a blank middle
+  if (!m_image && (m_fill || m_alignment != NO_ALIGNMENT || (!m_image_top && !m_image_bottom)))
     return;
 
   Sizef level_size(d_gameobject_manager->get_width(),
@@ -353,6 +381,7 @@ Background::draw(DrawingContext& context)
 }
 
 namespace {
+
 std::unordered_map<std::string, std::string> fallback_paths = {
   {"arctis2.png", "antarctic/arctis2.png"},
   {"misty_snowhills_small.png", "antarctic/misty_snowhills_small.png"},
@@ -405,7 +434,6 @@ std::unordered_map<std::string, std::string> fallback_paths = {
   {"heatshimmer.surface", "misc/heatshimmer.surface"},
   {"leaves.png", "misc/leaves.png"},
   {"oiltux.jpg", "misc/oiltux.jpg"},
-  {"transparent_up.png", "misc/transparent_up.png"},
   {"nightsky.png", "nightsky/nightsky.png"},
   {"nightsky_bottom.png", "nightsky/nightsky_bottom.png"},
   {"nightsky_middle.png", "nightsky/nightsky_middle.png"},
@@ -418,6 +446,10 @@ std::unordered_map<std::string, std::string> fallback_paths = {
 SurfacePtr
 Background::load_background(const std::string& image_path)
 {
+  // The blank picture has nothing to draw, so no picture is held for it
+  if (FileSystem::basename(image_path) == "transparent_up.png")
+    return {};
+
   if (!FileSystem::find(image_path).empty())
     // No need to search fallback paths
     return Surface::from_file(image_path);

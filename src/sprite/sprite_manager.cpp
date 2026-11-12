@@ -37,7 +37,8 @@ const std::string DUMMY_SPRITE = "images/engine/missing.png";
 } // namespace
 
 SpriteManager::SpriteManager() :
-  sprites()
+  sprites(),
+  held()
 {
 }
 
@@ -45,8 +46,11 @@ SpritePtr
 SpriteManager::create(const std::string& name)
 {
   Sprites::iterator i = sprites.find(name);
-  SpriteData* data;
-  if (i == sprites.end()) {
+  std::shared_ptr<SpriteData> data;
+  if (i != sprites.end())
+    data = i->second.lock();
+
+  if (!data) {
     // try loading the spritefile
     try {
       data = load(name);
@@ -61,14 +65,31 @@ SpriteManager::create(const std::string& name)
       msg << "Sprite '" << name << "' not found.";
       throw std::runtime_error(msg.str());
     }
-  } else {
-    data = i->second.get();
+    sprites[name] = data;
+    held.push_back(data);
   }
 
-  return std::make_unique<Sprite>(*data);
+  return std::make_unique<Sprite>(std::move(data));
 }
 
-SpriteData*
+void
+SpriteManager::release_unused()
+{
+  // Whatever only this list was keeping goes now
+  held.clear();
+
+  std::erase_if(sprites, [](const Sprites::value_type& entry) {
+    return entry.second.expired();
+  });
+
+  // The rest is still in play and is held again for the next screen
+  for (const auto& entry : sprites) {
+    if (auto data = entry.second.lock())
+      held.push_back(std::move(data));
+  }
+}
+
+std::shared_ptr<SpriteData>
 SpriteManager::load(const std::string& filename)
 {
   ReaderDocument doc = [filename](){
@@ -97,10 +118,7 @@ SpriteManager::load(const std::string& filename)
     msg << "'" << filename << "' is not a supertux-sprite file";
     throw std::runtime_error(msg.str());
   } else {
-    auto data = std::make_unique<SpriteData>(root.get_mapping());
-    sprites[filename] = std::move(data);
-
-    return sprites[filename].get();
+    return std::make_shared<SpriteData>(root.get_mapping());
   }
 }
 

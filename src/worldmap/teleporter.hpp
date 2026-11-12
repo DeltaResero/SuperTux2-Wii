@@ -21,18 +21,23 @@
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 
 class ReaderMapping;
 
 namespace worldmap {
 
-class Teleporter final : public GameObject
+class Teleporter final : public GameObject,
+                         public ArtworkInterface
 {
 public:
   Teleporter(const ReaderMapping& mapping);
 
   virtual void draw(DrawingContext& context) override;
+
+  virtual void release_artwork() override;
+  virtual void reacquire_artwork() override;
   virtual bool is_still() const override { return true; }
   virtual void update(float dt_sec) override;
 
@@ -48,6 +53,7 @@ private:
 
   /** Sprite to render, or 0 for no sprite */
   SpritePtr m_sprite;
+  std::string m_sprite_name;
 
   /** Worldmap filename (relative to data root) to teleport to. Leave empty to use current word */
   std::string m_worldmap;

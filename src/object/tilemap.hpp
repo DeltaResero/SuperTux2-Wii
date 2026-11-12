@@ -54,8 +54,8 @@ class TileMap final :
   public PathObject
 {
 public:
-  TileMap(const TileSet *tileset);
-  TileMap(const TileSet *tileset, const ReaderMapping& reader);
+  TileMap(std::shared_ptr<const TileSet> tileset);
+  TileMap(std::shared_ptr<const TileSet> tileset, const ReaderMapping& reader);
   ~TileMap() override;
 
   virtual void finish_construction() override;
@@ -161,6 +161,9 @@ public:
   uint32_t get_tile_id(int x, int y) const;
   uint32_t get_tile_id_at(const Vector& pos) const;
 
+  /** Makes the picture of every tile in the map, so drawing it later reads nothing */
+  void load_tiles() const;
+
   void change(int x, int y, uint32_t newtile);
 
   void change_at(const Vector& pos, uint32_t newtile);
@@ -201,7 +204,7 @@ public:
   bool m_editor_active;
 
 private:
-  const TileSet* m_tileset;
+  std::shared_ptr<const TileSet> m_tileset;
 
   using Tiles = std::vector<uint32_t>;
   Tiles m_tiles;

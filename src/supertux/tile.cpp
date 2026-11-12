@@ -19,6 +19,8 @@
 #include "supertux/tile.hpp"
 
 #include <cassert>
+#include <exception>
+#include <utility>
 
 #include "math/aatriangle.hpp"
 #include "supertux/constants.hpp"
@@ -49,6 +51,7 @@ bool is_below_line (float l_x, float l_y, float m,
 
 Tile::Tile() :
   m_images(),
+  m_loaded(true),
   m_attributes(0),
   m_data(0),
   m_fps(1),
@@ -57,11 +60,12 @@ Tile::Tile() :
 {
 }
 
-Tile::Tile(const std::vector<SurfacePtr>& images,
+Tile::Tile(std::vector<Image> images,
            uint32_t attributes, uint32_t data, float fps,
            const std::string& obj_name,
            const std::string& obj_data) :
-  m_images(images),
+  m_images(std::move(images)),
+  m_loaded(false),
   m_attributes(attributes),
   m_data(data),
   m_fps(fps),
@@ -180,13 +184,46 @@ Tile::draw_debug(Canvas& canvas, const Vector& pos, int z_pos, const Color& colo
   }
 }
 
+void
+Tile::load() const
+{
+  if (m_loaded) return;
+  m_loaded = true;
+
+  for (Image& image : m_images)
+  {
+    if (image.surface) continue;
+    try
+    {
+      image.surface = Surface::from_file(image.file, image.region);
+    }
+    catch (const std::exception& err)
+    {
+      log_warning << "Couldn't load tile picture '" << image.file << "': " << err.what() << std::endl;
+    }
+  }
+}
+
+void
+Tile::unload() const
+{
+  if (!m_loaded) return;
+
+  for (Image& image : m_images)
+  {
+    if (!image.file.empty()) image.surface.reset();
+  }
+  m_loaded = false;
+}
+
 const SurfacePtr&
 Tile::get_current_surface() const
 {
+  load();
   if (m_images.size() > 1) {
-    return m_images[get_frame()];
+    return m_images[get_frame()].surface;
   } else if (m_images.size() == 1) {
-    return m_images[0];
+    return m_images[0].surface;
   } else {
     return no_surface;
   }
@@ -195,7 +232,15 @@ Tile::get_current_surface() const
 const Surface*
 Tile::get_current_surface_ptr() const
 {
-  return m_images.empty() ? nullptr : m_images[get_frame()].get();
+  load();
+  return m_images.empty() ? nullptr : m_images[get_frame()].surface.get();
+}
+
+const Surface*
+Tile::get_first_surface_ptr() const
+{
+  load();
+  return m_images.empty() ? nullptr : m_images[0].surface.get();
 }
 
 size_t

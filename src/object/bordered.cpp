@@ -106,6 +106,8 @@ Uint32 s_swept = 0;
 int s_frame = 0;
 int s_generation = -1;
 int s_holders = 0;
+// Counts the times the copies went with the pictures they were made from
+int s_forgotten = 0;
 // Time left this frame, in ms, for copies on screen, for after a fade and for just off screen
 double s_urgent = 0.0;
 double s_prepare = 0.0;
@@ -763,6 +765,13 @@ place(const Vector& pos, const Sizef& size, const Vector& origin, int texels_x, 
 }
 
 void
+forget()
+{
+  clear_all();
+  ++s_forgotten;
+}
+
+void
 hold()
 {
   ++s_holders;
@@ -959,7 +968,7 @@ Layer::refresh(const TileMap& map, const Rect& cells, const Cover& cover)
   const Size need(cells.get_width() + 4, cells.get_height() + 4);
   const Size size(need.width > m_size.width ? need.width + 1 : m_size.width,
                   need.height > m_size.height ? need.height + 1 : m_size.height);
-  const int generation = TextureManager::current()->get_generation();
+  const int generation = TextureManager::current()->get_generation() + s_forgotten;
   if (map.get_revision() == m_revision && generation == m_generation && cover == m_cover && size == m_size &&
       m_moving.size() < 2048)
   {

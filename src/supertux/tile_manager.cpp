@@ -17,30 +17,48 @@
 
 #include "supertux/tile_manager.hpp"
 
+#include <map>
 #include <utility>
 
 #include "supertux/tile.hpp"
 #include "supertux/tile_set.hpp"
 
 TileManager::TileManager() :
-  m_tilesets()
+  m_tilesets(),
+  m_held()
 {
 }
 
-TileSet*
+std::shared_ptr<TileSet>
 TileManager::get_tileset(const std::string &filename)
 {
   auto it = m_tilesets.find(filename);
   if (it != m_tilesets.end())
   {
-    return it->second.get();
+    if (auto tileset = it->second.lock())
+      return tileset;
   }
-  else
-  {
-    auto tileset = TileSet::from_file(filename);
-    TileSet* result = tileset.get();
-    m_tilesets[filename] = std::move(tileset);
-    return result;
+
+  std::shared_ptr<TileSet> tileset = TileSet::from_file(filename);
+  m_tilesets[filename] = tileset;
+  m_held.push_back(tileset);
+  return tileset;
+}
+
+void
+TileManager::release_unused()
+{
+  // Whatever only this list was keeping goes now
+  m_held.clear();
+
+  std::erase_if(m_tilesets, [](const auto& entry) {
+    return entry.second.expired();
+  });
+
+  // The rest is still drawn from and is held again for the next screen
+  for (const auto& entry : m_tilesets) {
+    if (auto tileset = entry.second.lock())
+      m_held.push_back(std::move(tileset));
   }
 }
 

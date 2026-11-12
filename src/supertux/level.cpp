@@ -50,6 +50,10 @@ Level::Level() :
 Level::~Level()
 {
   m_sectors.clear();
+  if (s_current == this)
+  {
+    s_current = nullptr;
+  }
 }
 
 void

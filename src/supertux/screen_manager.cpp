@@ -23,6 +23,7 @@
 #include "gui/dialog.hpp"
 #include "gui/menu_manager.hpp"
 #include "gui/mousecursor.hpp"
+#include "sprite/sprite_manager.hpp"
 #include "squirrel/squirrel_virtual_machine.hpp"
 #include "supertux/console.hpp"
 #include "supertux/constants.hpp"
@@ -35,9 +36,11 @@
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/screen_fade.hpp"
+#include "supertux/tile_manager.hpp"
 #include "util/log.hpp"
 #include "video/compositor.hpp"
 #include "video/drawing_context.hpp"
+#include "video/texture_manager.hpp"
 #include "video/ttf_surface_manager.hpp"
 
 #include <algorithm>
@@ -497,6 +500,8 @@ ScreenManager::handle_screen_switch()
       // move actions to a new vector since setup() might modify it
       auto actions = std::move(m_actions);
       bool quit_action_triggered = false;
+      bool screen_closed = false;
+      bool screen_changed = false;
 
       for (auto& action : actions)
       {
@@ -510,6 +515,7 @@ ScreenManager::handle_screen_switch()
               current_screen = nullptr;
             }
             m_screen_stack.pop_back();
+            screen_closed = true;
             break;
 
           case Action::PUSH_ACTION:
@@ -521,6 +527,7 @@ ScreenManager::handle_screen_switch()
             m_screen_stack.clear();
             current_screen = nullptr;
             quit_action_triggered = true;
+            screen_closed = true;
             break;
         }
       }
@@ -548,6 +555,24 @@ ScreenManager::handle_screen_switch()
             m_speed = 1.0;
             SquirrelVirtualMachine::current()->wakeup_screenswitch();
           }
+          screen_changed = true;
+        }
+      }
+
+      // The screen leaving has let go by now and the one arriving holds what it wants, so what the 2 share stays
+      if (screen_closed || screen_changed)
+      {
+        if (SpriteManager::current() != nullptr)
+        {
+          SpriteManager::current()->release_unused();
+        }
+        if (TileManager::current() != nullptr)
+        {
+          TileManager::current()->release_unused();
+        }
+        if (TextureManager::current() != nullptr)
+        {
+          TextureManager::current()->release_unused_sheets();
         }
       }
     }

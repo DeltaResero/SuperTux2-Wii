@@ -23,13 +23,15 @@
 #include "object/moving_sprite.hpp"
 #include "scripting/decal.hpp"
 #include "squirrel/exposed_object.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/timer.hpp"
 
 class ReaderMapping;
 
 /** A decorative image, perhaps part of the terrain */
 class Decal final : public MovingSprite,
-                    public ExposedObject<Decal, scripting::Decal>
+                    public ExposedObject<Decal, scripting::Decal>,
+                    public ArtworkInterface
 {
   friend class FlipLevelTransformer;
 
@@ -42,6 +44,9 @@ public:
   virtual std::string get_class() const override { return "decal"; }
 
   virtual void draw(DrawingContext& context) override;
+
+  virtual void release_artwork() override;
+  virtual void reacquire_artwork() override;
   virtual void update(float dt_sec) override;
 
   virtual void on_flip(float height) override;
@@ -55,6 +60,10 @@ private:
   bool m_solid;
   Flip m_flip;
   SpritePtr m_fade_sprite;
+
+  /** How the sprite looked when its pictures were put down */
+  std::string m_put_down_action;
+  float m_put_down_alpha;
   Timer m_fade_timer;
   Timer m_sprite_timer;
   bool m_visible;
