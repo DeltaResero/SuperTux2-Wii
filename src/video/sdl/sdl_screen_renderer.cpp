@@ -19,6 +19,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <limits>
 
 #include "math/rect.hpp"
 #include "supertux/gameconfig.hpp"
@@ -50,8 +51,14 @@ SDLScreenRenderer::SDLScreenRenderer(SDLVideoSystem& video_system, SDL_Renderer*
     {
       log_info << "  " << SDL_GetPixelFormatName(info.texture_formats[i]) << std::endl;
     }
-    log_info << "Max Texture Width: " << info.max_texture_width << std::endl;
-    log_info << "Max Texture Height: " << info.max_texture_height << std::endl;
+    if (m_video_system.get_max_texture_size() == std::numeric_limits<int>::max())
+    {
+      log_info << "Max Texture Size: no limit" << std::endl;
+    }
+    else
+    {
+      log_info << "Max Texture Size: " << m_video_system.get_max_texture_size() << std::endl;
+    }
   }
 }
 

@@ -102,6 +102,7 @@ CommandLineArguments::print_help(const char* arg0) const
     << "  -a, --aspect WIDTH:HEIGHT    Run SuperTux with given aspect ratio" << "\n"
     << "  -d, --default                Reset video settings to default values" << "\n"
     << "  --renderer RENDERER          Use sdl, opengl, or auto to render" << "\n"
+    << "  --max-texture-size SIZE      Take SIZE as the largest texture the renderer allows" << "\n"
     << "\n"
     << "Audio Options:" << "\n"
     << "  --disable-sound              Disable sound effects" << "\n"
@@ -278,6 +279,15 @@ CommandLineArguments::parse_args(int argc, char** argv)
         video = VideoSystem::get_video_system(argv[i]);
       }
     }
+    else if (arg == "--max-texture-size")
+    {
+      int size = 0;
+      if (++i >= argc || sscanf(argv[i], "%9d", &size) != 1 || size < 1)
+      {
+        throw std::runtime_error("Need to specify a size of 1 or more for max-texture-size argument");
+      }
+      max_texture_size = size;
+    }
     else if (arg == "--audio-backend")
     {
       i += 1;
@@ -406,6 +416,7 @@ CommandLineArguments::merge_into(Config& config)
   merge_option(aspect_size)
   merge_option(use_fullscreen)
   merge_option(video)
+  merge_option(max_texture_size)
   merge_option(show_fps)
   merge_option(show_player_pos)
   merge_option(sound_enabled)

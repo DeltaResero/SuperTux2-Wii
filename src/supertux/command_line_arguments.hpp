@@ -59,6 +59,7 @@ public:
 
   std::optional<bool> use_fullscreen;
   std::optional<VideoSystem::Enum> video;
+  std::optional<int> max_texture_size;
   // std::optional<int> vsync;
   std::optional<bool> show_fps;
   std::optional<bool> show_player_pos;

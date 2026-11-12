@@ -16,6 +16,7 @@
 
 #include "video/gl/gl_video_system.hpp"
 
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -51,9 +52,25 @@ GLVideoSystem::GLVideoSystem(bool use_opengl33core) :
   m_back_renderer(),
   m_context(),
   m_glcontext(),
-  m_viewport()
+  m_viewport(),
+  m_max_texture_size(std::numeric_limits<int>::max())
 {
   create_gl_window();
+
+  assert_gl();
+
+  // Every driver answers this, so nothing back means the question failed and the limit stays unknown
+  GLint max_texture_size = 0;
+  glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
+  if (max_texture_size > 0)
+  {
+    m_max_texture_size = static_cast<int>(max_texture_size);
+    log_info << "Max Texture Size: " << m_max_texture_size << std::endl;
+  }
+  else
+  {
+    log_warning << "Couldn't get the max texture size" << std::endl;
+  }
 
   assert_gl();
 

@@ -16,6 +16,8 @@
 
 #include "video/sdl/sdl_video_system.hpp"
 
+#include <algorithm>
+#include <limits>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -37,7 +39,8 @@ SDLVideoSystem::SDLVideoSystem() :
   m_lightmap(),
   m_texture_manager(),
   m_between_pixels(),
-  m_vsync()
+  m_vsync(),
+  m_max_texture_size(std::numeric_limits<int>::max())
 {
   create_window();
 
@@ -92,7 +95,18 @@ SDLVideoSystem::create_window()
 
   // The software renderer cuts a picture's fractions off, so neighbours would part
   SDL_RendererInfo info;
-  m_between_pixels = SDL_GetRendererInfo(m_sdl_renderer.get(), &info) == 0 && (info.flags & SDL_RENDERER_SOFTWARE) == 0;
+  const bool known = SDL_GetRendererInfo(m_sdl_renderer.get(), &info) == 0;
+  m_between_pixels = known && (info.flags & SDL_RENDERER_SOFTWARE) == 0;
+
+  // SDL gives a side with no limit as 0, and one number serves both sides
+  if (known && info.max_texture_width > 0)
+  {
+    m_max_texture_size = info.max_texture_width;
+  }
+  if (known && info.max_texture_height > 0)
+  {
+    m_max_texture_size = std::min(m_max_texture_size, info.max_texture_height);
+  }
 }
 
 void
