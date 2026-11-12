@@ -50,6 +50,7 @@ public:
   virtual void set_vsync(int mode) override;
   virtual int get_vsync() const override;
   virtual bool draws_between_pixels() const override { return m_between_pixels; }
+  virtual int get_max_texture_size() const override { return m_max_texture_size; }
 
 private:
   void create_window();
@@ -62,6 +63,7 @@ private:
   std::unique_ptr<TextureManager> m_texture_manager;
   bool m_between_pixels;
   int m_vsync;
+  int m_max_texture_size;
 
 private:
   SDLVideoSystem(const SDLVideoSystem&) = delete;

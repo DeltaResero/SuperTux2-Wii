@@ -17,6 +17,7 @@
 #ifndef HEADER_SUPERTUX_VIDEO_VIDEO_SYSTEM_HPP
 #define HEADER_SUPERTUX_VIDEO_VIDEO_SYSTEM_HPP
 
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
@@ -87,6 +88,9 @@ public:
 
   virtual void set_vsync(int mode) = 0;
   virtual int get_vsync() const = 0;
+
+  /** The longest side a texture may have here, or the largest int where nothing limits it */
+  virtual int get_max_texture_size() const { return std::numeric_limits<int>::max(); }
 
   /** False where a picture can only land on whole pixels, as with SDL's software renderer */
   virtual bool draws_between_pixels() const { return true; }

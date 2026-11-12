@@ -56,6 +56,7 @@ public:
 
   virtual void set_vsync(int mode) override;
   virtual int get_vsync() const override;
+  virtual int get_max_texture_size() const override { return m_max_texture_size; }
 
   GLContext& get_context() const { return *m_context; }
 
@@ -73,6 +74,7 @@ private:
 
   SDL_GLContext m_glcontext;
   Viewport m_viewport;
+  int m_max_texture_size;
 
 private:
   GLVideoSystem(const GLVideoSystem&) = delete;
