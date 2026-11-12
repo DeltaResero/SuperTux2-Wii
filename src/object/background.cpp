@@ -157,15 +157,11 @@ Background::Background(const ReaderMapping& reader) :
   if (reader.get("image-top", m_imagefile_top)) {
     m_image_top = load_background(m_imagefile_top);
     m_blank_top = !m_image_top;
-  } else {
-    m_imagefile_top = m_imagefile;
   }
 
   if (reader.get("image-bottom", m_imagefile_bottom)) {
     m_image_bottom = load_background(m_imagefile_bottom);
     m_blank_bottom = !m_image_bottom;
-  } else {
-    m_imagefile_bottom = m_imagefile;
   }
 
   std::vector<float> color;
@@ -237,6 +233,23 @@ Background::set_images(const std::string& name_top,
   m_image_bottom = load_background(name_bottom);
   m_imagefile_bottom = name_bottom;
   m_blank_bottom = !m_image_bottom;
+}
+
+void
+Background::release_artwork()
+{
+  m_image_top.reset();
+  m_image.reset();
+  m_image_bottom.reset();
+}
+
+void
+Background::reacquire_artwork()
+{
+  // A top or bottom that was never named has no file and stays unset
+  if (!m_imagefile.empty()) m_image = load_background(m_imagefile);
+  if (!m_imagefile_top.empty()) m_image_top = load_background(m_imagefile_top);
+  if (!m_imagefile_bottom.empty()) m_image_bottom = load_background(m_imagefile_bottom);
 }
 
 void

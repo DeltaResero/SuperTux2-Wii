@@ -22,19 +22,24 @@
 
 #include "math/vector.hpp"
 #include "sprite/sprite_ptr.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 
 class ReaderMapping;
 
 namespace worldmap {
 
-class SpecialTile final : public GameObject
+class SpecialTile final : public GameObject,
+                          public ArtworkInterface
 {
 public:
   SpecialTile(const ReaderMapping& mapping);
   ~SpecialTile() override;
 
   virtual void draw(DrawingContext& context) override;
+
+  virtual void release_artwork() override;
+  virtual void reacquire_artwork() override;
   virtual bool is_still() const override { return true; }
   virtual void update(float dt_sec) override;
 
@@ -53,6 +58,7 @@ private:
 
   /** Sprite to render instead of guessing what image to draw */
   SpritePtr m_sprite;
+  std::string m_sprite_name;
 
   /** Message to show in the Map */
   std::string m_map_message;

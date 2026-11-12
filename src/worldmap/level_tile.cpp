@@ -42,6 +42,7 @@ LevelTile::LevelTile(const std::string& basedir, const ReaderMapping& mapping) :
   m_perfect(false),
   m_statistics(),
   m_sprite(),
+  m_sprite_name("images/worldmap/common/leveldot.sprite"),
   m_title_color(WorldMap::level_title_color)
 {
   if (!mapping.get("level", m_level_filename)) {
@@ -53,9 +54,8 @@ LevelTile::LevelTile(const std::string& basedir, const ReaderMapping& mapping) :
   mapping.get("y", m_pos.y);
   mapping.get("auto-play", m_auto_play);
 
-  std::string spritefile = "images/worldmap/common/leveldot.sprite";
-  mapping.get("sprite", spritefile);
-  m_sprite = SpriteManager::current()->create(spritefile);
+  mapping.get("sprite", m_sprite_name);
+  m_sprite = SpriteManager::current()->create(m_sprite_name);
 
   mapping.get("extro-script", m_extro_script);
 
@@ -92,8 +92,24 @@ LevelTile::update(float )
 }
 
 void
+LevelTile::release_artwork()
+{
+  m_sprite.reset();
+}
+
+void
+LevelTile::reacquire_artwork()
+{
+  m_sprite = SpriteManager::current()->create(m_sprite_name);
+  update_sprite_action();
+}
+
+void
 LevelTile::update_sprite_action()
 {
+  // A level won while the pictures are down shows it when they return
+  if (!m_sprite) return;
+
   if (!m_solved) {
     m_sprite->set_action("default");
   } else {

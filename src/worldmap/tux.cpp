@@ -41,6 +41,7 @@ Tux::Tux(WorldMap* worldmap) :
   m_back_direction(),
   m_worldmap(worldmap),
   m_sprite(SpriteManager::current()->create(m_worldmap->get_savegame().get_player_status().worldmap_sprite)),
+  m_put_down_action(),
   m_controller(InputManager::current()->get_controller()),
   m_input_direction(Direction::NONE),
   m_direction(Direction::NONE),
@@ -52,6 +53,23 @@ Tux::Tux(WorldMap* worldmap) :
   m_fade_direction(Direction::NONE),
   m_last_pos(0.0f, 0.0f)
 {
+}
+
+void
+Tux::release_artwork()
+{
+  // The way Tux faces is only kept in the action
+  m_put_down_action = m_sprite->get_action();
+  m_sprite.reset();
+}
+
+void
+Tux::reacquire_artwork()
+{
+  m_sprite = SpriteManager::current()->create(m_worldmap->get_savegame().get_player_status().worldmap_sprite);
+  if (m_sprite->has_action(m_put_down_action)) {
+    m_sprite->set_action(m_put_down_action);
+  }
 }
 
 void

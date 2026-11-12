@@ -98,6 +98,7 @@ public:
   Color get_color() const;
 
   void set_alpha(float alpha);
+  float get_alpha() const { return m_alpha; }
 
   void set_blend(const Blend& blend);
 

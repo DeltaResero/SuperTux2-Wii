@@ -22,6 +22,7 @@
 #include <string>
 
 #include "sprite/sprite_ptr.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 #include "supertux/player_status.hpp"
 #include "worldmap/worldmap.hpp"
@@ -34,12 +35,16 @@ class SpecialTile;
 class SpriteChange;
 class WorldMap;
 
-class Tux final : public GameObject
+class Tux final : public GameObject,
+                  public ArtworkInterface
 {
 public:
   Tux(WorldMap* worldmap);
 
   virtual void draw(DrawingContext& context) override;
+
+  virtual void release_artwork() override;
+  virtual void reacquire_artwork() override;
   virtual void update(float dt_sec) override;
   virtual bool is_singleton() const override { return true; }
   virtual void begin_step() override { m_last_pos = get_pos(); }
@@ -78,6 +83,9 @@ public:
 private:
   WorldMap* m_worldmap;
   SpritePtr m_sprite;
+
+  /** The action to go back to when the pictures return */
+  std::string m_put_down_action;
   Controller& m_controller;
 
   Direction m_input_direction;

@@ -20,6 +20,7 @@
 #include "scripting/decal.hpp"
 #include "supertux/flip_level_transformer.hpp"
 #include "sprite/sprite_manager.hpp"
+#include "util/file_system.hpp"
 #include "util/reader.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -30,6 +31,8 @@ Decal::Decal(const ReaderMapping& reader) :
   m_solid(),
   m_flip(NO_FLIP),
   m_fade_sprite(m_sprite.get()->clone()),
+  m_put_down_action(),
+  m_put_down_alpha(1.0f),
   m_fade_timer(),
   m_sprite_timer(),
   m_visible(true),
@@ -53,6 +56,31 @@ Decal::Decal(const ReaderMapping& reader) :
 
 Decal::~Decal()
 {
+}
+
+void
+Decal::release_artwork()
+{
+  m_put_down_action = m_sprite->get_action();
+  // A change of sprite caught part way counts as done
+  m_put_down_alpha = m_sprite_timer.started() ? 1.0f : m_sprite->get_alpha();
+  m_sprite.reset();
+  m_fade_sprite.reset();
+}
+
+void
+Decal::reacquire_artwork()
+{
+  const bool valid = !m_sprite_name.empty() && !FileSystem::find(m_sprite_name).empty();
+  m_sprite = SpriteManager::current()->create(valid ? m_sprite_name : m_default_sprite_name);
+  if (m_sprite->has_action(m_put_down_action)) {
+    m_sprite->set_action(m_put_down_action);
+  }
+  m_sprite->set_alpha(m_put_down_alpha);
+  // Nothing fades while the map is covered, so the other sprite only has to be there
+  m_fade_sprite = m_sprite->clone();
+  m_fade_sprite->set_alpha(0.0f);
+  m_sprite_timer.stop();
 }
 
 void
@@ -99,6 +127,7 @@ Decal::fade_sprite(const std::string& new_sprite, float fade_time)
 {
   m_fade_sprite = SpriteManager::current()->create(new_sprite);
   m_sprite.swap(m_fade_sprite);
+  m_sprite_name = new_sprite;
   // From now on flip_sprite == the old one
   m_sprite.get()->set_alpha(0);
   m_sprite_timer.start(fade_time);

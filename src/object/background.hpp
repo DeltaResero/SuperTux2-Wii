@@ -22,6 +22,7 @@
 #include "math/vector.hpp"
 #include "scripting/background.hpp"
 #include "squirrel/exposed_object.hpp"
+#include "supertux/artwork_interface.hpp"
 #include "supertux/game_object.hpp"
 #include "supertux/timer.hpp"
 #include "video/blend.hpp"
@@ -31,7 +32,8 @@
 class ReaderMapping;
 
 class Background final : public GameObject,
-                         public ExposedObject<Background, scripting::Background>
+                         public ExposedObject<Background, scripting::Background>,
+                         public ArtworkInterface
 {
 public:
   Background();
@@ -40,6 +42,9 @@ public:
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
+
+  virtual void release_artwork() override;
+  virtual void reacquire_artwork() override;
   virtual void begin_step() override { m_last_scroll_offset = m_scroll_offset; }
 
   virtual std::string get_class() const override { return "background"; }

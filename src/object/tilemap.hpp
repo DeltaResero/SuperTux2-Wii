@@ -161,6 +161,9 @@ public:
   uint32_t get_tile_id(int x, int y) const;
   uint32_t get_tile_id_at(const Vector& pos) const;
 
+  /** Makes the picture of every tile in the map, so drawing it later reads nothing */
+  void load_tiles() const;
+
   void change(int x, int y, uint32_t newtile);
 
   void change_at(const Vector& pos, uint32_t newtile);

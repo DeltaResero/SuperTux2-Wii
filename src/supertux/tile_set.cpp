@@ -85,6 +85,17 @@ TileSet::get(const uint32_t id) const
 }
 
 void
+TileSet::unload() const
+{
+  for (const auto& tile : m_tiles)
+  {
+    if (tile) tile->unload();
+  }
+  // Copies are told apart by their pictures, and these went
+  bordered::forget();
+}
+
+void
 TileSet::print_debug_info(const std::string& filename)
 {
   if (false)

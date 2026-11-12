@@ -204,6 +204,18 @@ Tile::load() const
   }
 }
 
+void
+Tile::unload() const
+{
+  if (!m_loaded) return;
+
+  for (Image& image : m_images)
+  {
+    if (!image.file.empty()) image.surface.reset();
+  }
+  m_loaded = false;
+}
+
 const SurfacePtr&
 Tile::get_current_surface() const
 {

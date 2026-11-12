@@ -567,7 +567,12 @@ TileMap::set(int newwidth, int newheight, const std::vector<unsigned int>&newt,
   m_real_solid  = newsolid;
   update_effective_solid ();
 
-  // make sure all tiles are loaded
+  load_tiles();
+}
+
+void
+TileMap::load_tiles() const
+{
   for (const auto& tile : m_tiles)
     m_tileset->get(tile).load();
 }

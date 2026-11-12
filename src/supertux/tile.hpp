@@ -115,6 +115,9 @@ public:
   /** Makes the pictures not made yet, so drawing the tile later reads nothing */
   void load() const;
 
+  /** Lets go of the pictures made from a file, to be made again on next use */
+  void unload() const;
+
   /** Draw a tile on the screen */
   void draw_debug(Canvas& canvas, const Vector& pos, int z_pos, const Color& color = Color(1.0f, 0.f, 1.0f, 0.5f)) const;
 
