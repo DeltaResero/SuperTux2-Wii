@@ -22,11 +22,16 @@
 #include <cstring>
 #include <functional>
 #include <memory>
+#include <typeindex>
 #include <unordered_map>
 
 #include <SDL.h>
 
 #include "object/block.hpp"
+#include "object/bonus_block.hpp"
+#include "object/brick.hpp"
+#include "object/infoblock.hpp"
+#include "object/invisible_block.hpp"
 #include "object/tilemap.hpp"
 #include "supertux/game_object_manager.hpp"
 #include "supertux/tile.hpp"
@@ -849,12 +854,17 @@ void
 gather_blocks(const GameObjectManager& objects, const Rectf& near)
 {
   s_blocks.clear();
-  for (const auto& object : objects.get_objects())
+  // Each kind of block by name, as asking every object in the level whether it's one costs more
+  for (const std::type_index kind : { std::type_index(typeid(BonusBlock)), std::type_index(typeid(Brick)),
+                                      std::type_index(typeid(InfoBlock)), std::type_index(typeid(InvisibleBlock)) })
   {
-    const auto* block = dynamic_cast<const Block*>(object.get());
-    if (!block || !near.contains(block->get_pos()) || !block->get_resting_surface()) continue;
-    const Vector pos = block->get_pos();
-    s_blocks[cell_key(static_cast<int>(std::round(pos.x / 32.0f)), static_cast<int>(std::round(pos.y / 32.0f)))] = block;
+    for (const GameObject* object : objects.get_objects_by_type_index(kind))
+    {
+      const auto* block = static_cast<const Block*>(object);
+      if (!near.contains(block->get_pos()) || !block->get_resting_surface()) continue;
+      const Vector pos = block->get_pos();
+      s_blocks[cell_key(static_cast<int>(std::round(pos.x / 32.0f)), static_cast<int>(std::round(pos.y / 32.0f)))] = block;
+    }
   }
 }
 
