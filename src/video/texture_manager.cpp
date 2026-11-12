@@ -32,6 +32,8 @@
 #include <vector>
 
 #include "math/rect.hpp"
+#include "supertux/gameconfig.hpp"
+#include "supertux/globals.hpp"
 #include "io/sdl_file.hpp"
 #include "util/file_system.hpp"
 #include "util/log.hpp"
@@ -91,6 +93,17 @@ bool shrinks_with_view(const std::string& filename)
   const std::string_view engine = "images/engine/";
   const std::string::size_type start = filename.find_first_not_of('/');
   return start == std::string::npos || filename.compare(start, engine.size(), engine) != 0;
+}
+
+// The renderer's limit or a smaller one from the command line
+int longest_side()
+{
+  int limit = VideoSystem::current() ? VideoSystem::current()->get_max_texture_size() : std::numeric_limits<int>::max();
+  if (g_config && g_config->max_texture_size)
+  {
+    limit = std::min(limit, *g_config->max_texture_size);
+  }
+  return limit;
 }
 
 // Through an alpha channel or a colour key
@@ -493,11 +506,14 @@ SDLSurfacePtr
 TextureManager::prepare(const std::string& filename, const SDL_Surface& image) const
 {
   const Vector shrink(std::min(1.0f, m_resize.x), std::min(1.0f, m_resize.y));
-  if ((shrink.x < 1.0f || shrink.y < 1.0f) && shrinks_with_view(filename))
+  const bool with_view = (shrink.x < 1.0f || shrink.y < 1.0f) && shrinks_with_view(filename);
+  const int limit = longest_side();
+  if (with_view || image.w > limit || image.h > limit)
   {
-    SDLSurfacePtr own = SDLSurface::shrink(image,
-                                           std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * shrink.x))),
-                                           std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * shrink.y))));
+    const int width = with_view ? std::max(1, static_cast<int>(std::lround(static_cast<float>(image.w) * shrink.x))) : image.w;
+    const int height = with_view ? std::max(1, static_cast<int>(std::lround(static_cast<float>(image.h) * shrink.y))) : image.h;
+    // Only a side past the limit is shrunk to it and the picture is still drawn at its own size
+    SDLSurfacePtr own = SDLSurface::shrink(image, std::min(width, limit), std::min(height, limit));
     if (own)
     {
       SDLSurface::fill_clear_pixels(*own);
@@ -516,8 +532,8 @@ TextureManager::prepare(const std::string& filename, const SDL_Surface& image) c
       throw std::runtime_error(msg.str());
     }
     // Rounded up, so the picture is never smaller than the whole pixels it's drawn into
-    SDLSurfacePtr own = SDLSurface::create_rgba(static_cast<int>(std::ceil(static_cast<float>(image.w) * m_resize.x - 0.001f)),
-                                                static_cast<int>(std::ceil(static_cast<float>(image.h) * m_resize.y - 0.001f)));
+    SDLSurfacePtr own = SDLSurface::create_rgba(std::min(limit, static_cast<int>(std::ceil(static_cast<float>(image.w) * m_resize.x - 0.001f))),
+                                                std::min(limit, static_cast<int>(std::ceil(static_cast<float>(image.h) * m_resize.y - 0.001f))));
     if (SDL_SoftStretchLinear(source.get(), nullptr, own.get(), nullptr) != 0)
     {
       std::ostringstream msg;

@@ -57,6 +57,9 @@ Reset video settings to default values (\-g 800x600 \-a auto \-w)
 .B \-\-renderer RENDERER
 Render the game using the specified video renderer. Valid values are sdl, opengl20, opengl33, and auto (the default).
 .TP
+.B \-\-max\-texture\-size SIZE
+Take SIZE as the largest texture the renderer allows. Pictures with a longer side are shrunk to fit. A SIZE above the renderer's own limit changes nothing.
+.TP
 .B \-\-disable\-sound, \-\-disable\-sfx
 Disable sound effects
 .TP

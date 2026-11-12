@@ -88,6 +88,9 @@ public:
   /** this variable is set if tux should spawn somewhere which isn't the "main" spawn point*/
   std::optional<Vector> tux_spawn_pos;
 
+  /** A smaller texture limit than the renderer's own, from the command line and never saved */
+  std::optional<int> max_texture_size;
+
   KeyboardConfig keyboard_config;
   JoystickConfig joystick_config;
 

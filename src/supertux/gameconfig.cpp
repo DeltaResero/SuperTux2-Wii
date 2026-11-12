@@ -54,6 +54,7 @@ Config::Config() :
   start_demo(),
   record_demo(),
   tux_spawn_pos(),
+  max_texture_size(),
   keyboard_config(),
   joystick_config(),
 #ifdef ENABLE_TOUCHSCREEN_SUPPORT
