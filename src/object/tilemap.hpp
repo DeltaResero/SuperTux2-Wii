@@ -54,8 +54,8 @@ class TileMap final :
   public PathObject
 {
 public:
-  TileMap(const TileSet *tileset);
-  TileMap(const TileSet *tileset, const ReaderMapping& reader);
+  TileMap(std::shared_ptr<const TileSet> tileset);
+  TileMap(std::shared_ptr<const TileSet> tileset, const ReaderMapping& reader);
   ~TileMap() override;
 
   virtual void finish_construction() override;
@@ -201,7 +201,7 @@ public:
   bool m_editor_active;
 
 private:
-  const TileSet* m_tileset;
+  std::shared_ptr<const TileSet> m_tileset;
 
   using Tiles = std::vector<uint32_t>;
   Tiles m_tiles;

@@ -44,11 +44,11 @@
 #include "video/video_system.hpp"
 #include "worldmap/worldmap.hpp"
 
-TileMap::TileMap(const TileSet *new_tileset) :
+TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
   ExposedObject<TileMap, scripting::TileMap>(this),
   PathObject(),
   m_editor_active(true),
-  m_tileset(new_tileset),
+  m_tileset(std::move(new_tileset)),
   m_tiles(),
   m_real_solid(false),
   m_effective_solid(false),
@@ -77,12 +77,12 @@ TileMap::TileMap(const TileSet *new_tileset) :
   bordered::hold();
 }
 
-TileMap::TileMap(const TileSet *tileset_, const ReaderMapping& reader) :
+TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& reader) :
   GameObject(reader),
   ExposedObject<TileMap, scripting::TileMap>(this),
   PathObject(),
   m_editor_active(true),
-  m_tileset(tileset_),
+  m_tileset(std::move(tileset_)),
   m_tiles(),
   m_real_solid(false),
   m_effective_solid(false),

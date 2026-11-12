@@ -186,7 +186,7 @@ private:
 
   Savegame& m_savegame;
 
-  TileSet* m_tileset;
+  std::shared_ptr<TileSet> m_tileset;
 
   std::string m_name;
   std::string m_init_script;

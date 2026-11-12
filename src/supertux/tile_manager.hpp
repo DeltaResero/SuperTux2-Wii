@@ -20,6 +20,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "util/currenton.hpp"
 
@@ -28,12 +29,19 @@ class TileSet;
 class TileManager final : public Currenton<TileManager>
 {
 private:
-  std::map<std::string, std::unique_ptr<TileSet> > m_tilesets;
+  /** Tilesets already read, shared by the tilemaps drawing from them and not owned here */
+  std::map<std::string, std::weak_ptr<TileSet> > m_tilesets;
+
+  /** Keeps every tileset read until a screen closes, so one lasts between the tilemaps that want it */
+  std::vector<std::shared_ptr<TileSet> > m_held;
 
 public:
   TileManager();
 
-  TileSet* get_tileset(const std::string &filename);
+  std::shared_ptr<TileSet> get_tileset(const std::string &filename);
+
+  /** Lets go of every tileset nothing draws from any more */
+  void release_unused();
 };
 
 #endif

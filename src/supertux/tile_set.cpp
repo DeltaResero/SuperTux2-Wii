@@ -19,6 +19,7 @@
 #include <cassert>
 #include <utility>
 
+#include "object/bordered.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/tile.hpp"
 #include "supertux/tile_set_parser.hpp"
@@ -47,6 +48,8 @@ TileSet::TileSet() :
 
 TileSet::~TileSet()
 {
+  // Copies are told apart by their pictures, and these are about to go
+  bordered::forget();
 }
 
 void

@@ -36,6 +36,7 @@
 #include "supertux/menu/menu_storage.hpp"
 #include "supertux/resources.hpp"
 #include "supertux/screen_fade.hpp"
+#include "supertux/tile_manager.hpp"
 #include "util/log.hpp"
 #include "video/compositor.hpp"
 #include "video/drawing_context.hpp"
@@ -529,10 +530,17 @@ ScreenManager::handle_screen_switch()
         }
       }
 
-      // A closed screen took its objects with it, so their sprites can go
-      if (screen_closed && SpriteManager::current() != nullptr)
+      // A closed screen took its objects with it, so their sprites and tiles can go
+      if (screen_closed)
       {
-        SpriteManager::current()->release_unused();
+        if (SpriteManager::current() != nullptr)
+        {
+          SpriteManager::current()->release_unused();
+        }
+        if (TileManager::current() != nullptr)
+        {
+          TileManager::current()->release_unused();
+        }
       }
 
       if (!quit_action_triggered)
