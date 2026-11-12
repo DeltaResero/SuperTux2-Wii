@@ -43,8 +43,8 @@ public:
 private:
   void parse_tile(const ReaderMapping& reader);
   void parse_tiles(const ReaderMapping& reader);
-  std::vector<SurfacePtr> parse_imagespecs(const ReaderMapping& cur,
-                                           const std::optional<Rect>& region = std::nullopt) const;
+  std::vector<Tile::Image> parse_imagespecs(const ReaderMapping& cur,
+                                            const std::optional<Rect>& region = std::nullopt) const;
 
 private:
   TileSetParser(const TileSetParser&) = delete;

@@ -185,7 +185,7 @@ TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& r
       empty = false;
     }
 
-    m_tileset->get(tile);
+    m_tileset->get(tile).load();
   }
 
   if (empty)
@@ -569,7 +569,7 @@ TileMap::set(int newwidth, int newheight, const std::vector<unsigned int>&newt,
 
   // make sure all tiles are loaded
   for (const auto& tile : m_tiles)
-    m_tileset->get(tile);
+    m_tileset->get(tile).load();
 }
 
 void
