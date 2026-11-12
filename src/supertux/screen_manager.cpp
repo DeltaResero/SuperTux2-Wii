@@ -501,6 +501,7 @@ ScreenManager::handle_screen_switch()
       auto actions = std::move(m_actions);
       bool quit_action_triggered = false;
       bool screen_closed = false;
+      bool screen_changed = false;
 
       for (auto& action : actions)
       {
@@ -531,23 +532,6 @@ ScreenManager::handle_screen_switch()
         }
       }
 
-      // A closed screen took its objects with it, so their sprites, tiles and sheets can go
-      if (screen_closed)
-      {
-        if (SpriteManager::current() != nullptr)
-        {
-          SpriteManager::current()->release_unused();
-        }
-        if (TileManager::current() != nullptr)
-        {
-          TileManager::current()->release_unused();
-        }
-        if (TextureManager::current() != nullptr)
-        {
-          TextureManager::current()->release_unused_sheets();
-        }
-      }
-
       if (!quit_action_triggered)
       {
         if (m_screen_stack.empty())
@@ -571,6 +555,24 @@ ScreenManager::handle_screen_switch()
             m_speed = 1.0;
             SquirrelVirtualMachine::current()->wakeup_screenswitch();
           }
+          screen_changed = true;
+        }
+      }
+
+      // The screen leaving has let go by now and the one arriving holds what it wants, so what the 2 share stays
+      if (screen_closed || screen_changed)
+      {
+        if (SpriteManager::current() != nullptr)
+        {
+          SpriteManager::current()->release_unused();
+        }
+        if (TileManager::current() != nullptr)
+        {
+          TileManager::current()->release_unused();
+        }
+        if (TextureManager::current() != nullptr)
+        {
+          TextureManager::current()->release_unused_sheets();
         }
       }
     }
