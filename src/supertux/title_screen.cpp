@@ -37,15 +37,25 @@
 #include "video/video_system.hpp"
 
 TitleScreen::TitleScreen(Savegame& savegame) :
-  m_frame(Surface::from_file("images/engine/menu/frame.png")),
+  m_savegame(savegame),
+  m_frame(),
   m_controller(std::make_unique<CodeController>()),
-  m_titlesession(std::make_unique<GameSession>("levels/misc/menu.stl", savegame)),
+  m_titlesession(),
   m_copyright_text("SuperTux " PACKAGE_VERSION "\n"
     "Copyright (c) 2003-2021 SuperTux Devel Team\n"
     "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n"
     "welcome to redistribute it under certain conditions; see the license file for details."),
   m_videosystem_name(VideoSystem::current()->get_name())
 {
+  create_session();
+}
+
+void
+TitleScreen::create_session()
+{
+  m_frame = Surface::from_file("images/engine/menu/frame.png");
+  m_titlesession = std::make_unique<GameSession>("levels/misc/menu.stl", m_savegame);
+
   Player& player = m_titlesession->get_current_sector().get_player();
   player.set_controller(m_controller.get());
   player.set_speedlimit(230); //MAX_WALK_XM
@@ -87,6 +97,10 @@ TitleScreen::~TitleScreen()
 void
 TitleScreen::setup()
 {
+  if (!m_titlesession) {
+    create_session();
+  }
+
   Sector& sector = m_titlesession->get_current_sector();
   if (Sector::current() != &sector) {
     auto& music = sector.get_singleton_by_type<MusicObject>();
@@ -106,6 +120,7 @@ TitleScreen::setup()
 std::optional<Vector>
 TitleScreen::get_player_pos() const
 {
+  if (!m_titlesession) return std::nullopt;
   return m_titlesession->get_player_pos();
 }
 
@@ -115,6 +130,10 @@ TitleScreen::leave()
   Sector& sector = m_titlesession->get_current_sector();
   sector.deactivate();
   MenuManager::instance().clear_menu_stack();
+
+  // This screen is never popped, so its level and frame would stay for the whole run and are built again on the way back
+  m_titlesession.reset();
+  m_frame.reset();
 }
 
 void
