@@ -1,6 +1,0 @@
-(supertux-level-subset
-  (title "Test Levels")
-  (description "")
-  (levelset #t)
-  (hide-from-contribs #t)
-)
