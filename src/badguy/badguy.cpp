@@ -687,13 +687,18 @@ BadGuy::set_state(State state_)
 bool
 BadGuy::is_offscreen() const
 {
+  return is_offscreen(get_nearest_player());
+}
+
+bool
+BadGuy::is_offscreen(const Player* player) const
+{
+  if (!player)
+    return false;
   Vector cam_dist(0.0f, 0.0f);
   Vector player_dist(0.0f, 0.0f);
   Camera& cam = Sector::get().get_camera();
   cam_dist = cam.get_center() - m_col.m_bbox.get_middle();
-  auto player = get_nearest_player();
-  if (!player)
-    return false;
   player_dist = player->get_bbox().get_middle() - m_col.m_bbox.get_middle();
   // In SuperTux 0.1.x, Badguys were activated when Tux<->Badguy center distance was approx. <= ~668px
   // This doesn't work for wide-screen monitors which give us a virt. res. of approx. 1066px x 600px
@@ -711,14 +716,13 @@ BadGuy::try_activate()
   auto player = get_nearest_player();
   if (!player) return;
 
-  if (!is_offscreen()) {
+  if (!is_offscreen(player)) {
     set_state(STATE_ACTIVE);
     if (!m_is_initialized) {
 
       // if starting direction was set to AUTO, this is our chance to re-orient the badguy
       if (m_start_dir == Direction::AUTO) {
-        auto player_ = get_nearest_player();
-        if (player_ && (player_->get_bbox().get_left() > m_col.m_bbox.get_right())) {
+        if (player->get_bbox().get_left() > m_col.m_bbox.get_right()) {
           m_dir = Direction::RIGHT;
         } else {
           m_dir = Direction::LEFT;

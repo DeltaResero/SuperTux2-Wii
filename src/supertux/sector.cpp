@@ -664,7 +664,7 @@ Sector::run_script(const std::string& script, const std::string& sourcename)
 Camera&
 Sector::get_camera() const
 {
-  return get_singleton_by_type<Camera>();
+  return *static_cast<Camera*>(get_objects_by_type_index(typeid(Camera)).at(0));
 }
 
 Player&

@@ -61,10 +61,11 @@ DrawingContext::set_ambient_color(Color ambient_color)
 Rectf
 DrawingContext::get_cliprect() const
 {
-  return Rectf(get_translation().x,
-               get_translation().y,
-               get_translation().x + static_cast<float>(m_viewport.get_width()) / transform().scale,
-               get_translation().y + static_cast<float>(m_viewport.get_height()) / transform().scale);
+  const DrawingTransform& now = transform();
+  return Rectf(now.translation.x,
+               now.translation.y,
+               now.translation.x + static_cast<float>(m_viewport.get_width()) / now.scale,
+               now.translation.y + static_cast<float>(m_viewport.get_height()) / now.scale);
 }
 
 void

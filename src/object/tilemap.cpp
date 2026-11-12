@@ -332,8 +332,7 @@ TileMap::on_flip(float height)
 void
 TileMap::draw(DrawingContext& context)
 {
-  // skip draw if current opacity is 0.0
-  if (m_current_alpha == 0.0f) return;
+  if (is_invisible()) return;
 
   context.push_transform();
 
@@ -685,11 +684,11 @@ TileMap::prepare_copies(const Rectf& view, bool fading)
   const std::vector<const TileMap*> above = bordered::layers_above(*d_gameobject_manager, *this);
   if (fading)
   {
-    if (m_alpha > 0.0f) m_bordered->prepare(*this, cells, above);
+    if (m_alpha > 0.0f && m_tint.alpha > 0.0f) m_bordered->prepare(*this, cells, above);
     return false;
   }
   // A layer that isn't drawn doesn't hold the others back
-  return m_current_alpha == 0.0f || m_bordered->ready(*this, cells, above);
+  return is_invisible() || m_bordered->ready(*this, cells, above);
 }
 
 uint32_t
