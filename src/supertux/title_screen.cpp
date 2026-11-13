@@ -18,9 +18,13 @@
 #include "supertux/title_screen.hpp"
 
 #include <config.h>
+#include <cmath>
+#include <ctime>
 #include <optional>
 
 #include "gui/menu_manager.hpp"
+#include "object/bonus_block.hpp"
+#include "object/brick.hpp"
 #include "object/camera.hpp"
 #include "object/music_object.hpp"
 #include "object/player.hpp"
@@ -36,6 +40,22 @@
 #include "video/surface.hpp"
 #include "video/video_system.hpp"
 
+namespace {
+
+// How fast his walking jump leaves the ground once the game's stepping has taken its share
+const float JUMP_SPEED = 515.4f;
+const float WALK_SPEED = 230.0f;
+const float ARC_STEP = 1.0f / 64.0f;
+
+// The share of the blocks in reach he goes for is drawn between these each lap
+const float LEAST_EAGER = 0.0f;
+const float MOST_EAGER = 0.25f;
+
+// Adding the golden ratio and wrapping at 1 keeps successive draws apart
+const float SPACING_STEP = 0.6180339887f;
+
+} // namespace
+
 TitleScreen::TitleScreen(Savegame& savegame) :
   m_savegame(savegame),
   m_frame(),
@@ -45,7 +65,13 @@ TitleScreen::TitleScreen(Savegame& savegame) :
     "Copyright (c) 2003-2021 SuperTux Devel Team\n"
     "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n"
     "welcome to redistribute it under certain conditions; see the license file for details."),
-  m_videosystem_name(VideoSystem::current()->get_name())
+  m_videosystem_name(VideoSystem::current()->get_name()),
+  m_jump_was_released(true),
+  m_eagerness(0.0f),
+  m_crate_eagerness(0.0f),
+  m_spacing(static_cast<float>((static_cast<unsigned int>(std::time(nullptr)) * 2654435761u) % 1000u) / 1000.0f),
+  m_last_block(nullptr),
+  m_taking_block(false)
 {
   create_session();
 }
@@ -59,12 +85,81 @@ TitleScreen::create_session()
   Player& player = m_titlesession->get_current_sector().get_player();
   player.set_controller(m_controller.get());
   player.set_speedlimit(230); //MAX_WALK_XM
+
+  m_jump_was_released = true;
+  m_last_block = nullptr;
+  m_taking_block = false;
+  start_lap();
+}
+
+float
+TitleScreen::next_spacing()
+{
+  m_spacing += SPACING_STEP;
+  if (m_spacing >= 1.0f) m_spacing -= 1.0f;
+  return m_spacing;
+}
+
+void
+TitleScreen::start_lap()
+{
+  m_eagerness = LEAST_EAGER + next_spacing() * (MOST_EAGER - LEAST_EAGER);
+  m_crate_eagerness = LEAST_EAGER + next_spacing() * (MOST_EAGER - LEAST_EAGER);
+}
+
+const Block*
+TitleScreen::block_in_arc(const Sector& sector, const Player& tux) const
+{
+  const Rectf body = tux.get_bbox();
+  const float gravity = sector.get_gravity() * 100.0f;
+  const float reach = JUMP_SPEED * JUMP_SPEED / (2.0f * gravity);
+
+  // The middle of his head has to come up under the block, or he'd meet its side instead
+  const float crown = body.get_middle().x;
+
+  const Block* target = nullptr;
+  float soonest = JUMP_SPEED / gravity;
+
+  const auto consider = [&](const Block& block) {
+    if (!block.is_valid() || block.is_spent()) return;
+
+    const Rectf& box = block.get_bbox();
+    const float gap = body.get_top() - box.get_bottom();
+    if (gap < 0.0f || gap >= reach) return;
+
+    // When his head gets up to the block's underside and where it is by then
+    const float t = (JUMP_SPEED - sqrtf(JUMP_SPEED * JUMP_SPEED - 2.0f * gravity * gap)) / gravity;
+    const float x = crown + WALK_SPEED * t;
+    if (x < box.get_left() || x >= box.get_right() || t >= soonest) return;
+
+    // The scenery mustn't end the climb first
+    for (float step = ARC_STEP; step < t; step += ARC_STEP)
+    {
+      const float head_x = crown + WALK_SPEED * step;
+      const float head_y = body.get_top() - JUMP_SPEED * step + 0.5f * gravity * step * step;
+      if (!sector.is_free_of_tiles(Rectf(head_x, head_y, head_x + 1.0f, head_y + 1.0f))) return;
+    }
+
+    soonest = t;
+    target = &block;
+  };
+
+  for (const auto& block : sector.get_objects_by_type<BonusBlock>())
+    consider(block);
+
+  // A crate is no use to a Tux too small to break it
+  if (tux.is_big())
+  {
+    for (const auto& brick : sector.get_objects_by_type<Brick>())
+      consider(brick);
+  }
+
+  return target;
 }
 
 void
 TitleScreen::make_tux_jump()
 {
-  static bool jumpWasReleased = true;
   Sector& sector  = m_titlesession->get_current_sector();
   Player& tux = sector.get_player();
 
@@ -79,18 +174,28 @@ TitleScreen::make_tux_jump()
     lookahead.set_right(lookahead.get_right() + 96);
     lookahead.set_bottom(lookahead.get_bottom() - 2);
     pathBlocked = !sector.is_free_of_statics(lookahead);
+
+    // Settled once as a block comes into reach, as asking every frame would soon come up yes whatever the odds
+    const Block* target = block_in_arc(sector, tux);
+    if (target != m_last_block)
+    {
+      m_last_block = target;
+      const float keen = dynamic_cast<const Brick*>(target) ? m_crate_eagerness : m_eagerness;
+      m_taking_block = target && next_spacing() < keen;
+    }
   }
-  if ((pathBlocked && jumpWasReleased) || tux.m_fall_mode == Player::FallMode::JUMPING) {
+  if (((pathBlocked || m_taking_block) && m_jump_was_released) || tux.m_fall_mode == Player::FallMode::JUMPING) {
     m_controller->press(Control::JUMP);
-    jumpWasReleased = false;
+    m_jump_was_released = false;
   } else {
-    jumpWasReleased = true;
+    m_jump_was_released = true;
   }
 
   // Wrap around at the end of the level back to the beginning
   if (sector.get_width() - 320 < tux.get_pos().x) {
     sector.activate("main");
     sector.get_camera().reset(tux.get_pos());
+    start_lap();
   }
 }
 

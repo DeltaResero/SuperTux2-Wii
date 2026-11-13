@@ -24,9 +24,12 @@
 #include <memory>
 #include <string>
 
+class Block;
 class CodeController;
 class GameSession;
+class Player;
 class Savegame;
+class Sector;
 
 /** Screen that displays the SuperTux logo, lets players start a new
     game, etc. */
@@ -46,6 +49,15 @@ public:
 private:
   void make_tux_jump();
 
+  /** The next of a run of numbers from 0 to 1 that never bunch up */
+  float next_spacing();
+
+  /** The bonus block or crate a jump taken now would put his head into, or null */
+  const Block* block_in_arc(const Sector& sector, const Player& tux) const;
+
+  /** Draws how keen he is on bonus blocks and on crates for the lap ahead */
+  void start_lap();
+
   /** Builds the level the menu is played over */
   void create_session();
 
@@ -56,6 +68,12 @@ private:
   std::unique_ptr<GameSession> m_titlesession;
   std::string m_copyright_text;
   std::string m_videosystem_name;
+  bool m_jump_was_released;
+  float m_eagerness;
+  float m_crate_eagerness;
+  float m_spacing;
+  const Block* m_last_block;
+  bool m_taking_block;
 
 private:
   TitleScreen(const TitleScreen&) = delete;

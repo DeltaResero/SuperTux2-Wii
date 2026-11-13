@@ -138,6 +138,12 @@ Block::collision(GameObject& other, const CollisionHit& )
 }
 
 
+bool
+Block::is_spent() const
+{
+  return m_sprite->get_action() == "empty";
+}
+
 void
 Block::update(float dt_sec)
 {
