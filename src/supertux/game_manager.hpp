@@ -39,6 +39,9 @@ public:
   bool load_next_worldmap();
   void set_next_worldmap(const std::string& worldmap, const std::string &spawnpoint);
 
+  /** The savegame of the world last started, or null before any has been */
+  const Savegame* get_savegame() const { return m_savegame.get(); }
+
 private:
   std::unique_ptr<Savegame> m_savegame;
 

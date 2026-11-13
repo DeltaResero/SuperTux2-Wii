@@ -39,6 +39,9 @@ public:
 
   virtual void on_flip(float height) override;
 
+  /** Whether it has been hit for all it held */
+  bool is_spent() const;
+
   virtual int get_layer() const override { return LAYER_OBJECTS + 1; }
 
   /** Its picture while it rests on the grid, else null */

@@ -54,19 +54,6 @@ SDLVideoSystem::~SDLVideoSystem()
 {
 }
 
-std::string
-SDLVideoSystem::get_name() const
-{
-  SDL_version version;
-  SDL_GetVersion(&version);
-  std::ostringstream out;
-  out << "SDL "
-      << static_cast<int>(version.major)
-      << "." << static_cast<int>(version.minor)
-      << "." << static_cast<int>(version.patch);
-  return out.str();
-}
-
 void
 SDLVideoSystem::create_window()
 {

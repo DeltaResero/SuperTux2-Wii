@@ -46,11 +46,16 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+## The release build unless another is asked for; generators that choose per build set their own
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS Debug Release RelWithDebInfo MinSizeRel)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/mk/cmake)
 include(CheckCXXCompilerFlag)
 
 set(BUILD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
-set(BUILD_CONFIG_DATA_DIR "${CMAKE_BINARY_DIR}/data")
 ## Add definitions
 if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
   add_definitions(-DRELEASE)
@@ -190,7 +195,6 @@ else(WIN32)
 endif(WIN32)
 set(HAVE_SDL TRUE)
 
-option(IS_SUPERTUX_RELEASE "Build as official SuperTux release" OFF)
 option(BUILD_TESTS "Build test cases" OFF)
 option(BUILD_TESTS_M32 "Also run the squirrel samples at 32-bit integer width" OFF)
 option(ENABLE_OPENGL "Enable OpenGL support" ON)
@@ -283,61 +287,21 @@ else()
   set(FLAC_TARGET PkgConfig::FLAC)
 endif()
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
-  ## Find revision of WC
-  mark_as_advanced(GIT_EXECUTABLE)
-  find_program(GIT_EXECUTABLE git)
-  if(NOT GIT_EXECUTABLE EQUAL "GIT_EXECUTABLE-NOTFOUND")
-    include(GetGitRevisionDescription)
-    git_describe(VERSION_STRING_GIT "--tags" "--match" "?[0-9]*.[0-9]*.[0-9]*")
-    string(REPLACE "v" "" VERSION_LIST ${VERSION_STRING_GIT})
-    string(REGEX REPLACE "[^\\-]+\\-([0-9]+)\\-.*" "\\1" VERSION_NUMBER_GIT "${VERSION_LIST}")
-    string(REGEX REPLACE "(-|_|\\.)" ";" VERSION_LIST ";${VERSION_LIST}")
-  endif()
-endif(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+## The version: the upstream release this is built on and our own revision after it
+set(SUPERTUX_VERSION_MAJOR 0)
+set(SUPERTUX_VERSION_MINOR 6)
+set(SUPERTUX_VERSION_PATCH 3)
+set(SUPERTUX_VERSION_TWEAK )
+set(SUPERTUX_WII_REVISION "d.00")
+set(SUPERTUX_VERSION_STRING "${SUPERTUX_VERSION_MAJOR}.${SUPERTUX_VERSION_MINOR}.${SUPERTUX_VERSION_PATCH}-wii-${SUPERTUX_WII_REVISION}")
 
-get_filename_component(BASEDIR ${CMAKE_SOURCE_DIR} NAME)
-if("${VERSION_LIST}" STREQUAL "")
-  if(${BASEDIR} MATCHES "supertux2-[0-9\\.]*")
-    string(REGEX REPLACE "(\\.|_|-)" ";" VERSION_LIST ${BASEDIR})
-  endif()
+## A build that isn't the release one says so in the version
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+  set(SUPERTUX_VERSION_STRING "${SUPERTUX_VERSION_STRING}-dev")
 endif()
-
-file(GLOB ORIG_TGZ ../*.orig.tar.gz)
-if("${VERSION_LIST}" STREQUAL "" AND (NOT "${ORIG_TGZ}" STREQUAL ""))
-  get_filename_component(BASEDIR ${ORIG_TGZ} NAME)
-  string(REGEX REPLACE "(\\.|_|-)" ";" VERSION_LIST ${BASEDIR})
-endif()
-
-list(LENGTH VERSION_LIST VERSION_LIST_SIZE)
-
-if(${VERSION_LIST_SIZE} GREATER 0)
-  list(GET VERSION_LIST 1 MAJOR_VERSION_GIT)
-  list(GET VERSION_LIST 2 MINOR_VERSION_GIT)
-  list(GET VERSION_LIST 3 PATCH_VERSION_GIT)
-
-  if("${VERSION_STRING_GIT}" STREQUAL "")
-    set(VERSION_STRING_GIT "${MAJOR_VERSION_GIT}.${MINOR_VERSION_GIT}.${PATCH_VERSION_GIT}")
-  endif()
-
-  configure_file("${CMAKE_SOURCE_DIR}/version.cmake.in" "${CMAKE_SOURCE_DIR}/version.cmake")
-endif()
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/version.cmake")
-  message( SEND_ERROR "Could not find GIT or valid version.cmake. Version information will be invalid." )
-endif(NOT EXISTS "${CMAKE_SOURCE_DIR}/version.cmake")
-include("${CMAKE_SOURCE_DIR}/version.cmake")
 
 
 set(SUPERTUX_VERSION ${SUPERTUX_VERSION_STRING})
-
-configure_file(version.h.in ${CMAKE_BINARY_DIR}/version.h )
-
-set_source_files_properties(${CMAKE_BINARY_DIR}/version.h
-  PROPERTIES GENERATED true)
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/main.cpp
-  PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
-set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/supertux/title_screen.cpp
-  PROPERTIES OBJECT_DEPENDS "${CMAKE_BINARY_DIR}/version.h")
 
 # Include altivec wrapper on ppc
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^ppc.*")
@@ -571,7 +535,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 ## Add target for supertux binary
 
-add_library(supertux2_lib STATIC ${CMAKE_BINARY_DIR}/version.h ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} ${SUPERTUX_SOURCES_C})
+add_library(supertux2_lib STATIC ${SUPERTUX_SOURCES_CXX} ${SUPERTUX_RESOURCES} ${SUPERTUX_SOURCES_C})
 
 target_link_libraries(supertux2_lib PUBLIC glm::glm)
 target_compile_definitions(supertux2_lib PUBLIC -DGLM_ENABLE_EXPERIMENTAL)
@@ -763,22 +727,12 @@ install(DIRECTORY
   DESTINATION ${INSTALL_SUBDIR_SHARE})
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/levels
-  DESTINATION ${INSTALL_SUBDIR_SHARE}
-  PATTERN "data/levels/misc/menu.stl.in" EXCLUDE)
-
-install(FILES "${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl" DESTINATION "${INSTALL_SUBDIR_SHARE}/levels/misc")
+  DESTINATION ${INSTALL_SUBDIR_SHARE})
 
 ## Create config.h now that INSTALL_SUBDIR_* have been set.
 
-configure_file(config.h.cmake ${CMAKE_BINARY_DIR}/config.h )
+configure_file(config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
-## Configure main menu logo
-if(("${SUPERTUX_VERSION_STRING}" MATCHES "^v[0-9]+\\.[0-9]+\\.[0-9]+$") OR IS_SUPERTUX_RELEASE)
-  set(LOGO_FILE "logo_final.sprite")
-else()
-  set(LOGO_FILE "logo.sprite")
-endif()
-configure_file(data/levels/misc/menu.stl.in ${CMAKE_BINARY_DIR}/data/levels/misc/menu.stl )
 
 
 ## CPack/Installation-specific stuff

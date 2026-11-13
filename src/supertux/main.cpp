@@ -17,7 +17,6 @@
 #include "supertux/main.hpp"
 
 #include <config.h>
-#include <version.h>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
@@ -158,8 +157,6 @@ void FileSystemSubsystem::find_datadir() const
     if (FileSystem::exists(FileSystem::join(BUILD_DATA_DIR, "credits.txt")))
     {
       datadir = BUILD_DATA_DIR;
-      // Add config dir for supplemental files
-      FileSystem::add_search_path(std::filesystem::canonical(BUILD_CONFIG_DATA_DIR).string());
     }
     else
     {

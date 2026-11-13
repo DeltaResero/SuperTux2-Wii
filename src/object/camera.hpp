@@ -72,6 +72,9 @@ public:
   /** reset camera position */
   void reset(const Vector& tuxpos);
 
+  /** Shifts the view by offset until the camera next works out where to look */
+  void move(const Vector& offset);
+
   /** return camera position */
   const Vector get_translation() const;
 

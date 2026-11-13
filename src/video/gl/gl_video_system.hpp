@@ -42,8 +42,6 @@ public:
   GLVideoSystem(bool use_opengl33core);
   ~GLVideoSystem() override;
 
-  virtual std::string get_name() const override;
-
   virtual Renderer* get_back_renderer() const override;
   virtual Renderer& get_renderer() const override;
   virtual Renderer& get_lightmap() const override;
