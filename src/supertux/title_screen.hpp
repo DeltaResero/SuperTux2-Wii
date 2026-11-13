@@ -58,6 +58,12 @@ private:
   /** Draws how keen he is on bonus blocks and on crates for the lap ahead */
   void start_lap();
 
+  /** Pushes the view along so that Tux passes beside the main menu and can walk out of it at the level's end */
+  void push_view(Sector& sector) const;
+
+  /** Puts Tux where a lap begins: left of the view and just above the ground he walks in on */
+  void place_at_entry(Sector& sector, Player& tux) const;
+
   /** Builds the level the menu is played over */
   void create_session();
 
@@ -74,6 +80,7 @@ private:
   float m_spacing;
   const Block* m_last_block;
   bool m_taking_block;
+  float m_menu_width;
 
 private:
   TitleScreen(const TitleScreen&) = delete;

@@ -313,6 +313,12 @@ Camera::reload_config()
 }
 
 void
+Camera::move(const Vector& offset)
+{
+  m_translation += offset;
+}
+
+void
 Camera::keep_in_bounds(Vector& translation_)
 {
   float width = d_sector->get_width();
