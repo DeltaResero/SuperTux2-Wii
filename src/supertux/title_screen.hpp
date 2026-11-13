@@ -73,7 +73,6 @@ private:
   std::unique_ptr<CodeController> m_controller;
   std::unique_ptr<GameSession> m_titlesession;
   std::string m_copyright_text;
-  std::string m_videosystem_name;
   bool m_jump_was_released;
   float m_eagerness;
   float m_crate_eagerness;

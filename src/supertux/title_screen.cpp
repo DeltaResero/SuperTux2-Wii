@@ -83,7 +83,6 @@ TitleScreen::TitleScreen(Savegame& savegame) :
     "Copyright (c) 2003-2021 SuperTux Devel Team\n"
     "This game comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\n"
     "welcome to redistribute it under certain conditions; see the license file for details."),
-  m_videosystem_name(VideoSystem::current()->get_name()),
   m_jump_was_released(true),
   m_eagerness(0.0f),
   m_crate_eagerness(0.0f),
@@ -331,12 +330,6 @@ TitleScreen::draw(Compositor& compositor)
                             m_copyright_text,
                             Vector(5.0f, notice_top),
                             ALIGN_LEFT, LAYER_FOREGROUND1);
-
-  // Beside the version, the one line of the notice short enough to leave it room
-  context.color().draw_text(Resources::small_font,
-                            m_videosystem_name,
-                            Vector(static_cast<float>(context.get_width()) - 5.0f, notice_top),
-                            ALIGN_RIGHT, LAYER_FOREGROUND1);
 
   context.pop_transform();
 }

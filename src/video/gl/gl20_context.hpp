@@ -18,7 +18,6 @@
 #define HEADER_SUPERTUX_VIDEO_GL_GL20_CONTEXT_HPP
 
 #include <cstddef>
-#include <string>
 
 #include "video/gl/gl_context.hpp"
 
@@ -29,8 +28,6 @@ class GL20Context final : public GLContext
 public:
   GL20Context();
   ~GL20Context() override;
-
-  virtual std::string get_name() const override { return "opengl20"; }
 
   virtual void bind() override;
 

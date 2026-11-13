@@ -21,7 +21,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <string>
 
 class GLProgram;
 class GLTexture;
@@ -33,8 +32,6 @@ class GL33CoreContext final : public GLContext
 public:
   GL33CoreContext(GLVideoSystem& video_system);
   ~GL33CoreContext() override;
-
-  virtual std::string get_name() const override { return "opengl33"; }
 
   virtual void bind() override;
 
