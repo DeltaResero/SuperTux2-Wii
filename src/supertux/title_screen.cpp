@@ -31,10 +31,13 @@
 #include "object/music_object.hpp"
 #include "object/player.hpp"
 #include "supertux/fadetoblack.hpp"
+#include "supertux/game_manager.hpp"
 #include "supertux/game_session.hpp"
 #include "supertux/level.hpp"
 #include "supertux/menu/menu_storage.hpp"
+#include "supertux/player_status.hpp"
 #include "supertux/resources.hpp"
+#include "supertux/savegame.hpp"
 #include "supertux/screen_manager.hpp"
 #include "supertux/sector.hpp"
 #include "video/compositor.hpp"
@@ -96,6 +99,11 @@ void
 TitleScreen::create_session()
 {
   m_frame = Surface::from_file("images/engine/menu/frame.png");
+
+  // Set before he exists so that turning up the way the last world left him plays no power-up sound
+  const Savegame* played = GameManager::current()->get_savegame();
+  m_savegame.get_player_status().bonus = played ? played->get_player_status().bonus : NO_BONUS;
+
   m_titlesession = std::make_unique<GameSession>("levels/misc/menu.stl", m_savegame);
 
   Player& player = m_titlesession->get_current_sector().get_player();
