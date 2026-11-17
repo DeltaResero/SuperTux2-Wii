@@ -403,6 +403,7 @@ std::unordered_map<std::string, std::string> fallback_paths = {
   {"bluemountain-middle.png", "bluemountain/bluemountain-middle.png"},
   {"bluemountain-top.png", "bluemountain/bluemountain-top.png"},
   {"bluemountain2.png", "bluemountain/bluemountain2.png"},
+  // Stays for add-on levels now that no level of ours uses it
   {"castle_foreground.png", "castle/castle_foreground.png"},
   {"snowcastle.png", "castle/snowcastle.png"},
   {"cloud-mountains-background.png", "cloud_mountains/cloud-mountains-background.png"},
