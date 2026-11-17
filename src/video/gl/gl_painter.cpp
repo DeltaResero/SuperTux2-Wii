@@ -633,26 +633,47 @@ GLPainter::clear(const Color& color)
 }
 
 void
-GLPainter::get_pixel(const GetPixelRequest& request) const
+GLPainter::get_pixels(const std::vector<const GetPixelRequest*>& requests) const
 {
+  if (requests.empty()) return;
+
   assert_gl();
 
   const Rect& rect = m_renderer.get_rect();
   const Sizef logical_size = m_renderer.get_logical_size();
 
-  float x = request.pos.x * static_cast<float>(rect.get_width()) / logical_size.width;
-  float y = request.pos.y * static_cast<float>(rect.get_height()) / logical_size.height;
+  std::vector<Vector> spots;
+  spots.reserve(requests.size());
+  int left = rect.get_width() - 1;
+  int top = rect.get_height() - 1;
+  int right = 0;
+  int bottom = 0;
+  for (const auto* request : requests)
+  {
+    const int x = std::clamp(static_cast<int>(request->pos.x * static_cast<float>(rect.get_width()) / logical_size.width),
+                             0, rect.get_width() - 1);
+    const int y = std::clamp(static_cast<int>(request->pos.y * static_cast<float>(rect.get_height()) / logical_size.height),
+                             0, rect.get_height() - 1);
+    spots.emplace_back(static_cast<float>(x), static_cast<float>(y));
+    left = std::min(left, x);
+    top = std::min(top, y);
+    right = std::max(right, x);
+    bottom = std::max(bottom, y);
+  }
 
-  x += static_cast<float>(rect.left);
-  y += static_cast<float>(rect.top);
+  // Only the box around them in RGBA bytes that every version of OpenGL can read
+  const int width = right - left + 1;
+  const int height = bottom - top + 1;
+  std::vector<uint8_t> pixels(static_cast<size_t>(width * height * 4));
+  glReadPixels(rect.left + left, rect.top + top, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
-  float pixels[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-  // OpenGLES2 does not have PBOs, only GLES3 has
-  glReadPixels(static_cast<GLint>(x), static_cast<GLint>(y),
-               1, 1, GL_RGB, GL_FLOAT, pixels);
-
-  *(request.color_ptr) = Color(pixels[0], pixels[1], pixels[2]);
+  for (size_t i = 0; i < requests.size(); ++i)
+  {
+    const int x = static_cast<int>(spots[i].x) - left;
+    const int y = static_cast<int>(spots[i].y) - top;
+    const uint8_t* pixel = &pixels[static_cast<size_t>((y * width + x) * 4)];
+    *(requests[i]->color_ptr) = Color::from_rgb888(pixel[0], pixel[1], pixel[2]);
+  }
 
   assert_gl();
 }

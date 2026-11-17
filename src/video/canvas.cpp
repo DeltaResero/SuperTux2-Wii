@@ -201,8 +201,8 @@ Canvas::render(Renderer& renderer, Filter filter)
 
   Painter& painter = renderer.get_painter();
 
-  for (const auto& i : m_requests) {
-    const DrawingRequest& request = *i;
+  for (size_t n = 0; n < m_requests.size(); ++n) {
+    const DrawingRequest& request = *m_requests[n];
 
     if (!passes(filter, request))
       continue;
@@ -240,8 +240,20 @@ Canvas::render(Renderer& renderer, Filter filter)
         break;
 
       case GETPIXEL:
-        painter.get_pixel(static_cast<const GetPixelRequest&>(request));
+      {
+        // They share a layer so every one in a row is answered together
+        std::vector<const GetPixelRequest*> pixels;
+        for (; n < m_requests.size() && m_requests[n]->type == GETPIXEL; ++n)
+        {
+          if (passes(filter, *m_requests[n]))
+          {
+            pixels.push_back(static_cast<const GetPixelRequest*>(m_requests[n]));
+          }
+        }
+        --n;
+        painter.get_pixels(pixels);
         break;
+      }
     }
   }
 }

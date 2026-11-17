@@ -35,7 +35,7 @@ public:
   virtual void draw_triangle(const TriangleRequest& request) override;
 
   virtual void clear(const Color& color) override;
-  virtual void get_pixel(const GetPixelRequest& request) const override;
+  virtual void get_pixels(const std::vector<const GetPixelRequest*>& requests) const override;
 
   virtual void set_clip_rect(const Rect& rect) override;
   virtual void clear_clip_rect() override;

@@ -50,7 +50,8 @@ public:
   virtual void draw_triangle(const TriangleRequest& request) = 0;
 
   virtual void clear(const Color& color) = 0;
-  virtual void get_pixel(const GetPixelRequest& request) const = 0;
+  /** Answers every request with one read as each read waits for the drawing to finish */
+  virtual void get_pixels(const std::vector<const GetPixelRequest*>& requests) const = 0;
 
   virtual void set_clip_rect(const Rect& rect) = 0;
   virtual void clear_clip_rect() = 0;
