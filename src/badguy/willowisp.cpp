@@ -37,8 +37,7 @@ static const float VANISH_RANGE = 512.0f; /**< at what distance to stop tracking
 static const std::string SOUNDFILE = "sounds/willowisp.flac";
 
 WillOWisp::WillOWisp(const ReaderMapping& reader) :
-  BadGuy(reader, "images/creatures/willowisp/willowisp.sprite", LAYER_FLOATINGOBJECTS,
-         "images/objects/lightmap_light/lightmap_light-small.sprite"),
+  BadGuy(reader, "images/creatures/willowisp/willowisp.sprite", LAYER_FLOATINGOBJECTS, LIGHT_SMALL),
   ExposedObject<WillOWisp, scripting::WillOWisp>(this),
   PathObject(),
   m_mystate(STATE_IDLE),
@@ -77,9 +76,9 @@ WillOWisp::WillOWisp(const ReaderMapping& reader) :
   SoundManager::current()->preload(SOUNDFILE);
   SoundManager::current()->preload("sounds/warp.flac");
 
-  m_lightsprite->set_color(Color(m_color.red * 0.2f,
-                                 m_color.green * 0.2f,
-                                 m_color.blue * 0.2f));
+  m_light_color = Color(m_color.red * 0.2f,
+                        m_color.green * 0.2f,
+                        m_color.blue * 0.2f);
   m_sprite->set_color(m_color);
   m_glowing = true;
 

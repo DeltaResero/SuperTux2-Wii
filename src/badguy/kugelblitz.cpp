@@ -23,7 +23,6 @@
 #include "object/electrifier.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
 
 namespace {
@@ -42,16 +41,12 @@ Kugelblitz::Kugelblitz(const ReaderMapping& reader) :
   dying(),
   movement_timer(),
   lifetime(),
-  direction(),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light.sprite"))
+  direction()
 {
   m_start_position.x = m_col.m_bbox.get_left();
   m_sprite->set_action("falling");
   m_physic.enable_gravity(false);
   m_countMe = false;
-
-  lightsprite->set_blend(Blend::ADD);
-  lightsprite->set_color(Color(0.2f, 0.1f, 0.0f));
 
   SoundManager::current()->preload("sounds/lightning.flac");
 }
@@ -153,7 +148,7 @@ void
 Kugelblitz::draw(DrawingContext& context)
 {
   m_sprite->draw(context.color(), get_pos(), m_layer);
-  lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
+  context.light().draw_light(m_col.m_bbox.get_middle(), LIGHT_NORMAL, Color(0.2f, 0.1f, 0.0f), 0);
 }
 
 void

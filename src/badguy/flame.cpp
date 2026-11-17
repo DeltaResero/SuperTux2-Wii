@@ -32,8 +32,7 @@
 static const std::string FLAME_SOUND = "sounds/flame.flac";
 
 Flame::Flame(const ReaderMapping& reader, const std::string& sprite) :
-  BadGuy(reader, sprite, LAYER_FLOATINGOBJECTS,
-         "images/objects/lightmap_light/lightmap_light-small.sprite"),
+  BadGuy(reader, sprite, LAYER_FLOATINGOBJECTS, LIGHT_SMALL),
   angle(0),
   radius(),
   speed(),
@@ -52,7 +51,7 @@ Flame::Flame(const ReaderMapping& reader, const std::string& sprite) :
 
   set_colgroup_active(COLGROUP_TOUCHABLE);
 
-  m_lightsprite->set_color(Color(0.21f, 0.13f, 0.08f));
+  m_light_color = Color(0.21f, 0.13f, 0.08f);
   m_glowing = true;
 }
 
