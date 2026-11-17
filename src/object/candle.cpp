@@ -21,18 +21,24 @@
 #include "math/random.hpp"
 #include "object/sprite_particle.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
+
+namespace {
+
+// How bright a candle's light is against its colour
+const float CANDLE_LIGHT = 0.25f;
+// How far a flicker dims it
+const float CANDLE_FLICKER = 0.77f;
+
+} // namespace
 
 Candle::Candle(const ReaderMapping& mapping) :
   MovingSprite(mapping, "images/objects/candle/candle.sprite", LAYER_BACKGROUNDTILES+1, COLGROUP_DISABLED),
   ExposedObject<Candle, scripting::Candle>(this),
   burning(true),
   flicker(true),
-  lightcolor(1.0f, 1.0f, 1.0f),
-  candle_light_1(SpriteManager::current()->create("images/objects/candle/candle-light-1.sprite")),
-  candle_light_2(SpriteManager::current()->create("images/objects/candle/candle-light-2.sprite"))
+  lightcolor(1.0f, 1.0f, 1.0f)
 {
   mapping.get("burning", burning, true);
   mapping.get("flicker", flicker, true);
@@ -43,13 +49,6 @@ Candle::Candle(const ReaderMapping& mapping) :
   //change the light color if defined
   if (vColor.size() >= 3) {
     lightcolor = Color(vColor);
-    candle_light_1->set_blend(Blend::ADD);
-    candle_light_2->set_blend(Blend::ADD);
-    candle_light_1->set_color(lightcolor);
-    candle_light_2->set_color(lightcolor);
-    //the following allows the original candle appearance to be preserved
-    candle_light_1->set_action("white");
-    candle_light_2->set_action("white");
   }
 
   if (burning) {
@@ -68,15 +67,12 @@ Candle::draw(DrawingContext& context)
 
   // draw on lightmap
   if (burning) {
-    //Vector pos = get_pos() + (bbox.get_size() - candle_light_1->get_size()) / 2;
     // draw approx. 1 in 10 frames darker. Makes the candle flicker
-    if (graphicsRandom.rand(10) != 0 || !flicker) {
-      //context.color().draw_surface(candle_light_1, pos, layer);
-      candle_light_1->draw(context.light(), m_col.m_bbox.get_middle(), m_layer);
-    } else {
-      //context.color().draw_surface(candle_light_2, pos, layer);
-      candle_light_2->draw(context.light(), m_col.m_bbox.get_middle(), m_layer);
-    }
+    const float strength = (graphicsRandom.rand(10) != 0 || !flicker) ? CANDLE_LIGHT : CANDLE_LIGHT * CANDLE_FLICKER;
+    context.light().draw_light(m_col.m_bbox.get_middle(), LIGHT_CANDLE,
+                               Color(lightcolor.red * strength, lightcolor.green * strength,
+                                     lightcolor.blue * strength, lightcolor.alpha),
+                               m_layer);
   }
 }
 
