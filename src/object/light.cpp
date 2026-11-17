@@ -16,15 +16,11 @@
 
 #include "object/light.hpp"
 
-#include <string>
-
-#include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
+#include "video/drawing_context.hpp"
 
 Light::Light(const Vector& center, const Color& color_) :
   position(center),
-  color(color_),
-  sprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light.sprite"))
+  color(color_)
 {
 }
 
@@ -40,9 +36,7 @@ Light::update(float )
 void
 Light::draw(DrawingContext& context)
 {
-  sprite->set_color(color);
-  sprite->set_blend(Blend::ADD);
-  sprite->draw(context.light(), position, 0);
+  context.light().draw_light(position, LIGHT_NORMAL, color, 0);
 }
 
 /* EOF */

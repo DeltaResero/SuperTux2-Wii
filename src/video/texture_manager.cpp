@@ -376,7 +376,8 @@ TextureManager::TextureManager() :
   m_resize(1.0f, 1.0f),
   m_pixels(),
   m_pixels_clock(0),
-  m_generation(0)
+  m_generation(0),
+  m_light_texture()
 {
 }
 

@@ -112,7 +112,8 @@ SDLVideoSystem::apply_config()
     m_texture_manager->set_viewport(m_viewport, !m_between_pixels);
   }
 
-  m_lightmap = std::make_unique<SDLTextureRenderer>(*this, m_sdl_renderer.get(), m_viewport.get_screen_size(), 5);
+  m_lightmap = std::make_unique<SDLTextureRenderer>(*this, m_sdl_renderer.get(), m_viewport.get_screen_size(),
+                                                    LIGHTMAP_DOWNSCALE);
 }
 
 Renderer&

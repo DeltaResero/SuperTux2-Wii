@@ -33,7 +33,6 @@ public:
 
 private:
   Physic physic;
-  SpritePtr lightsprite;
 };
 
 #endif

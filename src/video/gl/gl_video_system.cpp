@@ -250,7 +250,7 @@ GLVideoSystem::apply_config()
   m_viewport = Viewport::from_size(target_size, m_desktop_size);
   m_texture_manager->set_viewport(m_viewport);
 
-  m_lightmap = std::make_unique<GLTextureRenderer>(*this, m_viewport.get_screen_size(), 5);
+  m_lightmap = std::make_unique<GLTextureRenderer>(*this, m_viewport.get_screen_size(), LIGHTMAP_DOWNSCALE);
   if (m_use_opengl33core)
   {
     m_back_renderer = std::make_unique<GLTextureRenderer>(*this, m_viewport.get_screen_size(), 1);
