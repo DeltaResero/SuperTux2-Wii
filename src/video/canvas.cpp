@@ -661,6 +661,54 @@ Canvas::draw_light(const Vector& center, const Sizef& size, float angle, LightCu
 }
 
 void
+Canvas::draw_light_around(const Rectf& rect, float radius, LightCurve curve, const Color& color, int layer)
+{
+  const Rectf& cliprect = m_context.get_cliprect();
+  if (rect.get_left() - radius > cliprect.get_right() ||
+      rect.get_top() - radius > cliprect.get_bottom() ||
+      rect.get_right() + radius < cliprect.get_left() ||
+      rect.get_bottom() + radius < cliprect.get_top())
+    return;
+
+  const Vector shown = VideoSystem::current()->get_viewport().get_scale() * scale() /
+                       static_cast<float>(VideoSystem::LIGHTMAP_DOWNSCALE);
+  const SurfacePtr glow = TextureManager::current()->get_light_texture().get(curve, 2.0f * radius * shown.x,
+                                                                             2.0f * radius * shown.y);
+
+  auto request = new(m_arena) TextureRequest();
+
+  request->type = TEXTURE;
+  request->layer = layer;
+  request->flip = NO_FLIP;
+  request->alpha = m_context.transform().alpha;
+  request->blend = Blend::ADD;
+  request->between_pixels = between_pixels();
+  request->texture = glow->get_texture().get();
+  request->color = color;
+
+  // The glow's quarters round the corners and its middle texels stretch along the sides and over the inside
+  const float full = static_cast<float>(glow->get_width());
+  const float half = full / 2.0f;
+  const float xs[] = { rect.get_left() - radius, rect.get_left(), rect.get_right(), rect.get_right() + radius };
+  const float ys[] = { rect.get_top() - radius, rect.get_top(), rect.get_bottom(), rect.get_bottom() + radius };
+  const float us[] = { 0.0f, half, half - 1.0f, half + 1.0f, half, full };
+  const Placing at = placing();
+  for (int row = 0; row < 3; ++row)
+  {
+    for (int column = 0; column < 3; ++column)
+    {
+      request->srcrects.emplace_back(us[column * 2], us[row * 2], us[column * 2 + 1], us[row * 2 + 1]);
+      request->dstrects.emplace_back(place(at, Vector(xs[column], ys[row]),
+                                           Sizef(xs[column + 1] - xs[column], ys[row + 1] - ys[row])));
+      request->angles.emplace_back(0.0f);
+      request->fades.push_back(0);
+    }
+  }
+
+  m_requests.push_back(request);
+}
+
+void
 Canvas::draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const Rectf& dstrect,
                           int layer, const PaintStyle& style)
 {

@@ -197,6 +197,11 @@ private:
   void update_effective_solid();
   void float_channel(float target, float &current, float remaining_time, float dt_sec);
 
+  bool is_lava(int x, int y) const;
+  void find_lava();
+  /** Lights the lightmap around the lava as its own glow */
+  void draw_lava_glow(DrawingContext& context);
+
   void apply_offset_x(int fill_id, int xoffset);
   void apply_offset_y(int fill_id, int yoffset);
 
@@ -251,6 +256,10 @@ private:
 
   int m_revision;
   std::unique_ptr<bordered::Layer> m_bordered;
+
+  /** Where the lava lies in whole tiles as found at m_lava_revision */
+  std::vector<Rect> m_lava;
+  int m_lava_revision;
 
   struct Flash
   {

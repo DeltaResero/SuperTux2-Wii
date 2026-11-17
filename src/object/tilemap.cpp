@@ -18,6 +18,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <map>
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
@@ -34,6 +35,7 @@
 #include "supertux/flip_level_transformer.hpp"
 #include "collision/collision_object.hpp"
 #include "collision/collision_movement_manager.hpp"
+#include "math/util.hpp"
 #include "util/reader.hpp"
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
@@ -43,6 +45,18 @@
 #include "video/surface.hpp"
 #include "video/video_system.hpp"
 #include "worldmap/worldmap.hpp"
+
+namespace {
+
+// A deep red reaching far past the lava and a hot yellow close to it
+const float LAVA_REACH = 288.0f;
+const Color LAVA_GLOW(1.0f, 0.32f, 0.0f);
+const float LAVA_HEAT = 160.0f;
+const Color LAVA_HOT(0.4f, 0.6f, 0.05f);
+// Seconds for each breath
+const float LAVA_BREATH = 2.6f;
+
+} // namespace
 
 TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
   ExposedObject<TileMap, scripting::TileMap>(this),
@@ -72,7 +86,9 @@ TileMap::TileMap(std::shared_ptr<const TileSet> new_tileset) :
   m_draw_target(DrawingTarget::COLORMAP),
   m_starting_node(0),
   m_revision(0),
-  m_bordered()
+  m_bordered(),
+  m_lava(),
+  m_lava_revision(-1)
 {
   bordered::hold();
 }
@@ -106,7 +122,9 @@ TileMap::TileMap(std::shared_ptr<const TileSet> tileset_, const ReaderMapping& r
   m_draw_target(DrawingTarget::COLORMAP),
   m_starting_node(0),
   m_revision(0),
-  m_bordered()
+  m_bordered(),
+  m_lava(),
+  m_lava_revision(-1)
 {
   bordered::hold();
   assert(m_tileset);
@@ -521,7 +539,84 @@ TileMap::draw(DrawingContext& context)
                               flash_color, m_z_pos, std::move(std::get<2>(it.second)));
   }
 
+  if (m_draw_target == DrawingTarget::COLORMAP)
+  {
+    draw_lava_glow(context);
+  }
+
   context.pop_transform();
+}
+
+bool
+TileMap::is_lava(int x, int y) const
+{
+  const uint32_t lava = Tile::FIRE | Tile::HURTS;
+  return (m_tileset->get(m_tiles[y * m_width + x]).get_attributes() & lava) == lava;
+}
+
+void
+TileMap::find_lava()
+{
+  m_lava.clear();
+  m_lava_revision = m_revision;
+
+  // Each run of lava in a row by its first and past its last column with the row it began on above
+  std::map<std::pair<int, int>, int> open;
+  for (int y = 0; y <= m_height; ++y)
+  {
+    std::map<std::pair<int, int>, int> runs;
+    for (int x = 0; y < m_height && x < m_width;)
+    {
+      if (!is_lava(x, y))
+      {
+        ++x;
+        continue;
+      }
+      const int first = x;
+      while (x < m_width && is_lava(x, y))
+      {
+        ++x;
+      }
+      const auto run = std::make_pair(first, x);
+      const auto above = open.find(run);
+      runs[run] = (above != open.end()) ? above->second : y;
+    }
+    for (const auto& [run, top] : open)
+    {
+      if (runs.find(run) == runs.end())
+      {
+        m_lava.emplace_back(run.first, top, run.second, y);
+      }
+    }
+    open = std::move(runs);
+  }
+}
+
+void
+TileMap::draw_lava_glow(DrawingContext& context)
+{
+  if (m_lava_revision != m_revision)
+  {
+    find_lava();
+  }
+
+  for (const Rect& lava : m_lava)
+  {
+    const Rectf area(get_tile_position(lava.left, lava.top), get_tile_position(lava.right, lava.bottom));
+    // Each pool breathes slowly on its own
+    const float breath = 0.9f + 0.1f * std::sin(g_game_time * math::TAU / LAVA_BREATH +
+                                                static_cast<float>(lava.left) * 0.37f +
+                                                static_cast<float>(lava.top) * 0.61f);
+    const Color& tint = m_current_tint;
+    context.light().draw_light_around(area, LAVA_REACH, LIGHT_SOFT,
+                                      Color(LAVA_GLOW.red * tint.red * breath, LAVA_GLOW.green * tint.green * breath,
+                                            LAVA_GLOW.blue * tint.blue * breath, tint.alpha),
+                                      m_z_pos);
+    context.light().draw_light_around(area, LAVA_HEAT, LIGHT_SOFT,
+                                      Color(LAVA_HOT.red * tint.red * breath, LAVA_HOT.green * tint.green * breath,
+                                            LAVA_HOT.blue * tint.blue * breath, tint.alpha),
+                                      m_z_pos);
+  }
 }
 
 void

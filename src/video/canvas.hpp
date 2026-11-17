@@ -72,6 +72,8 @@ public:
   /** A glow of any width and height turned angle degrees about its middle */
   void draw_light(const Vector& center, const Sizef& size, float angle, LightCurve curve, const Color& color, int layer,
                   Blend blend = Blend::ADD);
+  /** A glow reaching radius past every side of rect as if a round light were swept across it */
+  void draw_light_around(const Rectf& rect, float radius, LightCurve curve, const Color& color, int layer);
   /** fades: for each picture, the FADE_ sides that fade out between pixels; none when left empty.
       shines: where copies of shiny pictures shine, placed like dstrects; when left empty, the surface's own */
   void draw_surface_batch(const SurfacePtr& surface,
