@@ -19,7 +19,6 @@
 #include <string>
 
 #include "object/moving_sprite.hpp"
-#include "sprite/sprite_ptr.hpp"
 #include "video/color.hpp"
 
 /** A triboluminescent (or something similar) block */
@@ -41,7 +40,6 @@ private:
 
   State state;
   float stored_energy;
-  SpritePtr light;
 
   Color color;
   float fading_speed;

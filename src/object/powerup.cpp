@@ -24,7 +24,6 @@
 #include "object/sprite_particle.hpp"
 #include "scripting/level.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
 #include "util/reader_mapping.hpp"
 
@@ -33,7 +32,7 @@ PowerUp::PowerUp(const ReaderMapping& mapping) :
   physic(),
   script(),
   no_physics(),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
+  lightcolor(0.0f, 0.0f, 0.0f)
 {
   mapping.get("script", script, "");
   mapping.get("disable-physics", no_physics, false);
@@ -45,7 +44,7 @@ PowerUp::PowerUp(const Vector& pos, const std::string& sprite_name_) :
   physic(),
   script(),
   no_physics(false),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
+  lightcolor(0.0f, 0.0f, 0.0f)
 {
   initialize();
 }
@@ -58,20 +57,18 @@ PowerUp::initialize()
   SoundManager::current()->preload("sounds/fire-flower.flac");
    SoundManager::current()->preload("sounds/gulp.flac");
   //set default light for glow effect for standard sprites
-  lightsprite->set_blend(Blend::ADD);
-  lightsprite->set_color(Color(0.0f, 0.0f, 0.0f));
   if (m_sprite_name == "images/powerups/egg/egg.sprite" || m_sprite_name == "/images/powerups/egg/egg.sprite") {
-    lightsprite->set_color(Color(0.2f, 0.2f, 0.0f));
+    lightcolor = Color(0.2f, 0.2f, 0.0f);
   } else if (m_sprite_name == "images/powerups/fireflower/fireflower.sprite" || m_sprite_name == "/images/powerups/fireflower/fireflower.sprite") {
-    lightsprite->set_color(Color(0.3f, 0.0f, 0.0f));
+    lightcolor = Color(0.3f, 0.0f, 0.0f);
   } else if (m_sprite_name == "images/powerups/iceflower/iceflower.sprite" || m_sprite_name == "/images/powerups/iceflower/iceflower.sprite") {
-    lightsprite->set_color(Color(0.0f, 0.1f, 0.2f));
+    lightcolor = Color(0.0f, 0.1f, 0.2f);
   } else if (m_sprite_name == "images/powerups/airflower/airflower.sprite" || m_sprite_name == "/images/powerups/airflower/airflower.sprite") {
-    lightsprite->set_color(Color(0.15f, 0.0f, 0.15f));
+    lightcolor = Color(0.15f, 0.0f, 0.15f);
   } else if (m_sprite_name == "images/powerups/earthflower/earthflower.sprite" || m_sprite_name == "/images/powerups/earthflower/earthflower.sprite") {
-    lightsprite->set_color(Color(0.0f, 0.3f, 0.0f));
+    lightcolor = Color(0.0f, 0.3f, 0.0f);
   } else if (m_sprite_name == "images/powerups/star/star.sprite" || m_sprite_name == "/images/powerups/star/star.sprite") {
-    lightsprite->set_color(Color(0.4f, 0.4f, 0.4f));
+    lightcolor = Color(0.4f, 0.4f, 0.4f);
   }
 }
 
@@ -181,7 +178,7 @@ PowerUp::draw(DrawingContext& context)
     m_sprite->draw(context.color(), get_pos(), m_layer);
   }
 
-  lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
+  context.light().draw_light(m_col.m_bbox.get_middle(), LIGHT_SMALL, lightcolor, 0);
 }
 
 /* EOF */

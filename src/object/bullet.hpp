@@ -22,6 +22,7 @@
 #include "supertux/moving_object.hpp"
 #include "supertux/physic.hpp"
 #include "supertux/player_status.hpp"
+#include "video/color.hpp"
 #include "video/layer.hpp"
 
 class Bullet final : public MovingObject
@@ -48,7 +49,7 @@ private:
   Physic physic;
   int life_count;
   SpritePtr sprite;
-  SpritePtr lightsprite;
+  Color lightcolor;
   BonusType type;
 
 private:

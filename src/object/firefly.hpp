@@ -20,7 +20,6 @@
 #include <string>
 
 #include "object/moving_sprite.hpp"
-#include "sprite/sprite_ptr.hpp"
 
 /**
  * A Firefly: When tux touches it, it begins buzzing and you will respawn at this
@@ -37,7 +36,6 @@ public:
   virtual std::string get_class() const override { return "firefly"; }
 
 private:
-  SpritePtr m_sprite_light;
   bool activated;
   Vector initial_position; /**< position as in level file. This is where Tux will have to respawn, as the level is reset every time */
   void reactivate();

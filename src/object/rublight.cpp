@@ -23,7 +23,6 @@
 #include "badguy/walking_badguy.hpp"
 #include "object/player.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/constants.hpp"
 #include "video/color.hpp"
 #include "util/reader_mapping.hpp"
@@ -34,8 +33,6 @@ RubLight::RubLight(const ReaderMapping& mapping) :
     COLGROUP_STATIC),
   state(STATE_DARK),
   stored_energy(0),
-  light(SpriteManager::current()->create(
-    "images/objects/lightmap_light/lightmap_light.sprite")),
   color(1.0f, 0.5f, 0.3f),
   fading_speed(5.0f),
   strength_multiplier(1.0f)
@@ -118,10 +115,7 @@ RubLight::draw(DrawingContext& context)
 {
   if (state == STATE_FADING) {
     float brightness = get_brightness();
-    Color col = color.multiply_linearly(brightness);
-    light->set_color(col);
-    light->set_blend(Blend::ADD);
-    light->draw(context.light(), get_pos(), m_layer);
+    context.light().draw_light(get_pos(), LIGHT_NORMAL, color.multiply_linearly(brightness), m_layer);
   }
 
   m_sprite->draw(context.color(), get_pos(), m_layer);

@@ -21,6 +21,8 @@
 #include <string>
 
 #include "object/moving_sprite.hpp"
+#include "video/color.hpp"
+#include "video/light_texture.hpp"
 
 class Bullet;
 
@@ -55,7 +57,8 @@ private:
 private:
   State state;
   bool linked;
-  SpritePtr lightsprite;
+  Color lightcolor;
+  LightSize lightsize;
 
 private:
   WeakBlock(const WeakBlock&) = delete;

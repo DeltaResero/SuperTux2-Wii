@@ -34,7 +34,8 @@
 WeakBlock::WeakBlock(const ReaderMapping& mapping) :
   MovingSprite(mapping, "images/objects/weak_block/strawbox.sprite", LAYER_TILES, COLGROUP_STATIC), state(STATE_NORMAL),
   linked(true),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
+  lightcolor(0.3f, 0.2f, 0.1f),
+  lightsize(LIGHT_SMALL)
 {
   m_sprite->set_action("normal");
   //Check if this weakblock destroys adjacent weakblocks
@@ -46,9 +47,6 @@ WeakBlock::WeakBlock(const ReaderMapping& mapping) :
       m_sprite->set_action("normal");
     }
   }
-
-  lightsprite->set_blend(Blend::ADD);
-  lightsprite->set_color(Color(0.3f, 0.2f, 0.1f));
 
   if (m_sprite_name == "images/objects/weak_block/strawbox.sprite") {
     SoundManager::current()->preload("sounds/fire.flac"); // TODO: use own sound?
@@ -132,11 +130,11 @@ WeakBlock::update(float )
         // cause burn light to flicker randomly
         if (linked) {
           if (graphicsRandom.rand(10) >= 7) {
-            lightsprite->set_color(Color(0.2f + graphicsRandom.randf(20.0f) / 100.0f,
-                                         0.1f + graphicsRandom.randf(20.0f)/100.0f,
-                                         0.1f));
+            lightcolor = Color(0.2f + graphicsRandom.randf(20.0f) / 100.0f,
+                               0.1f + graphicsRandom.randf(20.0f)/100.0f,
+                               0.1f);
           } else
-            lightsprite->set_color(Color(0.3f, 0.2f, 0.1f));
+            lightcolor = Color(0.3f, 0.2f, 0.1f);
         }
 
         if (m_sprite->animation_done()) {
@@ -144,9 +142,8 @@ WeakBlock::update(float )
           m_sprite->set_action("disintegrating", 1);
           spreadHit();
           set_group(COLGROUP_DISABLED);
-          lightsprite = SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-tiny.sprite");
-          lightsprite->set_blend(Blend::ADD);
-          lightsprite->set_color(Color(0.3f, 0.2f, 0.1f));
+          lightsize = LIGHT_TINY;
+          lightcolor = Color(0.3f, 0.2f, 0.1f);
         }
         break;
 
@@ -168,7 +165,7 @@ WeakBlock::draw(DrawingContext& context)
 
   if (linked && (state != STATE_NORMAL))
   {
-    lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
+    context.light().draw_light(m_col.m_bbox.get_middle(), lightsize, lightcolor, 0);
   }
 }
 

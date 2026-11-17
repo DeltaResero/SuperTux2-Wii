@@ -20,6 +20,7 @@
 #include "sprite/sprite.hpp"
 #include "supertux/moving_object.hpp"
 #include "supertux/player_status.hpp"
+#include "video/color.hpp"
 
 class Flower final : public MovingObject
 {
@@ -40,7 +41,7 @@ private:
   SpritePtr sprite;
   Flip flip;
 
-  SpritePtr lightsprite;
+  Color lightcolor;
 
 private:
   Flower(const Flower&) = delete;

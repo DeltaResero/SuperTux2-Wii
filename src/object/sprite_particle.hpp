@@ -50,7 +50,8 @@ private:
   Vector velocity;
   Vector acceleration;
   int drawing_layer;
-  SpritePtr lightsprite;
+  Color lightcolor;
+  Blend lightblend;
   bool glow;
 
 private:

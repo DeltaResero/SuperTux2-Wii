@@ -21,6 +21,7 @@
 
 #include "object/moving_sprite.hpp"
 #include "supertux/physic.hpp"
+#include "video/color.hpp"
 
 class PowerUp final : public MovingSprite
 {
@@ -43,7 +44,7 @@ private:
   Physic physic;
   std::string script;
   bool no_physics;
-  SpritePtr lightsprite;
+  Color lightcolor;
 
 private:
   PowerUp(const PowerUp&) = delete;

@@ -37,8 +37,8 @@ SpriteParticle::SpriteParticle(const std::string& sprite_name, const std::string
   {
     glow = true;
     if (action=="dark") {
-      lightsprite->set_blend(Blend::ADD);
-      lightsprite->set_color(Color(0.1f, 0.1f, 0.1f));
+      lightblend = Blend::ADD;
+      lightcolor = Color(0.1f, 0.1f, 0.1f);
     }
   }
 }
@@ -51,7 +51,8 @@ SpriteParticle::SpriteParticle(SpritePtr sprite_, const std::string& action,
   velocity(velocity_),
   acceleration(acceleration_),
   drawing_layer(drawing_layer_),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-tiny.sprite")),
+  lightcolor(1.0f, 1.0f, 1.0f),
+  lightblend(Blend::BLEND),
   glow(false)
 {
   sprite->set_action(action, 1);
@@ -98,7 +99,8 @@ SpriteParticle::draw(DrawingContext& context)
   if (glow)
   {
     sprite->draw(context.light(), position, drawing_layer);
-    lightsprite->draw(context.light(), position + Vector(12,12), 0);
+    // A bright sparkle was never given a colour or a blend so it lays plain white over what's beneath
+    context.light().draw_light(position + Vector(12,12), LIGHT_TINY, lightcolor, 0, lightblend);
   }
 
 }

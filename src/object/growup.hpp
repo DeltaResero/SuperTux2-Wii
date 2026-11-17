@@ -35,7 +35,6 @@ public:
 private:
   Physic physic;
   SpritePtr shadesprite;
-  SpritePtr lightsprite;
 };
 
 #endif

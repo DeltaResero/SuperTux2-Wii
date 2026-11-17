@@ -28,17 +28,13 @@
 GrowUp::GrowUp(const Vector& pos, Direction direction) :
   MovingSprite(pos, "images/powerups/egg/egg.sprite", LAYER_OBJECTS, COLGROUP_MOVING),
   physic(),
-  shadesprite(SpriteManager::current()->create("images/powerups/egg/egg.sprite")),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
+  shadesprite(SpriteManager::current()->create("images/powerups/egg/egg.sprite"))
 {
   physic.enable_gravity(true);
   physic.set_velocity_x((direction == Direction::LEFT) ? -100.0f : 100.0f);
   SoundManager::current()->preload("sounds/grow.flac");
   //shadow to remain in place as egg rolls
   shadesprite->set_action("shadow");
-  //set light for glow effect
-  lightsprite->set_blend(Blend::ADD);
-  lightsprite->set_color(Color(0.2f, 0.2f, 0.0f));
 }
 
 void
@@ -55,7 +51,7 @@ GrowUp::draw(DrawingContext& context)
   }
   MovingSprite::draw(context);
   shadesprite->draw(context.color(), get_pos(), m_layer);
-  lightsprite->draw(context.light(), get_bbox().get_middle(), 0);
+  context.light().draw_light(get_bbox().get_middle(), LIGHT_SMALL, Color(0.2f, 0.2f, 0.0f), 0);
 }
 
 void
