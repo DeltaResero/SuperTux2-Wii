@@ -36,6 +36,8 @@ SpriteData::Action::Action() :
   y_offset(0),
   hitbox_w(0),
   hitbox_h(0),
+  draw_w(0),
+  draw_h(0),
   fps(10),
   loops(-1),
   has_custom_loops(false),
@@ -90,6 +92,14 @@ SpriteData::parse_action(const ReaderMapping& mapping)
         throw std::runtime_error("hitbox should specify 2/4 coordinates");
     }
   }
+  std::vector<float> draw_size;
+  if (mapping.get("draw-size", draw_size)) {
+    if (draw_size.size() != 2) {
+      throw std::runtime_error("draw-size should specify a width and a height");
+    }
+    action->draw_w = draw_size[0];
+    action->draw_h = draw_size[1];
+  }
   mapping.get("fps", action->fps);
   if (mapping.get("loops", action->loops))
   {
@@ -126,6 +136,12 @@ SpriteData::parse_action(const ReaderMapping& mapping)
         action->hitbox_h = act_tmp->hitbox_h;
         action->x_offset = act_tmp->x_offset;
         action->y_offset = act_tmp->y_offset;
+      }
+
+      if (action->draw_w <= 0.0f && action->draw_h <= 0.0f)
+      {
+        action->draw_w = act_tmp->draw_w;
+        action->draw_h = act_tmp->draw_h;
       }
 
       if (!action->has_custom_loops && act_tmp->has_custom_loops)

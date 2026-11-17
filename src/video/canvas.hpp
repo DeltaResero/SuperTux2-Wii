@@ -57,6 +57,9 @@ public:
   void draw_surface(const SurfacePtr& surface, const Vector& position, int layer);
   void draw_surface(const SurfacePtr& surface, const Vector& position, float angle, const Color& color, const Blend& blend,
                     int layer);
+  /** Drawn at size instead of the picture's own */
+  void draw_surface(const SurfacePtr& surface, const Vector& position, const Sizef& size, float angle, const Color& color,
+                    const Blend& blend, int layer);
   void draw_surface_part(const SurfacePtr& surface, const Rectf& srcrect, const Rectf& dstrect,
                          int layer, const PaintStyle& style = PaintStyle());
   /** Brightens the picture under a soft slanted band, which across 0 to 1 carries from just left of it to just right */

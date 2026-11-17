@@ -51,6 +51,10 @@ private:
     /** Hitbox height */
     float hitbox_h;
 
+    /** Drawn at this size instead of the picture's own when set so a picture can be stored smaller than it's shown */
+    float draw_w;
+    float draw_h;
+
     /** Frames per second */
     float fps;
 

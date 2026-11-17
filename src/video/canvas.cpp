@@ -478,13 +478,23 @@ Canvas::draw_surface(const SurfacePtr& surface,
 {
   if (!surface) return;
 
+  draw_surface(surface, position, Sizef(static_cast<float>(surface->get_width()), static_cast<float>(surface->get_height())),
+               angle, color, blend, layer);
+}
+
+void
+Canvas::draw_surface(const SurfacePtr& surface, const Vector& position, const Sizef& size, float angle,
+                     const Color& color, const Blend& blend, int layer)
+{
+  if (!surface) return;
+
   const auto& cliprect = m_context.get_cliprect();
 
   // discard clipped surface
   if (position.x > cliprect.get_right() ||
      position.y > cliprect.get_bottom() ||
-     position.x + static_cast<float>(surface->get_width()) < cliprect.get_left() ||
-     position.y + static_cast<float>(surface->get_height()) < cliprect.get_top())
+     position.x + size.width < cliprect.get_left() ||
+     position.y + size.height < cliprect.get_top())
     return;
 
   auto request = new(m_arena) TextureRequest();
@@ -499,8 +509,7 @@ Canvas::draw_surface(const SurfacePtr& surface,
   request->between_pixels = between_pixels();
   request->backdrop = m_context.transform().backdrop;
   request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
-  request->dstrects.emplace_back(place(position, Sizef(static_cast<float>(surface->get_width()),
-                                                      static_cast<float>(surface->get_height()))));
+  request->dstrects.emplace_back(place(position, size));
   request->angles.emplace_back(angle);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
