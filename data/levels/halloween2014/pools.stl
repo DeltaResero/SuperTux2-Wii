@@ -15,7 +15,7 @@
       (image "images/background/halloween/sky.png")
     )
     (background
-      (alignment "bottom")
+      (fill #t)
       (speed 0)
       (image "images/background/halloween/vignette.png")
       (z-pos 500)
