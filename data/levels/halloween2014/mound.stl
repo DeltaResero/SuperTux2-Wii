@@ -351,9 +351,8 @@
     (music
       (file "music/forest/ghostforest2.ogg")
     )
-    (powerup
+    (star
       (disable-physics #t)
-      (sprite "images/powerups/star/star.sprite")
       (x 8848)
       (y 1360)
     )
