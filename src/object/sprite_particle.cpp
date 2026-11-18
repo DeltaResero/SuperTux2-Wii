@@ -20,9 +20,11 @@
 #include <utility>
 
 #include "object/camera.hpp"
+#include "object/tilemap.hpp"
 #include "sprite/sprite.hpp"
 #include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
+#include "supertux/tile.hpp"
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
@@ -53,6 +55,7 @@ SpriteParticle::SpriteParticle(SpritePtr sprite_, const std::string& action,
   drawing_layer(drawing_layer_),
   lightcolor(1.0f, 1.0f, 1.0f),
   lightblend(Blend::BLEND),
+  light_behind_tiles(false),
   glow(false)
 {
   sprite->set_action(action, 1);
@@ -96,13 +99,29 @@ SpriteParticle::draw(DrawingContext& context)
   sprite->draw(context.color(), position, drawing_layer);
 
   //Sparkles glow in the dark
-  if (glow)
+  if (glow && !(light_behind_tiles && covered_by_tiles()))
   {
     sprite->draw(context.light(), position, drawing_layer);
     // A bright sparkle was never given a colour or a blend so it lays plain white over what's beneath
     context.light().draw_light(position + Vector(12,12), LIGHT_TINY, lightcolor, 0, lightblend);
   }
 
+}
+
+bool
+SpriteParticle::covered_by_tiles() const
+{
+  const Vector middle = position + Vector(12, 12);
+  for (const auto& tilemap : Sector::get().get_objects_by_type<TileMap>())
+  {
+    // A layer fading out of the way stops hiding it halfway
+    if (tilemap.get_layer() > drawing_layer && !tilemap.draws_light() && !tilemap.is_invisible() &&
+        tilemap.get_alpha() > 0.5f && tilemap.get_tile_at(middle).get_current_surface())
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 /* EOF */

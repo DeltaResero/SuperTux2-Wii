@@ -610,6 +610,7 @@ Player::update(float dt_sec)
       Vector ppos = Vector(px, py);
       Vector pspeed = Vector(0, 0);
       Vector paccel = Vector(0, 0);
+      // Hidden behind a wall as at the end of a level its sparkles don't light the wall either
       Sector::get().add<SpriteParticle>(
         "images/particles/sparkle.sprite",
         // draw bright sparkle when there is lots of time left,
@@ -618,7 +619,7 @@ Player::update(float dt_sec)
         // make every other a longer sparkle to make trail a bit fuzzy
         (size_t(g_game_time*20)%2) ? "small" : "medium"
         :
-        "dark", ppos, ANCHOR_MIDDLE, pspeed, paccel, LAYER_OBJECTS + 1 + 5);
+        "dark", ppos, ANCHOR_MIDDLE, pspeed, paccel, LAYER_OBJECTS + 1 + 5).keep_light_behind_tiles();
     }
   }
 

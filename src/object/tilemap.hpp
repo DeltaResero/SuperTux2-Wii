@@ -152,6 +152,8 @@ public:
   bool is_fading() const { return m_current_alpha != m_alpha || m_current_tint.alpha != m_tint.alpha; }
   /** True while nothing of the layer shows, its opacity or its tint's being 0 */
   bool is_invisible() const { return m_current_alpha == 0.0f || m_current_tint.alpha == 0.0f; }
+  /** True for a layer drawn into the lightmap as light instead of onto the screen */
+  bool draws_light() const { return m_draw_target == DrawingTarget::LIGHTMAP; }
   float get_target_alpha() const { return m_alpha; }
   /** On the level's own grid: whole tiles from its corner, with no flip, parallax or path that moves it */
   bool is_on_grid() const;
