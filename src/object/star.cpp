@@ -22,9 +22,9 @@
 #include "math/random.hpp"
 #include "object/player.hpp"
 #include "object/sprite_particle.hpp"
-#include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
+#include "util/reader_mapping.hpp"
+#include "video/drawing_context.hpp"
 
 static const float INITIALJUMP = -400;
 static const float STAR_SPEED = 150;
@@ -33,18 +33,25 @@ static const float JUMPSTAR_SPEED = -300;
 Star::Star(const Vector& pos, Direction direction) :
   MovingSprite(pos, "images/powerups/star/star.sprite", LAYER_OBJECTS, COLGROUP_MOVING),
   physic(),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite"))
+  still(false)
 {
   physic.set_velocity((direction == Direction::LEFT) ? -STAR_SPEED : STAR_SPEED, INITIALJUMP);
-  //set light for glow effect
-  lightsprite->set_blend(Blend::ADD);
-  lightsprite->set_color(Color(0.4f, 0.4f, 0.4f));
+}
+
+Star::Star(const ReaderMapping& mapping) :
+  MovingSprite(mapping, "images/powerups/star/star.sprite", LAYER_OBJECTS, COLGROUP_MOVING),
+  physic(),
+  still(false)
+{
+  mapping.get("disable-physics", still, false);
+  physic.set_velocity(STAR_SPEED, INITIALJUMP);
 }
 
 void
 Star::update(float dt_sec)
 {
-  m_col.set_movement(physic.get_movement(dt_sec));
+  if (!still)
+    m_col.set_movement(physic.get_movement(dt_sec));
 
   // when near Tux, spawn particles
   if (auto* player = Sector::get().get_nearest_player (m_col.m_bbox)) {
@@ -74,7 +81,7 @@ void
 Star::draw(DrawingContext& context)
 {
   MovingSprite::draw(context);
-  lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
+  context.light().draw_light(m_col.m_bbox.get_middle(), LIGHT_SMALL, Color(0.4f, 0.4f, 0.4f), 0);
 }
 
 void

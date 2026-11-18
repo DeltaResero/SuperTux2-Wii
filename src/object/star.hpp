@@ -25,15 +25,18 @@ class Star final : public MovingSprite
 {
 public:
   Star(const Vector& pos, Direction direction = Direction::RIGHT);
+  /** A star placed in a level stays where it's put with disable-physics */
+  Star(const ReaderMapping& mapping);
 
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
   virtual void collision_solid(const CollisionHit& hit) override;
   virtual HitResponse collision(GameObject& other, const CollisionHit& hit) override;
+  virtual std::string get_class() const override { return "star"; }
 
 private:
   Physic physic;
-  SpritePtr lightsprite;
+  bool still;
 };
 
 #endif

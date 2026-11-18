@@ -31,7 +31,6 @@
 #include "object/sprite_particle.hpp"
 #include "object/water_drop.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/globals.hpp"
 #include "supertux/level.hpp"
 #include "supertux/sector.hpp"
@@ -60,13 +59,13 @@ BadGuy::is_fire(const BadGuy& badguy)
 }
 
 BadGuy::BadGuy(const Vector& pos, const std::string& sprite_name_, int layer_,
-               const std::string& light_sprite_name) :
-  BadGuy(pos, Direction::LEFT, sprite_name_, layer_, light_sprite_name)
+               LightSize light_size) :
+  BadGuy(pos, Direction::LEFT, sprite_name_, layer_, light_size)
 {
 }
 
 BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite_name_, int layer_,
-               const std::string& light_sprite_name) :
+               LightSize light_size) :
   MovingSprite(pos, sprite_name_, layer_, COLGROUP_DISABLED),
   ExposedObject<BadGuy, scripting::BadGuy>(this),
   m_physic(),
@@ -80,7 +79,8 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   m_in_water(false),
   m_dead_script(),
   m_melting_time(0),
-  m_lightsprite(SpriteManager::current()->create(light_sprite_name)),
+  m_light_size(light_size),
+  m_light_color(1.0f, 1.0f, 1.0f),
   m_glowing(false),
   m_parent_dispenser(),
   m_state(STATE_INIT),
@@ -97,11 +97,10 @@ BadGuy::BadGuy(const Vector& pos, Direction direction, const std::string& sprite
   SoundManager::current()->preload("sounds/fire.flac");
 
   m_dir = (m_start_dir == Direction::AUTO) ? Direction::LEFT : m_start_dir;
-  m_lightsprite->set_blend(Blend::ADD);
 }
 
 BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int layer_,
-               const std::string& light_sprite_name) :
+               LightSize light_size) :
   MovingSprite(reader, sprite_name_, layer_, COLGROUP_DISABLED),
   ExposedObject<BadGuy, scripting::BadGuy>(this),
   m_physic(),
@@ -115,7 +114,8 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   m_in_water(false),
   m_dead_script(),
   m_melting_time(0),
-  m_lightsprite(SpriteManager::current()->create(light_sprite_name)),
+  m_light_size(light_size),
+  m_light_color(1.0f, 1.0f, 1.0f),
   m_glowing(false),
   m_parent_dispenser(),
   m_state(STATE_INIT),
@@ -139,7 +139,6 @@ BadGuy::BadGuy(const ReaderMapping& reader, const std::string& sprite_name_, int
   SoundManager::current()->preload("sounds/fire.flac");
 
   m_dir = (m_start_dir == Direction::AUTO) ? Direction::LEFT : m_start_dir;
-  m_lightsprite->set_blend(Blend::ADD);
 }
 
 void
@@ -161,7 +160,7 @@ BadGuy::draw(DrawingContext& context)
   }
 
   if (m_glowing) {
-    m_lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
+    context.light().draw_light(m_col.m_bbox.get_middle(), m_light_size, m_light_color, 0);
   }
 }
 

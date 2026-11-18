@@ -51,7 +51,6 @@ private:
   Timer movement_timer;
   Timer lifetime;
   int direction;
-  SpritePtr lightsprite;
 
 private:
   Kugelblitz(const Kugelblitz&) = delete;

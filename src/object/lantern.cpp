@@ -23,13 +23,11 @@
 #include "badguy/treewillowisp.hpp"
 #include "badguy/willowisp.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "util/reader_mapping.hpp"
 
 Lantern::Lantern(const ReaderMapping& reader) :
   Rock(reader, "images/objects/lantern/lantern.sprite"),
-  lightcolor(1.0f, 1.0f, 1.0f),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light.sprite"))
+  lightcolor(1.0f, 1.0f, 1.0f)
 {
   std::vector<float> vColor;
   if (reader.get("color", vColor)) {
@@ -37,24 +35,20 @@ Lantern::Lantern(const ReaderMapping& reader) :
   } else {
     lightcolor = Color(0, 0, 0);
   }
-  lightsprite->set_blend(Blend::ADD);
   updateColor();
   SoundManager::current()->preload("sounds/willocatch.flac");
 }
 
 Lantern::Lantern(const Vector& pos) :
   Rock(pos, "images/objects/lantern/lantern.sprite"),
-  lightcolor(0.0f, 0.0f, 0.0f),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light.sprite"))
+  lightcolor(0.0f, 0.0f, 0.0f)
 {
-  lightsprite->set_blend(Blend::ADD);
   updateColor();
   SoundManager::current()->preload("sounds/willocatch.flac");
 }
 
 void
 Lantern::updateColor(){
-  lightsprite->set_color(lightcolor);
   //Turn lantern off if light is black
   if (lightcolor.red == 0 && lightcolor.green == 0 && lightcolor.blue == 0){
     m_sprite->set_action("off");
@@ -70,7 +64,7 @@ Lantern::draw(DrawingContext& context){
   //Draw the Sprite.
   MovingSprite::draw(context);
   //Let there be light.
-  lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
+  context.light().draw_light(m_col.m_bbox.get_middle(), LIGHT_NORMAL, lightcolor, 0);
 }
 
 HitResponse Lantern::collision(GameObject& other, const CollisionHit& hit) {

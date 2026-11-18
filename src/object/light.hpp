@@ -18,7 +18,6 @@
 #define HEADER_SUPERTUX_OBJECT_LIGHT_HPP
 
 #include "math/vector.hpp"
-#include "sprite/sprite_ptr.hpp"
 #include "supertux/game_object.hpp"
 #include "video/color.hpp"
 
@@ -34,7 +33,6 @@ public:
 protected:
   Vector position;
   Color color;
-  SpritePtr sprite;
 };
 
 #endif

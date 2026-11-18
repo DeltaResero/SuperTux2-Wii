@@ -52,7 +52,6 @@ private:
   float push_strength;
   int num_particles;
   State state;
-  SpritePtr lightsprite;
 
 private:
   Explosion(const Explosion&) = delete;

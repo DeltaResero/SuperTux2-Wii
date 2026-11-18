@@ -34,7 +34,6 @@ static const Vector TORCH_LIGHT_OFFSET = Vector(0, 12); /** Offset of the light 
 
 Firefly::Firefly(const ReaderMapping& mapping) :
    MovingSprite(mapping, "images/objects/resetpoints/default-resetpoint.sprite", LAYER_TILES, COLGROUP_TOUCHABLE),
-   m_sprite_light(),
    activated(false),
    initial_position(get_pos())
 {
@@ -50,12 +49,6 @@ Firefly::Firefly(const ReaderMapping& mapping) :
   //Replace sprite
   m_sprite = SpriteManager::current()->create( m_sprite_name );
   m_col.m_bbox.set_size(m_sprite->get_current_hitbox_width(), m_sprite->get_current_hitbox_height());
-
-  if (m_sprite_name.find("torch", 0) != std::string::npos) {
-    m_sprite_light = SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-small.sprite");
-    m_sprite_light->set_blend(Blend::ADD);
-    m_sprite_light->set_color(TORCH_LIGHT_COLOR);
-  }
 
   reactivate();
 
@@ -78,7 +71,7 @@ Firefly::draw(DrawingContext& context)
 
   if (m_sprite_name.find("torch", 0) != std::string::npos && (activated ||
         m_sprite->get_action() == "ringing")) {
-    m_sprite_light->draw(context.light(), m_col.m_bbox.get_middle() - TORCH_LIGHT_OFFSET, 0);
+    context.light().draw_light(m_col.m_bbox.get_middle() - TORCH_LIGHT_OFFSET, LIGHT_SMALL, TORCH_LIGHT_COLOR, 0);
   }
 }
 

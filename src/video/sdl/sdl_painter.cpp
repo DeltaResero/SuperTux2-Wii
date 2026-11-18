@@ -1080,28 +1080,53 @@ SDLPainter::clear_clip_rect()
 }
 
 void
-SDLPainter::get_pixel(const GetPixelRequest& request) const
+SDLPainter::get_pixels(const std::vector<const GetPixelRequest*>& requests) const
 {
+  if (requests.empty()) return;
+
   const Rect& rect = m_renderer.get_rect();
   const Sizef logical_size = m_renderer.get_logical_size();
 
-  SDL_Rect srcrect;
-  srcrect.x = rect.left + static_cast<int>(request.pos.x * static_cast<float>(rect.get_width()) / logical_size.width);
-  srcrect.y = rect.top + static_cast<int>(request.pos.y * static_cast<float>(rect.get_height()) / logical_size.height);
-  srcrect.w = 1;
-  srcrect.h = 1;
+  std::vector<SDL_Point> spots;
+  spots.reserve(requests.size());
+  int left = rect.get_width() - 1;
+  int top = rect.get_height() - 1;
+  int right = 0;
+  int bottom = 0;
+  for (const auto* request : requests)
+  {
+    const int x = std::clamp(static_cast<int>(request->pos.x * static_cast<float>(rect.get_width()) / logical_size.width),
+                             0, rect.get_width() - 1);
+    const int y = std::clamp(static_cast<int>(request->pos.y * static_cast<float>(rect.get_height()) / logical_size.height),
+                             0, rect.get_height() - 1);
+    spots.push_back(SDL_Point{ x, y });
+    left = std::min(left, x);
+    top = std::min(top, y);
+    right = std::max(right, x);
+    bottom = std::max(bottom, y);
+  }
 
-  Uint8 pixel[4];
-  int ret = SDL_RenderReadPixels(m_sdl_renderer, &srcrect,
-                                 SDL_PIXELFORMAT_RGB888,
-                                 pixel,
-                                 1);
-  if (ret != 0)
+  SDL_Rect srcrect;
+  srcrect.x = rect.left + left;
+  srcrect.y = rect.top + top;
+  srcrect.w = right - left + 1;
+  srcrect.h = bottom - top + 1;
+
+  // Whole pixels so the channels come out right whichever order the machine keeps bytes in
+  std::vector<Uint32> pixels(static_cast<size_t>(srcrect.w * srcrect.h), 0);
+  if (SDL_RenderReadPixels(m_sdl_renderer, &srcrect, SDL_PIXELFORMAT_RGB888, pixels.data(),
+                           srcrect.w * static_cast<int>(sizeof(Uint32))) != 0)
   {
     log_warning << "failed to read pixels: " << SDL_GetError() << std::endl;
   }
 
-  *(request.color_ptr) = Color::from_rgb888(pixel[2], pixel[1], pixel[0]);
+  for (size_t i = 0; i < requests.size(); ++i)
+  {
+    const Uint32 pixel = pixels[static_cast<size_t>((spots[i].y - top) * srcrect.w + (spots[i].x - left))];
+    *(requests[i]->color_ptr) = Color::from_rgb888(static_cast<uint8_t>((pixel >> 16) & 0xff),
+                                                   static_cast<uint8_t>((pixel >> 8) & 0xff),
+                                                   static_cast<uint8_t>(pixel & 0xff));
+  }
 }
 
 /* EOF */

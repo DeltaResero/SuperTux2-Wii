@@ -33,6 +33,7 @@
 #include "video/renderer.hpp"
 #include "video/surface.hpp"
 #include "video/texture.hpp"
+#include "video/texture_manager.hpp"
 #include "video/video_system.hpp"
 #include "video/viewport.hpp"
 
@@ -200,8 +201,8 @@ Canvas::render(Renderer& renderer, Filter filter)
 
   Painter& painter = renderer.get_painter();
 
-  for (const auto& i : m_requests) {
-    const DrawingRequest& request = *i;
+  for (size_t n = 0; n < m_requests.size(); ++n) {
+    const DrawingRequest& request = *m_requests[n];
 
     if (!passes(filter, request))
       continue;
@@ -239,8 +240,20 @@ Canvas::render(Renderer& renderer, Filter filter)
         break;
 
       case GETPIXEL:
-        painter.get_pixel(static_cast<const GetPixelRequest&>(request));
+      {
+        // They share a layer so every one in a row is answered together
+        std::vector<const GetPixelRequest*> pixels;
+        for (; n < m_requests.size() && m_requests[n]->type == GETPIXEL; ++n)
+        {
+          if (passes(filter, *m_requests[n]))
+          {
+            pixels.push_back(static_cast<const GetPixelRequest*>(m_requests[n]));
+          }
+        }
+        --n;
+        painter.get_pixels(pixels);
         break;
+      }
     }
   }
 }
@@ -477,13 +490,23 @@ Canvas::draw_surface(const SurfacePtr& surface,
 {
   if (!surface) return;
 
+  draw_surface(surface, position, Sizef(static_cast<float>(surface->get_width()), static_cast<float>(surface->get_height())),
+               angle, color, blend, layer);
+}
+
+void
+Canvas::draw_surface(const SurfacePtr& surface, const Vector& position, const Sizef& size, float angle,
+                     const Color& color, const Blend& blend, int layer)
+{
+  if (!surface) return;
+
   const auto& cliprect = m_context.get_cliprect();
 
   // discard clipped surface
   if (position.x > cliprect.get_right() ||
      position.y > cliprect.get_bottom() ||
-     position.x + static_cast<float>(surface->get_width()) < cliprect.get_left() ||
-     position.y + static_cast<float>(surface->get_height()) < cliprect.get_top())
+     position.x + size.width < cliprect.get_left() ||
+     position.y + size.height < cliprect.get_top())
     return;
 
   auto request = new(m_arena) TextureRequest();
@@ -498,8 +521,7 @@ Canvas::draw_surface(const SurfacePtr& surface,
   request->between_pixels = between_pixels();
   request->backdrop = m_context.transform().backdrop;
   request->fades.push_back(m_context.transform().fade_edges ? FADE_ALL : 0);
-  request->dstrects.emplace_back(place(position, Sizef(static_cast<float>(surface->get_width()),
-                                                      static_cast<float>(surface->get_height()))));
+  request->dstrects.emplace_back(place(position, size));
   request->angles.emplace_back(angle);
   request->texture = surface->get_texture().get();
   request->displacement_texture = surface->get_displacement_texture().get();
@@ -590,6 +612,100 @@ Canvas::draw_surface_scaled(const SurfacePtr& surface, const Rectf& dstrect,
 {
   draw_surface_part(surface, Rectf(0.0f, 0.0f, static_cast<float>(surface->get_width()), static_cast<float>(surface->get_height())),
                     dstrect, layer, style);
+}
+
+void
+Canvas::draw_light(const Vector& center, LightSize size, const Color& color, int layer, Blend blend)
+{
+  const float diameter = static_cast<float>(size);
+  draw_light(center, Sizef(diameter, diameter), 0.0f, size == LIGHT_MEDIUM ? LIGHT_WIDE : LIGHT_SOFT, color, layer,
+             blend);
+}
+
+void
+Canvas::draw_light(const Vector& center, const Sizef& size, float angle, LightCurve curve, const Color& color, int layer,
+                   Blend blend)
+{
+  // Turned any way it stays within half its longer side of its middle
+  const float reach = std::max(size.width, size.height) / 2.0f;
+  const Rectf& cliprect = m_context.get_cliprect();
+  if (center.x - reach > cliprect.get_right() ||
+      center.y - reach > cliprect.get_bottom() ||
+      center.x + reach < cliprect.get_left() ||
+      center.y + reach < cliprect.get_top())
+    return;
+
+  // The glow is made as fine as the lightmap shows it
+  const Vector shown = VideoSystem::current()->get_viewport().get_scale() * scale() /
+                       static_cast<float>(VideoSystem::LIGHTMAP_DOWNSCALE);
+  const SurfacePtr glow = TextureManager::current()->get_light_texture().get(curve, size.width * shown.x,
+                                                                             size.height * shown.y);
+
+  auto request = new(m_arena) TextureRequest();
+
+  request->type = TEXTURE;
+  request->layer = layer;
+  request->flip = NO_FLIP;
+  request->alpha = m_context.transform().alpha;
+  request->blend = blend;
+
+  request->srcrects.emplace_back(Rectf(glow->get_region()));
+  request->between_pixels = between_pixels();
+  request->fades.push_back(0);
+  request->dstrects.emplace_back(place(center - Vector(size.width, size.height) / 2.0f, size));
+  request->angles.emplace_back(angle);
+  request->texture = glow->get_texture().get();
+  request->color = color;
+
+  m_requests.push_back(request);
+}
+
+void
+Canvas::draw_light_around(const Rectf& rect, float radius, LightCurve curve, const Color& color, int layer)
+{
+  const Rectf& cliprect = m_context.get_cliprect();
+  if (rect.get_left() - radius > cliprect.get_right() ||
+      rect.get_top() - radius > cliprect.get_bottom() ||
+      rect.get_right() + radius < cliprect.get_left() ||
+      rect.get_bottom() + radius < cliprect.get_top())
+    return;
+
+  const Vector shown = VideoSystem::current()->get_viewport().get_scale() * scale() /
+                       static_cast<float>(VideoSystem::LIGHTMAP_DOWNSCALE);
+  const SurfacePtr glow = TextureManager::current()->get_light_texture().get(curve, 2.0f * radius * shown.x,
+                                                                             2.0f * radius * shown.y);
+
+  auto request = new(m_arena) TextureRequest();
+
+  request->type = TEXTURE;
+  request->layer = layer;
+  request->flip = NO_FLIP;
+  request->alpha = m_context.transform().alpha;
+  request->blend = Blend::ADD;
+  request->between_pixels = between_pixels();
+  request->texture = glow->get_texture().get();
+  request->color = color;
+
+  // The glow's quarters round the corners and its middle texels stretch along the sides and over the inside
+  const float full = static_cast<float>(glow->get_width());
+  const float half = full / 2.0f;
+  const float xs[] = { rect.get_left() - radius, rect.get_left(), rect.get_right(), rect.get_right() + radius };
+  const float ys[] = { rect.get_top() - radius, rect.get_top(), rect.get_bottom(), rect.get_bottom() + radius };
+  const float us[] = { 0.0f, half, half - 1.0f, half + 1.0f, half, full };
+  const Placing at = placing();
+  for (int row = 0; row < 3; ++row)
+  {
+    for (int column = 0; column < 3; ++column)
+    {
+      request->srcrects.emplace_back(us[column * 2], us[row * 2], us[column * 2 + 1], us[row * 2 + 1]);
+      request->dstrects.emplace_back(place(at, Vector(xs[column], ys[row]),
+                                           Sizef(xs[column + 1] - xs[column], ys[row + 1] - ys[row])));
+      request->angles.emplace_back(0.0f);
+      request->fades.push_back(0);
+    }
+  }
+
+  m_requests.push_back(request);
 }
 
 void

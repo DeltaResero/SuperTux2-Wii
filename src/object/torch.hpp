@@ -56,7 +56,6 @@ private:
   SpritePtr m_torch;
   SpritePtr m_flame;
   SpritePtr m_flame_glow;
-  SpritePtr m_flame_light;
   bool m_burning;
   std::string sprite_name;
   int m_layer; /**< The layer (z-pos) of the torch */

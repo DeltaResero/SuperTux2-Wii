@@ -24,6 +24,14 @@
 #include "sprite/sprite_manager.hpp"
 #include "util/reader_mapping.hpp"
 
+namespace {
+
+// A hot middle and a dim wide halo as the torch's light picture had them
+const Sizef TORCH_HALO(760.0f, 760.0f);
+const Sizef TORCH_CORE(470.0f, 470.0f);
+
+} // namespace
+
 Torch::Torch(const ReaderMapping& reader) :
   MovingObject(reader),
   ExposedObject<Torch, scripting::Torch>(this),
@@ -31,7 +39,6 @@ Torch::Torch(const ReaderMapping& reader) :
   m_torch(),
   m_flame(SpriteManager::current()->create("images/objects/torch/flame.sprite")),
   m_flame_glow(SpriteManager::current()->create("images/objects/torch/flame_glow.sprite")),
-  m_flame_light(SpriteManager::current()->create("images/objects/torch/flame_light.sprite")),
   m_burning(true),
   sprite_name("images/objects/torch/torch1.sprite"),
   m_layer(0)
@@ -50,13 +57,11 @@ Torch::Torch(const ReaderMapping& reader) :
   m_col.m_bbox.set_size(static_cast<float>(m_torch->get_width()),
                 static_cast<float>(m_torch->get_height()));
   m_flame_glow->set_blend(Blend::ADD);
-  m_flame_light->set_blend(Blend::ADD);
   if (vColor.size() >= 3)
   {
     m_light_color = Color(vColor);
     m_flame->set_color(m_light_color);
     m_flame_glow->set_color(m_light_color);
-    m_flame_light->set_color(m_light_color);
   }
   set_group(COLGROUP_TOUCHABLE);
 }
@@ -69,8 +74,14 @@ Torch::draw(DrawingContext& context)
     m_flame->draw(context.color(), get_pos(), m_layer - 1);
     m_flame->set_action(m_light_color.greyscale() >= 1.f ? "default" : "greyscale");
 
-    m_flame_light->draw(context.light(), get_pos(), m_layer);
-    m_flame_light->set_action(m_light_color.greyscale() >= 1.f ? "default" : "greyscale");
+    // A plain torch throws a warm light fading to red and a coloured one its own colour
+    const Vector centre(m_col.m_bbox.get_middle().x, get_pos().y);
+    const Color& c = m_light_color;
+    const bool plain = c.greyscale() >= 1.f;
+    const Color halo = plain ? Color(0.48f, 0.27f, 0.33f) : Color(c.red * 0.29f, c.green * 0.29f, c.blue * 0.29f, c.alpha);
+    const Color core = plain ? Color(0.60f, 0.71f, 0.18f) : Color(c.red * 0.7f, c.green * 0.7f, c.blue * 0.7f, c.alpha);
+    context.light().draw_light(centre, TORCH_HALO, 0.0f, LIGHT_SOFT, halo, m_layer);
+    context.light().draw_light(centre, TORCH_CORE, 0.0f, LIGHT_SOFT, core, m_layer);
 
     m_flame_glow->draw(context.color(), get_pos(), m_layer - 1);
     m_flame_glow->set_action(m_light_color.greyscale() >= 1.f ? "default" : "greyscale");

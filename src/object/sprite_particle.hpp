@@ -40,9 +40,15 @@ public:
                  int drawing_layer = LAYER_OBJECTS-1);
   ~SpriteParticle() override;
 
+  /** Its glow stays hidden too while a tile in front hides the sparkle */
+  void keep_light_behind_tiles() { light_behind_tiles = true; }
+
 protected:
   virtual void update(float dt_sec) override;
   virtual void draw(DrawingContext& context) override;
+
+private:
+  bool covered_by_tiles() const;
 
 private:
   SpritePtr sprite;
@@ -50,7 +56,9 @@ private:
   Vector velocity;
   Vector acceleration;
   int drawing_layer;
-  SpritePtr lightsprite;
+  Color lightcolor;
+  Blend lightblend;
+  bool light_behind_tiles;
   bool glow;
 
 private:

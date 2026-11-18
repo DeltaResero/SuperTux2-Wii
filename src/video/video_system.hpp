@@ -65,6 +65,9 @@ public:
   static Enum get_running_video_system();
   static bool is_unavailable(Enum video);
 
+  /** How many times smaller than the screen the lightmap is drawn */
+  static constexpr int LIGHTMAP_DOWNSCALE = 5;
+
 public:
   VideoSystem() {}
   ~VideoSystem() override {}

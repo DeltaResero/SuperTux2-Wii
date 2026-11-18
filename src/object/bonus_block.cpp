@@ -44,7 +44,6 @@
 #include "util/reader_mapping.hpp"
 #include "util/writer.hpp"
 #include "video/drawing_context.hpp"
-#include "video/surface.hpp"
 
 namespace {
 
@@ -66,8 +65,7 @@ BonusBlock::BonusBlock(const ReaderMapping& mapping) :
   m_contents(Content::COIN),
   m_object(),
   m_hit_counter(1),
-  m_script(),
-  m_lightsprite()
+  m_script()
 {
   auto iter = mapping.get_iter();
   while (iter.next()) {
@@ -139,7 +137,6 @@ BonusBlock::BonusBlock(const ReaderMapping& mapping) :
 
   if (m_contents == Content::LIGHT || m_contents == Content::LIGHT_ON) {
     SoundManager::current()->preload("sounds/switch.flac");
-    m_lightsprite = Surface::from_file("/images/objects/lightmap_light/bonusblock_light.png");
     if (m_contents == Content::LIGHT_ON) {
       m_sprite->set_action("on");
     }
@@ -504,9 +501,8 @@ BonusBlock::draw(DrawingContext& context)
   Block::draw(context);
   // then Draw the light if on.
   if (m_sprite->get_action() == "on") {
-    Vector pos = get_pos() + (m_col.m_bbox.get_size().as_vector() - Vector(static_cast<float>(m_lightsprite->get_width()),
-                                                                   static_cast<float>(m_lightsprite->get_height()))) / 2.0f;
-    context.light().draw_surface(m_lightsprite, pos, 10);
+    // Alone among the lights it covers what's under it instead of adding to it
+    context.light().draw_light(m_col.m_bbox.get_middle(), LIGHT_NORMAL, Color::WHITE, 10, Blend::BLEND);
   }
 }
 
@@ -555,7 +551,6 @@ BonusBlock::preload_contents(int d)
     case 6: // Light
     case 15: // Light (On)
       SoundManager::current()->preload("sounds/switch.flac");
-      m_lightsprite=Surface::from_file("/images/objects/lightmap_light/bonusblock_light.png");
       break;
 
     case 7:

@@ -152,6 +152,8 @@ public:
   bool is_fading() const { return m_current_alpha != m_alpha || m_current_tint.alpha != m_tint.alpha; }
   /** True while nothing of the layer shows, its opacity or its tint's being 0 */
   bool is_invisible() const { return m_current_alpha == 0.0f || m_current_tint.alpha == 0.0f; }
+  /** True for a layer drawn into the lightmap as light instead of onto the screen */
+  bool draws_light() const { return m_draw_target == DrawingTarget::LIGHTMAP; }
   float get_target_alpha() const { return m_alpha; }
   /** On the level's own grid: whole tiles from its corner, with no flip, parallax or path that moves it */
   bool is_on_grid() const;
@@ -196,6 +198,11 @@ public:
 private:
   void update_effective_solid();
   void float_channel(float target, float &current, float remaining_time, float dt_sec);
+
+  bool is_lava(int x, int y) const;
+  void find_lava();
+  /** Lights the lightmap around the lava as its own glow */
+  void draw_lava_glow(DrawingContext& context);
 
   void apply_offset_x(int fill_id, int xoffset);
   void apply_offset_y(int fill_id, int yoffset);
@@ -251,6 +258,10 @@ private:
 
   int m_revision;
   std::unique_ptr<bordered::Layer> m_bordered;
+
+  /** Where the lava lies in whole tiles as found at m_lava_revision */
+  std::vector<Rect> m_lava;
+  int m_lava_revision;
 
   struct Flash
   {

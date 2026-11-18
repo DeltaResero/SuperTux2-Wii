@@ -27,6 +27,8 @@
 #include "supertux/direction.hpp"
 #include "supertux/physic.hpp"
 #include "supertux/timer.hpp"
+#include "video/color.hpp"
+#include "video/light_texture.hpp"
 
 class Dispenser;
 class Player;
@@ -39,11 +41,11 @@ class BadGuy : public MovingSprite,
 {
 public:
   BadGuy(const Vector& pos, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+         LightSize light_size = LIGHT_MEDIUM);
   BadGuy(const Vector& pos, Direction direction, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+         LightSize light_size = LIGHT_MEDIUM);
   BadGuy(const ReaderMapping& reader, const std::string& sprite_name, int layer = LAYER_OBJECTS,
-         const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+         LightSize light_size = LIGHT_MEDIUM);
 
   /** Called when the badguy is drawn. The default implementation
       simply draws the badguy sprite on screen */
@@ -268,7 +270,8 @@ protected:
 
   float m_melting_time;
 
-  SpritePtr m_lightsprite;
+  LightSize m_light_size;
+  Color m_light_color;
   bool m_glowing;
 
   /** If this badguy was dispensed from a dispenser,

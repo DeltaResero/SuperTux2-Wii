@@ -28,7 +28,6 @@
 #include "object/player.hpp"
 #include "supertux/sector.hpp"
 #include "sprite/sprite.hpp"
-#include "sprite/sprite_manager.hpp"
 #include "supertux/sector.hpp"
 
 Explosion::Explosion(const Vector& pos, float p_push_strength,
@@ -37,13 +36,10 @@ Explosion::Explosion(const Vector& pos, float p_push_strength,
   hurt(true),
   push_strength(p_push_strength),
   num_particles(p_num_particles),
-  state(STATE_WAITING),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
+  state(STATE_WAITING)
 {
   SoundManager::current()->preload("sounds/explosion.flac");
   set_pos(get_pos() - (m_col.m_bbox.get_middle() - get_pos()));
-  lightsprite->set_blend(Blend::ADD);
-  lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
 }
 
 Explosion::Explosion(const ReaderMapping& reader) :
@@ -51,12 +47,9 @@ Explosion::Explosion(const ReaderMapping& reader) :
   hurt(true),
   push_strength(-1),
   num_particles(100),
-  state(STATE_WAITING),
-  lightsprite(SpriteManager::current()->create("images/objects/lightmap_light/lightmap_light-large.sprite"))
+  state(STATE_WAITING)
 {
   SoundManager::current()->preload("sounds/explosion.flac");
-  lightsprite->set_blend(Blend::ADD);
-  lightsprite->set_color(Color(0.6f, 0.6f, 0.6f));
 }
 
 void
@@ -140,7 +133,7 @@ void
 Explosion::draw(DrawingContext& context)
 {
   m_sprite->draw(context.color(), get_pos(), LAYER_OBJECTS+40);
-  lightsprite->draw(context.light(), m_col.m_bbox.get_middle(), 0);
+  context.light().draw_light(m_col.m_bbox.get_middle(), LIGHT_LARGE, Color(0.6f, 0.6f, 0.6f), 0);
 }
 
 HitResponse

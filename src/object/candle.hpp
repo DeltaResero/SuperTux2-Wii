@@ -47,8 +47,6 @@ private:
   bool burning; /**< true if candle is currently lighted */
   bool flicker; /**< true if candle light is to flicker */
   Color lightcolor; /**< determines color or light given off */
-  SpritePtr candle_light_1; /**< drawn to lightmap */
-  SpritePtr candle_light_2; /**< drawn to lightmap (alternative image) */
 
 private:
   Candle(const Candle&) = delete;

@@ -32,6 +32,7 @@
 #include "math/rect.hpp"
 #include "math/vector.hpp"
 #include "util/currenton.hpp"
+#include "video/light_texture.hpp"
 #include "video/sampler.hpp"
 #include "video/sdl_surface_ptr.hpp"
 #include "video/surface.hpp"
@@ -85,6 +86,9 @@ public:
   /** Changes each time the level's pictures are redone at a new size */
   int get_generation() const { return m_generation; }
 
+  /** The glows lights are drawn from */
+  LightTexture& get_light_texture() { return m_light_texture; }
+
 private:
   TexturePtr get(const Texture::Key& key, const Sampler& sampler);
   const SDL_Surface& get_surface(const std::string& filename);
@@ -122,6 +126,8 @@ private:
   std::unordered_map<const Texture*, Pixels> m_pixels;
   uint32_t m_pixels_clock;
   int m_generation;
+  // Last so its textures go while the maps they erase themselves from are still here
+  LightTexture m_light_texture;
 
 private:
   TextureManager(const TextureManager&) = delete;

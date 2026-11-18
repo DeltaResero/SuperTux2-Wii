@@ -230,6 +230,10 @@ private:
 
   void handle_input_swimming();
 
+  /** Picks the headlamp's shape from what Tux is doing and keeps the last one through what has none */
+  void set_headlamp_action(const std::string& action);
+  void draw_headlamp(DrawingContext& context) const;
+
   void handle_horizontal_input();
   void handle_vertical_input();
 
@@ -283,7 +287,10 @@ private:
   bool m_on_ice;
   bool m_ice_this_frame;
   float m_squeeze_dirsign; /**< Which way Tux was pushing when something last squeezed him */
-  SpritePtr m_lightsprite;
+  int m_headlamp_shape;
+  bool m_headlamp_mirrored;
+  /** How far a backflip or a swim turns the headlamp about Tux */
+  float m_light_angle;
   SpritePtr m_powersprite;
 
 public:

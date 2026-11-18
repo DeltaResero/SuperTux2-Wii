@@ -632,22 +632,12 @@ Sector::convert_tiles2gameobject()
           Vector pos = tm.get_tile_position(x, y) + tm_offset;
           Vector center = pos + Vector(16, 16);
 
-          if (attributes & Tile::FIRE) {
-            if (attributes & Tile::HURTS) {
-              // lava or lavaflow
-              // space lights a bit
-              if ((tm.get_tile(x-1, y).get_attributes() != attributes || x%3 == 0)
-                  && (tm.get_tile(x, y-1).get_attributes() != attributes || y%3 == 0)) {
-                float pseudo_rnd = static_cast<float>(static_cast<int>(pos.x) % 10) / 10;
-                add<PulsingLight>(center, 1.0f + pseudo_rnd, 0.8f, 1.0f,
-                                  Color(1.0f, 0.3f, 0.0f, 1.0f));
-              }
-            } else {
-              // torch
-              float pseudo_rnd = static_cast<float>(static_cast<int>(pos.x) % 10) / 10;
-              add<PulsingLight>(center, 1.0f + pseudo_rnd, 0.9f, 1.0f,
-                                Color(1.0f, 1.0f, 0.6f, 1.0f));
-            }
+          // Lava lights itself as the tilemap draws it
+          if ((attributes & Tile::FIRE) && !(attributes & Tile::HURTS)) {
+            // torch
+            float pseudo_rnd = static_cast<float>(static_cast<int>(pos.x) % 10) / 10;
+            add<PulsingLight>(center, 1.0f + pseudo_rnd, 0.9f, 1.0f,
+                              Color(1.0f, 1.0f, 0.6f, 1.0f));
           }
         }
       }

@@ -21,6 +21,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <iterator>
 #include <optional>
 #include <sstream>
 #include <stdexcept>
@@ -141,6 +142,37 @@ const float DUCKED_TUX_HEIGHT = 31.8f;
 /** when Tux swims down and approaches the bottom of the screen, push him back up with that strength */
 const float WATER_FALLOUT_FORCEBACK_STRENGTH = 1024.f;
 
+/** The earth flower's headlamp as a pool thrown ahead from Tux's top left facing right and a round glow on Tux */
+struct Headlamp
+{
+  const char* action;
+  float x, y;
+  float width, height;
+  float angle;
+  LightCurve curve;
+  float lamp;
+  float lamp_alpha;
+};
+
+const Headlamp HEADLAMPS[] = {
+  { "stand",    237.0f,  -4.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "walk",     237.0f,  -4.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "jump",     237.0f,  -4.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "fall",     237.0f,  -4.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "kick",     237.0f,  -4.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "idle",     237.0f,  -4.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "buttjump", 237.0f,  -4.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "climbing", 231.0f, -11.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "swimming", 233.0f, -23.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "floating", 233.0f, -23.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "swimjump", 233.0f, -23.0f, 602.0f, 232.0f,  0.0f, LIGHT_WIDE, 140.0f, 0.45f },
+  { "duck",      25.0f, 250.0f, 618.0f, 225.0f, 90.0f, LIGHT_WIDE,  86.0f, 0.43f },
+  { "skid",     236.0f,  -7.0f, 674.0f, 322.0f,  0.0f, LIGHT_SOFT, 138.0f, 0.47f },
+  { "walljump", 236.0f,  -7.0f, 674.0f, 322.0f,  0.0f, LIGHT_SOFT, 138.0f, 0.47f },
+  { "backflip", 181.0f, 138.0f, 611.0f, 228.0f, 44.5f, LIGHT_WIDE, 126.0f, 0.32f },
+  { "grow",       0.0f,   0.0f,   0.0f,   0.0f,  0.0f, LIGHT_SOFT,   0.0f, 0.00f }
+};
+
 bool no_water = true;
 
 } // namespace
@@ -175,7 +207,9 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
   m_on_ice(false),
   m_ice_this_frame(false),
   m_squeeze_dirsign(0.f),
-  m_lightsprite(SpriteManager::current()->create("images/creatures/tux/light.sprite")),
+  m_headlamp_shape(-1),
+  m_headlamp_mirrored(false),
+  m_light_angle(0.0f),
   m_powersprite(SpriteManager::current()->create("images/creatures/tux/powerups.sprite")),
   m_dir(Direction::RIGHT),
   m_old_dir(m_dir),
@@ -236,8 +270,7 @@ Player::Player(PlayerStatus& player_status, const std::string& name_) :
 
   m_sprite->set_angle(0.0f);
   m_powersprite->set_angle(0.0f);
-  m_lightsprite->set_angle(0.0f);
-  m_lightsprite->set_blend(Blend::ADD);
+  m_light_angle = 0.0f;
 
   m_physic.reset();
 }
@@ -365,7 +398,7 @@ Player::update(float dt_sec)
       m_water_jump = false;
       m_swimboosting = false;
       m_powersprite->set_angle(0.f);
-      m_lightsprite->set_angle(0.f);
+      m_light_angle = 0.0f;
     }
     no_water = true;
 
@@ -453,7 +486,7 @@ Player::update(float dt_sec)
       m_water_jump = false;
     }
     m_powersprite->set_angle(0.f);
-    m_lightsprite->set_angle(0.f);
+    m_light_angle = 0.0f;
   }
 
   m_in_walljump_tile = false;
@@ -487,7 +520,7 @@ Player::update(float dt_sec)
     if (m_player_status.has_hat_sprite() && !m_swimming && !m_water_jump)
       m_powersprite->set_angle(m_sprite->get_angle());
     if (m_player_status.bonus == EARTH_BONUS)
-      m_lightsprite->set_angle(m_sprite->get_angle());
+      m_light_angle = m_sprite->get_angle();
   }
 
   if (on_ground()) {
@@ -515,7 +548,7 @@ Player::update(float dt_sec)
       if (!m_stone) {
         m_sprite->set_angle(0.0f);
         m_powersprite->set_angle(0.0f);
-        m_lightsprite->set_angle(0.0f);
+        m_light_angle = 0.0f;
       }
 
       // if controls are currently deactivated, we take care of standing up ourselves
@@ -577,6 +610,7 @@ Player::update(float dt_sec)
       Vector ppos = Vector(px, py);
       Vector pspeed = Vector(0, 0);
       Vector paccel = Vector(0, 0);
+      // Hidden behind a wall as at the end of a level its sparkles don't light the wall either
       Sector::get().add<SpriteParticle>(
         "images/particles/sparkle.sprite",
         // draw bright sparkle when there is lots of time left,
@@ -585,7 +619,7 @@ Player::update(float dt_sec)
         // make every other a longer sparkle to make trail a bit fuzzy
         (size_t(g_game_time*20)%2) ? "small" : "medium"
         :
-        "dark", ppos, ANCHOR_MIDDLE, pspeed, paccel, LAYER_OBJECTS + 1 + 5);
+        "dark", ppos, ANCHOR_MIDDLE, pspeed, paccel, LAYER_OBJECTS + 1 + 5).keep_light_behind_tiles();
     }
   }
 
@@ -727,10 +761,7 @@ Player::swim(float pointx, float pointy, bool boost)
   {
     m_sprite->set_angle(math::degrees(m_swimming_angle));
     m_powersprite->set_angle(math::degrees(m_swimming_angle));
-    if (m_lightsprite)
-    {
-      m_lightsprite->set_angle(math::degrees(m_swimming_angle));
-    }
+    m_light_angle = math::degrees(m_swimming_angle);
   }
   else
   {
@@ -741,10 +772,7 @@ Player::swim(float pointx, float pointy, bool boost)
 
     m_sprite->set_angle(angle);
     m_powersprite->set_angle(angle);
-    if (m_lightsprite)
-    {
-      m_lightsprite->set_angle(angle);
-    }
+    m_light_angle = angle;
 
     //Force the speed to point in the direction Tux is going
     if (m_swimming && !m_water_jump && boost)
@@ -1215,7 +1243,7 @@ Player::handle_input()
     m_ability_timer.stop();
     m_sprite->set_angle(0.0f);
     m_powersprite->set_angle(0.0f);
-    m_lightsprite->set_angle(0.0f);
+    m_light_angle = 0.0f;
     m_stone = false;
     for (int i = 0; i < 8; i++)
     {
@@ -1576,6 +1604,74 @@ Player::kick()
 }
 
 void
+Player::set_headlamp_action(const std::string& action)
+{
+  std::string shape = action;
+  bool mirrored = false;
+
+  if (shape.size() > 5 && shape.compare(shape.size() - 5, 5, "-left") == 0)
+  {
+    mirrored = true;
+    shape.erase(shape.size() - 5);
+  }
+  else if (shape.size() > 6 && shape.compare(shape.size() - 6, 6, "-right") == 0)
+  {
+    shape.erase(shape.size() - 6);
+  }
+
+  if (shape.compare(0, 6, "earth-") == 0)
+  {
+    shape.erase(0, 6);
+  }
+
+  for (size_t i = 0; i < std::size(HEADLAMPS); ++i)
+  {
+    if (shape == HEADLAMPS[i].action)
+    {
+      m_headlamp_shape = static_cast<int>(i);
+      m_headlamp_mirrored = mirrored;
+      return;
+    }
+  }
+}
+
+void
+Player::draw_headlamp(DrawingContext& context) const
+{
+  if (m_headlamp_shape < 0)
+    return;
+
+  const Headlamp& lamp = HEADLAMPS[m_headlamp_shape];
+  if (lamp.width <= 0.0f)
+    return;
+
+  Vector offset(m_headlamp_mirrored ? TUX_WIDTH - lamp.x : lamp.x, lamp.y);
+  float angle = m_headlamp_mirrored ? -lamp.angle : lamp.angle;
+
+  // A backflip or a swim swings the pool around Tux instead of spinning it where it lies
+  if (m_light_angle != 0.0f)
+  {
+    const Vector pivot = m_col.m_bbox.get_middle() - get_pos();
+    const Vector arm = offset - pivot;
+    const float ca = cosf(math::radians(m_light_angle));
+    const float sa = sinf(math::radians(m_light_angle));
+    offset = pivot + Vector(arm.x * ca - arm.y * sa, arm.x * sa + arm.y * ca);
+    angle += m_light_angle;
+  }
+
+  context.light().draw_light(get_pos() + offset, Sizef(lamp.width, lamp.height), angle, lamp.curve, Color::WHITE,
+                             LAYER_GETPIXEL + 1);
+
+  // The lamp itself so Tux isn't left standing in the dim near end of his own beam
+  if (lamp.lamp > 0.0f)
+  {
+    context.light().draw_light(m_col.m_bbox.get_middle() + Vector(0.0f, 6.0f), Sizef(lamp.lamp, lamp.lamp), 0.0f,
+                               LIGHT_SOFT, Color(lamp.lamp_alpha, lamp.lamp_alpha, lamp.lamp_alpha),
+                               LAYER_GETPIXEL + 1);
+  }
+}
+
+void
 Player::draw(DrawingContext& context)
 {
   if (!m_visible)
@@ -1729,12 +1825,7 @@ Player::draw(DrawingContext& context)
     }
     if (m_player_status.bonus == EARTH_BONUS)
     {
-      m_lightsprite->set_action(m_sprite->get_action());
-      if (m_lightsprite->get_frames() == m_sprite->get_frames())
-      {
-        m_lightsprite->set_frame(m_sprite->get_current_frame());
-        m_lightsprite->set_frame_progress(m_sprite->get_current_frame_progress());
-      }
+      set_headlamp_action(m_sprite->get_action());
     }
   }
 
@@ -1758,7 +1849,7 @@ Player::draw(DrawingContext& context)
     // draw hardhat
     m_powersprite->draw(context.color(), get_pos() + shake_delta, LAYER_OBJECTS + 1);
     // light, drawn after the light reads so magic blocks ignore it
-    m_lightsprite->draw(context.light(), get_pos(), LAYER_GETPIXEL + 1);
+    draw_headlamp(context);
 
     // give an indicator that stone form cannot be used for a while
     if (m_cooldown_timer.started() && graphicsRandom.rand(0, 4) == 0) {
@@ -1931,7 +2022,7 @@ Player::kill(bool completely)
 
   m_sprite->set_angle(0.0f);
   m_powersprite->set_angle(0.0f);
-  m_lightsprite->set_angle(0.0f);
+  m_light_angle = 0.0f;
 
   if (!completely && is_big()) {
     SoundManager::current()->play("sounds/hurt.flac");
@@ -2213,7 +2304,7 @@ Player::stop_backflipping()
   m_backflip_direction = 0;
   m_sprite->set_angle(0.0f);
   m_powersprite->set_angle(0.0f);
-  m_lightsprite->set_angle(0.0f);
+  m_light_angle = 0.0f;
 }
 
 bool

@@ -32,13 +32,13 @@ public:
                 const std::string& walk_left_action,
                 const std::string& walk_right_action,
                 int layer = LAYER_OBJECTS,
-                const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+                LightSize light_size = LIGHT_MEDIUM);
   WalkingBadguy(const ReaderMapping& reader,
                 const std::string& sprite_name,
                 const std::string& walk_left_action,
                 const std::string& walk_right_action,
                 int layer = LAYER_OBJECTS,
-                const std::string& light_sprite_name = "images/objects/lightmap_light/lightmap_light-medium.sprite");
+                LightSize light_size = LIGHT_MEDIUM);
 
   virtual void initialize() override;
   virtual void active_update(float dt_sec) override;

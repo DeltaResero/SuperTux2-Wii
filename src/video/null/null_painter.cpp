@@ -71,9 +71,9 @@ NullPainter::clear(const Color& color)
 }
 
 void
-NullPainter::get_pixel(const GetPixelRequest& request) const
+NullPainter::get_pixels(const std::vector<const GetPixelRequest*>& requests) const
 {
-  log_info << "NullPainter::get_pixel()" << std::endl;
+  log_info << "NullPainter::get_pixels()" << std::endl;
 }
 
 void

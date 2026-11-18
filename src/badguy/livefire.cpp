@@ -30,7 +30,7 @@ LiveFire::LiveFire(const ReaderMapping& reader) :
 {
   walk_speed = 80;
   max_drop_height = 20;
-  m_lightsprite->set_color(Color(0.89f, 0.75f, 0.44f));
+  m_light_color = Color(0.89f, 0.75f, 0.44f);
   m_glowing = true;
 }
 
@@ -143,8 +143,7 @@ LiveFire::kill_fall()
   m_physic.set_velocity_y(0);
   m_physic.set_acceleration_y(0);
   m_physic.enable_gravity(false);
-  m_lightsprite->set_blend(Blend::ADD);
-  m_lightsprite->set_color(Color(1.0f, 0.9f, 0.8f));
+  m_light_color = Color(1.0f, 0.9f, 0.8f);
   set_group(COLGROUP_DISABLED);
   state = STATE_DEAD;
 
